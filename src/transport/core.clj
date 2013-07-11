@@ -27,4 +27,5 @@
   (println "Hello, World!"))
 
 (defn init-transport []
-  (transport.pitch/load-scales))
+  (transport.pitch/load-scales)
+  (init-players))

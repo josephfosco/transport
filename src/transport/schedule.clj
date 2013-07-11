@@ -108,10 +108,11 @@
         ((:function (next-event-data)) (next-event-data))
         ; save lateness and, if necessary max-lateness
         (if (> (next-sched-event-time) 0)
-          (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
-          (if (> lateness max-lateness)
-            (def max-lateness lateness)
-            ))
+          (do
+            (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
+            (if (> lateness max-lateness)
+              (def max-lateness lateness)
+              )))
         (send event-queue remove-first)
         (await event-queue)
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
