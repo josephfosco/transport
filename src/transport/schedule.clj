@@ -125,6 +125,15 @@
       )
     (debug-run1 (println "5 END check-events END")))
 
+  (defn start-scheduler
+    "Starts the music event scheduler.
+     If there are events in the queue it starts checking the queue.
+     If there are no events in the queue it starts watching the queue."
+    []
+    (if (> (count @event-queue) 0)
+      (check-events)
+      (watch-queue)))
+
   (defn sched-event [event-delay event-map]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
     (let [new-event-time (if event-delay (+ (System/currentTimeMillis) event-delay) 0)

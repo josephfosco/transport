@@ -16,9 +16,10 @@
 (ns transport.core
   (:gen-class)
   (:use
-   [ overtone.live]
+   [overtone.live]
    [transport.ensemble :only [init-players]]
    [transport.pitch :only [load-scales]]
+   [transport.schedule :only [start-scheduler]]
    ))
 
  (defn -main
@@ -29,3 +30,6 @@
 (defn init-transport []
   (transport.pitch/load-scales)
   (init-players))
+
+(defn start-transport []
+  (start-scheduler))
