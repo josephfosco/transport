@@ -30,31 +30,19 @@
       (let [melody-event (next-melody player)]
         (if (not (nil? (:note melody-event)))
           (play-instrument (get-instrument player) (:note melody-event)))
+        (if (nil? (:dur melody-event))
+          (println "MELODY EVENT :DUR IS NILL !!!!"))
         (sched-event (:dur melody-event)
                      (assoc player
-                   ;    :dur (:dur melody-event)
                        :melody (conj (:melody player) melody-event)
                      ))))))
 
-(defn create-player_orig [player-no]
-  (let [new-player {}]
-    (new-segment
-     (assoc new-player
-       :function transport.ensemble/play-melody,
-       :player-id player-no)))
-  )
-
 (defn create-player [player-no]
   (new-segment{:function transport.ensemble/play-melody,
-               :player-id player-no})
-  )
-
-(defn init-players_orig []
-  (dotimes  [player-index  NUM-PLAYERS]
-    (play-melody (create-player (+ player-index 1))) ))
+               :player-id player-no}))
 
 (defn init-players []
   (dotimes  [player-index  NUM-PLAYERS]
-    (sched-event ;(rand-int 2000)
+    (sched-event
      (:dur 0)
-     (create-player (+ player-index 1))) ))
+     (create-player (+ player-index 1)))))
