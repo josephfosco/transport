@@ -21,6 +21,7 @@
 
 (def lateness 0)      ; num of milliseconds most recent event was late
 (def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
+(def sched-events-fl true) ; do not sched events if false
 
 (defn print-lateness []
   (println "lateness: " lateness)
@@ -43,11 +44,20 @@
 (defn inc-event-counter [cur-counter-val]
   (inc cur-counter-val))
 
+(defn stop-scheduler []
+  (def sched-events-fl false))
+
+(defn restart-scheduler []
+  (def sched-events-fl true))
+
 (let [event-queue (agent (sorted-set-by event-queue-sort-fn))
       the-timer (Timer.)    ; create a new Timer object
       next-TimerTask (atom nil)
       event-counter (atom (long 0)) ; a unique id attached to each event
       ]
+
+  (defn get-queue []
+    event-queue)
 
   (defn next-sched-event-time []
     (if (> (count @event-queue) 0)
@@ -63,6 +73,16 @@
     (def lateness 0)
     (def max-lateness 0)
     (debug-run1 (println "Timer canceled")))
+
+  (defn remove-all-events [cur-queue]
+    (if (= (count cur-queue) 1)
+      (disj cur-queue (first cur-queue))
+      (recur (disj cur-queue (first cur-queue)))))
+
+  (defn remove-all-sched-events []
+    (cancel-timerTask)
+    (send event-queue remove-all-events)
+    (await event-queue))
 
   (defn remove-first [cur-queue]
     (disj cur-queue (first cur-queue)))
@@ -106,12 +126,13 @@
                  (<= (next-sched-event-time) (System/currentTimeMillis)))
       (do
         ((:function (next-event-data)) (next-event-data))
-        ; save lateness and, if necessary max-lateness
+        ; if event time is > 0 save lateness and, if necessary max-lateness
         (if (> (next-sched-event-time) 0)
-          (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
-          (if (> lateness max-lateness)
-            (def max-lateness lateness)
-            ))
+          (do
+            (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
+            (if (> lateness max-lateness)
+              (def max-lateness lateness)
+              )))
         (send event-queue remove-first)
         (await event-queue)
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
@@ -124,14 +145,23 @@
       )
     (debug-run1 (println "5 END check-events END")))
 
+  (defn start-scheduler
+    "Starts the music event scheduler.
+     If there are events in the queue it starts checking the queue.
+     If there are no events in the queue it starts watching the queue."
+    []
+    (if (> (count @event-queue) 0)
+      (check-events)
+      (watch-queue)))
+
   (defn sched-event [event-delay event-map]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
     (let [new-event-time (if event-delay (+ (System/currentTimeMillis) event-delay) 0)
           new-event (list new-event-time (swap! event-counter inc-event-counter) event-map)
           ; if there are events in event-queue, and
           ; this new event will be placed first in the event-queue
-          ; cancel the current timer and set sched-timer-flag to true else
-          ; sched-timer-fl is set to false
+          ; cancel the current timer and set sched-timer-flag to true
+          ; else sched-timer-fl is set to false
           sched-timer-fl (if (and (> ( count @event-queue) 0)
                                   (< new-event-time (next-sched-event-time)))
                            (do
@@ -140,8 +170,13 @@
                            false)]
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
-      (send event-queue conj new-event )
-      (await event-queue)
-      (debug-run1 (println "4 Sent Event"))
-      (if sched-timer-fl
-        (sched-timer new-event)))))
+      (if sched-events-fl  ; only sched event if fl is true (placed here for clarity)
+        (do
+          (send event-queue conj new-event )
+          (await event-queue)
+          (debug-run1 (println "4 Sent Event"))
+          (if sched-timer-fl
+            (sched-timer new-event))
+          true)    ; return true if event was scheduled
+        false)))   ; return false if event was not scheduled
+)
