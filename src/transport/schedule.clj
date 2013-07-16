@@ -65,8 +65,10 @@
       nil))
 
   (defn cancel-timerTask []
-    (.cancel @next-TimerTask)
-    (println "timerTask canceled"))
+    (println "cancel-timerRask")
+    (if (not (nil? @next-TimerTask))
+      (.cancel @next-TimerTask))
+    (println "timerTask canceled: " next-TimerTask))
 
   (defn cancel-timer []
     (.cancel the-timer)
@@ -125,7 +127,9 @@
     (while  (and (not= (count @event-queue) 0)
                  (<= (next-sched-event-time) (System/currentTimeMillis)))
       (do
-        ((:function (next-event-data)) (next-event-data))
+        ((:function (next-event-data))
+         (next-event-data)
+         (if (> (next-sched-event-time) 0) (next-sched-event-time) (System/currentTimeMillis)))
         ; if event time is > 0 save lateness and, if necessary max-lateness
         (if (> (next-sched-event-time) 0)
           (do

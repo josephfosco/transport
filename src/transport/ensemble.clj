@@ -24,7 +24,14 @@
 
 (def NUM-PLAYERS 10)
 
-(defn play-melody [player]
+(defn play-melody [player event-time]
+  "player - map for the current player
+   event-time - time this note event was scheduled for
+
+   Gets the note to play now and plays it (if it is not a rest)
+   Checks if the current segment is done, and if so
+   sets up a new one.
+   Then schedules the next note to play"
   (if (< (count (:melody player)) (:num-notes player))
     (do
       (let [melody-event (next-melody player)]
@@ -35,6 +42,9 @@
         (sched-event (:dur melody-event)
                      (assoc player
                        :melody (conj (:melody player) melody-event)
+                       :seg-start (if (= (:seg-start player) 0)
+                                    event-time
+                                    (:seg-start player))
                      ))))))
 
 (defn create-player [player-no]

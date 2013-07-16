@@ -17,7 +17,14 @@
   (:use
    [transport.instrument :only [pick-instrument]]
    [transport.pitch :only [pick-key pick-scale]]
+   [transport.random :only [random-int]]
    [transport.rhythm :only [pick-mm]]))
+
+(def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
+(def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
+
+(defn new-segment-length []
+  (random-int min-segment-len max-segment-len))
 
 (defn new-segment [player]
   (assoc player
@@ -26,4 +33,6 @@
          :melody [],
          :mm (pick-mm player),
          :num-notes 10,
+         :seg-len (new-segment-length),
+         :seg-start 0,
          :scale (pick-scale player)))
