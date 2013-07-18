@@ -19,7 +19,7 @@
    [overtone.live]
    [transport.ensemble :only [init-players]]
    [transport.pitch :only [load-scales]]
-   [transport.schedule :only [start-scheduler]]
+   [transport.schedule :only [restart-scheduler start-scheduler stop-scheduler]]
    ))
 
  (defn -main
@@ -27,9 +27,21 @@
   [& args]
   (println "Hello, World!"))
 
+(defn transport-help []
+  (println "")
+  (println "")
+  (println "Avilable functions for transport")
+  (println "(init-transport) (init-players)")
+  (println "(start-transport)")
+  (println "(stop-scheduler) (restart-scheduler)")
+  (println "")
+  (println ""))
+
 (defn init-transport []
   (transport.pitch/load-scales)
   (init-players))
 
 (defn start-transport []
   (start-scheduler))
+
+(transport-help)

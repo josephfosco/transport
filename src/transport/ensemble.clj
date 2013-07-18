@@ -32,20 +32,31 @@
    Checks if the current segment is done, and if so
    sets up a new one.
    Then schedules the next note to play"
-  (if (< (count (:melody player)) (:num-notes player))
-    (do
-      (let [melody-event (next-melody player)]
-        (if (not (nil? (:note melody-event)))
-          (play-instrument (get-instrument player) (:note melody-event)))
-        (if (nil? (:dur melody-event))
-          (println "MELODY EVENT :DUR IS NILL !!!!"))
+  ;  (if (< (count (:melody player)) (:num-notes player))
+  ;  (do) )
+  (let [melody-event (next-melody player)
+        seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
+        ]
+    (if (not (nil? (:note melody-event)))
+      (play-instrument (get-instrument player) (:note melody-event)))
+    (if (nil? (:dur melody-event))
+      (println "MELODY EVENT :DUR IS NILL !!!!"))
+    ; If current segment is over, sched next event with a new segment
+    ; else sched event with current segment information
+    (if (< (+ seg-start-time (:seg-len player)) event-time)
+      (do
+        (println "New Segment player-id: " (:player-id player))
+        (sched-event (:dur melody-event)
+                     (assoc (new-segment player)
+                       :melody (conj (:melody player) melody-event)
+                       )))
+      (do
+        (println "Scheduling same segment")
         (sched-event (:dur melody-event)
                      (assoc player
                        :melody (conj (:melody player) melody-event)
-                       :seg-start (if (= (:seg-start player) 0)
-                                    event-time
-                                    (:seg-start player))
-                     ))))))
+                       :seg-start seg-start-time
+                       ))))))
 
 (defn create-player [player-no]
   (new-segment{:function transport.ensemble/play-melody,
