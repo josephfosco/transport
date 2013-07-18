@@ -22,6 +22,7 @@
 (def lateness 0)      ; num of milliseconds most recent event was late
 (def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
 (def sched-events-fl true) ; do not sched events if false
+(def queue-watch-fl true)    ; If false, scheduler will not watch event-queue when it is empty
 
 (defn print-lateness []
   (println "lateness: " lateness)
@@ -44,28 +45,26 @@
 (defn inc-event-counter [cur-counter-val]
   (inc cur-counter-val))
 
-(defn stop-scheduler []
-  (def sched-events-fl false))
-
-(defn restart-scheduler []
-  (def sched-events-fl true))
-
 (let [event-queue (agent (sorted-set-by event-queue-sort-fn))
       the-timer (Timer.)    ; create a new Timer object
       next-TimerTask (atom nil)
       event-counter (atom (long 0)) ; a unique id attached to each event
       ]
 
-  (defn get-queue []
+  (defn get-queue
+    "Utility function to return the event-queue"
+    []
     event-queue)
 
-  (defn next-sched-event-time []
+  (defn next-sched-event-time
+    "Returns the time the next event to be executed is scheduled for"
+    []
     (if (> (count @event-queue) 0)
       (first (first @event-queue))
       nil))
 
   (defn cancel-timerTask []
-    (println "cancel-timerRask")
+    (println "cancel-timerTask")
     (if (not (nil? @next-TimerTask))
       (.cancel @next-TimerTask))
     (println "timerTask canceled: " next-TimerTask))
@@ -86,7 +85,9 @@
     (send event-queue remove-all-events)
     (await event-queue))
 
-  (defn remove-first [cur-queue]
+  (defn remove-first
+    "Removes the first (head) event from the event-queue."
+    [cur-queue]
     (disj cur-queue (first cur-queue)))
 
   (defn sched-timer [sound-event]
@@ -113,8 +114,25 @@
       (println "event-queue NOT nil")))
 
   (defn watch-queue []
-    (add-watch event-queue :sound-start-scheduling start-scheduling-events)
-    (println "Watching Queue"))
+    (if queue-watch-fl
+      (do
+        (add-watch event-queue :sound-start-scheduling start-scheduling-events)
+        (println "Watching Queue")
+        true)    ; return true if watch is added
+      false))    ; return false if watch is not added
+
+  (defn stop-scheduler []
+    "Stops the scheduler from adding any events to be played.
+     Also,stops the scheduler from watching for new events when
+     the scheduler is restarted.
+     To get the scheduler going again call restart-scheduler
+     then schedule events. Events can be scheduled with init-player."
+    (def queue-watch-fl false)
+    (def sched-events-fl false))
+
+  (defn restart-scheduler []
+    (def queue-watch-fl true)
+    (def sched-events-fl true))
 
   (defn next-event-data []
     (nth (first @event-queue) 2))

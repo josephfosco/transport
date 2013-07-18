@@ -45,13 +45,11 @@
     ; else sched event with current segment information
     (if (< (+ seg-start-time (:seg-len player)) event-time)
       (do
-        (println "New Segment player-id: " (:player-id player))
         (sched-event (:dur melody-event)
                      (assoc (new-segment player)
                        :melody (conj (:melody player) melody-event)
                        )))
       (do
-        (println "Scheduling same segment")
         (sched-event (:dur melody-event)
                      (assoc player
                        :melody (conj (:melody player) melody-event)
