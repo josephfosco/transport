@@ -28,20 +28,53 @@
   (println "Hello, World!"))
 
 (defn transport-help []
-  (println "")
-  (println "")
-  (println "Avilable functions for transport")
-  (println "(init-transport) (init-players)")
-  (println "(start-transport)")
-  (println "(stop-scheduler) (restart-scheduler)")
-  (println "")
-  (println ""))
+  (print
+   "
 
-(defn init-transport []
+   Avilable functions for transport
+
+   (transport-init)         Initialize Transport
+   (transport-start)        Start playing
+   (transport-pause)        Pause after playing current notes
+   (transport-restart)      Restart after pausing - requires new init
+   (transport-init-players) Initialize players - after pausing
+
+
+"))
+
+(defn transport-init []
   (transport.pitch/load-scales)
   (init-players))
 
-(defn start-transport []
+(defn transport-quit
+  "Quit Transport and exit Clojure"
+  []
+  (transport.schedule/shutdown-event-queue)
+  )
+
+(defn transport-exit
+  "same as transport-quit"
+  []
+  (transport-quit))
+
+(defn transport-pause
+  "Stop playing after players finish what they have scheduled
+   To restart after pause, players must be initialized"
+  []
+  (stop-scheduler))
+
+(defn transport-restart
+  "Start transport after pausing."
+  []
+  (restart-scheduler))
+
+(defn transport-init-players []
+  (init-players))
+
+(defn transport-start
+  "Start playing. Use after initializing players wih
+   (transport-init) or (transport-init-players)"
+  []
   (start-scheduler))
 
 (transport-help)

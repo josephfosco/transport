@@ -21,8 +21,7 @@
 
 (def lateness 0)      ; num of milliseconds most recent event was late
 (def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
-(def sched-events-fl true) ; do not sched events if false
-(def queue-watch-fl true)    ; If false, scheduler will not watch event-queue when it is empty
+(def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness []
   (println "lateness: " lateness)
@@ -55,6 +54,11 @@
     "Utility function to return the event-queue"
     []
     event-queue)
+
+  (defn shutdown-event-queue
+    "Shuts down the event-queue agent"
+    []
+    (shutdown-agents))
 
   (defn next-sched-event-time
     "Returns the time the next event to be executed is scheduled for"
@@ -114,12 +118,14 @@
       (println "event-queue NOT nil")))
 
   (defn watch-queue []
-    (if queue-watch-fl
+    (if scheduler-running?
       (do
         (add-watch event-queue :sound-start-scheduling start-scheduling-events)
         (println "Watching Queue")
         true)    ; return true if watch is added
-      false))    ; return false if watch is not added
+      (do
+        (println "Queue Watch NOT Added")
+        false)))    ; return false if watch is not added
 
   (defn stop-scheduler []
     "Stops the scheduler from adding any events to be played.
@@ -127,12 +133,10 @@
      the scheduler is restarted.
      To get the scheduler going again call restart-scheduler
      then schedule events. Events can be scheduled with init-player."
-    (def queue-watch-fl false)
-    (def sched-events-fl false))
+    (def scheduler-running? false))
 
   (defn restart-scheduler []
-    (def queue-watch-fl true)
-    (def sched-events-fl true))
+    (def scheduler-running? true))
 
   (defn next-event-data []
     (nth (first @event-queue) 2))
@@ -160,7 +164,7 @@
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
     (if  (= (count @event-queue) 0)
       (do
-        (println "ADDING QUEUE WATCH")
+        (println "Attempting to add Queue Watch")
         (watch-queue)
         )
       (sched-timer (first @event-queue))
@@ -192,7 +196,7 @@
                            false)]
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
-      (if sched-events-fl  ; only sched event if fl is true (placed here for clarity)
+      (if scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
         (do
           (send event-queue conj new-event )
           (await event-queue)
