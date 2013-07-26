@@ -21,7 +21,7 @@
 
 (def lateness 0)      ; num of milliseconds most recent event was late
 (def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
-(def sched-events-fl true) ; do not sched events if false
+(def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness []
   (println "lateness: " lateness)
@@ -44,29 +44,34 @@
 (defn inc-event-counter [cur-counter-val]
   (inc cur-counter-val))
 
-(defn stop-scheduler []
-  (def sched-events-fl false))
-
-(defn restart-scheduler []
-  (def sched-events-fl true))
-
 (let [event-queue (agent (sorted-set-by event-queue-sort-fn))
       the-timer (Timer.)    ; create a new Timer object
       next-TimerTask (atom nil)
       event-counter (atom (long 0)) ; a unique id attached to each event
       ]
 
-  (defn get-queue []
+  (defn get-queue
+    "Utility function to return the event-queue"
+    []
     event-queue)
 
-  (defn next-sched-event-time []
+  (defn shutdown-event-queue
+    "Shuts down the event-queue agent"
+    []
+    (shutdown-agents))
+
+  (defn next-sched-event-time
+    "Returns the time the next event to be executed is scheduled for"
+    []
     (if (> (count @event-queue) 0)
       (first (first @event-queue))
       nil))
 
   (defn cancel-timerTask []
-    (.cancel @next-TimerTask)
-    (println "timerTask canceled"))
+    (println "cancel-timerTask")
+    (if (not (nil? @next-TimerTask))
+      (.cancel @next-TimerTask))
+    (println "timerTask canceled: " next-TimerTask))
 
   (defn cancel-timer []
     (.cancel the-timer)
@@ -84,7 +89,9 @@
     (send event-queue remove-all-events)
     (await event-queue))
 
-  (defn remove-first [cur-queue]
+  (defn remove-first
+    "Removes the first (head) event from the event-queue."
+    [cur-queue]
     (disj cur-queue (first cur-queue)))
 
   (defn sched-timer [sound-event]
@@ -111,8 +118,25 @@
       (println "event-queue NOT nil")))
 
   (defn watch-queue []
-    (add-watch event-queue :sound-start-scheduling start-scheduling-events)
-    (println "Watching Queue"))
+    (if scheduler-running?
+      (do
+        (add-watch event-queue :sound-start-scheduling start-scheduling-events)
+        (println "Watching Queue")
+        true)    ; return true if watch is added
+      (do
+        (println "Queue Watch NOT Added")
+        false)))    ; return false if watch is not added
+
+  (defn stop-scheduler []
+    "Stops the scheduler from adding any events to be played.
+     Also,stops the scheduler from watching for new events when
+     the scheduler is restarted.
+     To get the scheduler going again call restart-scheduler
+     then schedule events. Events can be scheduled with init-player."
+    (def scheduler-running? false))
+
+  (defn restart-scheduler []
+    (def scheduler-running? true))
 
   (defn next-event-data []
     (nth (first @event-queue) 2))
@@ -125,7 +149,9 @@
     (while  (and (not= (count @event-queue) 0)
                  (<= (next-sched-event-time) (System/currentTimeMillis)))
       (do
-        ((:function (next-event-data)) (next-event-data))
+        ((:function (next-event-data))
+         (next-event-data)
+         (if (> (next-sched-event-time) 0) (next-sched-event-time) (System/currentTimeMillis)))
         ; if event time is > 0 save lateness and, if necessary max-lateness
         (if (> (next-sched-event-time) 0)
           (do
@@ -138,7 +164,7 @@
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
     (if  (= (count @event-queue) 0)
       (do
-        (println "ADDING QUEUE WATCH")
+        (println "Attempting to add Queue Watch")
         (watch-queue)
         )
       (sched-timer (first @event-queue))
@@ -170,7 +196,7 @@
                            false)]
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
-      (if sched-events-fl  ; only sched event if fl is true (placed here for clarity)
+      (if scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
         (do
           (send event-queue conj new-event )
           (await event-queue)

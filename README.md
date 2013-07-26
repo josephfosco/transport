@@ -18,11 +18,11 @@ To try the current version.
 1. Install this software with it's dependencies.
 2. In the clojure REPL
 3. make sure you are in the transport.core namespace - (ns transport.core)
-4. (init-transport)
-5. (init-players)
-6. (transport.schedule/check-events)
-7. You should then hear notes being played for a short time.
-8. That is all for now - Stay tuned for updates.
+4. (transport-init)
+5. (trasport-start)
+6. You should then hear notes being played.
+7. (transport-pause) to stop playing notes - after all scheduled notes are played.
+8. (transport-help) to see breil instructions
 
 ## Options
 
