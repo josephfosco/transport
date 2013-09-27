@@ -20,6 +20,7 @@
    [transport.ensemble :only [init-players]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [restart-scheduler start-scheduler stop-scheduler]]
+   [transport.version]
    ))
 
  (defn -main
@@ -30,7 +31,10 @@
 (defn transport-help []
   (print
    "
-
+   ")
+  (println "TRANSPORT version" TRANSPORT-VERSION-STR)
+  (print
+   "
    Avilable functions for transport
 
    (transport-init)         Initialize Transport
@@ -38,6 +42,7 @@
    (transport-pause)        Pause after playing current notes
    (transport-restart)      Restart after pausing - requires new init
    (transport-init-players) Initialize players - after pausing
+   (transport-help)         Print this message
 
 
 "))
