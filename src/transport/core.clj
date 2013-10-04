@@ -71,7 +71,9 @@
 (defn transport-restart
   "Start transport after pausing."
   []
-  (restart-scheduler))
+  (restart-scheduler)
+  (transport-init)
+  (transport-start))
 
 (defn transport-init-players []
   (init-players))

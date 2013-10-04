@@ -40,7 +40,7 @@
 (defn note-dur-to-millis [player note-dur]
   (int (* (* (/ 60 (:mm player)) (/ note-dur quarter-note ))  1000)))
 
-(defn pick-mm [player]
+(defn select-mm [player]
   (random-int min-mm max-mm))
 
 (defn next-note-dur

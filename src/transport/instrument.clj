@@ -18,37 +18,89 @@
    [overtone.live]
    [transport.random :only [random-int]]))
 
-(defn note->hz [music-note]
+(defn note->hz
+  [music-note]
   (midi->hz music-note))
 
-(definst triangle-wave [freq 440 attack 0.01 sustain 0.1 release 0.4 vol 0.4]
+(definst triangle-wave
+  [freq 440 attack 0.01 sustain 0.1 release 0.4 vol 0.4]
   (* (env-gen (lin-env attack sustain release) 1 1 0 1 FREE)
      (lf-tri freq)
      vol))
 
-(defn play-instrument [instrument music-note]
-  (instrument (midi->hz music-note)))
+(definst tri-wave-sus
+  [freq 440 gate-dur 0.8 attack 0.01 sustain 0.3 release 0.1 vol 0.4]
+  (let [env-gate (trig 1 gate-dur)
+        ]
+    (* (env-gen (asr attack sustain release) env-gate 1 0 1 FREE)
+       (lf-tri freq))))
 
-(defn choose-range [player]
+(def all-instruments [
+;                      {:instrument triangle-wave :envelope-type "AD"}
+                      {:instrument tri-wave-sus :envelope-type "ASR"}
+                      ])
+
+(defn select-range
+  [player]
   (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
         hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
     (list lo hi)
     ))
 
-(defn pick-instrument [player]
-  (let [inst-range (choose-range player)]
-    {:instrument transport.instrument/triangle-wave,
+(defn select-instrument
+  [player]
+  (let [inst-range (select-range player)
+        ; select instrument info from all-insruments map
+        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        ]
+    {:instrument (:instrument inst-info)
+     :envelope-type (:envelope-type inst-info)
      :range-hi (last inst-range)
      :range-lo (first inst-range)}))
 
-(defn get-instrument [player]
+(defn get-instrument
+  [player]
   (:instrument (:instrument-info player)))
 
-(defn get-hi-range [player]
+(defn get-hi-range
+  [player]
   (:range-hi (:instrument-info player)))
 
-(defn get-lo-range [player]
+(defn get-lo-range
+  [player]
   (:range-lo (:instrument-info player)))
 
-(defn get-instrument-range [player]
+(defn get-instrument-range
+  [player]
   (list (get-lo-range player) (get-hi-range player)))
+
+(defn get-envelope-type
+  [player]
+  (:envelope-type (:instrument-info player)))
+
+(defn get-gate-dur
+  "player - player map
+   note-duration - note duration in milliseconds"
+  [player note-duration]
+  (if (> note-duration 110)
+    (/ (- note-duration 110) 1000.0) ; currently assumes an attack of .01 secs and decay of .1 secs
+    0.001))
+
+(defn play-instrument-asr
+  "player - player map
+   note-num - midi note number
+   note-duration - note duration in milliseconds"
+  [player note-num note-duration]
+  (let [gate-duration (get-gate-dur player note-duration)]
+    ((get-instrument player) (midi->hz note-num) gate-duration
+     )))
+
+(defn play-instrument
+  "player - player map
+   note-num - midi note number
+   note-duration - note duration in milliseconds"
+  [player note-num note-duration]
+  (let [ env-type (get-envelope-type player)]
+    (cond
+     (.equals env-type "ASR") (play-instrument-asr player note-num note-duration)
+     :else ((get-instrument player) (midi->hz note-num)))))

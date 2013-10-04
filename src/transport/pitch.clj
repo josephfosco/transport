@@ -67,13 +67,13 @@
      (- possible-rtn-pitch OCTAVE)
      :else lo-pitch )))                                ;; else return lo-pitch
 
-(defn pick-key
+(defn select-key
   "returns a randow number between 1- 11
    to represent a key. 0=C"
   [player]
   (random-int 0 11))
 
-(defn pick-direction [player]
+(defn select-direction [player]
   (let [rand-dir (rand)]
     (if (<= rand-dir 0.45)
       DESCEND
@@ -82,12 +82,12 @@
           SAME-NOTE))
     ))
 
-(defn pick-scale
+(defn select-scale
   "returns a scale"
   [player]
   ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
 
-(defn pick-scale-degree [player]
+(defn select-scale-degree [player]
   (random-int
    0
    (- (count ((:scale player) SCALES)) 1)))  ; number of pitches in the instruments scale
@@ -104,7 +104,7 @@
   )
 
 (defn next-pitch [player]
-  (let [direction (pick-direction player)]
+  (let [direction (select-direction player)]
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)

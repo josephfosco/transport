@@ -38,7 +38,7 @@
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
     (if (not (nil? (:note melody-event)))
-      (play-instrument (get-instrument player) (:note melody-event)))
+      (play-instrument player (:note melody-event) (:dur melody-event) ))
     (if (nil? (:dur melody-event))
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ; If current segment is over, sched next event with a new segment

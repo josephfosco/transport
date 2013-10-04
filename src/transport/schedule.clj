@@ -180,7 +180,14 @@
       (check-events)
       (watch-queue)))
 
-  (defn sched-event [event-delay event-map]
+  (defn sched-event
+    "Add an event to the event queue
+     event-delay - is the number of milliseconds from now that this event will occur
+     event-map - is the information that will be passed to the function that will
+     be called when this event is executed.
+     Currently event-map must contain a key :function whose value is the function
+     to call when the event is executed,"
+    [event-delay event-map]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
     (let [new-event-time (if event-delay (+ (System/currentTimeMillis) event-delay) 0)
           new-event (list new-event-time (swap! event-counter inc-event-counter) event-map)
