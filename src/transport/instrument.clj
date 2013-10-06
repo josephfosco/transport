@@ -16,28 +16,18 @@
 (ns transport.instrument
   (:use
    [overtone.live]
+   [transport.instruments.osc-instruments]
    [transport.random :only [random-int]]))
 
 (defn note->hz
   [music-note]
   (midi->hz music-note))
 
-(definst triangle-wave
-  [freq 440 attack 0.01 sustain 0.1 release 0.4 vol 0.4]
-  (* (env-gen (lin-env attack sustain release) 1 1 0 1 FREE)
-     (lf-tri freq)
-     vol))
-
-(definst tri-wave-sus
-  [freq 440 gate-dur 0.8 attack 0.01 sustain 0.3 release 0.1 vol 0.4]
-  (let [env-gate (trig 1 gate-dur)
-        ]
-    (* (env-gen (asr attack sustain release) env-gate 1 0 1 FREE)
-       (lf-tri freq))))
-
 (def all-instruments [
 ;                      {:instrument triangle-wave :envelope-type "AD"}
                       {:instrument tri-wave-sus :envelope-type "ASR"}
+                      {:instrument saw-wave-sus :envelope-type "ASR"}
+                      {:instrument sine-wave-sus :envelope-type "ASR"}
                       ])
 
 (defn select-range

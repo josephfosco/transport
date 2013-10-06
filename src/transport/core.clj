@@ -51,6 +51,12 @@
   (transport.pitch/load-scales)
   (init-players))
 
+(defn transport-start
+  "Start playing. Use after initializing players wih
+   (transport-init) or (transport-init-players)"
+  []
+  (start-scheduler))
+
 (defn transport-quit
   "Quit Transport and exit Clojure"
   []
@@ -77,11 +83,5 @@
 
 (defn transport-init-players []
   (init-players))
-
-(defn transport-start
-  "Start playing. Use after initializing players wih
-   (transport-init) or (transport-init-players)"
-  []
-  (start-scheduler))
 
 (transport-help)
