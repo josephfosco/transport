@@ -14,6 +14,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.instruments.osc-instruments
+  ^{:author "Joseph Fosco"
+    :doc "All instruments that are basically just an oscillator with an envelope"}
   (:use
    [overtone.live]
    ))

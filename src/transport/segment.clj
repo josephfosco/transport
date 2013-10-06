@@ -23,10 +23,12 @@
 (def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
 (def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
 
-(defn select-segment-length []
+(defn select-segment-length
+  []
   (random-int min-segment-len max-segment-len))
 
-(defn new-segment [player]
+(defn new-segment
+  [player]
   (assoc player
          :instrument-info (select-instrument player),
          :key (select-key player),

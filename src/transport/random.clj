@@ -21,8 +21,10 @@
   [lo hi]
   (+ (rand-int (inc (- hi lo)))lo))
 
-(defn random-pitch [lo-note hi-note]
+(defn random-pitch
+  [lo-note hi-note]
   (random-int lo-note hi-note))
 
-(defn random-dur [lo-millis hi-millis]
+(defn random-dur
+  [lo-millis hi-millis]
   (random-int lo-millis hi-millis))

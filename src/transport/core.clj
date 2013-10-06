@@ -28,7 +28,8 @@
   [& args]
   (println "Hello, World!"))
 
-(defn transport-help []
+(defn transport-help
+  []
   (print
    "
    ")
@@ -47,7 +48,8 @@
 
 "))
 
-(defn transport-init []
+(defn transport-init
+  []
   (transport.pitch/load-scales)
   (init-players))
 
@@ -81,7 +83,8 @@
   (transport-init)
   (transport-start))
 
-(defn transport-init-players []
+(defn transport-init-players
+  []
   (init-players))
 
 (transport-help)

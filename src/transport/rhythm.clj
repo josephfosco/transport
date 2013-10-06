@@ -37,7 +37,8 @@
    (* quarter-note 8)                     ; double whole - 64
    ])
 
-(defn note-dur-to-millis [player note-dur]
+(defn note-dur-to-millis
+  [player note-dur]
   (int (* (* (/ 60 (:mm player)) (/ note-dur quarter-note ))  1000)))
 
 (defn select-mm [player]
@@ -46,6 +47,5 @@
 (defn next-note-dur
   "Return the duration of the next note in milliseconds"
   [ player ]
-   ;  (random-dur 10 4000)
   (note-dur-to-millis player (NOTE-DURS (random-dur 0 (- (count NOTE-DURS) 1))))
   )

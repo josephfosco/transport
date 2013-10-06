@@ -25,7 +25,8 @@
 (def SAME-NOTE 3)
 (def OCTAVE 12)
 
-(defn prev-melody-note [player]
+(defn prev-melody-note
+  [player]
   (if (not= (:melody player) [])
     (:note (last (:melody player)))
     nil))
@@ -73,7 +74,8 @@
   [player]
   (random-int 0 11))
 
-(defn select-direction [player]
+(defn select-direction
+  [player]
   (let [rand-dir (rand)]
     (if (<= rand-dir 0.45)
       DESCEND
@@ -87,23 +89,27 @@
   [player]
   ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
 
-(defn select-scale-degree [player]
+(defn select-scale-degree
+  [player]
   (random-int
    0
    (- (count ((:scale player) SCALES)) 1)))  ; number of pitches in the instruments scale
 
-(defn dir-ascend [player]
+(defn dir-ascend
+  [player]
   (let [prev-note (prev-melody-note player)
         lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
     (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player))))
   )
 
-(defn dir-descend [player]
+(defn dir-descend
+  [player]
   (let [prev-note (prev-melody-note player)]
     (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player))))
   )
 
-(defn next-pitch [player]
+(defn next-pitch
+  [player]
   (let [direction (select-direction player)]
     (cond
      (= direction ASCEND) (dir-ascend player)
@@ -125,7 +131,8 @@
       (recur (rest scale) (conj rtn-scale (+ (first scale) (last rtn-scale))))
       )))
 
-(defn load-scales []
+(defn load-scales
+  []
   (doseq [scale-key (keys SCALE)]
     (def SCALES (assoc SCALES
                   scale-key

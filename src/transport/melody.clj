@@ -19,7 +19,8 @@
    [transport.random :only [random-int]]
    [transport.rhythm :only [next-note-dur]]))
 
-(defn note-or-rest [note-prob]
+(defn note-or-rest
+  [note-prob]
   (let [play-note? (random-int 0 note-prob)]
     (if (pos? play-note?)
       true

@@ -23,7 +23,8 @@
 (def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
 (def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
 
-(defn print-lateness []
+(defn print-lateness
+  []
   (println "lateness: " lateness)
   (println "max-lateness: " max-lateness)
   )
@@ -41,7 +42,8 @@
    (< (second event1) (second event2)) -1
    :else 0))
 
-(defn inc-event-counter [cur-counter-val]
+(defn inc-event-counter
+  [cur-counter-val]
   (inc cur-counter-val))
 
 (let [event-queue (agent (sorted-set-by event-queue-sort-fn))
@@ -67,24 +69,28 @@
       (first (first @event-queue))
       nil))
 
-  (defn cancel-timerTask []
+  (defn cancel-timerTask
+    []
     (println "cancel-timerTask")
     (if (not (nil? @next-TimerTask))
       (.cancel @next-TimerTask))
     (println "timerTask canceled: " next-TimerTask))
 
-  (defn cancel-timer []
+  (defn cancel-timer
+    []
     (.cancel the-timer)
     (def lateness 0)
     (def max-lateness 0)
     (debug-run1 (println "Timer canceled")))
 
-  (defn remove-all-events [cur-queue]
+  (defn remove-all-events
+    [cur-queue]
     (if (= (count cur-queue) 1)
       (disj cur-queue (first cur-queue))
       (recur (disj cur-queue (first cur-queue)))))
 
-  (defn remove-all-sched-events []
+  (defn remove-all-sched-events
+    []
     (cancel-timerTask)
     (send event-queue remove-all-events)
     (await event-queue))
@@ -94,18 +100,21 @@
     [cur-queue]
     (disj cur-queue (first cur-queue)))
 
-  (defn sched-timer [sound-event]
+  (defn sched-timer
+    [sound-event]
     (debug-run1 (println "sched-timer"))
     (reset! next-TimerTask (proxy [TimerTask] [] (run [] (check-events))))
     (.schedule the-timer
                @next-TimerTask
                (Date. (long (first sound-event)))))
 
-  (defn remove-watch-queue []
+  (defn remove-watch-queue
+    []
     (remove-watch event-queue :sound-start-scheduling)
     (println "Not Watching Queue"))
 
-  (defn start-scheduling-events [key identity old new]
+  (defn start-scheduling-events
+    [key identity old new]
     (debug-run1 (println "STARTING SCHEDULING:" "new: " new))
     (remove-watch event-queue :sound-start-scheduling)
     (if (= (count  old) 0)
@@ -117,7 +126,8 @@
         )
       (println "event-queue NOT nil")))
 
-  (defn watch-queue []
+  (defn watch-queue
+    []
     (if scheduler-running?
       (do
         (add-watch event-queue :sound-start-scheduling start-scheduling-events)
@@ -127,7 +137,8 @@
         (println "Queue Watch NOT Added")
         false)))    ; return false if watch is not added
 
-  (defn stop-scheduler []
+  (defn stop-scheduler
+    []
     "Stops the scheduler from adding any events to be played.
      Also,stops the scheduler from watching for new events when
      the scheduler is restarted.
@@ -135,13 +146,16 @@
      then schedule events. Events can be scheduled with init-player."
     (def scheduler-running? false))
 
-  (defn restart-scheduler []
+  (defn restart-scheduler
+    []
     (def scheduler-running? true))
 
-  (defn next-event-data []
+  (defn next-event-data
+    []
     (nth (first @event-queue) 2))
 
-  (defn check-events []
+  (defn check-events
+    []
     (debug-run1 (println "1 check-events - current time: " (System/currentTimeMillis)))
     (debug-run1 (println "2 check-events - count: " (count @event-queue)))
     (debug-run1 (println "3 check-events - event-wueue: " @event-queue))

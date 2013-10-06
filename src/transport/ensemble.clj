@@ -24,7 +24,7 @@
 
 (def NUM-PLAYERS 10)
 
-(defn play-melody [player event-time]
+(defn play-melody
   "player - map for the current player
    event-time - time this note event was scheduled for
 
@@ -32,8 +32,7 @@
    Checks if the current segment is done, and if so
    sets up a new one.
    Then schedules the next note to play"
-  ;  (if (< (count (:melody player)) (:num-notes player))
-  ;  (do) )
+  [player event-time]
   (let [melody-event (next-melody player)
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
@@ -56,11 +55,13 @@
                        :seg-start seg-start-time
                        ))))))
 
-(defn create-player [player-no]
+(defn create-player
+  [player-no]
   (new-segment{:function transport.ensemble/play-melody,
                :player-id player-no}))
 
-(defn init-players []
+(defn init-players
+  []
   (dotimes  [player-index  NUM-PLAYERS]
     (sched-event
      (:dur 0)

@@ -21,10 +21,12 @@
 ;(if transport.debug/debug-transport-all
 ;  (eval func)))
 
-(defmacro debug-run1 [func]
+(defmacro debug-run1
+  [func]
   (if transport.debug/debug-transport-all func))
 
-(defn debug-print [& funcs]
+(defn debug-print
+  [& funcs]
   (println "debug-print: " funcs)
   (eval (first (first funcs)))
   (if (> 1 (count funcs))
