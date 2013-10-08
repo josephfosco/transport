@@ -14,10 +14,10 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defproject transport "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "TRANSPORT - an improvisational music system"
   :url "http://example.com/FIXME"
   :license {:name "GNU General Public License version 3"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "http://www.gnu.org/licenses/"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [overtone "0.8.1"]
                  ]

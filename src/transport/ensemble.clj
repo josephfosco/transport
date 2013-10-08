@@ -22,7 +22,7 @@
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]))
 
-(def NUM-PLAYERS 10)
+(def NUM-PLAYERS 1)
 
 (defn play-melody
   "player - map for the current player
@@ -34,20 +34,21 @@
    Then schedules the next note to play"
   [player event-time]
   (let [melody-event (next-melody player)
+        ;; if seg-start = 0 this is the begining of the segment, so
+        ;; set seg-start to the time of this event
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) (:dur melody-event) ))
     (if (nil? (:dur melody-event))
       (println "MELODY EVENT :DUR IS NILL !!!!"))
-    ; If current segment is over, sched next event with a new segment
-    ; else sched event with current segment information
+    ;; If current segment is over, sched next event with a new segment
+    ;; else sched event with current segment information
     (if (< (+ seg-start-time (:seg-len player)) event-time)
       (do
         (sched-event (:dur melody-event)
-                     (assoc (new-segment player)
-                       :melody (conj (:melody player) melody-event)
-                       )))
+                     (new-segment player)
+                       ))
       (do
         (sched-event (:dur melody-event)
                      (assoc player

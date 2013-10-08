@@ -20,6 +20,12 @@
    [transport.rhythm :only [next-note-dur]]))
 
 (defn note-or-rest
+  "Determines what note to play next.
+   If player is supposed to rest, returns nil
+
+   note-prob is the probability of a note as opposed to a rest
+   note-prob of 8 means 8 times out of 9 a note will play
+   note-prob of 5 means 5 times out of 6 a note will play"
   [note-prob]
   (let [play-note? (random-int 0 note-prob)]
     (if (pos? play-note?)
@@ -28,8 +34,9 @@
 
 (defn next-melody
   "Returns the next note and it's duration as a map
-    player is the player map
-    keys are :note :dur"
+    containing the keys :note and :dur
+
+    player is the player map"
   [player]
   {:note (if (note-or-rest 8) (next-pitch player) nil)
    :dur (next-note-dur player)}

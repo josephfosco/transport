@@ -34,7 +34,6 @@
          :key (select-key player),
          :melody [],
          :mm (select-mm player),
-         :num-notes 10,
          :seg-len (select-segment-length),
          :seg-start 0,
          :scale (select-scale player)))
