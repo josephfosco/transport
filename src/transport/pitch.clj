@@ -23,6 +23,7 @@
 (def DESCEND 0)
 (def ASCEND 1)
 (def SAME-NOTE 3)
+(def RANDOM-NOTE 4)
 (def OCTAVE 12)
 
 (defn prev-melody-note
@@ -76,13 +77,17 @@
 
 (defn select-direction
   [player]
-  (let [rand-dir (rand)]
-    (if (<= rand-dir 0.45)
-      DESCEND
-      (if ( <= rand-dir 0.9)
+  ;; if at the begining of a segment, play a random note
+  ;; else pick direction for this note
+  ( if (= (prev-melody-note player) nil)
+    RANDOM-NOTE
+    (let [rand-dir (rand)]
+      (if (<= rand-dir 0.45)
+        DESCEND
+        (if ( <= rand-dir 0.9)
           ASCEND
           SAME-NOTE))
-    ))
+      )))
 
 (defn select-scale
   "returns a scale"
@@ -114,10 +119,8 @@
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
-     :else (let [prev-melody (prev-melody-note player)]
-             (if (not= prev-melody nil)
-               prev-melody
-               (random-int (get-lo-range player) (get-hi-range player)))))))
+     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
+     :else (prev-melody-note player))))
 
 (defn convert-scale
   "Convert a list that represents a scale as intervals between adjacent notes

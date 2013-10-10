@@ -24,22 +24,48 @@
 (def quarter-note 8)
 
 (def NOTE-DURS
-  [(int (* quarter-note (/ 1 8))),        ; 32nd note - 1
-   (int (* quarter-note (/ 1 4))),        ; 16th note - 2
-   (int (+ (* quarter-note (/ 1 4)) (* quarter-note (/ 1 8)))),    ; dotted 32nd note - 3
-   (int (* quarter-note (/ 1 2))),        ; 8th note - 4
-   (int (+ (* quarter-note (/ 1 2)) (* quarter-note (/ 1 4)))),    ; dotted 8th note - 6
-   quarter-note,                          ; quarter note - 8
-   (+ quarter-note (/ quarter-note 2)),   ; dotted quarter - 12
-   (* quarter-note 2),                    ; half - 16
-   (* quarter-note 3),                    ; dotted half - 24
+  [(int (* quarter-note (/ 1 8)))         ; 32nd note - 1
+   (int (* quarter-note (/ 1 4)))         ; 16th note - 2
+   (int (+ (* quarter-note (/ 1 4)) (* quarter-note (/ 1 8))))    ; dotted 32nd note - 3
+   (int (* quarter-note (/ 1 2)))         ; 8th note - 4
+   (int (+ (* quarter-note (/ 1 2)) (* quarter-note (/ 1 4))))    ; dotted 8th note - 6
+   quarter-note                           ; quarter note - 8
+   (+ quarter-note (/ quarter-note 2))    ; dotted quarter - 12
+   (* quarter-note 2)                     ; half - 16
+   (* quarter-note 3)                     ; dotted half - 24
    (* quarter-note 4)                     ; whole - 32
    (* quarter-note 8)                     ; double whole - 64
    ])
 
+(def NOTE-PROBS
+  ;;2 8 5 15 10 15 10 15 10 5 5
+  [2 10 15 30 40 55 65 80 90 95 100]
+)
+
 (defn note-dur-to-millis
   [player note-dur]
-  (int (* (* (/ 60 (:mm player)) (/ note-dur quarter-note ))  1000)))
+  (int (* (* (/ 60.0 (:mm player)) (/ note-dur quarter-note ))  1000)))
+
+(defn millis-to-note-dur
+  [player millis]
+  (* (/ millis (* (/ 60.0 (:mm player)) 1000)) quarter-note))
+
+(defn prev-note-dur
+  "Returns the duration from NOTE-DURS of the previous note
+
+   NOT YET IMPLEMENTED
+
+   player is the player map to get the previous note for
+   keyword :num-prev-steps is the number of previous steps
+      to go back to get the duration - defaults to 1 step"
+  [player & {:keys [num-prev-steps] :or {num-prev-steps 1}}]
+  ;; NOT YET IMPLEMENTED
+  (let [duration (if (not= (:melody player) [])
+           (:dur (last (:melody player)))
+           nil)
+        ]
+    nil
+ ))
 
 (defn select-mm [player]
   (random-int min-mm max-mm))
@@ -47,5 +73,19 @@
 (defn next-note-dur
   "Return the duration of the next note in milliseconds"
   [ player ]
-  (note-dur-to-millis player (NOTE-DURS (random-dur 0 (- (count NOTE-DURS) 1))))
-  )
+  (let [note-prob (random-int 0 99)
+        note-dur  (cond
+                   (< note-prob (NOTE-PROBS 0)) 0
+                   (< note-prob (NOTE-PROBS 1)) 1
+                   (< note-prob (NOTE-PROBS 2)) 2
+                   (< note-prob (NOTE-PROBS 3)) 3
+                   (< note-prob (NOTE-PROBS 4)) 4
+                   (< note-prob (NOTE-PROBS 5)) 5
+                   (< note-prob (NOTE-PROBS 6)) 6
+                   (< note-prob (NOTE-PROBS 7)) 7
+                   (< note-prob (NOTE-PROBS 8)) 8
+                   (< note-prob (NOTE-PROBS 9)) 9
+                   :else 10)
+        ]
+    (note-dur-to-millis player (NOTE-DURS note-dur))
+    ))
