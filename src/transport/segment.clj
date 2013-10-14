@@ -18,7 +18,7 @@
    [transport.instrument :only [select-instrument]]
    [transport.pitch :only [select-key select-scale]]
    [transport.random :only [random-int]]
-   [transport.rhythm :only [select-mm]]))
+   [transport.rhythm :only [select-metronome select-mm]]))
 
 (def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
 (def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
@@ -33,6 +33,7 @@
          :instrument-info (select-instrument player),
          :key (select-key player),
          :melody [],
+         :metronome (select-metronome player),
          :mm (select-mm player),
          :seg-len (select-segment-length),
          :seg-start 0,

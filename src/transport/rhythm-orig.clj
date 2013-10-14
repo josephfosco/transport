@@ -15,9 +15,7 @@
 
 (ns transport.rhythm
   (:use
-   [transport.random :only [random-dur random-int]]
-   [overtone.live :only [metronome]]
-   ))
+   [transport.random :only [random-dur random-int]]))
 
 (def min-mm 40)
 (def max-mm 200)
@@ -69,13 +67,8 @@
     nil
  ))
 
-(defn select-mm
-  [player]
+(defn select-mm [player]
   (random-int min-mm max-mm))
-
-(defn select-metronome
-  [player]
-  (metronome (:mm player)))
 
 (defn next-note-dur
   "Return the duration of the next note in milliseconds"
@@ -96,7 +89,3 @@
         ]
     (note-dur-to-millis player (NOTE-DURS note-dur))
     ))
-
-;; (+ (tempm1 0) (beat-ms 1.5 (metro-bpm tempm1)))
-;; takes some beat (0 in this case) and adds some number of beats to it
-;; returns the number of milliseconds past the first beat (0 in this case)

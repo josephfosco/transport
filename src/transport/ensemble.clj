@@ -20,7 +20,9 @@
    [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [next-melody]]
    [transport.schedule :only [sched-event]]
-   [transport.segment :only [new-segment]]))
+   [transport.segment :only [new-segment]]
+   [transport.util]
+   ))
 
 (def NUM-PLAYERS 10)
 
