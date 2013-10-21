@@ -34,10 +34,10 @@
 
 (defn next-melody
   "Returns the next note and it's duration as a map
-    containing the keys :note and :dur
+    containing the keys :note and :dur-info
 
     player is the player map"
   [player]
   {:note (if (note-or-rest 8) (next-pitch player) nil)
-   :dur (next-note-dur player)}
+   :dur-info (next-note-dur player) }
   )

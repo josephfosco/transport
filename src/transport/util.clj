@@ -21,14 +21,23 @@
   player - the player map to print"
   [player]
   (println "player:")
-  (println "  :dur              " (:dur player))
+  (println "  :cur-note-beat    " (:cur-note-beat player))
   (println "  :function         " (:function player))
-  (println "  :instrument-info  " (:instrument-info player))
+  (println "  :instrument :name " (:name (:instrument (:instrument-info player))))
   (println "  :key              " (:key player))
   (println "  :melody           " (:melody player))
   (println "  :mm               " (:mm player))
   (println "  :player-id        " (:player-id player))
+  (println "  :prev-note-beat   " (:prev-note-beat player))
   (println "  :seg-len          " (:seg-len player))
   (println "  :seg-start        " (:seg-start player))
   (println "  :scale            " (:scale player))
+)
+(defn print-player-long
+  "Pretty Print a player map with all instrument-info
+
+  player - the player map to print"
+  [player]
+  (print-player)
+  (println "  :instrument-info  " (:instrument-info player))
 )

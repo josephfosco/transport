@@ -19,7 +19,7 @@
    [overtone.live]
    [transport.ensemble :only [init-players]]
    [transport.pitch :only [load-scales]]
-   [transport.schedule :only [restart-scheduler start-scheduler stop-scheduler]]
+   [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.version]
    ))
 
@@ -79,6 +79,7 @@
 (defn transport-restart
   "Start transport after pausing."
   []
+  (reset-lateness)
   (restart-scheduler)
   (transport-init)
   (transport-start))

@@ -46,11 +46,28 @@
 
 (defn note-dur-to-millis
   [player note-dur]
-  (int (* (* (/ 60.0 (:mm player)) (/ note-dur quarter-note ))  1000)))
+  (int (* (* (/ 60.0 (:mm player)) (/ note-dur quarter-note ))  1000))
+  )
 
 (defn millis-to-note-dur
   [player millis]
   (* (/ millis (* (/ 60.0 (:mm player)) 1000)) quarter-note))
+
+(defn get-dur-millis
+  "Returns the millis duraition for the dur-info
+
+   dur-info - duration info to get millis from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
+(defn get-beats
+  "Returns the duration in beats of this dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (/ ( NOTE-DURS(:dur-note-dur dur-info)) quarter-note)
+  )
 
 (defn prev-note-dur
   "Returns the duration from NOTE-DURS of the previous note
@@ -71,7 +88,8 @@
 
 (defn select-mm
   [player]
-  (random-int min-mm max-mm))
+  (random-int min-mm max-mm)
+  )
 
 (defn select-metronome
   [player]
@@ -81,20 +99,21 @@
   "Return the duration of the next note in milliseconds"
   [ player ]
   (let [note-prob (random-int 0 99)
-        note-dur  (cond
-                   (< note-prob (NOTE-PROBS 0)) 0
-                   (< note-prob (NOTE-PROBS 1)) 1
-                   (< note-prob (NOTE-PROBS 2)) 2
-                   (< note-prob (NOTE-PROBS 3)) 3
-                   (< note-prob (NOTE-PROBS 4)) 4
-                   (< note-prob (NOTE-PROBS 5)) 5
-                   (< note-prob (NOTE-PROBS 6)) 6
-                   (< note-prob (NOTE-PROBS 7)) 7
-                   (< note-prob (NOTE-PROBS 8)) 8
-                   (< note-prob (NOTE-PROBS 9)) 9
-                   :else 10)
+        note-dur (cond
+                  (< note-prob (NOTE-PROBS 0)) 0
+                  (< note-prob (NOTE-PROBS 1)) 1
+                  (< note-prob (NOTE-PROBS 2)) 2
+                  (< note-prob (NOTE-PROBS 3)) 3
+                  (< note-prob (NOTE-PROBS 4)) 4
+                  (< note-prob (NOTE-PROBS 5)) 5
+                  (< note-prob (NOTE-PROBS 6)) 6
+                  (< note-prob (NOTE-PROBS 7)) 7
+                  (< note-prob (NOTE-PROBS 8)) 8
+                  (< note-prob (NOTE-PROBS 9)) 9
+                  :else 10)
         ]
-    (note-dur-to-millis player (NOTE-DURS note-dur))
+    {:dur-millis (note-dur-to-millis player (NOTE-DURS note-dur))
+     :dur-note-dur note-dur}
     ))
 
 ;; (+ (tempm1 0) (beat-ms 1.5 (metro-bpm tempm1)))

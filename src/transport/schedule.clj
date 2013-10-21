@@ -29,6 +29,12 @@
   (println "max-lateness: " max-lateness)
   )
 
+(defn reset-lateness
+  []
+  (def lateness 0)
+  (def max-lateness 0)
+  )
+
 (defn event-queue-sort-fn
   "Sort function for the event que.
    First Compares the time of the events.
@@ -63,10 +69,13 @@
     (shutdown-agents))
 
   (defn next-sched-event-time
-    "Returns the time the next event to be executed is scheduled for"
+    "Returns the time the next event to be executed is scheduled for
+      if the next event is scheduled for 0 then return the current time
+      this generally happens for a player's first note only"
     []
     (if (> (count @event-queue) 0)
-      (first (first @event-queue))
+      (let [next-queue-time (first (first @event-queue))]
+        (if (> next-queue-time 0) next-queue-time (System/currentTimeMillis)))
       nil))
 
   (defn cancel-timerTask
@@ -165,14 +174,13 @@
       (do
         ((:function (next-event-data))
          (next-event-data)
-         (if (> (next-sched-event-time) 0) (next-sched-event-time) (System/currentTimeMillis)))
-        ; if event time is > 0 save lateness and, if necessary max-lateness
-        (if (> (next-sched-event-time) 0)
-          (do
-            (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
-            (if (> lateness max-lateness)
-              (def max-lateness lateness)
-              )))
+         (next-sched-event-time))
+        ;; save lateness and, if necessary max-lateness
+        (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
+        (if (> lateness max-lateness)
+          (do (println "new max-lateness: " lateness)
+              (def max-lateness lateness))
+          )
         (send event-queue remove-first)
         (await event-queue)
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
@@ -203,13 +211,14 @@
      to call when the event is executed,"
     [event-delay event-map]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
-    (let [new-event-time (if event-delay (+ (System/currentTimeMillis) event-delay) 0)
+    (let [new-event-time (if (> event-delay 0) (+ (System/currentTimeMillis) event-delay) 0)
           new-event (list new-event-time (swap! event-counter inc-event-counter) event-map)
-          ; if there are events in event-queue, and
-          ; this new event will be placed first in the event-queue
-          ; cancel the current timer and set sched-timer-flag to true
-          ; else sched-timer-fl is set to false
-          sched-timer-fl (if (and (> ( count @event-queue) 0)
+          ;; if there are events in event-queue, and
+          ;; this new event will be placed first in the event-queue
+          ;; cancel the current timer and set sched-timer-flag to true
+          ;; else sched-timer-fl is set to false
+          sched-timer-fl (if (and (> (count @event-queue) 0)
+                                  (not= new-event-time 0)
                                   (< new-event-time (next-sched-event-time)))
                            (do
                              (cancel-timerTask)

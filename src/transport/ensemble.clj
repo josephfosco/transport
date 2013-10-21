@@ -19,12 +19,13 @@
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [next-melody]]
+   [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
    [transport.util]
    ))
 
-(def NUM-PLAYERS 10)
+(def NUM-PLAYERS 1)
 
 (defn play-melody
   "player - map for the current player
@@ -36,36 +37,47 @@
    Then schedules the next note to play"
   [player event-time]
   (let [melody-event (next-melody player)
+        melody-dur-millis (get-dur-millis (:dur-info melody-event))
+        prev-note-beat (:cur-note-beat player)
+        cur-note-beat (if (not (nil? (:dur-info melody-event)))
+                        (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
+                        0)
         ;; if seg-start = 0 this is the begining of the segment, so
         ;; set seg-start to the time of this event
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
     (if (not (nil? (:note melody-event)))
-      (play-instrument player (:note melody-event) (:dur melody-event) ))
-    (if (nil? (:dur melody-event))
+      (play-instrument player (:note melody-event) melody-dur-millis ))
+    (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
     (if (< (+ seg-start-time (:seg-len player)) event-time)
       (do
-        (sched-event (:dur melody-event)
-                     (new-segment player)
-                       ))
+        (sched-event melody-dur-millis
+                     (new-segment (assoc player
+                                    :cur-note-beat cur-note-beat
+                                    :prev-note-beat prev-note-beat))
+                     ))
       (do
-        (sched-event (:dur melody-event)
+        (sched-event melody-dur-millis
                      (assoc player
+                       :cur-note-beat cur-note-beat
                        :melody (conj (:melody player) melody-event)
+                       :prev-note-beat prev-note-beat
                        :seg-start seg-start-time
                        ))))))
 
 (defn create-player
   [player-no]
-  (new-segment{:function transport.ensemble/play-melody,
-               :player-id player-no}))
+  (new-segment{:cur-note-beat 0
+               :function transport.ensemble/play-melody
+               :player-id player-no
+               :prev-note-beat 0}))
 
 (defn init-players
   []
   (dotimes  [player-index  NUM-PLAYERS]
     (sched-event
-     (:dur 0)
+     0
      (create-player (+ player-index 1)))))
