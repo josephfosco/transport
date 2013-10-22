@@ -19,20 +19,35 @@
 (import '(java.util Date TimerTask Timer))
 (declare check-events)
 
-(def lateness 0)      ; num of milliseconds most recent event was late
-(def max-lateness 0)  ; max num of milliseconds an event was late since starting scheduling
+(def lateness (agent 0))      ; num of milliseconds most recent event was late
+(def max-lateness (atom 0))  ; max num of milliseconds an event was late since starting scheduling
 (def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness
   []
-  (println "lateness: " lateness)
-  (println "max-lateness: " max-lateness)
+  (println "lateness: " @lateness)
+  (println "max-lateness: " @max-lateness))
+
+(defn set-lateness
+  "Used to set the lateness agent to new-val
+   also sets max-lateness if appropriate
+
+   agent-val - current agent value
+   new-val value to set agent to"
+  [agent-val new-val]
+  (if (> new-val @max-lateness)
+    (do
+      (reset! max-lateness new-val)
+      (println "new max-lateness: " @max-lateness)))
+  new-val
   )
 
 (defn reset-lateness
   []
-  (def lateness 0)
-  (def max-lateness 0)
+  (send-off lateness set-lateness 0)
+  (await lateness)
+  (reset! max-lateness 0)
+  (println "reset-lateness")
   )
 
 (defn event-queue-sort-fn
@@ -88,8 +103,7 @@
   (defn cancel-timer
     []
     (.cancel the-timer)
-    (def lateness 0)
-    (def max-lateness 0)
+    (reset-lateness)
     (debug-run1 (println "Timer canceled")))
 
   (defn remove-all-events
@@ -175,12 +189,8 @@
         ((:function (next-event-data))
          (next-event-data)
          (next-sched-event-time))
-        ;; save lateness and, if necessary max-lateness
-        (def lateness (- (System/currentTimeMillis) (next-sched-event-time)))
-        (if (> lateness max-lateness)
-          (do (println "new max-lateness: " lateness)
-              (def max-lateness lateness))
-          )
+        ;; save lateness
+        (send-off lateness set-lateness (- (System/currentTimeMillis) (next-sched-event-time)))
         (send event-queue remove-first)
         (await event-queue)
         (debug-run1 (println "4 check-events: " (count @event-queue)))))

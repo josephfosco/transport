@@ -25,7 +25,7 @@
    [transport.util]
    ))
 
-(def NUM-PLAYERS 1)
+(def NUM-PLAYERS 10)
 
 (defn play-melody
   "player - map for the current player
