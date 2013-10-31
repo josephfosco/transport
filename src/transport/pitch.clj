@@ -41,7 +41,7 @@
 
 (defn get-scale-pitch-in-range
   "return a pitch from player scale that is within player range
-   if :lo-pitch or :hi-pitch are specfied use these instead of the
+   if :lo-range or :hi-range are specfied use these instead of the
    values indicated by player."
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-lo-range player)
