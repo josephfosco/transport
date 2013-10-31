@@ -71,24 +71,23 @@
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
-    (if (< (+ seg-start-time (:seg-len player)) event-time)
-      (do
-        (let [upd-player (new-segment (assoc player
-                                        :cur-note-beat cur-note-beat
-                                        :prev-note-beat prev-note-beat))]
-          (sched-event melody-dur-millis upd-player)
-          (send-off PLAYERS update-player upd-player)
-          ))
-      (do
-        (let [upd-player (assoc player
-                       :cur-note-beat cur-note-beat
-                       :melody (conj (:melody player) melody-event)
-                       :prev-note-beat prev-note-beat
-                       :seg-start seg-start-time
-                       )]
-          (sched-event melody-dur-millis upd-player)
-          (send-off PLAYERS update-player upd-player)
-          )))))
+    (let [upd-player
+          (if (< (+ seg-start-time (:seg-len player)) event-time)
+            (new-segment (assoc player
+                           :cur-note-beat cur-note-beat
+                           :prev-note-beat prev-note-beat))
+
+            (assoc player
+              :cur-note-beat cur-note-beat
+              :melody (conj (:melody player) melody-event)
+              :prev-note-beat prev-note-beat
+              :seg-start seg-start-time
+              ))
+          ]
+      (sched-event melody-dur-millis upd-player)
+      (send-off PLAYERS update-player upd-player)
+      )
+    ))
 
 (defn create-player
   [player-no]
@@ -96,13 +95,6 @@
                :function transport.ensemble/play-melody
                :player-id player-no
                :prev-note-beat 0}))
-
-(defn init-players-orig
-  []
-  (dotimes  [player-index  NUM-PLAYERS]
-    (sched-event
-     0
-     (create-player (+ player-index 1)))))
 
 (defn init-players
   []

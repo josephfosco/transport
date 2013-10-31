@@ -47,7 +47,6 @@
   (send-off lateness set-lateness 0)
   (await lateness)
   (reset! max-lateness 0)
-  (println "reset-lateness")
   )
 
 (defn event-queue-sort-fn
