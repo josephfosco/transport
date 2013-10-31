@@ -73,6 +73,11 @@
       event-counter (atom (long 0)) ; a unique id attached to each event
       ]
 
+  (defn print-event-queue
+    []
+    (print @event-queue)
+    (println))
+
   (defn get-queue
     "Utility function to return the event-queue"
     []

@@ -41,8 +41,7 @@
    (transport-init)         Initialize Transport
    (transport-start)        Start playing
    (transport-pause)        Pause after playing current notes
-   (transport-restart)      Restart after pausing - requires new init
-   (transport-init-players) Initialize players - after pausing
+   (transport-restart)      Restart after pausing
    (transport-help)         Print this message
 
 
@@ -81,11 +80,7 @@
   []
   (reset-lateness)
   (restart-scheduler)
-  (transport-init)
+  (init-players)
   (transport-start))
-
-(defn transport-init-players
-  []
-  (init-players))
 
 (transport-help)

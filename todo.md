@@ -7,3 +7,9 @@
 * problem next-sched-event-time in schedule.clj looks into event data
 
 * Perhaps track lateness in play-melody in ensemle.clj
+
+* Change SCALES to an atom or agent
+
+* CHANGE scheduler-running to an atom or agent
+
+* make create-player in ensemble.clj a closure that tracks player-id

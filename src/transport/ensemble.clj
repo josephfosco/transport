@@ -26,6 +26,25 @@
    ))
 
 (def NUM-PLAYERS 10)
+(def PLAYERS (agent {}))
+
+(defn update-player
+  "update the value of a player in agent PLAYERS
+   this is called from send-off"
+  [cur-players new-player]
+  (assoc @PLAYERS (:player-id new-player) new-player)
+  )
+
+(defn clear-players
+  "used by send or send-off to clear agents"
+  [cur-players]
+  {}
+  )
+
+(defn reset-players
+  []
+  (send-off PLAYERS clear-players)
+  (await PLAYERS))
 
 (defn play-melody
   "player - map for the current player
@@ -54,19 +73,22 @@
     ;; else sched event with current segment information
     (if (< (+ seg-start-time (:seg-len player)) event-time)
       (do
-        (sched-event melody-dur-millis
-                     (new-segment (assoc player
-                                    :cur-note-beat cur-note-beat
-                                    :prev-note-beat prev-note-beat))
-                     ))
+        (let [upd-player (new-segment (assoc player
+                                        :cur-note-beat cur-note-beat
+                                        :prev-note-beat prev-note-beat))]
+          (sched-event melody-dur-millis upd-player)
+          (send-off PLAYERS update-player upd-player)
+          ))
       (do
-        (sched-event melody-dur-millis
-                     (assoc player
+        (let [upd-player (assoc player
                        :cur-note-beat cur-note-beat
                        :melody (conj (:melody player) melody-event)
                        :prev-note-beat prev-note-beat
                        :seg-start seg-start-time
-                       ))))))
+                       )]
+          (sched-event melody-dur-millis upd-player)
+          (send-off PLAYERS update-player upd-player)
+          )))))
 
 (defn create-player
   [player-no]
@@ -75,9 +97,22 @@
                :player-id player-no
                :prev-note-beat 0}))
 
-(defn init-players
+(defn init-players-orig
   []
   (dotimes  [player-index  NUM-PLAYERS]
     (sched-event
      0
      (create-player (+ player-index 1)))))
+
+(defn init-players
+  []
+  (let [all-players (map create-player (range 1 ( + NUM-PLAYERS 1)))]
+    (reset-players)
+    (send-off PLAYERS conj (zipmap  (map get all-players (repeat NUM-PLAYERS :player-id)) all-players))
+    (await PLAYERS)
+    (map println (replicate NUM-PLAYERS 0) (vals @PLAYERS))
+    (map sched-event (replicate NUM-PLAYERS 0) (vals @PLAYERS))
+    (dotimes [player-index NUM-PLAYERS]
+      (sched-event 0 (get @PLAYERS NUM-PLAYERS))
+      )
+    ))
