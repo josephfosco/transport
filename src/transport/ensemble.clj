@@ -16,17 +16,18 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
+   [transport.behavior :only [get-behavior get-behavior-action get-behavior-player-id select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [next-melody]]
+   [transport.players :only [PLAYERS]]
+   [transport.random :only [FOLLOW CONTRAST]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
-   [transport.util]
-   ))
-
-(def NUM-PLAYERS 10)
-(def PLAYERS (agent {}))
+   [transport.settings :only [NUM-PLAYERS]]
+   [transport.util])
+   )
 
 (defn update-player
   "update the value of a player in agent PLAYERS
@@ -55,7 +56,15 @@
    sets up a new one.
    Then schedules the next note to play"
   [player event-time]
-  (let [melody-event (next-melody player)
+  (let [
+        player-action (get-behavior-action player)
+        new-behavior (if (and (or (= player-action FOLLOW) (= player-action CONTRAST))
+                                    (= (get-behavior-player-id player) nil))
+                       (select-and-set-behavior-player-id player)
+                       nil)
+        melody-event (if (= new-behavior nil)
+                       (next-melody player )
+                       (next-melody (assoc player :behavior new-behavior)))
         melody-dur-millis (get-dur-millis (:dur-info melody-event))
         prev-note-beat (:cur-note-beat player)
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
@@ -65,19 +74,23 @@
         ;; set seg-start to the time of this event
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
+
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis ))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
-    (let [upd-player
+    (let [upd-behavior (if (= new-behavior nil)
+                         (get-behavior player)
+                         new-behavior)
+          upd-player
           (if (< (+ seg-start-time (:seg-len player)) event-time)
             (new-segment (assoc player
                            :cur-note-beat cur-note-beat
                            :prev-note-beat prev-note-beat))
-
             (assoc player
+              :behavior upd-behavior
               :cur-note-beat cur-note-beat
               :melody (conj (:melody player) melody-event)
               :prev-note-beat prev-note-beat
@@ -102,9 +115,7 @@
     (reset-players)
     (send-off PLAYERS conj (zipmap  (map get all-players (repeat NUM-PLAYERS :player-id)) all-players))
     (await PLAYERS)
-    (map println (replicate NUM-PLAYERS 0) (vals @PLAYERS))
-    (map sched-event (replicate NUM-PLAYERS 0) (vals @PLAYERS))
     (dotimes [player-index NUM-PLAYERS]
-      (sched-event 0 (get @PLAYERS NUM-PLAYERS))
+      (sched-event 0 (get @PLAYERS (+ player-index 1)))
       )
     ))

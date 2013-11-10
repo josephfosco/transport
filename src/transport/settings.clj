@@ -13,31 +13,9 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.random)
+(ns transport.settings
+  "This namespace is a 'terminal namespace'.
+   It should not :require :use :refer or :import any
+   other namespaces")
 
-(def FOLLOW 0)
-(def CONTRAST 1)
-(def IGNORE 2)
-
-(defn random-int
-  "Returns a random integer between lo (inclusive) and hi (inclusive).
-  Does not check that lo < hi"
-  [lo hi]
-  (+ (rand-int (inc (- hi lo)))lo))
-
-(defn random-pitch
-  [lo-note hi-note]
-  (random-int lo-note hi-note))
-
-(defn random-dur
-  [lo-millis hi-millis]
-  (random-int lo-millis hi-millis))
-
-(defn follow-contrast-ignore
-  []
-  (let [sci-num (rand)]
-    (cond
-     (< sci-num 0.33) FOLLOW
-     (< sci-num 0.66) CONTRAST
-     :else IGNORE
-     )))
+(def NUM-PLAYERS 10)

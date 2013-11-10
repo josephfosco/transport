@@ -15,6 +15,7 @@
 
 (ns transport.segment
   (:use
+   [transport.behavior :only [select-behavior]]
    [transport.instrument :only [select-instrument]]
    [transport.pitch :only [select-key select-scale]]
    [transport.random :only [random-int]]
@@ -29,12 +30,14 @@
 
 (defn new-segment
   [player]
-  (assoc player
-         :instrument-info (select-instrument player),
-         :key (select-key player),
-         :melody [],
-         :metronome (select-metronome player),
-         :mm (select-mm player),
-         :seg-len (select-segment-length),
-         :seg-start 0,
-         :scale (select-scale player)))
+  (let [ new-behavior (transport.behavior/select-behavior player)]
+       (assoc player
+         :behavior new-behavior
+         :instrument-info (select-instrument player)
+         :key (select-key player)
+         :melody []
+         :metronome (select-metronome player)
+         :mm (select-mm player)
+         :seg-len (select-segment-length)
+         :seg-start 0
+         :scale (select-scale player))))

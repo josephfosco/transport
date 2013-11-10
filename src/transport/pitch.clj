@@ -16,8 +16,9 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
+   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
-   [transport.random :only [random-pitch random-int]]))
+   [transport.random :only [random-pitch random-int FOLLOW CONTRAST IGNORE]]))
 
 (def SCALES {})
 (def DESCEND 0)
@@ -25,6 +26,25 @@
 (def SAME-NOTE 3)
 (def RANDOM-NOTE 4)
 (def OCTAVE 12)
+
+(defn convert-scale
+  "Convert a list that represents a scale as intervals between adjacent notes
+   to a list that represents a scale as the interval from the starting note.
+   Returns the new representation."
+  [scale & new-scale]
+  (def SCALES {})
+  (let [rtn-scale (or new-scale [0])]
+    (if (= (count scale) 1)
+      new-scale
+      (recur (rest scale) (conj rtn-scale (+ (first scale) (last rtn-scale))))
+      )))
+
+(defn load-scales
+  []
+  (doseq [scale-key (keys SCALE)]
+    (def SCALES (assoc SCALES
+                  scale-key
+                  (convert-scale (scale-key SCALE))))))
 
 (defn prev-melody-note
   [player]
@@ -113,30 +133,31 @@
     (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player))))
   )
 
-(defn next-pitch
+
+(declare next-pitch-ignore)
+(defn next-pitch-follow
+  [player]
+  ;; if following, ignore key and scale and mach pitch as accurately as you can
+  (next-pitch-ignore player)
+ )
+
+(defn next-pitch-contrast
+  [player]
+  (next-pitch-ignore player)
+  )
+
+(defn next-pitch-ignore
   [player]
   (let [direction (select-direction player)]
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
      (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (prev-melody-note player))))
+     :else (prev-melody-note player)))  )
 
-(defn convert-scale
-  "Convert a list that represents a scale as intervals between adjacent notes
-   to a list that represents a scalea the interval from the starting note.
-   Returns the new representation."
-  [scale & new-scale]
-  (def SCALES {})
-  (let [rtn-scale (or new-scale [0])]
-    (if (= (count scale) 1)
-      new-scale
-      (recur (rest scale) (conj rtn-scale (+ (first scale) (last rtn-scale))))
-      )))
-
-(defn load-scales
-  []
-  (doseq [scale-key (keys SCALE)]
-    (def SCALES (assoc SCALES
-                  scale-key
-                  (convert-scale (scale-key SCALE))))))
+(defn next-pitch
+  [player]
+  (cond
+   (= get-behavior-action FOLLOW) (next-pitch-follow player)
+   (= get-behavior-action CONTRAST) (next-pitch-contrast player)
+   :else (next-pitch-ignore player)) )

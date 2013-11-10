@@ -1,5 +1,8 @@
 *Documentation of :player map*
 
+* :behavior - info about interactions with other players - contains
+    - :action - interaction with other players (can be follow, contrast, ignore)
+    - :player-id - player id of player that is being observed (optional only if :action is follow or contrast)
 * :cur-note-beat - the beat the current note played was played on (starts at 0)
 * :function - function to call when event is triggered
 * :instrument-info - a map containing
