@@ -17,7 +17,7 @@
   (:use
    [overtone.live :only [ranged-rand]]
    [transport.settings :only [NUM-PLAYERS]]
-   [transport.players :only [PLAYERS]]
+   [transport.players :only [PLAYERS rand-player-id-excluding-player]]
    [transport.random :only [follow-contrast-ignore FOLLOW CONTRAST IGNORE]]
    ))
 
@@ -40,8 +40,11 @@
   )
 (defn select-and-set-behavior-player-id
   [player]
-  (let [player-id (rand-nth (keys (dissoc @PLAYERS (:player-id player))))]
-    (set-behavior-player-id player player-id)
+  (if (not= (:action (:behavior player)) IGNORE)
+    (let [player-id (rand-player-id-excluding-player player)]
+      (set-behavior-player-id player player-id)
+      )
+    (:behavior player)
     ))
 
 (defn select-behavior
@@ -49,6 +52,6 @@
   (let [action (if (> NUM-PLAYERS 1) (follow-contrast-ignore) IGNORE)]
     {:accuracy (ranged-rand 0.25 0.85)
      :action action
-     :player-id nil
+     :player-id (rand-player-id-excluding-player player)
      })
   )

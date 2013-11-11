@@ -20,3 +20,14 @@
 (defn get-players
   []
   @PLAYERS)
+
+(defn rand-player-id-excluding-player
+  "Select a random player-id not including the
+   player-id of player
+
+   player - player to exclude fromm possible player-ids"
+  [player]
+  (if (> (count @PLAYERS) 0)
+    (rand-nth (keys (dissoc @PLAYERS (:player-id player))))
+    nil
+    ))

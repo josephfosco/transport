@@ -58,13 +58,7 @@
   [player event-time]
   (let [
         player-action (get-behavior-action player)
-        new-behavior (if (and (or (= player-action FOLLOW) (= player-action CONTRAST))
-                                    (= (get-behavior-player-id player) nil))
-                       (select-and-set-behavior-player-id player)
-                       nil)
-        melody-event (if (= new-behavior nil)
-                       (next-melody player )
-                       (next-melody (assoc player :behavior new-behavior)))
+        melody-event (next-melody player )
         melody-dur-millis (get-dur-millis (:dur-info melody-event))
         prev-note-beat (:cur-note-beat player)
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
@@ -81,16 +75,12 @@
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
-    (let [upd-behavior (if (= new-behavior nil)
-                         (get-behavior player)
-                         new-behavior)
-          upd-player
+    (let [upd-player
           (if (< (+ seg-start-time (:seg-len player)) event-time)
             (new-segment (assoc player
                            :cur-note-beat cur-note-beat
                            :prev-note-beat prev-note-beat))
             (assoc player
-              :behavior upd-behavior
               :cur-note-beat cur-note-beat
               :melody (conj (:melody player) melody-event)
               :prev-note-beat prev-note-beat
@@ -113,9 +103,23 @@
   []
   (let [all-players (map create-player (range 1 ( + NUM-PLAYERS 1)))]
     (reset-players)
-    (send-off PLAYERS conj (zipmap  (map get all-players (repeat NUM-PLAYERS :player-id)) all-players))
+
+    (send-off PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
     (await PLAYERS)
-    (dotimes [player-index NUM-PLAYERS]
-      (sched-event 0 (get @PLAYERS (+ player-index 1)))
-      )
-    ))
+    )
+
+  (let [final-players
+        (zipmap
+         (keys @PLAYERS)
+         (map assoc (vals @PLAYERS) (repeat :behavior) (map select-and-set-behavior-player-id (vals @PLAYERS))))
+        ]
+    (println final-players)
+    (reset-players)
+    (send-off PLAYERS conj final-players)
+    (await PLAYERS)
+    )
+
+  (dotimes [player-index NUM-PLAYERS]
+    (sched-event 0 (get @PLAYERS (+ player-index 1)))
+    )
+  )
