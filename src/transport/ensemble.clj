@@ -113,7 +113,6 @@
          (keys @PLAYERS)
          (map assoc (vals @PLAYERS) (repeat :behavior) (map select-and-set-behavior-player-id (vals @PLAYERS))))
         ]
-    (println final-players)
     (reset-players)
     (send-off PLAYERS conj final-players)
     (await PLAYERS)
