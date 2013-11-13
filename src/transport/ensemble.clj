@@ -20,7 +20,7 @@
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [next-melody]]
-   [transport.players :only [PLAYERS]]
+   [transport.players :only [PLAYERS reset-players update-player]]
    [transport.random :only [FOLLOW CONTRAST]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
@@ -28,24 +28,6 @@
    [transport.settings :only [NUM-PLAYERS]]
    [transport.util])
    )
-
-(defn update-player
-  "update the value of a player in agent PLAYERS
-   this is called from send-off"
-  [cur-players new-player]
-  (assoc @PLAYERS (:player-id new-player) new-player)
-  )
-
-(defn clear-players
-  "used by send or send-off to clear agents"
-  [cur-players]
-  {}
-  )
-
-(defn reset-players
-  []
-  (send-off PLAYERS clear-players)
-  (await PLAYERS))
 
 (defn play-melody
   "player - map for the current player

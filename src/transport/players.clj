@@ -25,6 +25,24 @@
   [player-id]
   (get @PLAYERS player-id))
 
+(defn clear-players
+  "used by send or send-off to clear agents"
+  [cur-players]
+  {}
+  )
+
+(defn reset-players
+  []
+  (send-off PLAYERS clear-players)
+  (await PLAYERS))
+
+(defn update-player
+  "update the value of a player in agent PLAYERS
+   this is called from send-off"
+  [cur-players new-player]
+  (assoc @PLAYERS (:player-id new-player) new-player)
+  )
+
 (defn rand-player-id-excluding-player
   "Select a random player-id not including the
    player-id of player
