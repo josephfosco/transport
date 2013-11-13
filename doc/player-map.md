@@ -6,7 +6,8 @@
 * :cur-note-beat - the beat the current note played was played on (starts at 0)
 * :function - function to call when event is triggered
 * :instrument-info - a map containing
-    ?????
+    - :instrument -
+    - :instrument-type -
     - :range-lo - the lowest note (midi note number)this instrument will play
     - :range-hi - the highest note (midi note number)this instrument will play
 * :key - the key this player is playing in

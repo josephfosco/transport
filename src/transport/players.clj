@@ -21,6 +21,10 @@
   []
   @PLAYERS)
 
+(defn get-player
+  [player-id]
+  (get @PLAYERS player-id))
+
 (defn rand-player-id-excluding-player
   "Select a random player-id not including the
    player-id of player

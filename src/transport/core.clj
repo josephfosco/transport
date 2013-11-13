@@ -70,13 +70,13 @@
   (transport-quit))
 
 (defn transport-pause
-  "Stop playing after players finish what they have scheduled
-   To restart after pause, players must be initialized"
+  "Stop playing after players finish what they have scheduled"
   []
   (stop-scheduler))
 
 (defn transport-restart
-  "Start transport after pausing."
+  "Start transport after pausing.
+    Restarts scheduler, Initializes players, starts playing"
   []
   (reset-lateness)
   (restart-scheduler)

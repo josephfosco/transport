@@ -39,6 +39,11 @@
     :player-id player-id)
   )
 (defn select-and-set-behavior-player-id
+  ;; if :behavior :action is not IGNORE
+  ;;   returns a :behavior map with :player-id selected from PLAYERS
+  ;; if :behavior is IGNORE returns the current :behavior map
+  ;;
+  ;; player - the player to set :behavior :player-id
   [player]
   (if (not= (:action (:behavior player)) IGNORE)
     (let [player-id (rand-player-id-excluding-player player)]

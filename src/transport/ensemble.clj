@@ -108,6 +108,7 @@
     (await PLAYERS)
     )
 
+  ;; set the :behavior :player-id for all players that are FOLLOWING
   (let [final-players
         (zipmap
          (keys @PLAYERS)

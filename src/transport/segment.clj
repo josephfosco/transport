@@ -33,7 +33,9 @@
   (let [ new-behavior (transport.behavior/select-behavior player)]
        (assoc player
          :behavior new-behavior
-         :instrument-info (select-instrument player)
+         ;; set instrument-info after :behavior so :instrument-info
+         ;; is copied from FOLLOWing player if required
+         :instrument-info (select-instrument player new-behavior)
          :key (select-key player)
          :melody []
          :metronome (select-metronome player)

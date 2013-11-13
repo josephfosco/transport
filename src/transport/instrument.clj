@@ -16,8 +16,11 @@
 (ns transport.instrument
   (:use
    [overtone.live]
+   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
    [transport.instruments.osc-instruments]
-   [transport.random :only [random-int]]))
+   [transport.players :only [get-player]]
+   [transport.random :only [FOLLOW random-int]]
+   ))
 
 (defn note->hz
   [music-note]
@@ -30,23 +33,9 @@
                       {:instrument sine-wave-sus :envelope-type "ASR"}
                       ])
 
-(defn select-range
+(defn get-instrument-info
   [player]
-  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
-        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
-    (list lo hi)
-    ))
-
-(defn select-instrument
-  [player]
-  (let [inst-range (select-range player)
-        ; select instrument info from all-insruments map
-        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
-        ]
-    {:instrument (:instrument inst-info)
-     :envelope-type (:envelope-type inst-info)
-     :range-hi (last inst-range)
-     :range-lo (first inst-range)}))
+  (:instrument-info player))
 
 (defn get-instrument
   [player]
@@ -75,6 +64,32 @@
   (if (> note-duration 110)
     (/ (- note-duration 110) 1000.0) ; currently assumes an attack of .01 secs and decay of .1 secs
     0.001))
+
+(defn select-range
+  [player]
+  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
+        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
+    (list lo hi)
+    ))
+
+(defn select-instrument
+  [player behavior]
+  ;; if :behavior is FOLLOW copy :inst-info from player we are following
+  ;; else generate new :inst-info map
+  (if (and  (= (get-behavior-action (hash-map :behavior behavior)) FOLLOW)
+            (not= (get-behavior-player-id (hash-map :behavior behavior)) nil))
+    (do
+      (println "FOLLOWING")
+      (get-instrument-info (get-player (get-behavior-player-id (hash-map :behavior behavior)))))
+    (let [inst-range (select-range player)
+          ;; select instrument info from all-insruments map
+          inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+          ]
+      (println "NOT FOLLOWING")
+      {:instrument (:instrument inst-info)
+       :envelope-type (:envelope-type inst-info)
+       :range-hi (last inst-range)
+       :range-lo (first inst-range)})))
 
 (defn play-instrument-asr
   "player - player map
