@@ -21,6 +21,7 @@
   player - the player map to print"
   [player]
   (println "player:")
+  (println "  :behavior         " (:behavior player))
   (println "  :cur-note-beat    " (:cur-note-beat player))
   (println "  :function         " (:function player))
   (println "  :instrument :name " (:name (:instrument (:instrument-info player))))
@@ -29,6 +30,8 @@
   (println "  :mm               " (:mm player))
   (println "  :player-id        " (:player-id player))
   (println "  :prev-note-beat   " (:prev-note-beat player))
+  (println "  :range-lo         " (:range-lo (:instrument-info player)))
+  (println "  :range-hi         " (:range-hi (:instrument-info player)))
   (println "  :seg-len          " (:seg-len player))
   (println "  :seg-start        " (:seg-start player))
   (println "  :scale            " (:scale player))

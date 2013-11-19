@@ -79,17 +79,16 @@
   (if (and  (= (get-behavior-action (hash-map :behavior behavior)) FOLLOW)
             (not= (get-behavior-player-id (hash-map :behavior behavior)) nil))
     (do
-      (println "FOLLOWING")
       (get-instrument-info (get-player (get-behavior-player-id (hash-map :behavior behavior)))))
     (let [inst-range (select-range player)
           ;; select instrument info from all-insruments map
           inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
           ]
-      (println "NOT FOLLOWING")
       {:instrument (:instrument inst-info)
        :envelope-type (:envelope-type inst-info)
        :range-hi (last inst-range)
-       :range-lo (first inst-range)})))
+       :range-lo (first inst-range)}
+      )))
 
 (defn play-instrument-asr
   "player - player map

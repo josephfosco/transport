@@ -19,7 +19,7 @@
 
 (defn get-players
   []
-  @PLAYERS)
+  (vals @PLAYERS))
 
 (defn get-player
   [player-id]

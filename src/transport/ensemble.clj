@@ -20,7 +20,7 @@
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
-   [transport.players :only [PLAYERS get-player reset-players update-player]]
+   [transport.players :only [PLAYERS get-player get-players reset-players update-player]]
    [transport.random :only [FOLLOW CONTRAST]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
@@ -105,10 +105,8 @@
 
   (dotimes [player-index NUM-PLAYERS]
     (let [check-player (get-player (+ player-index 1))]
-      (println "checking player: " (:player-id check-player))
       (if (= (get-behavior-action check-player) FOLLOW)
         (do
-          (println "setting :instrument-info: " (:player-id check-player))
           (send-off PLAYERS
                     assoc
                     (+ player-index 1)
