@@ -13,3 +13,5 @@
 * CHANGE scheduler-running to an atom or agent
 
 * make create-player in ensemble.clj a closure that tracks player-id
+
+* need to find a way to stop assuming :player-id is a sequential number starting with 1 in ensemble.clj
