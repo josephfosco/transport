@@ -18,8 +18,12 @@
    [overtone.live :only [ranged-rand]]
    [transport.settings :only [NUM-PLAYERS]]
    [transport.players :only [PLAYERS rand-player-id-excluding-player]]
-   [transport.random :only [follow-contrast-ignore FOLLOW CONTRAST IGNORE]]
    ))
+
+(def FOLLOW 0)
+(def CONTRAST 1)
+(def COMPLEMENT 2)
+(def IGNORE 3)
 
 (defn get-behavior
   [player]
@@ -38,6 +42,17 @@
   (assoc (:behavior player)
     :player-id player-id)
   )
+
+(defn select-behavior-action
+  [player]
+  (let [action-num (rand)]
+    (cond
+     (< action-num 0.25) FOLLOW
+     (< action-num 0.50) CONTRAST
+     (< action-num 0.75) COMPLEMENT
+     :else IGNORE
+     ))  )
+
 (defn select-and-set-behavior-player-id
   ;; if :behavior :action is not IGNORE
   ;;   returns a :behavior map with :player-id selected from PLAYERS
@@ -54,7 +69,7 @@
 
 (defn select-behavior
   [player]
-  (let [action (if (> NUM-PLAYERS 1) (follow-contrast-ignore) IGNORE)]
+  (let [action (if (> NUM-PLAYERS 1) (select-behavior-action player) IGNORE)]
     {:accuracy (ranged-rand 0.25 0.85)
      :action action
      :player-id (rand-player-id-excluding-player player)

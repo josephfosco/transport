@@ -15,10 +15,6 @@
 
 (ns transport.random)
 
-(def FOLLOW 0)
-(def CONTRAST 1)
-(def IGNORE 2)
-
 (defn random-int
   "Returns a random integer between lo (inclusive) and hi (inclusive).
   Does not check that lo < hi"
@@ -32,12 +28,3 @@
 (defn random-dur
   [lo-millis hi-millis]
   (random-int lo-millis hi-millis))
-
-(defn follow-contrast-ignore
-  []
-  (let [sci-num (rand)]
-    (cond
-     (< sci-num 0.33) FOLLOW
-     (< sci-num 0.66) CONTRAST
-     :else IGNORE
-     )))

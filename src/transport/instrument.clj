@@ -16,10 +16,10 @@
 (ns transport.instrument
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
+   [transport.behavior :only [FOLLOW get-behavior-action get-behavior-player-id]]
    [transport.instruments.osc-instruments]
    [transport.players :only [get-player]]
-   [transport.random :only [FOLLOW random-int]]
+   [transport.random :only [random-int]]
    ))
 
 (defn note->hz

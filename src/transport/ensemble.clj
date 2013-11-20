@@ -16,12 +16,11 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior get-behavior-action get-behavior-player-id select-and-set-behavior-player-id]]
+   [transport.behavior :only [FOLLOW CONTRAST get-behavior get-behavior-action get-behavior-player-id select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
    [transport.players :only [PLAYERS get-player get-players reset-players update-player]]
-   [transport.random :only [FOLLOW CONTRAST]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
@@ -30,13 +29,13 @@
    )
 
 (defn play-melody
-  "player - map for the current player
-   event-time - time this note event was scheduled for
-
-   Gets the note to play now and plays it (if it is not a rest)
+  "Gets the note to play now and plays it (if it is not a rest)
    Checks if the current segment is done, and if so
    sets up a new one.
-   Then schedules the next note to play"
+   Then schedules the next note to play
+
+   player - map for the current player
+   event-time - time this note event was scheduled for"
   [player event-time]
   (let [
         player-action (get-behavior-action player)
@@ -115,6 +114,8 @@
                       (get-instrument-info (get-player (get-behavior-player-id check-player))))))
         )))
   (await PLAYERS)
+
+  (dorun (map print-player (get-players)))
 
   (dotimes [player-index NUM-PLAYERS]
     (sched-event 0 (get @PLAYERS (+ player-index 1)))

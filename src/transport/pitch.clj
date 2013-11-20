@@ -16,9 +16,9 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
-   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
+   [transport.behavior :only [FOLLOW CONTRAST IGNORE get-behavior-action get-behavior-player-id]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
-   [transport.random :only [random-pitch random-int FOLLOW CONTRAST IGNORE]]))
+   [transport.random :only [random-pitch random-int]]))
 
 (def SCALES {})
 (def DESCEND 0)
