@@ -25,6 +25,10 @@
   [player-id]
   (get @PLAYERS player-id))
 
+(defn get-player-id
+  [player]
+  (:player-id player))
+
 (defn clear-players
   "used by send or send-off to clear agents"
   [cur-players]
@@ -36,12 +40,72 @@
   (send-off PLAYERS clear-players)
   (await PLAYERS))
 
-(defn update-player
+(defn get-behavior
+  [player]
+  (:behavior player))
+
+(defn set-behavior
+  [player behavior]
+  (assoc player :behavior behavior)
+  )
+
+(defn get-behavior-recording
+  [player]
+  (:recording (:behavior player)))
+
+(defn get-behavior-player-id
+  [player]
+  (:player-id (:behavior player)))
+
+(defn set-behavior-player-id
+  "Returns new :behavior map with :player-id set to player-id
+
+   player - the player whose :behavior is to be changed
+   player-id - the player-id to set :player-id to"
+  [player player-id]
+  (assoc (:behavior player)
+    :player-id player-id)
+  )
+
+(declare update-player-callback)
+(defn inc-behavior-recording
+  "Called from send-off. Will increment the current value
+   of :recording.
+
+   cur-players - the current PLAYERS map
+   player-id - the player-id to increment :recording"
+  [cur-players player-id]
+
+  (let [player get cur-players player-id]
+    (update-player-callback cur-players
+                   (set-behavior (assoc (get-behavior player) :recording (+ (get-behavior-recording player) 1))))
+    ))
+
+(defn update-player-callback
   "update the value of a player in agent PLAYERS
    this is called from send-off"
   [cur-players new-player]
-  (assoc @PLAYERS (:player-id new-player) new-player)
-  )
+  (let [player-id (get-player-id new-player)
+        old-behavior-player-id (get-behavior-player-id (get cur-players player-id))
+        new-behavior-player-id (get-behavior-player-id new-player)
+        ]
+    (assoc @PLAYERS player-id new-player)
+    ;;(println "player-id old new:" player-id old-behavior-player-id new-behavior-player-id)
+    (comment
+      (if (not=
+           old-behavior-player-id
+           new-behavior-player-id)
+        (if (not= (get-behavior-player-id new-player) nil)
+          (do
+            ;; (inc-behavior-recording cur-players (get-behavior-player-id new-player))
+            (println "inc recording player-id: " (get-behavior-player-id new-player)))
+          (println "player-id is nil"))
+        ))
+    ))
+
+(defn update-player
+  [player]
+  (send-off PLAYERS update-player-callback player))
 
 (defn rand-player-id-excluding-player
   "Select a random player-id not including the

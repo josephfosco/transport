@@ -15,8 +15,9 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
+   [transport.behavior :only [get-behavior-action]]
    [transport.pitch :only [next-pitch]]
+   [transport.players :only [get-behavior-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [next-note-dur]]))
 

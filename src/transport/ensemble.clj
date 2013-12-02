@@ -16,15 +16,15 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [FOLLOW CONTRAST get-behavior get-behavior-action get-behavior-player-id select-and-set-behavior-player-id]]
+   [transport.behavior :only [FOLLOW CONTRAST get-behavior-action select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
-   [transport.players :only [PLAYERS get-player get-players reset-players update-player]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-player get-players reset-players update-player]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
-   [transport.settings :only [NUM-PLAYERS]]
+   [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN]]
    [transport.util])
    )
 
@@ -63,26 +63,35 @@
                            :prev-note-beat prev-note-beat))
             (assoc player
               :cur-note-beat cur-note-beat
-              :melody (conj (:melody player) melody-event)
+              :melody (if (= (count (:melody player)) SAVED-MELODY-LEN)
+                        (conj (vec (next (:melody player))) melody-event)
+                        (conj (:melody player) melody-event)
+                        )
               :prev-note-beat prev-note-beat
               :seg-start seg-start-time
               ))
           ]
       (sched-event melody-dur-millis upd-player)
-      (send-off PLAYERS update-player upd-player)
-      )
-    ))
+      (update-player upd-player)
+      (if (= (:player-id upd-player) 1)
+        (do
+          (println "player 1 :melody counrt: " (count (:melody upd-player)))
+          (println  (:melody upd-player))
+          (println)
+          ))
+      )))
 
 (defn create-player
   [player-no]
   (new-segment{:cur-note-beat 0
                :function transport.ensemble/play-melody
+               :melody []
                :player-id player-no
                :prev-note-beat 0}))
 
 (defn init-players
   []
-  (let [all-players (map create-player (range 1 ( + NUM-PLAYERS 1)))]
+  (let [all-players (map create-player (range 1 (+ NUM-PLAYERS 1)))]
     (reset-players)
 
     (send-off PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
@@ -117,7 +126,7 @@
 
   (dorun (map print-player (get-players)))
 
-  (dotimes [player-index NUM-PLAYERS]
-    (sched-event 0 (get @PLAYERS (+ player-index 1)))
-    )
+  ;; Schedule first event for all players
+  (dorun (map sched-event (repeat 0) (get-players)))
+
   )

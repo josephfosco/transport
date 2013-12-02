@@ -30,16 +30,19 @@
 
 (defn new-segment
   [player]
-  (let [ new-behavior (transport.behavior/select-behavior player)]
-       (assoc player
-         :behavior new-behavior
-         ;; set instrument-info after :behavior so :instrument-info
-         ;; is copied from FOLLOWing player if required
-         :instrument-info (select-instrument player new-behavior)
-         :key (select-key player)
-         :melody []
-         :metronome (select-metronome player)
-         :mm (select-mm player)
-         :seg-len (select-segment-length)
-         :seg-start 0
-         :scale (select-scale player))))
+  (let [new-behavior (transport.behavior/select-behavior player)
+        melody-len (count (:melody player))
+        ]
+    (println "melody length " melody-len)
+    (if (= (:player-id player) 1) (println "!!! --- PLATER 1 NEW SEGMENT --- !!!"))
+    (assoc player
+      :behavior new-behavior
+      ;; set instrument-info after :behavior so :instrument-info
+      ;; is copied from FOLLOWing player if required
+      :instrument-info (select-instrument player new-behavior)
+      :key (select-key player)
+      :metronome (select-metronome player)
+      :mm (select-mm player)
+      :seg-len (select-segment-length)
+      :seg-start 0
+      :scale (select-scale player))))

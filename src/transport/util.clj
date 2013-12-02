@@ -13,7 +13,10 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.util)
+(ns transport.util
+  (:use
+   [transport.players :only [get-players]]
+   ))
 
 (defn print-player
   "Pretty Print a player map
@@ -43,4 +46,9 @@
   [player]
   (print-player)
   (println "  :instrument-info  " (:instrument-info player))
+)
+
+(defn print-all-players
+  []
+  (dorun (map print-player (get-players)))
 )

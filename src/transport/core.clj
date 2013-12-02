@@ -20,6 +20,7 @@
    [transport.ensemble :only [init-players]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
+   [transport.util]
    [transport.version]
    ))
 

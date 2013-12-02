@@ -3,7 +3,7 @@ TRANSPORT
 
 # transport
 
-This is the begining of Transport, a program that will improvise music.
+This is the begining of Transport, a program that creates free improvisation music.
 
 This program is written in Clojure and uses the Overtone library. Overtone requires the synthesis library Supercollider
 
@@ -22,7 +22,7 @@ To try the current version.
 5. (trasport-start)
 6. You should then hear notes being played.
 7. (transport-pause) to stop playing notes - after all scheduled notes are played.
-8. (transport-help) to see breil instructions
+8. (transport-help) to see these instructions
 
 ## Options
 
