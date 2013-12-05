@@ -29,6 +29,18 @@
   [player]
   (:player-id player))
 
+(defn get-melody
+  [player]
+  (:melody player))
+
+(defn get-prev-melody-note
+  [player]
+  (let [cur-melody (:melody player)]
+    (if (= cur-melody {})
+      nil
+      (:note (get (reduce max (keys cur-melody)) cur-melody))))
+  )
+
 (defn clear-players
   "used by send or send-off to clear agents"
   [cur-players]

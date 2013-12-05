@@ -79,7 +79,7 @@
       to go back to get the duration - defaults to 1 step"
   [player & {:keys [num-prev-steps] :or {num-prev-steps 1}}]
   ;; NOT YET IMPLEMENTED
-  (let [duration (if (not= (:melody player) [])
+  (let [duration (if (not= (:melody player) {})
            (:dur (last (:melody player)))
            nil)
         ]

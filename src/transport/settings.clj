@@ -19,4 +19,4 @@
    other namespaces")
 
 (def NUM-PLAYERS 10)
-(def SAVED-MELODY-LEN 15)
+(def SAVED-MELODY-LEN 64)

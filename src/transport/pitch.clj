@@ -17,7 +17,7 @@
   (:use
    [overtone.music.pitch :only [SCALE]]
    [transport.behavior :only [FOLLOW CONTRAST IGNORE get-behavior-action]]
-   [transport.players :only [get-behavior-player-id]]
+   [transport.players :only [get-behavior-player-id get-prev-melody-note]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
    [transport.random :only [random-pitch random-int]]))
 
@@ -47,11 +47,9 @@
                   scale-key
                   (convert-scale (scale-key SCALE))))))
 
-(defn prev-melody-note
+(defn get-melody
   [player]
-  (if (not= (:melody player) [])
-    (:note (last (:melody player)))
-    nil))
+  (:melody player))
 
 (defn get-scale-degree-semitones
   "Returns the number of semitones from tonic that
@@ -100,7 +98,7 @@
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  ( if (= (prev-melody-note player) nil)
+  ( if (= (get-prev-melody-note player) nil)
     RANDOM-NOTE
     (let [rand-dir (rand)]
       (if (<= rand-dir 0.45)
@@ -123,14 +121,14 @@
 
 (defn dir-ascend
   [player]
-  (let [prev-note (prev-melody-note player)
+  (let [prev-note (get-prev-melody-note player)
         lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
     (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player))))
   )
 
 (defn dir-descend
   [player]
-  (let [prev-note (prev-melody-note player)]
+  (let [prev-note (get-prev-melody-note player)]
     (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player))))
   )
 
@@ -154,7 +152,7 @@
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
      (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (prev-melody-note player)))  )
+     :else (get-prev-melody-note player)))  )
 
 (defn next-pitch
   [player]

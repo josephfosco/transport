@@ -33,8 +33,6 @@
   (let [new-behavior (transport.behavior/select-behavior player)
         melody-len (count (:melody player))
         ]
-    (println "melody length " melody-len)
-    (if (= (:player-id player) 1) (println "!!! --- PLATER 1 NEW SEGMENT --- !!!"))
     (assoc player
       :behavior new-behavior
       ;; set instrument-info after :behavior so :instrument-info

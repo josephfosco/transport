@@ -20,7 +20,7 @@
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-player get-players reset-players update-player]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-melody get-player get-players reset-players update-player]]
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
@@ -61,31 +61,34 @@
             (new-segment (assoc player
                            :cur-note-beat cur-note-beat
                            :prev-note-beat prev-note-beat))
-            (assoc player
-              :cur-note-beat cur-note-beat
-              :melody (if (= (count (:melody player)) SAVED-MELODY-LEN)
-                        (conj (vec (next (:melody player))) melody-event)
-                        (conj (:melody player) melody-event)
-                        )
-              :prev-note-beat prev-note-beat
-              :seg-start seg-start-time
+            (do
+              (assoc player
+                :cur-note-beat cur-note-beat
+                :melody (let [cur-melody (get-melody player)
+                              next-key   (if (> (count cur-melody) 0)
+                                           (+ (reduce max (keys cur-melody)) 1)
+                                           1)]
+                          (if (= (count cur-melody) SAVED-MELODY-LEN)
+                            (do
+                              (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
+                                next-key  melody-event)
+                              )
+                            (assoc cur-melody next-key melody-event)
+                            ))
+                :prev-note-beat prev-note-beat
+                :seg-start seg-start-time
+                )
               ))
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
-      (if (= (:player-id upd-player) 1)
-        (do
-          (println "player 1 :melody counrt: " (count (:melody upd-player)))
-          (println  (:melody upd-player))
-          (println)
-          ))
       )))
 
 (defn create-player
   [player-no]
   (new-segment{:cur-note-beat 0
                :function transport.ensemble/play-melody
-               :melody []
+               :melody {}
                :player-id player-no
                :prev-note-beat 0}))
 
