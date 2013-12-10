@@ -17,7 +17,7 @@
   (:use
    [overtone.live :only [ranged-rand]]
    [transport.settings :only [NUM-PLAYERS]]
-   [transport.players :only [PLAYERS get-behavior-recording inc-behavior-recording rand-player-id-excluding-player set-behavior-player-id update-player-callback]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-recording inc-behavior-recording rand-player-id-excluding-player set-behavior-player-id update-player-callback]]
    ))
 
 (def FOLLOW 0)
@@ -54,11 +54,11 @@
   ;;
   ;; player - the player to set :behavior :player-id
   [player]
-  (if (not= (:action (:behavior player)) IGNORE)
+  (if (not= (:action (get-behavior player)) IGNORE)
     (let [player-id (rand-player-id-excluding-player player)]
       (set-behavior-player-id player player-id)
       )
-    (:behavior player)
+    (get-behavior player)
     ))
 
 (defn select-behavior

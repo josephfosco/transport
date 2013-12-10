@@ -16,8 +16,8 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
-   [transport.behavior :only [FOLLOW CONTRAST IGNORE get-behavior-action]]
-   [transport.players :only [get-behavior-player-id get-prev-melody-note]]
+   [transport.behavior :only [FOLLOW COMPLEMENT CONTRAST IGNORE get-behavior-action]]
+   [transport.players :only [get-behavior-player-id get-melody get-prev-melody-note]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
    [transport.random :only [random-pitch random-int]]))
 
@@ -46,10 +46,6 @@
     (def SCALES (assoc SCALES
                   scale-key
                   (convert-scale (scale-key SCALE))))))
-
-(defn get-melody
-  [player]
-  (:melody player))
 
 (defn get-scale-degree-semitones
   "Returns the number of semitones from tonic that
@@ -140,6 +136,11 @@
   (next-pitch-ignore player)
  )
 
+(defn next-pitch-complement
+  [player]
+  (next-pitch-ignore player)
+  )
+
 (defn next-pitch-contrast
   [player]
   (next-pitch-ignore player)
@@ -158,5 +159,6 @@
   [player]
   (cond
    (= get-behavior-action FOLLOW) (next-pitch-follow player)
+   (= get-behavior-action COMPLEMENT) (next-pitch-complement player)
    (= get-behavior-action CONTRAST) (next-pitch-contrast player)
    :else (next-pitch-ignore player)) )

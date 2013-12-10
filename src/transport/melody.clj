@@ -15,9 +15,9 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action]]
+   [transport.behavior :only [get-behavior-action FOLLOW]]
    [transport.pitch :only [next-pitch]]
-   [transport.players :only [get-behavior-player-id]]
+   [transport.players :only [get-behavior-player-id get-melody get-player]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [next-note-dur]]))
 
@@ -27,12 +27,48 @@
 
    note-prob is the probability of a note as opposed to a rest
    note-prob of 8 means 8 times out of 9 a note will play
-   note-prob of 5 means 5 times out of 6 a note will play"
+   +note-prob of 5 means 5 times out of 6 a note will play"
   [note-prob]
   (let [play-note? (random-int 0 note-prob)]
     (if (pos? play-note?)
       true
       nil)))
+
+(defn get-last-melody-event-num
+  [player-id]
+  (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
+     (println "follow player " player-id ": " (get-player player-id))
+    (if (= last-melody-key 0) nil last-melody-key)
+    )
+  )
+
+(defn get-melody-event
+  [player-id melody-event-no]
+  (get (get-melody (get-player player-id)) melody-event-no)
+  )
+
+(defn next-melody-follow
+  [player]
+  (let [follow-player-id (get-behavior-player-id player)
+        last-note-played (:follow-note (get-melody player))
+        cur-note-to-play (if (= last-note-played nil)
+                           (get-last-melody-event-num follow-player-id)
+                           (+ last-note-played 1))
+        ]
+    (println "follow-player-id: " follow-player-id)
+    (println "last-note-played: " last-note-played)
+    (println "cur-note-to-play: " cur-note-to-play)
+    ;; if the :follow-player has not played a note yet (cur-note-to-play = nil
+    ;; pick a note to plat else
+    ;; play the next follow player note
+    (if (not= cur-note-to-play nil)
+      (do
+        (println (assoc (get-melody-event follow-player-id cur-note-to-play) :follow-note cur-note-to-play))
+        (assoc (get-melody-event follow-player-id cur-note-to-play) :follow-note cur-note-to-play)
+        )
+      {:note (next-pitch player)
+       :dur-info (next-note-dur player)}))
+  )
 
 (defn next-melody
   "Returns the next note and it's duration as a map
@@ -40,6 +76,8 @@
 
     player is the player map"
   [player]
-  {:note (if (note-or-rest 8) (next-pitch player) nil)
-   :dur-info (next-note-dur player) }
+  (if (= (get-behavior-action player) FOLLOW)
+    (next-melody-follow player)
+    {:note (if (note-or-rest 8) (next-pitch player) nil)
+     :dur-info (next-note-dur player) })
   )

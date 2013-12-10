@@ -61,24 +61,23 @@
             (new-segment (assoc player
                            :cur-note-beat cur-note-beat
                            :prev-note-beat prev-note-beat))
-            (do
-              (assoc player
-                :cur-note-beat cur-note-beat
-                :melody (let [cur-melody (get-melody player)
-                              next-key   (if (> (count cur-melody) 0)
-                                           (+ (reduce max (keys cur-melody)) 1)
-                                           1)]
-                          (if (= (count cur-melody) SAVED-MELODY-LEN)
-                            (do
-                              (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
-                                next-key  melody-event)
-                              )
-                            (assoc cur-melody next-key melody-event)
-                            ))
-                :prev-note-beat prev-note-beat
-                :seg-start seg-start-time
-                )
-              ))
+            (assoc player
+              :cur-note-beat cur-note-beat
+              :melody (let [cur-melody (get-melody player)
+                            next-key   (if (> (count cur-melody) 0)
+                                         (+ (reduce max (keys cur-melody)) 1)
+                                         1)]
+                        (if (= (count cur-melody) SAVED-MELODY-LEN)
+                          (do
+                            (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
+                              next-key  melody-event)
+                            )
+                          (assoc cur-melody next-key melody-event)
+                          ))
+              :prev-note-beat prev-note-beat
+              :seg-start seg-start-time
+              )
+            )
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)

@@ -25,13 +25,25 @@
   [player-id]
   (get @PLAYERS player-id))
 
-(defn get-player-id
-  [player]
-  (:player-id player))
-
 (defn get-melody
   [player]
   (:melody player))
+
+(defn get-behavior
+  [player]
+  (:behavior player))
+
+(defn get-behavior-recording
+  [player]
+  (:recording (:behavior player)))
+
+(defn get-behavior-player-id
+  [player]
+  (:player-id (:behavior player)))
+
+(defn get-player-id
+  [player]
+  (:player-id player))
 
 (defn get-prev-melody-note
   [player]
@@ -52,22 +64,10 @@
   (send-off PLAYERS clear-players)
   (await PLAYERS))
 
-(defn get-behavior
-  [player]
-  (:behavior player))
-
 (defn set-behavior
   [player behavior]
   (assoc player :behavior behavior)
   )
-
-(defn get-behavior-recording
-  [player]
-  (:recording (:behavior player)))
-
-(defn get-behavior-player-id
-  [player]
-  (:player-id (:behavior player)))
 
 (defn set-behavior-player-id
   "Returns new :behavior map with :player-id set to player-id
@@ -101,8 +101,7 @@
         old-behavior-player-id (get-behavior-player-id (get cur-players player-id))
         new-behavior-player-id (get-behavior-player-id new-player)
         ]
-    (assoc @PLAYERS player-id new-player)
-    ;;(println "player-id old new:" player-id old-behavior-player-id new-behavior-player-id)
+    ;; (println "player-id old new:" player-id old-behavior-player-id new-behavior-player-id)
     (comment
       (if (not=
            old-behavior-player-id
@@ -113,6 +112,7 @@
             (println "inc recording player-id: " (get-behavior-player-id new-player)))
           (println "player-id is nil"))
         ))
+    (assoc @PLAYERS player-id new-player)
     ))
 
 (defn update-player
