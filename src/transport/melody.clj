@@ -17,7 +17,7 @@
   (:use
    [transport.behavior :only [get-behavior-action FOLLOW]]
    [transport.pitch :only [next-pitch]]
-   [transport.players :only [get-behavior-player-id get-melody get-player]]
+   [transport.players :only [get-behavior-player-id get-melody get-player get-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [next-note-dur]]))
 
@@ -37,7 +37,6 @@
 (defn get-last-melody-event-num
   [player-id]
   (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
-     (println "follow player " player-id ": " (get-player player-id))
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
@@ -50,24 +49,31 @@
 (defn next-melody-follow
   [player]
   (let [follow-player-id (get-behavior-player-id player)
-        last-note-played (:follow-note (get-melody player))
+        last-note-played (get-last-melody-event-num (get-player-id player))
         cur-note-to-play (if (= last-note-played nil)
                            (get-last-melody-event-num follow-player-id)
                            (+ last-note-played 1))
+        next-melody-event (get-melody-event follow-player-id cur-note-to-play)
         ]
-    (println "follow-player-id: " follow-player-id)
+    (println)
+    (println " PLAYER-ID:" (get-player-id player))
+    (println "player :malody " (get-melody player))
     (println "last-note-played: " last-note-played)
-    (println "cur-note-to-play: " cur-note-to-play)
+    (println "next-melody-event: " next-melody-event)
     ;; if the :follow-player has not played a note yet (cur-note-to-play = nil
     ;; pick a note to plat else
     ;; play the next follow player note
-    (if (not= cur-note-to-play nil)
-      (do
-        (println (assoc (get-melody-event follow-player-id cur-note-to-play) :follow-note cur-note-to-play))
-        (assoc (get-melody-event follow-player-id cur-note-to-play) :follow-note cur-note-to-play)
-        )
+    (if (= next-melody-event nil)
       {:note (next-pitch player)
-       :dur-info (next-note-dur player)}))
+       :dur-info (next-note-dur player)
+       :follow-note last-note-played}
+      (if (not= cur-note-to-play nil)
+        (do
+          (println (assoc next-melody-event :follow-note cur-note-to-play))
+          (assoc (get-melody-event follow-player-id cur-note-to-play) :follow-note cur-note-to-play)
+          )
+        {:note (next-pitch player)
+         :dur-info (next-note-dur player)})))
   )
 
 (defn next-melody
