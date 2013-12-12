@@ -95,6 +95,12 @@
   [player]
   (metronome (:mm player)))
 
+(defn get-dur-info-for-beats
+  [player beats]
+  {:dur-millis (note-dur-to-millis player (* quarter-note beats))
+   :dur-note-dur beats}
+  )
+
 (defn next-note-dur
   "Return the duration of the next note in milliseconds"
   [ player ]
