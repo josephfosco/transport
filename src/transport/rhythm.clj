@@ -96,13 +96,22 @@
   (metronome (:mm player)))
 
 (defn get-dur-info-for-beats
+  "Returns :dur-info map with
+     :dur-note-dur = beats
+     :dur-millis = beats converted to milliseconds
+
+   player - player map to use to convert beats to milliseconds
+   beats - the number of beats to use in dur-info and
+             convert to milliseconds"
   [player beats]
   {:dur-millis (note-dur-to-millis player (* quarter-note beats))
    :dur-note-dur beats}
   )
 
 (defn next-note-dur
-  "Return the duration of the next note in milliseconds"
+  "Returns :dur-info map for the next note
+
+   player - player map to use when determining next note :dur-info"
   [ player ]
   (let [note-prob (random-int 0 99)
         note-dur (cond

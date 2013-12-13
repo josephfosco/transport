@@ -57,14 +57,19 @@
   [player]
   (let [follow-player-id (get-behavior-player-id player)
         follow-player-last-note (get-last-melody-event-num follow-player-id)
+        next-new-event {:note nil
+         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
+         :follow-note (if (nil? follow-player-last-note)
+                        0
+                        (- follow-player-last-note 1))}
         ]
     (if (nil? (:follow-note (get-last-melody-event player)))
       ;; first time, rest 3 beats
-      {:note nil
-       :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
-       :follow-note (if (nil? follow-player-last-note)
-                      0
-                      (- follow-player-last-note 1))}
+      (do
+        (println)
+        (println "** STARTING FOLLOW **")
+        (println " ** next new event **: " next-new-event)
+        next-new-event)
       (let [
             last-melody-event-played (get-last-melody-event player)
             cur-note-to-play (+ (:follow-note last-melody-event-played) 1)
@@ -72,12 +77,17 @@
             ]
         (println)
         (println " PLAYER-ID:" (get-player-id player))
-        (println "player :malody " (get-melody player))
         (println "last-melody-event-played: " last-melody-event-played)
         (println "next-melody-event: " next-melody-event)
 
         (println "next melody to play: " (assoc next-melody-event :follow-note cur-note-to-play))
-        (assoc next-melody-event :follow-note cur-note-to-play)
+        (if (nil? next-melody-event)
+          (do
+            (println)
+            (println "@@@@@@@@ FOLLOWER AHEAD OF FOLLOWED @@@@@@@@")
+            (println)
+            (assoc last-melody-event-played :follow-note (:follow-note last-melody-event-played)))
+          (assoc next-melody-event :follow-note cur-note-to-play))
         )))
   )
 
