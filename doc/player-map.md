@@ -15,7 +15,8 @@
     - :note - the midi note numger of the note played - nil is a rest
     - :dur-inf - a map of duration information for this note containing
       - :dur-millis - the duration of :note in milliseconds
-      - :dur-note-dur - the duration of :note in beats (values are imdes into NOTE-DURS in rhythm.clj)
+      - :dur-note-dur - the duration of :note in beats
+      - :follow-note - when FOLLOWing another player the melody-event this melody-event is in the FOLLOWers melody
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the last note played was played on (starts at 0)
