@@ -18,5 +18,5 @@
    It should not :require :use :refer or :import any
    other namespaces")
 
-(def NUM-PLAYERS 10)
+(def NUM-PLAYERS 1)
 (def SAVED-MELODY-LEN 64)

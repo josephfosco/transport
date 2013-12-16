@@ -81,6 +81,7 @@
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
+      (print-player upd-player)
       )))
 
 (defn create-player

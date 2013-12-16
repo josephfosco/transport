@@ -45,13 +45,17 @@
 )
 
 (defn note-dur-to-millis
+  "Converts note-dur (in beats) to millis at the mm for player
+
+   player - player to get mm for
+   note-dur - note duration in beats"
   [player note-dur]
-  (int (* (* (/ 60.0 (:mm player)) (/ note-dur quarter-note ))  1000))
+  (int (* (* (/ 60.0 (:mm player)) note-dur)  1000))
   )
 
 (defn millis-to-note-dur
   [player millis]
-  (* (/ millis (* (/ 60.0 (:mm player)) 1000)) quarter-note))
+  (/ millis (* (/ 60.0 (:mm player)) 1000)))
 
 (defn get-dur-millis
   "Returns the millis duraition for the dur-info
@@ -66,29 +70,13 @@
 
    dur-info - duration info to get dur-beats from"
   [dur-info]
-  (/ ( NOTE-DURS(:dur-note-dur dur-info)) quarter-note)
+  (:dur-note-dur dur-info)
   )
-
-(defn prev-note-dur
-  "Returns the duration from NOTE-DURS of the previous note
-
-   NOT YET IMPLEMENTED
-
-   player is the player map to get the previous note for
-   keyword :num-prev-steps is the number of previous steps
-      to go back to get the duration - defaults to 1 step"
-  [player & {:keys [num-prev-steps] :or {num-prev-steps 1}}]
-  ;; NOT YET IMPLEMENTED
-  (let [duration (if (not= (:melody player) {})
-           (:dur (last (:melody player)))
-           nil)
-        ]
-    nil
- ))
 
 (defn select-mm
   [player]
   (random-int min-mm max-mm)
+  60
   )
 
 (defn select-metronome
@@ -127,8 +115,8 @@
                   (< note-prob (NOTE-PROBS 9)) 9
                   :else 10)
         ]
-    {:dur-millis (note-dur-to-millis player (NOTE-DURS note-dur))
-     :dur-note-dur note-dur}
+    {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
+     :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
 
 ;; (+ (tempm1 0) (beat-ms 1.5 (metro-bpm tempm1)))
