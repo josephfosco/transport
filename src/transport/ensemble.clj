@@ -81,7 +81,6 @@
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
-      (print-player upd-player)
       )))
 
 (defn create-player
@@ -94,7 +93,7 @@
 
 (defn init-players
   []
-  (let [all-players (map create-player (range 1 (+ NUM-PLAYERS 1)))]
+  (let [all-players (map create-player (range 1 (+ @NUM-PLAYERS 1)))]
     (reset-players)
 
     (send-off PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
@@ -114,7 +113,7 @@
     (await PLAYERS)
     )
 
-  (dotimes [player-index NUM-PLAYERS]
+  (dotimes [player-index @NUM-PLAYERS]
     (let [check-player (get-player (+ player-index 1))]
       (if (= (get-behavior-action check-player) FOLLOW)
         (do

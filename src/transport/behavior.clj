@@ -63,7 +63,7 @@
 
 (defn select-behavior
   [player]
-  (let [action (if (> NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+  (let [action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
         cur-recording (get-behavior-recording player)  ;; remember the number of players watching your recording
         ]
     {:accuracy (ranged-rand 0.25 0.85)

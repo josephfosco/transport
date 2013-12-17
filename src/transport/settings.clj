@@ -18,5 +18,9 @@
    It should not :require :use :refer or :import any
    other namespaces")
 
-(def NUM-PLAYERS 1)
+(def NUM-PLAYERS (atom 10))
 (def SAVED-MELODY-LEN 64)
+
+(defn set-num-players
+  [new-num-players]
+  (reset! NUM-PLAYERS new-num-players))
