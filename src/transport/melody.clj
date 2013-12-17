@@ -65,28 +65,15 @@
         ]
     (if (nil? (:follow-note (get-last-melody-event player)))
       ;; first time, rest 3 beats
-      (do
-        (println)
-        (println "** STARTING FOLLOW **")
-        (println " ** next new event **: " next-new-event)
-        next-new-event)
+      next-new-event
       (let [
             last-melody-event-played (get-last-melody-event player)
             cur-note-to-play (+ (:follow-note last-melody-event-played) 1)
             next-melody-event (get-melody-event follow-player-id cur-note-to-play)
             ]
-        (println)
-        (println " PLAYER-ID:" (get-player-id player))
-        (println "last-melody-event-played: " last-melody-event-played)
-        (println "next-melody-event: " next-melody-event)
-
-        (println "next melody to play: " (assoc next-melody-event :follow-note cur-note-to-play))
         (if (nil? next-melody-event)
-          (do
-            (println)
-            (println "@@@@@@@@ FOLLOWER AHEAD OF FOLLOWED @@@@@@@@")
-            (println)
-            (assoc last-melody-event-played :follow-note (:follow-note last-melody-event-played)))
+          ;; FOLLOWer ahead of FOLLOWed
+          (assoc last-melody-event-played :follow-note (:follow-note last-melody-event-played))
           (assoc next-melody-event :follow-note cur-note-to-play))
         )))
   )
