@@ -16,14 +16,9 @@
 (ns transport.behavior
   (:use
    [overtone.live :only [ranged-rand]]
-   [transport.settings :only [NUM-PLAYERS]]
    [transport.players :only [PLAYERS get-behavior get-behavior-recording inc-behavior-recording rand-player-id-excluding-player set-behavior-player-id update-player-callback]]
+   [transport.settings :only [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
    ))
-
-(def COMPLEMENT 0)
-(def CONTRAST 1)
-(def FOLLOW 2)
-(def IGNORE 3)
 
 (defn get-behavior-action
   [player]
