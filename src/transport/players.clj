@@ -33,10 +33,6 @@
   [player]
   (:behavior player))
 
-(defn get-behavior-recording
-  [player]
-  (:recording (:behavior player)))
-
 (defn get-behavior-player-id
   [player]
   (:player-id (:behavior player)))
@@ -79,20 +75,6 @@
     :player-id player-id)
   )
 
-(declare update-player-callback)
-(defn inc-behavior-recording
-  "Called from send-off. Will increment the current value
-   of :recording.
-
-   cur-players - the current PLAYERS map
-   player-id - the player-id to increment :recording"
-  [cur-players player-id]
-
-  (let [player get cur-players player-id]
-    (update-player-callback cur-players
-                   (set-behavior (assoc (get-behavior player) :recording (+ (get-behavior-recording player) 1))))
-    ))
-
 (defn update-player-callback
   "update the value of a player in agent PLAYERS
    this is called from send-off"
@@ -101,17 +83,6 @@
         old-behavior-player-id (get-behavior-player-id (get cur-players player-id))
         new-behavior-player-id (get-behavior-player-id new-player)
         ]
-    ;; (println "player-id old new:" player-id old-behavior-player-id new-behavior-player-id)
-    (comment
-      (if (not=
-           old-behavior-player-id
-           new-behavior-player-id)
-        (if (not= (get-behavior-player-id new-player) nil)
-          (do
-            ;; (inc-behavior-recording cur-players (get-behavior-player-id new-player))
-            (println "inc recording player-id: " (get-behavior-player-id new-player)))
-          (println "player-id is nil"))
-        ))
     (assoc @PLAYERS player-id new-player)
     ))
 
