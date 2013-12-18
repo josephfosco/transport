@@ -16,9 +16,10 @@
 (ns transport.instrument
   (:use
    [overtone.live]
-   [transport.behavior :only [FOLLOW get-behavior-action]]
+   [transport.behavior :only [get-behavior-action]]
    [transport.instruments.osc-instruments]
    [transport.players :only [get-behavior-player-id get-player]]
+   [transport.settings :only [FOLLOW]]
    [transport.random :only [random-int]]
    ))
 

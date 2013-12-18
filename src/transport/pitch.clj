@@ -16,10 +16,12 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
-   [transport.behavior :only [FOLLOW COMPLEMENT CONTRAST IGNORE get-behavior-action]]
+   [transport.behavior :only [get-behavior-action]]
    [transport.players :only [get-behavior-player-id get-melody get-prev-melody-note]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
-   [transport.random :only [random-pitch random-int]]))
+   [transport.random :only [random-pitch random-int]]
+   [transport.settings :only [COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   ))
 
 (def SCALES {})
 (def DESCEND 0)

@@ -20,9 +20,9 @@
    [transport.players :only [PLAYERS get-behavior get-behavior-recording inc-behavior-recording rand-player-id-excluding-player set-behavior-player-id update-player-callback]]
    ))
 
-(def FOLLOW 0)
+(def COMPLEMENT 0)
 (def CONTRAST 1)
-(def COMPLEMENT 2)
+(def FOLLOW 2)
 (def IGNORE 3)
 
 (defn get-behavior-action

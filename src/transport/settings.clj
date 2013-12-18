@@ -21,6 +21,11 @@
 (def NUM-PLAYERS (atom 10))
 (def SAVED-MELODY-LEN 64)
 
+(def COMPLEMENT 0)
+(def CONTRAST 1)
+(def FOLLOW 2)
+(def IGNORE 3)
+
 (defn set-num-players
   [new-num-players]
   (reset! NUM-PLAYERS new-num-players))

@@ -15,11 +15,13 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action FOLLOW]]
+   [transport.behavior :only [get-behavior-action]]
    [transport.pitch :only [next-pitch]]
    [transport.players :only [get-behavior-player-id get-melody get-player get-player-id]]
    [transport.random :only [random-int]]
-   [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]))
+   [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
+   [transport.settings :only [FOLLOW]]
+   ))
 
 (defn note-or-rest
   "Determines what note to play next.

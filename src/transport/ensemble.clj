@@ -16,7 +16,7 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [FOLLOW CONTRAST get-behavior-action select-and-set-behavior-player-id]]
+   [transport.behavior :only [get-behavior-action select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
@@ -24,7 +24,7 @@
    [transport.rhythm :only [get-beats get-dur-millis]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
-   [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN]]
+   [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN FOLLOW CONTRAST]]
    [transport.util])
    )
 
