@@ -15,6 +15,7 @@
 
 (ns transport.rhythm
   (:use
+   [transport.ensemble-status :only [get-average-rhythm-val-millis]]
    [transport.random :only [random-dur random-int]]
    [overtone.live :only [metronome]]
    ))
@@ -39,9 +40,12 @@
    (* quarter-note 8)                     ; double whole - 64
    ])
 
+(def NOTE-DURS-BEATS (map #(/ (NOTE-DURS %1) quarter-note) (range 0 (count NOTE-DURS))))
+
 (def NOTE-PROBS
   ;;2 8 5 15 10 15 10 15 10 5 5
   [2 10 15 30 40 55 65 80 90 95 100]
+  ;; [
 )
 
 (defn note-dur-to-millis
@@ -76,7 +80,6 @@
 (defn select-mm
   [player]
   (random-int min-mm max-mm)
-  60
   )
 
 (defn select-metronome
@@ -96,12 +99,19 @@
    :dur-note-dur beats}
   )
 
+(defn adjust-note-prob
+  [note-durs-millis]
+  (get-average-rhythm-val-millis)
+  )
+
 (defn next-note-dur
   "Returns :dur-info map for the next note
 
    player - player map to use when determining next note :dur-info"
   [ player ]
-  (let [note-prob (random-int 0 99)
+  (let [note-prob (random-int 0 119)
+        note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
+        adjusted-note-prob (adjust-note-prob note-durs-millis)
         note-dur (cond
                   (< note-prob (NOTE-PROBS 0)) 0
                   (< note-prob (NOTE-PROBS 1)) 1
