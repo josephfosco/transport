@@ -82,7 +82,6 @@
 (defn select-mm
   [player]
   (random-int min-mm max-mm)
-  60
   )
 
 (defn select-metronome
@@ -126,11 +125,14 @@
 (defn adjust-note-prob
   [note-durs-millis]
   (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-rhythm-val-millis)) %1) note-durs-millis))]
-    (println)
-    (println "index-closest-to-average: " index-closest-to-average "NOTE-PROBS: " NOTE-PROBS)
-    (if (or (= index-closest-to-average 0) (nil? index-closest-to-average))
-      (add-probabilities {0 10 1 5 2 5})
-      (add-probabilities {index-closest-to-average 10
+    (cond
+     (or (= index-closest-to-average 0) (nil? index-closest-to-average))
+     (add-probabilities {0 10 1 5 2 5})
+     (= index-closest-to-average (- (count note-durs-millis) 1))
+     (add-probabilities {(- (count note-durs-millis) 1) 10
+                         (- (count note-durs-millis) 2) 5
+                         (- (count note-durs-millis) 3) 5})
+     :else (add-probabilities {index-closest-to-average 10
                           (- index-closest-to-average 1) 5
                           (+ index-closest-to-average 1) 5}))
     )
@@ -148,19 +150,18 @@
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
         note-dur (cond
-                  (< note-prob (NOTE-PROBS 0)) 0
-                  (< note-prob (NOTE-PROBS 1)) 1
-                  (< note-prob (NOTE-PROBS 2)) 2
-                  (< note-prob (NOTE-PROBS 3)) 3
-                  (< note-prob (NOTE-PROBS 4)) 4
-                  (< note-prob (NOTE-PROBS 5)) 5
-                  (< note-prob (NOTE-PROBS 6)) 6
-                  (< note-prob (NOTE-PROBS 7)) 7
-                  (< note-prob (NOTE-PROBS 8)) 8
-                  (< note-prob (NOTE-PROBS 9)) 9
+                  (< note-prob (adjusted-note-prob 0)) 0
+                  (< note-prob (adjusted-note-prob 1)) 1
+                  (< note-prob (adjusted-note-prob 2)) 2
+                  (< note-prob (adjusted-note-prob 3)) 3
+                  (< note-prob (adjusted-note-prob 4)) 4
+                  (< note-prob (adjusted-note-prob 5)) 5
+                  (< note-prob (adjusted-note-prob 6)) 6
+                  (< note-prob (adjusted-note-prob 7)) 7
+                  (< note-prob (adjusted-note-prob 8)) 8
+                  (< note-prob (adjusted-note-prob 9)) 9
                   :else 10)
         ]
-    (println "adjusted-note-prob: " adjusted-note-prob)
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
