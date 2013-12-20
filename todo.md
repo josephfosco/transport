@@ -15,3 +15,5 @@
 * make create-player in ensemble.clj a closure that tracks player-id
 
 * need to find a way to stop assuming :player-id is a sequential number starting with 1 in ensemble.clj
+
+* need to find a way so that the first few time through checking COMPLEMENT rhythms that the average is not computed from the initial 0's in rhythm-values-millis (ensemble-status.clj)

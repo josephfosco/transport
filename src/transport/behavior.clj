@@ -24,6 +24,10 @@
   [player]
   (:action (:behavior player)))
 
+(defn get-behavior-ensemble-action
+  [player]
+  (:ensemble-action (get-behavior player)))
+
 (defn select-behavior-action
   [player]
   (let [action-num (rand)]

@@ -18,6 +18,7 @@
   (:use
    [overtone.live]
    [transport.ensemble :only [init-players]]
+   [transport.ensemble-status :only [reset-ensemble-status]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :only [set-num-players]]
@@ -92,6 +93,7 @@
       :or {num-players nil}}]
   (if (not (nil? num-players))
     (set-num-players num-players))
+  (reset-ensemble-status)
   (reset-lateness)
   (restart-scheduler)
   (init-players)

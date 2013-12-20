@@ -15,8 +15,10 @@
 
 (ns transport.rhythm
   (:use
+   [transport.behavior :only [get-behavior-ensemble-action]]
    [transport.ensemble-status :only [get-average-rhythm-val-millis]]
    [transport.random :only [random-dur random-int]]
+   [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]
    ))
 
@@ -40,7 +42,7 @@
    (* quarter-note 8)                     ; double whole - 64
    ])
 
-(def NOTE-DURS-BEATS (map #(/ (NOTE-DURS %1) quarter-note) (range 0 (count NOTE-DURS))))
+(def NOTE-DURS-BEATS (mapv #(/ (NOTE-DURS %1) quarter-note) (range 0 (count NOTE-DURS))))
 
 (def NOTE-PROBS
   ;;2 8 5 15 10 15 10 15 10 5 5
@@ -80,6 +82,7 @@
 (defn select-mm
   [player]
   (random-int min-mm max-mm)
+  60
   )
 
 (defn select-metronome
@@ -99,9 +102,38 @@
    :dur-note-dur beats}
   )
 
+(defn add-probabilities
+  "Adds to probabilities in NOTE-PROBS. This function does not
+   do any error checking. If multiple values are specified for
+   a single index, all the values will be added to the value in
+   NOTE-PROBS.
+
+  prob-to-add-map - a map of probabilities to add where each entry is
+                    key - the index to add to
+                    value - the amount to add to the probability"
+  [prob-to-add-map]
+  (loop [prob-vector NOTE-PROBS
+         prob-indexes (keys prob-to-add-map)
+         prob-values (vals prob-to-add-map)]
+    (if (= (count prob-indexes) 0)
+      prob-vector
+      (recur (assoc prob-vector (first prob-indexes) (+ (first prob-values) (nth prob-vector (first prob-indexes))))
+             (next prob-indexes)
+             (next prob-values)))
+    )
+  )
+
 (defn adjust-note-prob
   [note-durs-millis]
-  (get-average-rhythm-val-millis)
+  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-rhythm-val-millis)) %1) note-durs-millis))]
+    (println)
+    (println "index-closest-to-average: " index-closest-to-average "NOTE-PROBS: " NOTE-PROBS)
+    (if (or (= index-closest-to-average 0) (nil? index-closest-to-average))
+      (add-probabilities {0 10 1 5 2 5})
+      (add-probabilities {index-closest-to-average 10
+                          (- index-closest-to-average 1) 5
+                          (+ index-closest-to-average 1) 5}))
+    )
   )
 
 (defn next-note-dur
@@ -109,9 +141,12 @@
 
    player - player map to use when determining next note :dur-info"
   [ player ]
-  (let [note-prob (random-int 0 119)
+  (let [ensemble-action (get-behavior-ensemble-action player)
+        note-prob (if (= COMPLEMENT ensemble-action) (random-int 0 119) (random-int 0 99))
         note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
-        adjusted-note-prob (adjust-note-prob note-durs-millis)
+        adjusted-note-prob (if (= COMPLEMENT ensemble-action)
+                             (adjust-note-prob note-durs-millis)
+                             NOTE-PROBS)
         note-dur (cond
                   (< note-prob (NOTE-PROBS 0)) 0
                   (< note-prob (NOTE-PROBS 1)) 1
@@ -125,6 +160,7 @@
                   (< note-prob (NOTE-PROBS 9)) 9
                   :else 10)
         ]
+    (println "adjusted-note-prob: " adjusted-note-prob)
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))

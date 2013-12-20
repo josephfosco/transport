@@ -25,6 +25,10 @@
   (reset! rhythm-values-millis (conj (butlast @rhythm-values-millis) new-val))
   )
 
+(defn reset-ensemble-status
+  []
+  (reset! rhythm-values-millis '(0 0 0 0 0 0 0 0 0 0)))
+
 (defn get-average-rhythm-val-millis
   []
   (/ (reduce + @rhythm-values-millis) (count @rhythm-values-millis)))
