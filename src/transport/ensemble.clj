@@ -18,11 +18,11 @@
    [overtone.live]
    [transport.behavior :only [get-behavior-action select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
-   [transport.ensemble-status :only [new-rhythm-value]]
+   [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [next-melody]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-melody get-player get-players reset-players update-player]]
-   [transport.rhythm :only [get-beats get-dur-millis]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-dur-millis get-melody get-player get-players reset-players update-player]]
+   [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
    [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN FOLLOW CONTRAST]]
@@ -82,7 +82,8 @@
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
-      (new-rhythm-value melody-dur-millis)
+;;      (new-note-value melody-dur-millis)
+      (update-ensemble-status upd-player)
       )))
 
 (defn create-player

@@ -16,7 +16,8 @@
 (ns transport.rhythm
   (:use
    [transport.behavior :only [get-behavior-ensemble-action]]
-   [transport.ensemble-status :only [get-average-rhythm-val-millis]]
+   [transport.ensemble-status :only [get-average-note-val-millis]]
+   [transport.players :only [get-dur-millis]]
    [transport.random :only [random-dur random-int]]
    [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]
@@ -62,14 +63,6 @@
 (defn millis-to-note-dur
   [player millis]
   (/ millis (* (/ 60.0 (:mm player)) 1000)))
-
-(defn get-dur-millis
-  "Returns the millis duraition for the dur-info
-
-   dur-info - duration info to get millis from"
-  [dur-info]
-  (:dur-millis dur-info)
-  )
 
 (defn get-beats
   "Returns the duration in beats of this dur-info
@@ -123,15 +116,21 @@
   )
 
 (defn adjust-note-prob
+  " Finds the index of the rhythmic value closest to note-dur-millis,
+    then adds 10 to that index's probability. It adds 5 to the
+    probabilities of the values on either side of the index. If this
+    is the first or last index, add 5 to the probability of the index
+    either before or after the selected one.
+
+    note-dur-millis - the dur (in millis) to match "
   [note-durs-millis]
-  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-rhythm-val-millis)) %1) note-durs-millis))]
+  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-val-millis)) %1) note-durs-millis))]
     (cond
-     (or (= index-closest-to-average 0) (nil? index-closest-to-average))
-     (add-probabilities {0 10 1 5 2 5})
-     (= index-closest-to-average (- (count note-durs-millis) 1))
+     (or (= index-closest-to-average 0) (nil? index-closest-to-average))  ;; first index
+     (add-probabilities {0 10 1 5})
+     (= index-closest-to-average (- (count note-durs-millis) 1))          ;; last index
      (add-probabilities {(- (count note-durs-millis) 1) 10
-                         (- (count note-durs-millis) 2) 5
-                         (- (count note-durs-millis) 3) 5})
+                         (- (count note-durs-millis) 2) 5})
      :else (add-probabilities {index-closest-to-average 10
                           (- index-closest-to-average 1) 5
                           (+ index-closest-to-average 1) 5}))

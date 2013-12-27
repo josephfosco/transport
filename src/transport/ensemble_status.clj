@@ -15,20 +15,31 @@
 
 (ns transport.ensemble-status
   (:use
+   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note]]
    [transport.util])
    )
 
-(def rhythm-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
+(def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 
-(defn new-rhythm-value
+(defn update-ensemble-status
+  [player]
+  (let [last-melody (get-last-melody-event player)]
+    ;; update note-values-millis with latest note rhythm value
+    (if (not (nil? (get-note last-melody)))
+      (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody)))))
+    )
+  (println "note-values-millis: " note-values-millis)
+  )
+
+(defn new-note-value
   [new-val]
-  (reset! rhythm-values-millis (conj (butlast @rhythm-values-millis) new-val))
+  (reset! note-values-millis (conj (butlast @note-values-millis) new-val))
   )
 
 (defn reset-ensemble-status
   []
-  (reset! rhythm-values-millis '(0 0 0 0 0 0 0 0 0 0)))
+  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0)))
 
-(defn get-average-rhythm-val-millis
+(defn get-average-note-val-millis
   []
-  (/ (reduce + @rhythm-values-millis) (count @rhythm-values-millis)))
+  (/ (reduce + @note-values-millis) (count @note-values-millis)))

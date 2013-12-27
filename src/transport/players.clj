@@ -29,6 +29,29 @@
   [player]
   (:melody player))
 
+(defn get-last-melody-event
+  [player]
+  (let [player-melody (get-melody player)]
+    (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
+    )
+  )
+
+(defn get-note
+  [melody-event]
+  (:note melody-event))
+
+(defn get-dur-info
+  [melody-event]
+  (:dur-info melody-event))
+
+(defn get-dur-millis
+  "Returns the millis duraition for the dur-info
+
+   dur-info - duration info to get millis from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
 (defn get-behavior
   [player]
   (:behavior player))
