@@ -17,6 +17,7 @@
   (:use
    [transport.behavior :only [get-behavior-action get-behavior-ensemble-action]]
    [transport.pitch :only [next-pitch]]
+   [transport.ensemble-status :only [get-rest-probability]]
    [transport.players :only [get-behavior-player-id get-dur-info get-last-melody-event get-melody get-note get-player get-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
@@ -38,10 +39,8 @@
 
 (defn note-or-rest-follow-ensemble
   [player]
-  (let [play-note? (random-int 0 8)]
-    (if (pos? play-note?)
-      true
-      nil)))
+  (if (< (rand) (get-rest-probability)) nil true)
+  )
 
 (defn get-last-melody-event-num
   [player-id]

@@ -21,6 +21,7 @@
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 (def rest-prob-len 30)
+;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
 (defn init-ensemble-status
@@ -44,10 +45,11 @@
     (if (not (nil? (get-note last-melody)))
       (do
         (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        (reset! rest-prob (conj (butlast @rest-prob) true))
         )
+      (reset! rest-prob (conj (butlast @rest-prob) false))
       )
     )
-  (println @note-values-millis)
   )
 
 (defn reset-ensemble-status
@@ -58,3 +60,9 @@
 (defn get-average-note-val-millis
   []
   (/ (reduce + @note-values-millis) (count @note-values-millis)))
+
+(defn get-rest-probability
+  "Compute the percent of rests in rest-prob."
+  []
+  (println "rest prob: " (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
+  (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
