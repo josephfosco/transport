@@ -18,7 +18,7 @@
   (:use
    [overtone.live]
    [transport.ensemble :only [init-players]]
-   [transport.ensemble-status :only [reset-ensemble-status]]
+   [transport.ensemble-status :only [init-ensemble-status reset-ensemble-status]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :only [set-num-players]]
@@ -27,9 +27,8 @@
    ))
 
  (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  )
 
 (defn transport-help
   []
@@ -54,11 +53,13 @@
   "Initialize transport to play. Use only once (first time)
 
    keyword args -
-   :num-players - the number of players playing"
+   :num-players - optional, the number of players playing.
+                  default value is 10"
   [& {:keys [num-players]
       :or {num-players 10}}]
   (set-num-players num-players)
   (transport.pitch/load-scales)
+  (init-ensemble-status)
   (init-players))
 
 (defn transport-start
@@ -88,7 +89,8 @@
    Restarts scheduler, Initializes players, starts playing
 
    keyword args -
-   :num-players - the number of players playing"
+   :num-players - optional, the number of players playing.
+                  defaults to it's prior value"
   [& {:keys [num-players]
       :or {num-players nil}}]
   (if (not (nil? num-players))

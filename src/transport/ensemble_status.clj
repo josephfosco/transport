@@ -20,25 +20,40 @@
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
+(def rest-prob-len 30)
+(def rest-prob (atom '()))
+
+(defn init-ensemble-status
+  []
+  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
+  ;; initialize rest-prob
+  (dotimes [n rest-prob-len]
+    (if (< (rand) 0.8)
+      (reset! rest-prob (conj @rest-prob true))
+      (reset! rest-prob (conj @rest-prob false))
+      ))
+  (println "rest-prob: " @rest-prob)
+  )
 
 (defn update-ensemble-status
   [player]
   (let [last-melody (get-last-melody-event player)]
-    ;; update note-values-millis with latest note rhythm value
+    ;; if note (not rest) update note-values-millis with latest note rhythm value
+    ;;   and rest-prob (with new note)
+    ;; else just update rest-prob (with new rest)
     (if (not (nil? (get-note last-melody)))
-      (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody)))))
+      (do
+        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        )
+      )
     )
-  (println "note-values-millis: " note-values-millis)
-  )
-
-(defn new-note-value
-  [new-val]
-  (reset! note-values-millis (conj (butlast @note-values-millis) new-val))
+  (println @note-values-millis)
   )
 
 (defn reset-ensemble-status
   []
-  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0)))
+  (init-ensemble-status)
+  )
 
 (defn get-average-note-val-millis
   []

@@ -82,7 +82,6 @@
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
-;;      (new-note-value melody-dur-millis)
       (update-ensemble-status upd-player)
       )))
 
