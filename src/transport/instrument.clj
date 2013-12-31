@@ -94,18 +94,20 @@
 (defn play-instrument-asr
   "player - player map
    note-num - midi note number
-   note-duration - note duration in milliseconds"
-  [player note-num note-duration]
+   note-duration - note duration in milliseconds
+   volume - the volume to play this note"
+  [player note-num note-duration volume]
   (let [gate-duration (get-gate-dur player note-duration)]
-    ((get-instrument player) (midi->hz note-num) gate-duration
-     )))
+    ((get-instrument player) (midi->hz note-num) gate-duration volume)
+    ))
 
 (defn play-instrument
   "player - player map
    note-num - midi note number
-   note-duration - note duration in milliseconds"
-  [player note-num note-duration]
+   note-duration - note duration in milliseconds
+   volume - the volume to play this note"
+  [player note-num note-duration volume]
   (let [ env-type (get-envelope-type player)]
     (cond
-     (.equals env-type "ASR") (play-instrument-asr player note-num note-duration)
+     (.equals env-type "ASR") (play-instrument-asr player note-num note-duration volume)
      :else ((get-instrument player) (midi->hz note-num)))))

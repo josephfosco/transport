@@ -20,7 +20,7 @@
    [transport.debug :only [debug-run1]]
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
-   [transport.melody :only [next-melody]]
+   [transport.melody :only [get-volume next-melody]]
    [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-dur-millis get-melody get-player get-players reset-players update-player]]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
@@ -52,7 +52,7 @@
         ]
 
     (if (not (nil? (:note melody-event)))
-      (play-instrument player (:note melody-event) melody-dur-millis ))
+      (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment

@@ -48,6 +48,10 @@
     )
   )
 
+(defn get-volume
+  [melody-event]
+  (:volume melody-event))
+
 (defn get-melody-event
   [player-id melody-event-no]
   (get (get-melody (get-player player-id)) melody-event-no))
@@ -81,7 +85,8 @@
   [player]
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)]
     {:note next-note-or-rest
-     :dur-info (next-note-dur player) }
+     :dur-info (next-note-dur player)
+     :volume 0.01 }
     ))
 
 (defn next-melody
@@ -94,5 +99,6 @@
    (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-follow-ensemble player)
    :else {:note (if (note-or-rest 8) (next-pitch player) nil)
-          :dur-info (next-note-dur player) })
+          :dur-info (next-note-dur player)
+          :volume 1.0 })
   )
