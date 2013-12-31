@@ -39,8 +39,7 @@
 
 (defn note-or-rest-follow-ensemble
   [player]
-  (if (< (rand) (get-rest-probability)) nil true)
-  )
+  (if (< (rand) (get-rest-probability)) nil true))
 
 (defn get-last-melody-event-num
   [player-id]
@@ -51,8 +50,7 @@
 
 (defn get-melody-event
   [player-id melody-event-no]
-  (get (get-melody (get-player player-id)) melody-event-no)
-  )
+  (get (get-melody (get-player player-id)) melody-event-no))
 
 (defn next-melody-follow
   [player]

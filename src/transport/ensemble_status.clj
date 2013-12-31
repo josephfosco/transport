@@ -28,12 +28,12 @@
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
   ;; initialize rest-prob
+  (reset! rest-prob '())
   (dotimes [n rest-prob-len]
     (if (< (rand) 0.8)
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
-  (println "rest-prob: " @rest-prob)
   )
 
 (defn update-ensemble-status

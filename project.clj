@@ -18,7 +18,7 @@
   :url "http://example.com/FIXME"
   :license {:name "GNU General Public License version 3"
             :url "http://www.gnu.org/licenses/"}
-  :dependencies [[org.clojure/clojure "1.4.0"]
-                 [overtone "0.8.1"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [overtone "0.9.1"]
                  ]
   :main transport.core)

@@ -7,6 +7,9 @@
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :function - function to call when event is triggered
 * :instrument-info - a map containing
+    - :envelope-type - the type of envelope this instrument uses current vlaues
+      - ASR  - attack sustein release
+      - AD   - attack decay
     - :instrument -
     - :instrument-type -
     - :range-lo - the lowest note (midi note number)this instrument will play
