@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@
   [& args]
   )
 
+(def initialization-complete (atom false))
+
 (defn transport-help
   []
   (print
@@ -57,10 +59,15 @@
                   default value is 10"
   [& {:keys [num-players]
       :or {num-players 10}}]
-  (set-num-players num-players)
-  (transport.pitch/load-scales)
-  (init-ensemble-status)
-  (init-players))
+  (if (false? @initialization-complete)
+    (do
+      (set-num-players num-players)
+      (transport.pitch/load-scales)
+      (init-ensemble-status)
+      (init-players)
+      (reset! initialization-complete true)
+      (println "transport successfully initialized"))
+    (println "Warning - transport already initialized")))
 
 (defn transport-start
   "Start playing. Use after initializing players wih

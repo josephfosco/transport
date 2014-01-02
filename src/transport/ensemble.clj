@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
 
+    (println "volume: " (get-volume melody-event))
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
     (if (nil? melody-dur-millis)

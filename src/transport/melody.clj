@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
    [transport.random :only [random-int]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
    [transport.settings :only [COMPLEMENT FOLLOW]]
+   [transport.volume :only [select-volume]]
    ))
 
 (defn note-or-rest
@@ -61,21 +62,27 @@
   (let [follow-player-id (get-behavior-player-id player)
         follow-player-last-note (get-last-melody-event-num follow-player-id)
         next-new-event {:note nil
-         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
-         :follow-note (if (nil? follow-player-last-note)
-                        0
-                        (- follow-player-last-note 1))}
+                        :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
+                        :follow-note (if (nil? follow-player-last-note)
+                                       0
+                                       (- follow-player-last-note 1))
+                        :volume (select-volume player)
+                        }
         ]
     (if (nil? (:follow-note (get-last-melody-event player)))
       ;; first time, rest 3 beats
       next-new-event
+      ;; else
+      ;; play FOLLOWer melody event after last-melody event
       (let [
             last-melody-event-played (get-last-melody-event player)
             cur-note-to-play (+ (:follow-note last-melody-event-played) 1)
             next-melody-event (get-melody-event follow-player-id cur-note-to-play)
             ]
         (if (nil? next-melody-event)
+          ;; unless
           ;; FOLLOWer ahead of FOLLOWed
+          ;; then repeat whatever melody-event just played
           (assoc last-melody-event-played :follow-note (:follow-note last-melody-event-played))
           (assoc next-melody-event :follow-note cur-note-to-play))
         )))
@@ -86,7 +93,7 @@
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)]
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
-     :volume 0.01 }
+     :volume (select-volume player) }
     ))
 
 (defn next-melody
@@ -100,5 +107,5 @@
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-follow-ensemble player)
    :else {:note (if (note-or-rest 8) (next-pitch player) nil)
           :dur-info (next-note-dur player)
-          :volume 1.0 })
+          :volume (select-volume player) })
   )

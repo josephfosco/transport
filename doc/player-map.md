@@ -31,3 +31,5 @@
 * :seg-len - the length of the player's current segment in milliseconds
 * :seg-start - ?????????
 * :scale - the scale this player is using
+
+Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
