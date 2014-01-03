@@ -51,7 +51,6 @@
         seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
         ]
 
-    (println "volume: " (get-volume melody-event))
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
     (if (nil? melody-dur-millis)
@@ -78,8 +77,7 @@
                           ))
               :prev-note-beat prev-note-beat
               :seg-start seg-start-time
-              )
-            )
+              ))
           ]
       (sched-event melody-dur-millis upd-player)
       (update-player upd-player)
@@ -98,7 +96,6 @@
   []
   (let [all-players (map create-player (range 1 (+ @NUM-PLAYERS 1)))]
     (reset-players)
-
     (send-off PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
     (await PLAYERS)
     )
@@ -133,5 +130,4 @@
 
   ;; Schedule first event for all players
   (dorun (map sched-event (repeat 0) (get-players)))
-
   )

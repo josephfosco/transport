@@ -30,7 +30,9 @@
   [& args]
   )
 
-(def initialization-complete (atom false))
+(def is-initialized? (atom false))
+(def is-playing? (atom false))
+(def restart? (atom false))  ;; set to true once playuing has started - remains true after that
 
 (defn transport-help
   []
@@ -59,21 +61,55 @@
                   default value is 10"
   [& {:keys [num-players]
       :or {num-players 10}}]
-  (if (false? @initialization-complete)
+  (if (false? @is-initialized?)
     (do
       (set-num-players num-players)
       (transport.pitch/load-scales)
       (init-ensemble-status)
       (init-players)
-      (reset! initialization-complete true)
+      (reset! is-initialized? true)
       (println "transport successfully initialized"))
     (println "Warning - transport already initialized")))
 
+(declare transport-restart)
 (defn transport-start
   "Start playing. Use after initializing players wih
    (transport-init) or (transport-init-players)"
   []
-  (start-scheduler))
+  (if (false? @is-playing?)
+    (if (true? @restart?)
+      (transport-restart)  ;; already started once - restart instead
+      (do
+        (if (false? @is-initialized?)
+          (transport-init))
+        (start-scheduler)
+        (reset! is-playing? true)
+        (reset! restart? true)
+        ))
+    (println "WARNING - Can't start. Already Playing.")))
+
+(defn transport-restart
+  "Start transport after pausing.
+   Restarts scheduler, Initializes players, starts playing
+
+   keyword args -
+   :num-players - optional, the number of players playing.
+                  defaults to it's prior value"
+  [& {:keys [num-players]
+      :or {num-players nil}}]
+  (if (false? @is-playing?)
+    (if (true? @restart?)
+      (do
+        (if (not (nil? num-players))
+          (set-num-players num-players))
+        (reset-ensemble-status)
+        (reset-lateness)
+        (restart-scheduler)
+        (init-players)
+        (reset! is-playing? true)
+        (start-scheduler))
+      (transport-start))
+    (println "WARNING - Can't restart. Already playing")))
 
 (defn transport-quit
   "Quit Transport and exit Clojure"
@@ -89,23 +125,7 @@
 (defn transport-pause
   "Stop playing after players finish what they have scheduled"
   []
-  (stop-scheduler))
-
-(defn transport-restart
-  "Start transport after pausing.
-   Restarts scheduler, Initializes players, starts playing
-
-   keyword args -
-   :num-players - optional, the number of players playing.
-                  defaults to it's prior value"
-  [& {:keys [num-players]
-      :or {num-players nil}}]
-  (if (not (nil? num-players))
-    (set-num-players num-players))
-  (reset-ensemble-status)
-  (reset-lateness)
-  (restart-scheduler)
-  (init-players)
-  (transport-start))
+  (stop-scheduler)
+  (reset! is-playing? false))
 
 (transport-help)
