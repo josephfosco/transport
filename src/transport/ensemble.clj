@@ -29,37 +29,6 @@
    [transport.util])
    )
 
-(import '(java.util Date TimerTask Timer))
-
-(def lateness (agent 0))     ; num of milliseconds most recent event was late
-(def max-lateness (atom 0))  ; max num of milliseconds an event was late since starting scheduling
-
-(defn print-lateness
-  []
-  (println "ensemble.clj - lateness: " @lateness)
-  (println "ensemble.clj - max-lateness: " @max-lateness))
-
-(defn set-lateness
-  "Used to set the lateness agent to new-val
-   also sets max-lateness if appropriate
-
-   agent-val - current agent value
-   new-val value to set agent to"
-  [agent-val new-val]
-  (if (> new-val @max-lateness)
-    (do
-      (reset! max-lateness new-val)
-      (println "ensemble.clj - new max-lateness: " @max-lateness)))
-  new-val
-  )
-
-(defn reset-lateness
-  []
-  (send-off lateness set-lateness 0)
-  (await lateness)
-  (reset! max-lateness 0)
-  )
-
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
    Checks if the current segment is done, and if so
@@ -84,7 +53,6 @@
 
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
-    (send-off lateness set-lateness (- (System/currentTimeMillis) event-time))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     ;; If current segment is over, sched next event with a new segment
@@ -157,7 +125,7 @@
                       (get-instrument-info (get-player (get-behavior-player-id check-player))))))
         )))
   (await PLAYERS)
-  (reset-lateness)
+
   ;;(dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players

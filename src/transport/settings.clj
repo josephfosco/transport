@@ -26,6 +26,11 @@
 (def FOLLOW 2)
 (def IGNORE 3)
 
+(def STEADY 10)
+(def INCREASING 11)
+(def DECREASING 12)
+(def RANDOM 13)
+
 (defn set-num-players
   [new-num-players]
   (reset! NUM-PLAYERS new-num-players))
