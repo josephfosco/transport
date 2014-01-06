@@ -64,5 +64,4 @@
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob."
   []
-  (println "rest prob: " (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
   (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))

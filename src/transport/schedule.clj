@@ -20,13 +20,13 @@
 (declare check-events)
 
 (def lateness (agent 0))      ; num of milliseconds most recent event was late
-(def max-lateness (atom 0))  ; max num of milliseconds an event was late since starting scheduling
+(def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
 (def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness
   []
-  (println "lateness: " @lateness)
-  (println "max-lateness: " @max-lateness))
+  (println "schedule.clj - lateness: " @lateness)
+  (println "schedule.clj - max-lateness: " @max-lateness))
 
 (defn set-lateness
   "Used to set the lateness agent to new-val
@@ -38,7 +38,7 @@
   (if (> new-val @max-lateness)
     (do
       (reset! max-lateness new-val)
-      (println "new max-lateness: " @max-lateness)))
+      (println "schedule.clj - new max-lateness: " @max-lateness)))
   new-val
   )
 
