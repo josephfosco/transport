@@ -15,7 +15,7 @@
 
 (ns transport.util
   (:use
-   [transport.players :only [get-players]]
+   [transport.players :only [get-melody get-players]]
    ))
 
 (defn print-player
@@ -29,7 +29,7 @@
   (println "  :function         " (:function player))
   (println "  :instrument :name " (:name (:instrument (:instrument-info player))))
   (println "  :key              " (:key player))
-  (println "  :melody           " (:melody player))
+  (println "  :melody           " (get-melody player))
   (println "  :mm               " (:mm player))
   (println "  :player-id        " (:player-id player))
   (println "  :prev-note-beat   " (:prev-note-beat player))

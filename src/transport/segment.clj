@@ -18,6 +18,7 @@
    [transport.behavior :only [select-behavior]]
    [transport.instrument :only [select-instrument]]
    [transport.pitch :only [select-key select-scale]]
+   [transport.players :only [get-melody]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [select-metronome select-mm]]))
 
@@ -31,7 +32,7 @@
 (defn new-segment
   [player]
   (let [new-behavior (transport.behavior/select-behavior player)
-        melody-len (count (:melody player))
+        melody-len (count (get-melody player))
         ]
     (assoc player
       :behavior new-behavior

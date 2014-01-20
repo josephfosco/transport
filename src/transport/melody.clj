@@ -15,15 +15,25 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action get-behavior-ensemble-action]]
    [transport.pitch :only [next-pitch]]
    [transport.ensemble-status :only [get-rest-probability]]
-   [transport.players :only [get-behavior-player-id get-dur-info get-last-melody-event get-melody get-note get-player get-player-id]]
+   [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-note get-player get-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
-   [transport.settings :only [COMPLEMENT FOLLOW]]
+   [transport.settings]
    [transport.volume :only [select-volume]]
    ))
+
+(comment
+  (def melody-characteristics
+    step (smooth)
+    skips (jagged)
+    narrow range
+    wide range
+    active
+    sparse
+    )
+  )
 
 (defn note-or-rest
   "Determines what note to play next.
@@ -96,16 +106,23 @@
      :volume (select-volume player) }
     ))
 
-(defn next-melody
-  "Returns the next note and it's duration as a map
-    containing the keys :note and :dur-info
+(defn next-melody-ignore
+  [player]
+  (let [play-note? (note-or-rest 8)
+        ]
+       {:note (if play-note? (next-pitch player) nil)
+        :dur-info (next-note-dur player)
+        :volume (select-volume player)
+        })
+  )
 
-    player is the player map"
+(defn next-melody
+  "Returns the next note information as a map for player
+
+    player - the player map"
   [player]
   (cond
    (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-follow-ensemble player)
-   :else {:note (if (note-or-rest 8) (next-pitch player) nil)
-          :dur-info (next-note-dur player)
-          :volume (select-volume player) })
+   :else (next-melody-ignore player))
   )

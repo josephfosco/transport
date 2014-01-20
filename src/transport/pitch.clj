@@ -16,17 +16,16 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
-   [transport.behavior :only [get-behavior-action]]
-   [transport.players :only [get-behavior-player-id get-melody get-prev-melody-note]]
+   [transport.players :only [get-behavior-action get-behavior-player-id get-last-melody-note]]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
    [transport.random :only [random-pitch random-int]]
-   [transport.settings :only [COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   [transport.settings]
    ))
 
 (def SCALES {})
 (def DESCEND 0)
 (def ASCEND 1)
-(def SAME-NOTE 3)
+(def REPEAT-NOTE 3)
 (def RANDOM-NOTE 4)
 (def OCTAVE 12)
 
@@ -96,14 +95,14 @@
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  ( if (= (get-prev-melody-note player) nil)
+  ( if (= (get-last-melody-note player) nil)
     RANDOM-NOTE
     (let [rand-dir (rand)]
       (if (<= rand-dir 0.45)
         DESCEND
         (if ( <= rand-dir 0.9)
           ASCEND
-          SAME-NOTE))
+          REPEAT-NOTE))
       )))
 
 (defn select-scale
@@ -119,17 +118,16 @@
 
 (defn dir-ascend
   [player]
-  (let [prev-note (get-prev-melody-note player)
+  (let [prev-note (get-last-melody-note player)
         lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
     (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player))))
   )
 
 (defn dir-descend
   [player]
-  (let [prev-note (get-prev-melody-note player)]
+  (let [prev-note (get-last-melody-note player)]
     (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player))))
   )
-
 
 (declare next-pitch-ignore)
 (defn next-pitch-follow
@@ -155,10 +153,11 @@
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
      (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (get-prev-melody-note player)))  )
+     :else (get-last-melody-note player)))  )
 
 (defn next-pitch
-  [player]
+  [player & {:keys [note-dir]
+           :or {note-dir nil}}]
   (cond
    (= get-behavior-action FOLLOW) (next-pitch-follow player)
    (= get-behavior-action COMPLEMENT) (next-pitch-complement player)

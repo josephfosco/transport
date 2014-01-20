@@ -21,6 +21,7 @@
 (def NUM-PLAYERS (atom 10))
 (def SAVED-MELODY-LEN 64)
 
+
 (def COMPLEMENT 0)
 (def CONTRAST 1)
 (def FOLLOW 2)
@@ -30,6 +31,16 @@
 (def INCREASING 11)
 (def DECREASING 12)
 (def RANDOM 13)
+(def SHORT 14)
+(def LONG 15)
+(def RAPID 16)
+(def SLOW 17)
+(def KEEP-BEAT 18)
+
+(def SLOW-TEMPO [0 60])
+(def MED-TEMPO [61 100])
+(def FAST-TEMPO [101 160])
+(def VERY-FAST-TEMPO [161 999])
 
 (defn set-num-players
   [new-num-players]

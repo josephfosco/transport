@@ -15,9 +15,8 @@
 
 (ns transport.rhythm
   (:use
-   [transport.behavior :only [get-behavior-ensemble-action]]
    [transport.ensemble-status :only [get-average-note-val-millis]]
-   [transport.players :only [get-dur-millis]]
+   [transport.players :only [get-behavior-ensemble-action get-dur-millis]]
    [transport.random :only [random-dur random-int]]
    [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]

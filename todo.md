@@ -22,3 +22,5 @@
 * Add print-lateness-fl for ensemble.clj and schedule.clj to settings.clj
 
 * find a way to have an overall level adjustment based on the number of players
+
+* Add :num-players to transport-start in core.clj

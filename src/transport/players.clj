@@ -56,17 +56,33 @@
   [player]
   (:behavior player))
 
+(defn get-behavior-action
+  [player]
+  (:action (get-behavior player)))
+
+(defn get-behavior-ensemble-action
+  [player]
+  (:ensemble-action (get-behavior player)))
+
 (defn get-behavior-player-id
   [player]
   (:player-id (:behavior player)))
+
+(defn get-mm
+  [player]
+  (:mm player))
 
 (defn get-player-id
   [player]
   (:player-id player))
 
-(defn get-prev-melody-note
+(defn get-last-melody-note
+  "Returns the last melody note played by player.
+   Retunns nil if last note was a rest
+
+  player - the player to get the melody note from"
   [player]
-  (let [cur-melody (:melody player)]
+  (let [cur-melody (get-melody player)]
     (if (= cur-melody {})
       nil
       (:note (get (reduce max (keys cur-melody)) cur-melody))))

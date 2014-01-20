@@ -16,12 +16,12 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior-action select-and-set-behavior-player-id]]
+   [transport.behavior :only [select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [get-volume next-melody]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-dur-millis get-melody get-player get-players reset-players update-player]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-action get-behavior-player-id get-dur-millis get-melody get-player get-players reset-players update-player]]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
