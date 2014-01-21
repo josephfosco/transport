@@ -21,3 +21,11 @@
 (defn select-volume
   [player]
   (rand))
+
+(defn select-volume-in-range
+  "Returns a random float between lo-vol and hi-vol(exclusive).
+
+  lo-vol - lowest value that can be returned
+  hi-vol - highest value that can be returned(exclusive)"
+  [lo-vol hi-vol]
+  (+ (rand (- hi-vol lo-vol)) lo-vol))

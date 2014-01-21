@@ -16,12 +16,12 @@
 (ns transport.melody
   (:use
    [transport.pitch :only [next-pitch]]
-   [transport.ensemble-status :only [get-rest-probability]]
+   [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-note get-player get-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
    [transport.settings]
-   [transport.volume :only [select-volume]]
+   [transport.volume :only [select-volume select-volume-in-range]]
    ))
 
 (comment
@@ -100,10 +100,15 @@
 
 (defn next-melody-follow-ensemble
   [player]
-  (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)]
+  (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
+        average-volume (get-average-volume)
+        ]
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
-     :volume (select-volume player) }
+     :volume (select-volume-in-range
+              (if (<= average-volume 0.1) 0 (- average-volume 0.1)) ;; sset range of voluwe to
+              (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
+     }
     ))
 
 (defn next-melody-ignore

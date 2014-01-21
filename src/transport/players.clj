@@ -88,6 +88,10 @@
       (:note (get (reduce max (keys cur-melody)) cur-melody))))
   )
 
+(defn get-volume-for-note
+  [melody-info]
+  (:volume melody-info))
+
 (defn clear-players
   "used by send or send-off to clear agents"
   [cur-players]

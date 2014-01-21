@@ -15,12 +15,16 @@
 
 (ns transport.ensemble-status
   (:use
-   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note]]
+   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note]]
+   [transport.settings]
    [transport.util])
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
-(def rest-prob-len 30)
+(def note-volumes-len (* @NUM-PLAYERS 3))
+;; note-volumes is list of volumes for notes
+(def note-volumes (atom '()))
+(def rest-prob-len (* @NUM-PLAYERS 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
@@ -34,6 +38,11 @@
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
+  ;; initialize note-volumes to random values
+  (reset! note-volumes '())
+  (dotimes [n note-volumes-len]
+    (reset! note-volumes (conj @note-volumes (rand)))
+    )
   )
 
 (defn update-ensemble-status
@@ -45,10 +54,14 @@
     (if (not (nil? (get-note last-melody)))
       (do
         (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (reset! rest-prob (conj (butlast @rest-prob) false))
       )
+    (if (>= (get-volume-for-note last-melody) 1)(println "VOLUME > 1!!!: " (get-volume-for-note last-melody)))
+    (if (< (get-volume-for-note last-melody) 0)(println "VOLUME < 0!!!: "(get-volume-for-note last-melody)))
+
     )
   )
 
@@ -60,6 +73,10 @@
 (defn get-average-note-val-millis
   []
   (/ (reduce + @note-values-millis) (count @note-values-millis)))
+
+(defn get-average-volume
+  []
+  (/ (reduce + @note-volumes) note-volumes-len))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob."

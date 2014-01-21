@@ -26,7 +26,7 @@
         * :dur-millis - the duration of :note in milliseconds
         * :dur-note-dur - the duration of :note in beats
         * :follow-note - when FOLLOWing another player the melody-event this melody-event is in the FOLLOWers melody
-      - :volume - the volume level of this melody event
+      - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
