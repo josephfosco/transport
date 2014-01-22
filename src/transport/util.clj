@@ -29,10 +29,10 @@
     (doseq [player-key sorted-keys]
       (if (and (= player-key :instrument-info) (= prnt-full-inst-info false))
         (do
-          (println player-key ":name : " (:name (:instrument (:instrument-info player))))
-          (println player-key ":range-lo : " (:range-lo (:instrument-info player)))
-          (println player-key ":range-hi : " (:range-hi (:instrument-info player))))
-        (println player-key ":" (get player player-key)))
+          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
+          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
+          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
+        (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
     (prn)
     )
