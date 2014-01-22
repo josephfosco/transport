@@ -126,7 +126,7 @@
         )))
   (await PLAYERS)
 
-  ;;(dorun (map print-player (get-players)))
+  ;; (dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players
   (dorun (map sched-event (repeat 0) (get-players)))

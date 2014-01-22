@@ -59,9 +59,6 @@
         )
       (reset! rest-prob (conj (butlast @rest-prob) false))
       )
-    (if (>= (get-volume-for-note last-melody) 1)(println "VOLUME > 1!!!: " (get-volume-for-note last-melody)))
-    (if (< (get-volume-for-note last-melody) 0)(println "VOLUME < 0!!!: "(get-volume-for-note last-melody)))
-
     )
   )
 

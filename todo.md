@@ -19,8 +19,12 @@
 
 * need to find a way so that the first few time through checking COMPLEMENT rhythms that the average is not computed from the initial 0's in rhythm-values-millis (ensemble-status.clj)
 
-* Add print-lateness-fl for ensemble.clj and schedule.clj to settings.clj
+* Add print-lateness-fl for schedule.clj to settings.clj
 
 * find a way to have an overall level adjustment based on the number of players
 
 * Add :num-players to transport-start in core.clj
+
+* If a pleyer is FOLLOWing another, needd to know if the FOLLOWer player changes instrument
+
+* Need to implement a message queue for sending information

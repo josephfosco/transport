@@ -22,31 +22,29 @@
   "Pretty Print a player map
 
   player - the player map to print"
-  [player]
-  (println "player:")
-  (println "  :behavior         " (:behavior player))
-  (println "  :cur-note-beat    " (:cur-note-beat player))
-  (println "  :function         " (:function player))
-  (println "  :instrument :name " (:name (:instrument (:instrument-info player))))
-  (println "  :key              " (:key player))
-  (println "  :melody           " (get-melody player))
-  (println "  :mm               " (:mm player))
-  (println "  :player-id        " (:player-id player))
-  (println "  :prev-note-beat   " (:prev-note-beat player))
-  (println "  :range-lo         " (:range-lo (:instrument-info player)))
-  (println "  :range-hi         " (:range-hi (:instrument-info player)))
-  (println "  :seg-len          " (:seg-len player))
-  (println "  :seg-start        " (:seg-start player))
-  (println "  :scale            " (:scale player))
-)
+  [player & {:keys [prnt-full-inst-info]
+             :or {prnt-full-inst-info false}}]
+  (let [sorted-keys (sort (keys player))]
+    (println "player:")
+    (doseq [player-key sorted-keys]
+      (if (and (= player-key :instrument-info) (= prnt-full-inst-info false))
+        (do
+          (println player-key ":name : " (:name (:instrument (:instrument-info player))))
+          (println player-key ":range-lo : " (:range-lo (:instrument-info player)))
+          (println player-key ":range-hi : " (:range-hi (:instrument-info player))))
+        (println player-key ":" (get player player-key)))
+      )
+    (prn)
+    )
+  )
+
 (defn print-player-long
   "Pretty Print a player map with all instrument-info
 
   player - the player map to print"
   [player]
-  (print-player)
-  (println "  :instrument-info  " (:instrument-info player))
-)
+  (print-player player :prnt-full-inst-info true)
+  )
 
 (defn print-all-players
   []
