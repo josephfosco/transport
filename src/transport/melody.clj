@@ -78,7 +78,11 @@
 
 (defn note-or-rest-follow-ensemble
   [player]
-  (if (< (rand) (get-rest-probability)) nil true))
+  (if (< 0.5 (get-rest-probability)) nil true))
+
+(defn note-or-rest-contrast-ensemble
+  [player]
+  (if (< 0.5 (get-rest-probability)) true nil))
 
 (defn get-last-melody-event-num
   [player-id]
@@ -135,8 +139,22 @@
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range
-              (if (<= average-volume 0.1) 0 (- average-volume 0.1)) ;; sset range of voluwe to
+              (if (<= average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
               (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
+     }
+    ))
+
+(defn next-melody-contrast-ensemble
+  [player]
+  (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player) (next-pitch player) nil)
+        average-volume (get-average-volume)
+        ]
+    (println "average-volume: " average-volume)
+    {:note next-note-or-rest
+     :dur-info (next-note-dur player)
+     :volume (select-volume-in-range
+              (if (< average-volume 0.5) 0.5 0)  ;; set range of volume eithe 0.5 - 1 or
+              (if (< average-volume 0.5) 1 0.5)) ;; 0 - 0.5 opposite of ensemble
      }
     ))
 
@@ -158,5 +176,6 @@
   (cond
    (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-follow-ensemble player)
+   (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
    :else (next-melody-ignore player))
   )

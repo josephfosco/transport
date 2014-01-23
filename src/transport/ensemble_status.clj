@@ -79,6 +79,6 @@
   (/ (reduce + @note-volumes) note-volumes-len))
 
 (defn get-rest-probability
-  "Compute the percent of rests in rest-prob."
+  "Compute the percent of rests in rest-prob returns fraction or float."
   []
   (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
