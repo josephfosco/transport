@@ -57,7 +57,10 @@
         (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
-      (reset! rest-prob (conj (butlast @rest-prob) false))
+      (do
+        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
+        (reset! rest-prob (conj (butlast @rest-prob) false))
+        )
       )
     )
   )

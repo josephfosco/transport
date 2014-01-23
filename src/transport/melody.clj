@@ -17,34 +17,62 @@
   (:use
    [transport.pitch :only [next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
-   [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-note get-player get-player-id]]
+   [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-melody-continuity get-note get-player get-player-id]]
    [transport.random :only [random-int]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
    [transport.settings]
    [transport.volume :only [select-volume select-volume-in-range]]
    ))
 
-(comment
-  (def melody-characteristics
-    step (smooth)
-    skips (jagged)
-    narrow range
-    wide range
-    active
-    sparse
-    )
+(defn select-melody-continuity
+  "Returns a number from 1 to 10 to determine how continuous
+   the melody will be.
+   0 - continuous (few rests) -> 10 - discontinuous (all rests)"
+  [player]
+  (random-int 0 10)
+  )
+
+(defn select-melody-density
+  "Returns a number from 1 to 9 to determine how dense
+   the melody will be.
+   0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
+  [player]
+  (rand-int 9)
+  )
+
+(defn select-melody-range
+  "Returns a number from 1 to 9 to determine the width of
+   the melody's range.
+   0 - narrow range -> 9 - wide range"
+  [player]
+  (rand-int 9)
+  )
+
+(defn select-melody-smoothness
+  "Returns a number from 1 to 9 to determine how smooth (stepwise)
+   the melody will be.
+   0 - mostly steps -> 9 - mostly skips (wide skips)"
+  [player]
+  (rand-int 9)
+  )
+
+(defn select-melody-characteristics
+  [player]
+  {
+   :continuity (select-melody-continuity player)
+   :density (select-melody-density player)
+   :range (select-melody-range player)
+   :smoothness (select-melody-smoothness player)
+   }
   )
 
 (defn note-or-rest
-  "Determines what note to play next.
+  "Determines whether to play a note or rest  next.
    If player is supposed to rest, returns nil
-
-   note-prob is the probability of a note as opposed to a rest
-   note-prob of 8 means 8 times out of 9 a note will play
-   +note-prob of 5 means 5 times out of 6 a note will play"
-  [note-prob]
-  (let [play-note? (random-int 0 note-prob)]
-    (if (pos? play-note?)
+   player - the player to determine note or rest for"
+  [player]
+  (let [play-note? (random-int 0 10)]
+    (if (> (get-melody-continuity player) play-note?)
       true
       nil)))
 
@@ -103,6 +131,7 @@
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
+    (println "average-volume: " average-volume)
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range
@@ -113,11 +142,11 @@
 
 (defn next-melody-ignore
   [player]
-  (let [play-note? (note-or-rest 8)
+  (let [play-note? (note-or-rest player)
         ]
        {:note (if play-note? (next-pitch player) nil)
         :dur-info (next-note-dur player)
-        :volume (select-volume player)
+        :volume (if play-note? (select-volume player) 0) ;; 0 volume if rest
         })
   )
 

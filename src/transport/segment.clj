@@ -17,6 +17,7 @@
   (:use
    [transport.behavior :only [select-behavior]]
    [transport.instrument :only [select-instrument]]
+   [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
    [transport.players :only [get-melody]]
    [transport.random :only [random-int]]
@@ -40,6 +41,7 @@
       ;; is copied from FOLLOWing player if required
       :instrument-info (select-instrument player new-behavior)
       :key (select-key player)
+      :melody-char (select-melody-characteristics player)
       :metronome (select-metronome player)
       :mm (select-mm player)
       :seg-len (select-segment-length)
