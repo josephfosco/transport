@@ -87,7 +87,15 @@
     []
     (shutdown-agents))
 
-  (defn next-sched-event-time
+  (defn get-next-event-func
+    []
+    (nth (first @event-queue) 2))
+
+  (defn get-next-event-data
+    []
+    (nth (first @event-queue) 3))
+
+  (defn get-next-sched-event-time
     "Returns the time the next event to be executed is scheduled for
       if the next event is scheduled for 0 then return the current time
       this generally happens for a player's first note only"
@@ -177,14 +185,6 @@
     []
     (def scheduler-running? true))
 
-  (defn next-event-func
-    []
-    (nth (first @event-queue) 2))
-
-  (defn next-event-data
-    []
-    (nth (first @event-queue) 3))
-
   (defn check-events
     []
     (debug-run1 (println "1 check-events - current time: " (System/currentTimeMillis)))
@@ -192,13 +192,13 @@
     (debug-run1 (println "3 check-events - event-wueue: " @event-queue))
 
     (while  (and (not= (count @event-queue) 0)
-                 (<= (next-sched-event-time) (System/currentTimeMillis)))
+                 (<= (get-next-sched-event-time) (System/currentTimeMillis)))
       (do
-        ((next-event-func)
-         (next-event-data)
-         (next-sched-event-time))
+        ((get-next-event-func)
+         (get-next-event-data)
+         (get-next-sched-event-time))
         ;; save lateness
-        (send-off lateness set-lateness (- (System/currentTimeMillis) (next-sched-event-time)))
+        (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
         (send event-queue remove-first)
         (await event-queue)
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
@@ -237,7 +237,7 @@
           ;; else sched-timer-fl is set to false
           sched-timer-fl (if (and (> (count @event-queue) 0)
                                   (not= new-event-time 0)
-                                  (< new-event-time (next-sched-event-time)))
+                                  (< new-event-time (get-next-sched-event-time)))
                            (do
                              (cancel-timerTask)
                              true )
