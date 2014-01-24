@@ -21,7 +21,7 @@
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [get-volume next-melody]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-action get-behavior-player-id get-dur-millis get-melody get-player get-players reset-players update-player]]
+   [transport.players :only [PLAYERS get-behavior get-behavior-action get-behavior-player-id get-dur-millis get-function get-melody get-player get-players reset-players update-player]]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [new-segment]]
@@ -79,7 +79,7 @@
               :seg-start seg-start-time
               ))
           ]
-      (sched-event melody-dur-millis upd-player)
+      (sched-event melody-dur-millis (get-function upd-player) upd-player)
       (update-player upd-player)
       (update-ensemble-status upd-player)
       )))
@@ -129,5 +129,5 @@
    (dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players
-  (dorun (map sched-event (repeat 0) (get-players)))
+  (dorun (map sched-event (repeat 0) (map get-function (get-players)) (get-players)))
   )

@@ -177,9 +177,13 @@
     []
     (def scheduler-running? true))
 
-  (defn next-event-data
+  (defn next-event-func
     []
     (nth (first @event-queue) 2))
+
+  (defn next-event-data
+    []
+    (nth (first @event-queue) 3))
 
   (defn check-events
     []
@@ -190,7 +194,7 @@
     (while  (and (not= (count @event-queue) 0)
                  (<= (next-sched-event-time) (System/currentTimeMillis)))
       (do
-        ((:function (next-event-data))
+        ((next-event-func)
          (next-event-data)
          (next-sched-event-time))
         ;; save lateness
@@ -223,10 +227,10 @@
      be called when this event is executed.
      Currently event-map must contain a key :function whose value is the function
      to call when the event is executed,"
-    [event-delay event-map]
+    [event-delay func event-map]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
     (let [new-event-time (if (> event-delay 0) (+ (System/currentTimeMillis) event-delay) 0)
-          new-event (list new-event-time (swap! event-counter inc-event-counter) event-map)
+          new-event (list new-event-time (swap! event-counter inc-event-counter) func event-map)
           ;; if there are events in event-queue, and
           ;; this new event will be placed first in the event-queue
           ;; cancel the current timer and set sched-timer-flag to true

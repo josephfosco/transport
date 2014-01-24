@@ -68,6 +68,10 @@
   [player]
   (:player-id (:behavior player)))
 
+(defn get-function
+  [player]
+  (:function player))
+
 (defn get-melody-continuity
   [player]
   (:continuity (:melody-char player)))
