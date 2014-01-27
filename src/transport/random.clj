@@ -28,3 +28,16 @@
 (defn random-dur
   [lo-millis hi-millis]
   (random-int lo-millis hi-millis))
+
+(defn weighted-choice
+  "Makes a random selection based on a vector of weights.
+   Returns the index into the vector of the selection (0 - (length of vector - 1)
+
+   weight-vector - vector of the form [x1 x2 x3 x4 ....]
+                   where each entry si the relative weight of that entry"
+  [weight-vector]
+  (loop [i 0 rnd-num (* (rand) (reduce + weight-vector)) w-vec weight-vector]
+    (let [rnd-total (- rnd-num (first w-vec))]
+      (if (<= rnd-total 0)
+        i
+        (recur (inc i) rnd-total (rest w-vec))))))
