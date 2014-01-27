@@ -194,6 +194,7 @@
     (while  (and (not= (count @event-queue) 0)
                  (<= (get-next-sched-event-time) (System/currentTimeMillis)))
       (do
+        ;; first execute the scheduled function
         ((get-next-event-func)
          (get-next-event-data)
          (get-next-sched-event-time))
@@ -223,14 +224,13 @@
   (defn sched-event
     "Add an event to the event queue
      event-delay - is the number of milliseconds from now that this event will occur
-     event-map - is the information that will be passed to the function that will
-     be called when this event is executed.
-     Currently event-map must contain a key :function whose value is the function
-     to call when the event is executed,"
-    [event-delay func event-map]
+     event-func - the function to call after event-delay has elapsed
+     event-data - is the information that will be passed to the function that will
+     be called when this event is executed."
+    [event-delay event-func event-data]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
     (let [new-event-time (if (> event-delay 0) (+ (System/currentTimeMillis) event-delay) 0)
-          new-event (list new-event-time (swap! event-counter inc-event-counter) func event-map)
+          new-event (list new-event-time (swap! event-counter inc-event-counter) event-func event-data)
           ;; if there are events in event-queue, and
           ;; this new event will be placed first in the event-queue
           ;; cancel the current timer and set sched-timer-flag to true
