@@ -18,18 +18,20 @@
    [transport.pitch :only [next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-melody-continuity get-note get-player get-player-id]]
-   [transport.random :only [random-int]]
+   [transport.random :only [random-int weighted-choice]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
    [transport.settings]
    [transport.volume :only [select-volume select-volume-in-range]]
    ))
+
+(def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
 
 (defn select-melody-continuity
   "Returns a number from 1 to 10 to determine how continuous
    the melody will be.
    0 - continuous (few rests) -> 10 - discontinuous (all rests)"
   [player]
-  (random-int 0 10)
+  (weighted-choice CONTINUITY-PROBS)
   )
 
 (defn select-melody-density

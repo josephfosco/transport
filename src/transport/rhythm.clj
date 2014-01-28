@@ -147,7 +147,6 @@
                              NOTE-PROBS)
         note-dur (weighted-choice NOTE-PROBS)
         ]
-    (println "note-dur: " note-dur)
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
