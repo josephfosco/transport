@@ -17,7 +17,7 @@
   (:use
    [transport.ensemble-status :only [get-average-note-val-millis]]
    [transport.players :only [get-behavior-ensemble-action get-dur-millis]]
-   [transport.random :only [random-dur random-int]]
+   [transport.random :only [random-dur random-int weighted-choice]]
    [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]
    ))
@@ -45,9 +45,7 @@
 (def NOTE-DURS-BEATS (mapv #(/ (NOTE-DURS %1) quarter-note) (range 0 (count NOTE-DURS))))
 
 (def NOTE-PROBS
-  ;;2 8 5 15 10 15 10 15 10 5 5
-  [2 10 15 30 40 55 65 80 90 95 100]
-  ;; [
+  [2 8 5 15 10 15 10 15 10 5 5]
 )
 
 (defn note-dur-to-millis
@@ -147,19 +145,9 @@
         adjusted-note-prob (if (= COMPLEMENT ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
-        note-dur (cond
-                  (< note-prob (adjusted-note-prob 0)) 0
-                  (< note-prob (adjusted-note-prob 1)) 1
-                  (< note-prob (adjusted-note-prob 2)) 2
-                  (< note-prob (adjusted-note-prob 3)) 3
-                  (< note-prob (adjusted-note-prob 4)) 4
-                  (< note-prob (adjusted-note-prob 5)) 5
-                  (< note-prob (adjusted-note-prob 6)) 6
-                  (< note-prob (adjusted-note-prob 7)) 7
-                  (< note-prob (adjusted-note-prob 8)) 8
-                  (< note-prob (adjusted-note-prob 9)) 9
-                  :else 10)
+        note-dur (weighted-choice NOTE-PROBS)
         ]
+    (println "note-dur: " note-dur)
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
