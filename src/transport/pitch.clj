@@ -16,7 +16,7 @@
 (ns transport.pitch
   (:use
    [overtone.music.pitch :only [SCALE]]
-   [transport.players :only [get-behavior-action get-behavior-player-id get-last-melody-note]]
+   [transport.players]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
    [transport.random :only [random-pitch random-int]]
    [transport.settings]
@@ -84,6 +84,18 @@
      (<= lo-pitch (- possible-rtn-pitch OCTAVE) hi-pitch);;  try octve lower
      (- possible-rtn-pitch OCTAVE)
      :else lo-pitch )))                                ;; else return lo-pitch
+
+(defn get-scale-degree
+  "Returns the scale degree (zero-based) of pitch in player's scale and key
+
+   player - the player this pitch is froma
+   pitch - the pitch to determine the scale degree of"
+  [player pitch]
+  (let [semitones-above-root (mod (- pitch (get-key player)) 12)]
+    (println "semitones-above-root: " semitones-above-root)
+    (.indexOf (get SCALES (get-scale player)) semitones-above-root)
+       )
+  )
 
 (defn select-key
   "returns a randow number between 1- 11

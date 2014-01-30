@@ -31,7 +31,10 @@
    the melody will be.
    0 - continuous (few rests) -> 10 - discontinuous (all rests)"
   [player]
-  (weighted-choice CONTINUITY-PROBS)
+  (let [cont (weighted-choice CONTINUITY-PROBS)]
+    (println "continuity: " cont)
+    cont
+    )
   )
 
 (defn select-melody-density
@@ -74,7 +77,7 @@
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (if (> (get-melody-continuity player) play-note?)
+    (if (< (get-melody-continuity player) play-note?)
       true
       nil)))
 

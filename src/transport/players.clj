@@ -72,9 +72,17 @@
   [player]
   (:function player))
 
+(defn get-key
+  [player]
+  (:key player))
+
 (defn get-melody-continuity
   [player]
   (:continuity (:melody-char player)))
+
+(defn get-melody-smoothness
+  [player]
+  (:smoothness (:melody-char player)))
 
 (defn get-mm
   [player]
@@ -95,6 +103,10 @@
       nil
       (:note (get (reduce max (keys cur-melody)) cur-melody))))
   )
+
+(defn get-scale
+  [player]
+  (:scale player))
 
 (defn get-volume-for-note
   [melody-info]
