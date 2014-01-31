@@ -86,15 +86,50 @@
      :else lo-pitch )))                                ;; else return lo-pitch
 
 (defn get-scale-degree
-  "Returns the scale degree (zero-based) of pitch in player's scale and key
+  "Returns the scale degree (zero-based) of pitch in player's scale and key.
+   Returns -1 if pitch is not in scale
 
-   player - the player this pitch is froma
+   player - the player this pitch is from
    pitch - the pitch to determine the scale degree of"
   [player pitch]
   (let [semitones-above-root (mod (- pitch (get-key player)) 12)]
-    (println "semitones-above-root: " semitones-above-root)
     (.indexOf (get SCALES (get-scale player)) semitones-above-root)
        )
+  )
+
+(defn get-step-up-in-scale
+  "Returns the pitch 1 step up in the players scale and key
+   Will throw a NullPointerException if pitch is not in player scale and key.
+
+   player - the player to select key and scale from
+   pitch - the pitch to go 1 step above"
+  [player pitch]
+  (let [player-scale (get SCALES (get-scale player))
+        scale-degree (get-scale-degree player pitch)]
+    (if (= scale-degree (- (count player-scale) 1))     ;; if at top of scale
+      (+ pitch (- 12 (get player-scale scale-degree)))  ;; return root above pitch
+      (+ pitch (- (get player-scale (+ scale-degree 1))
+                  (get player-scale scale-degree)))     ;; else return pitch 1 scale degree up
+      )
+    )
+  )
+
+(defn get-step-down-in-scale
+  "Returns the pitch 1 step down in the players scale and key
+   Will throw a NullPointerException if pitch is not in player scale and key.
+
+   player - the player to select key and scale from
+   pitch - the pitch to go 1 step below"
+  [player pitch]
+  (let [player-scale (get SCALES (get-scale player))
+        scale-degree (get-scale-degree player pitch)]
+    (if (= scale-degree 0)     ;; if at bottom of scale
+      (- pitch
+         (- 12 (get player-scale (- (count player-scale) 1))))  ;; return top of scale below pitch
+      (- pitch (- (get player-scale scale-degree)
+                  (get player-scale (- scale-degree 1))))       ;; else return pitch 1 scale degree down
+      )
+    )
   )
 
 (defn select-key
