@@ -101,7 +101,7 @@
   (let [cur-melody (get-melody player)]
     (if (= cur-melody {})
       nil
-      (:note (get (reduce max (keys cur-melody)) cur-melody))))
+      (:note (get cur-melody (reduce max (keys cur-melody))))))
   )
 
 (defn get-scale

@@ -83,6 +83,7 @@
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
       (update-ensemble-status upd-player)
+      (if (not= seg-start-time (:seg-start player)) (print-player upd-player))
       )))
 
 (defn create-player

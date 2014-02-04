@@ -35,6 +35,7 @@
     (println "continuity: " cont)
     cont
     )
+  0
   )
 
 (defn select-melody-density
@@ -59,6 +60,7 @@
    0 - mostly steps -> 9 - mostly skips (wide skips)"
   [player]
   (rand-int 9)
+  0
   )
 
 (defn select-melody-characteristics

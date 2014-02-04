@@ -13,4 +13,4 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(def tst-player {:key 5 :scale :major :instrument-info {:range-hi 75 :range-lo 62} :melody [{:note 70} { :note 72} {:note 74}] :mm 60  })
+(def tst-player {:key 5 :scale :major :instrument-info {:range-hi 90 :range-lo 62} :melody [{:note 70} { :note 72} {:note 74}] :melody-char {:smoothness 0} :mm 60  })

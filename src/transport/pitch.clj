@@ -27,6 +27,8 @@
 (def ASCEND 1)
 (def REPEAT-NOTE 3)
 (def RANDOM-NOTE 4)
+(def STEP 0)
+(def SKIP 1)
 (def OCTAVE 12)
 
 (defn convert-scale
@@ -99,13 +101,16 @@
 
 (defn get-step-up-in-scale
   "Returns the pitch 1 step up in the players scale and key
-   Will throw a NullPointerException if pitch is not in player scale and key.
+   Will return 0 if pitch is not in scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step above"
   [player pitch]
+  (println "step UP")
   (let [player-scale (get SCALES (get-scale player))
-        scale-degree (get-scale-degree player pitch)]
+        tst-scale-degree (get-scale-degree player pitch)
+        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
+        ]
     (if (= scale-degree (- (count player-scale) 1))     ;; if at top of scale
       (+ pitch (- 12 (get player-scale scale-degree)))  ;; return root above pitch
       (+ pitch (- (get player-scale (+ scale-degree 1))
@@ -116,13 +121,16 @@
 
 (defn get-step-down-in-scale
   "Returns the pitch 1 step down in the players scale and key
-   Will throw a NullPointerException if pitch is not in player scale and key.
+   Will return 0 if pitch is not in scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step below"
   [player pitch]
+  (println "step Down")
   (let [player-scale (get SCALES (get-scale player))
-        scale-degree (get-scale-degree player pitch)]
+        tst-scale-degree (get-scale-degree player pitch)
+        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
+        ]
     (if (= scale-degree 0)     ;; if at bottom of scale
       (- pitch
          (- 12 (get player-scale (- (count player-scale) 1))))  ;; return top of scale below pitch
@@ -142,7 +150,8 @@
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  ( if (= (get-last-melody-note player) nil)
+  (println "LAST MELODY NOTE: " (get-last-melody-note player))
+  (if (= (get-last-melody-note player) nil)
     RANDOM-NOTE
     (let [rand-dir (rand)]
       (if (<= rand-dir 0.45)
@@ -163,17 +172,33 @@
    0
    (- (count ((:scale player) SCALES)) 1)))  ; number of pitches in the instruments scale
 
+(defn choose-step-or-skip
+  "Returns STEP or SKIP for next note for player
+
+   player - player to get STEP or SKIP for"
+  [player]
+  (let [rand-tst (read-string (format "%.1f" (* (rand) 10)))]
+    (println "**** rand-tst ****: " rand-tst)
+    (if (>  rand-tst (get-melody-smoothness player)) STEP SKIP))
+  )
+
 (defn dir-ascend
   [player]
-  (let [prev-note (get-last-melody-note player)
-        lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
-    (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player))))
+  (println "dir-ascend")
+  (if (= (choose-step-or-skip player) STEP)
+    (get-step-up-in-scale player (get-last-melody-note player))
+    (let [prev-note (get-last-melody-note player)
+          lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
+      (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)))))
   )
 
 (defn dir-descend
   [player]
-  (let [prev-note (get-last-melody-note player)]
-    (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player))))
+  (println "dir-decend")
+  (if (= (choose-step-or-skip player) STEP)
+    (get-step-down-in-scale player (get-last-melody-note player))
+    (let [prev-note (get-last-melody-note player)]
+      (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player)))))
   )
 
 (declare next-pitch-ignore)
@@ -196,6 +221,7 @@
 (defn next-pitch-ignore
   [player]
   (let [direction (select-direction player)]
+    (println "direction: " direction)
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
