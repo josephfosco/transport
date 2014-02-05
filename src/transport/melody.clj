@@ -35,7 +35,7 @@
     (println "continuity: " cont)
     cont
     )
-  0
+  (long 0)
   )
 
 (defn select-melody-density
@@ -60,7 +60,7 @@
    0 - mostly steps -> 9 - mostly skips (wide skips)"
   [player]
   (rand-int 9)
-  0
+  (long 0)
   )
 
 (defn select-melody-characteristics
@@ -76,12 +76,15 @@
 (defn note-or-rest
   "Determines whether to play a note or rest  next.
    If player is supposed to rest, returns nil
+
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (if (< (get-melody-continuity player) play-note?)
+    (if (< (long (get-melody-continuity player)) play-note?)
       true
-      nil)))
+      (do
+        (println "RETURNING REST play-note?: " (type play-note?) "continuity: " (type (long (get-melody-continuity player))))
+        nil))))
 
 (defn note-or-rest-follow-ensemble
   [player]

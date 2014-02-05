@@ -78,7 +78,7 @@
 
 (defn get-melody-continuity
   [player]
-  (:continuity (:melody-char player)))
+  (long (:continuity (:melody-char player))))
 
 (defn get-melody-smoothness
   [player]

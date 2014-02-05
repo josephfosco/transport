@@ -106,7 +106,6 @@
    player - the player to select key and scale from
    pitch - the pitch to go 1 step above"
   [player pitch]
-  (println "step UP")
   (let [player-scale (get SCALES (get-scale player))
         tst-scale-degree (get-scale-degree player pitch)
         scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
@@ -126,7 +125,6 @@
    player - the player to select key and scale from
    pitch - the pitch to go 1 step below"
   [player pitch]
-  (println "step Down")
   (let [player-scale (get SCALES (get-scale player))
         tst-scale-degree (get-scale-degree player pitch)
         scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
@@ -177,14 +175,12 @@
 
    player - player to get STEP or SKIP for"
   [player]
-  (let [rand-tst (read-string (format "%.1f" (* (rand) 10)))]
-    (println "**** rand-tst ****: " rand-tst)
-    (if (>  rand-tst (get-melody-smoothness player)) STEP SKIP))
+  (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
+    (if (>  rand-rounded (get-melody-smoothness player)) STEP SKIP))
   )
 
 (defn dir-ascend
   [player]
-  (println "dir-ascend")
   (if (= (choose-step-or-skip player) STEP)
     (get-step-up-in-scale player (get-last-melody-note player))
     (let [prev-note (get-last-melody-note player)
@@ -194,7 +190,6 @@
 
 (defn dir-descend
   [player]
-  (println "dir-decend")
   (if (= (choose-step-or-skip player) STEP)
     (get-step-down-in-scale player (get-last-melody-note player))
     (let [prev-note (get-last-melody-note player)]
@@ -221,7 +216,6 @@
 (defn next-pitch-ignore
   [player]
   (let [direction (select-direction player)]
-    (println "direction: " direction)
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
