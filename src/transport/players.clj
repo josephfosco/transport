@@ -78,7 +78,7 @@
 
 (defn get-melody-continuity
   [player]
-  (long (:continuity (:melody-char player))))
+  (:continuity (:melody-char player)))
 
 (defn get-melody-smoothness
   [player]
@@ -102,6 +102,14 @@
     (if (= cur-melody {})
       nil
       (:note (get cur-melody (reduce max (keys cur-melody))))))
+  )
+
+(defn get-last-melody-event
+  [player]
+  (let [cur-melody (get-melody player)]
+    (if (= cur-melody {})
+      nil
+      (list (reduce max (keys cur-melody)) (get cur-melody (reduce max (keys cur-melody))))))
   )
 
 (defn get-scale
@@ -151,7 +159,9 @@
 
 (defn update-player
   [player]
-  (send-off PLAYERS update-player-callback player))
+  (send-off PLAYERS update-player-callback player)
+  (await PLAYERS)
+  )
 
 (defn rand-player-id-excluding-player
   "Select a random player-id not including the

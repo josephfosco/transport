@@ -15,9 +15,9 @@
 
 (ns transport.melody
   (:use
-   [transport.pitch :only [next-pitch]]
+   [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
-   [transport.players :only [get-behavior-action get-behavior-ensemble-action get-behavior-player-id get-dur-info get-last-melody-event get-melody get-melody-continuity get-note get-player get-player-id]]
+   [transport.players]
    [transport.random :only [random-int weighted-choice]]
    [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
    [transport.settings]
@@ -31,10 +31,7 @@
    the melody will be.
    0 - continuous (few rests) -> 10 - discontinuous (all rests)"
   [player]
-  (let [cont (weighted-choice CONTINUITY-PROBS)]
-    (println "continuity: " cont)
-    cont
-    )
+  (weighted-choice CONTINUITY-PROBS)
   (long 0)
   )
 
@@ -80,11 +77,28 @@
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (if (< (long (get-melody-continuity player)) play-note?)
+    (println "play-note?: " play-note? "continuity: " (get-melody-continuity player))
+    (if (< (get-melody-continuity player) play-note?)
       true
-      (do
-        (println "RETURNING REST play-note?: " (type play-note?) "continuity: " (type (long (get-melody-continuity player))))
-        nil))))
+      (if (not= 0 play-note?)                                              ;; if continuity not 0
+        nil                                                                ;; rest
+        (if (and                                                           ;; else
+             (not= {} (get-melody player))                                 ;; if melody not empty
+             (= 0                                                          ;; and last pitch is root
+                (get-scale-degree
+                 player
+                 (or (get-last-melody-note player) 0)))                    ;; or rest
+             (< (rand) 1.0))                                               ;; possibly rest
+          (do
+            (println "****************************")
+            (println (get-melody player))
+            (println "****************************")
+            (println "last-melody: " (get-last-melody-note player) "key: " (get-key player))
+            (println "scale-degree: " (get-scale-degree player (get-last-melody-note player)))
+            (println "RESTING ***")
+            nil)
+          (do
+            true))))))
 
 (defn note-or-rest-follow-ensemble
   [player]
@@ -140,8 +154,9 @@
         )))
   )
 
-(defn next-melody-follow-ensemble
+(defn next-melody-complement-ensemble
   [player]
+  (println "melody.clj next-melody-complement-ensemble")
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
@@ -185,7 +200,7 @@
   [player]
   (cond
    (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-follow-ensemble player)
+   (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-complement-ensemble player)
    (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
    :else (next-melody-ignore player))
   )

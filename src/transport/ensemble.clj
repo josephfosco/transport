@@ -38,6 +38,7 @@
    player - map for the current player
    event-time - time this note event was scheduled for"
   [player-id event-time]
+    (println "PLAYING player-id: " player-id)
   (let [
         player (get-player player-id)
         player-action (get-behavior-action player)

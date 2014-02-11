@@ -94,10 +94,10 @@
    player - the player this pitch is from
    pitch - the pitch to determine the scale degree of"
   [player pitch]
-  (let [semitones-above-root (mod (- pitch (get-key player)) 12)]
+  (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)]
     (.indexOf (get SCALES (get-scale player)) semitones-above-root)
-       )
-  )
+    )
+    )
 
 (defn get-step-up-in-scale
   "Returns the pitch 1 step up in the players scale and key
@@ -149,6 +149,7 @@
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
   (println "LAST MELODY NOTE: " (get-last-melody-note player))
+  (println "LAST MELODY evnt: " (get-last-melody-event player))
   (if (= (get-last-melody-note player) nil)
     RANDOM-NOTE
     (let [rand-dir (rand)]
