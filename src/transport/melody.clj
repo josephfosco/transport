@@ -102,6 +102,7 @@
 
 (defn note-or-rest-follow-ensemble
   [player]
+  (println "melody.clj note-or-rest-follow-ensemble")
   (if (< 0.5 (get-rest-probability)) nil true))
 
 (defn note-or-rest-contrast-ensemble

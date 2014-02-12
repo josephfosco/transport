@@ -25,17 +25,6 @@
   [player-id]
   (get @PLAYERS player-id))
 
-(defn get-melody
-  [player]
-  (:melody player))
-
-(defn get-last-melody-event
-  [player]
-  (let [player-melody (get-melody player)]
-    (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
-    )
-  )
-
 (defn get-note
   [melody-event]
   (:note melody-event))
@@ -92,6 +81,10 @@
   [player]
   (:player-id player))
 
+(defn get-melody
+  [player]
+  (:melody player))
+
 (defn get-last-melody-note
   "Returns the last melody note played by player.
    Retunns nil if last note was a rest
@@ -112,13 +105,21 @@
       (list (reduce max (keys cur-melody)) (get cur-melody (reduce max (keys cur-melody))))))
   )
 
+(defn get-last-melody-event
+  [player]
+  (let [player-melody (get-melody player)]
+    (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
+    )
+  )
+
 (defn get-scale
   [player]
   (:scale player))
 
 (defn get-volume-for-note
-  [melody-info]
-  (:volume melody-info))
+  [melody-event]
+  (println "players.clj get-volume-for-note melody-event: " melody-event)
+  (:volume melody-event))
 
 (defn clear-players
   "used by send or send-off to clear agents"

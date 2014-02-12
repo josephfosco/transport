@@ -51,6 +51,8 @@
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest)
+    (println "ensemble-status.clj update-ensemble-status last-melody: " last-melody)
+    (println "ensemble-status.clj update-ensemble-status last volume: " (get-volume-for-note last-melody))
     (if (not (nil? (get-note last-melody)))
       (do
         (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
@@ -76,6 +78,8 @@
 
 (defn get-average-volume
   []
+  (println "ensemble-status get-average-volume note-volumes-len: " note-volumes-len)
+  (println "note-volumes: " @note-volumes)
   (/ (reduce + @note-volumes) note-volumes-len))
 
 (defn get-rest-probability
