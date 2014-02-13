@@ -38,7 +38,6 @@
    player - map for the current player
    event-time - time this note event was scheduled for"
   [player-id event-time]
-    (println "PLAYING player-id: " player-id)
   (let [
         player (get-player player-id)
         player-action (get-behavior-action player)
@@ -84,7 +83,6 @@
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
       (update-ensemble-status upd-player)
-      (if (not= seg-start-time (:seg-start player)) (print-player upd-player))
       )))
 
 (defn create-player

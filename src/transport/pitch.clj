@@ -148,8 +148,6 @@
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  (println "LAST MELODY NOTE: " (get-last-melody-note player))
-  (println "LAST MELODY evnt: " (get-last-melody-event player))
   (if (= (get-last-melody-note player) nil)
     RANDOM-NOTE
     (let [rand-dir (rand)]

@@ -32,7 +32,6 @@
    0 - continuous (few rests) -> 10 - discontinuous (all rests)"
   [player]
   (weighted-choice CONTINUITY-PROBS)
-  (long 0)
   )
 
 (defn select-melody-density
@@ -57,7 +56,6 @@
    0 - mostly steps -> 9 - mostly skips (wide skips)"
   [player]
   (rand-int 9)
-  (long 0)
   )
 
 (defn select-melody-characteristics
@@ -77,7 +75,6 @@
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (println "play-note?: " play-note? "continuity: " (get-melody-continuity player))
     (if (< (get-melody-continuity player) play-note?)
       true
       (if (not= 0 play-note?)                                              ;; if continuity not 0
@@ -89,32 +86,16 @@
                  player
                  (or (get-last-melody-note player) 0)))                    ;; or rest
              (< (rand) 1.0))                                               ;; possibly rest
-          (do
-            (println "****************************")
-            (println (get-melody player))
-            (println "****************************")
-            (println "last-melody: " (get-last-melody-note player) "key: " (get-key player))
-            (println "scale-degree: " (get-scale-degree player (get-last-melody-note player)))
-            (println "RESTING ***")
-            nil)
-          (do
-            true))))))
+          nil
+          true)))))
 
 (defn note-or-rest-follow-ensemble
   [player]
-  (println "melody.clj note-or-rest-follow-ensemble")
   (if (< 0.5 (get-rest-probability)) nil true))
 
 (defn note-or-rest-contrast-ensemble
   [player]
   (if (< 0.5 (get-rest-probability)) true nil))
-
-(defn get-last-melody-event-num
-  [player-id]
-  (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
-    (if (= last-melody-key 0) nil last-melody-key)
-    )
-  )
 
 (defn get-volume
   [melody-event]
@@ -157,7 +138,6 @@
 
 (defn next-melody-complement-ensemble
   [player]
-  (println "melody.clj next-melody-complement-ensemble")
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]

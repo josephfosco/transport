@@ -85,6 +85,13 @@
   [player]
   (:melody player))
 
+(defn get-last-melody-event-num
+  [player-id]
+  (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
+    (if (= last-melody-key 0) nil last-melody-key)
+    )
+  )
+
 (defn get-last-melody-note
   "Returns the last melody note played by player.
    Retunns nil if last note was a rest
@@ -95,14 +102,6 @@
     (if (= cur-melody {})
       nil
       (:note (get cur-melody (reduce max (keys cur-melody))))))
-  )
-
-(defn get-last-melody-event
-  [player]
-  (let [cur-melody (get-melody player)]
-    (if (= cur-melody {})
-      nil
-      (list (reduce max (keys cur-melody)) (get cur-melody (reduce max (keys cur-melody))))))
   )
 
 (defn get-last-melody-event
@@ -118,7 +117,6 @@
 
 (defn get-volume-for-note
   [melody-event]
-  (println "players.clj get-volume-for-note melody-event: " melody-event)
   (:volume melody-event))
 
 (defn clear-players
