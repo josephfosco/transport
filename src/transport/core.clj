@@ -21,7 +21,7 @@
    [transport.ensemble-status :only [init-ensemble-status reset-ensemble-status]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
-   [transport.settings :only [set-num-players]]
+   [transport.settings :only [NUM-PLAYERS set-num-players]]
    [transport.util]
    [transport.version]
    ))
@@ -44,11 +44,19 @@
    "
    Avilable functions for transport
 
-   (transport-init)         Initialize Transport
-   (transport-start)        Start playing
-   (transport-pause)        Pause after playing current notes
-   (transport-restart)      Restart after pausing
-   (transport-help)         Print this message
+     (transport-start)        Start playing
+     (transport-pause)        Pause after playing current notes
+
+   The following functions are not necessary but available:
+
+     (transport-init)         Initialize Transport
+     (transport-restart)      Restart after pausing
+     (transport-help)         Print this message
+
+   (transport-start), (transport-init), and (transport-restart) accept
+   an optional keyword argument :num-players to set the number of
+   players playing. If this is never specified it defaults to
+   10 players. The number of players remains the same until it is reset.
 
 
 "))
@@ -75,13 +83,14 @@
 (defn transport-start
   "Start playing. Use after initializing players wih
    (transport-init) or (transport-init-players)"
-  []
+  [& {:keys [num-players]
+      :or {num-players @NUM-PLAYERS}}]
   (if (false? @is-playing?)
     (if (true? @restart?)
-      (transport-restart)  ;; already started once - restart instead
+      (transport-restart :num-players num-players)  ;; already started once - restart instead
       (do
         (if (false? @is-initialized?)
-          (transport-init))
+          (transport-init :num-players num-players))
         (start-scheduler)
         (reset! is-playing? true)
         (reset! restart? true)
