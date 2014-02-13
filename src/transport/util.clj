@@ -15,7 +15,7 @@
 
 (ns transport.util
   (:use
-   [transport.players :only [get-melody get-players]]
+   [transport.players :only [get-melody get-player get-players]]
    ))
 
 (defn print-player
@@ -36,6 +36,11 @@
       )
     (prn)
     )
+  )
+
+(defn print-player-num
+  [player-id]
+  (print-player (get-player player-id))
   )
 
 (defn print-player-long

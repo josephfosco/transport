@@ -85,7 +85,7 @@
                 (get-scale-degree
                  player
                  (or (get-last-melody-note player) 0)))                    ;; or rest
-             (< (rand) 1.0))                                               ;; possibly rest
+             (< (rand) 0.8))                                               ;; possibly rest
           nil
           true)))))
 
