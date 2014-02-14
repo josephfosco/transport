@@ -42,21 +42,19 @@
   (println "TRANSPORT version" TRANSPORT-VERSION-STR)
   (print
    "
-   Avilable functions for transport
+   Functions to run transport
 
      (transport-start)        Start playing
+                               optional key :num-players
      (transport-pause)        Pause after playing current notes
 
    The following functions are not necessary but available:
 
      (transport-init)         Initialize Transport
+                               optional key :num-players
      (transport-restart)      Restart after pausing
+                               optional key :num-players
      (transport-help)         Print this message
-
-   (transport-start), (transport-init), and (transport-restart) accept
-   an optional keyword argument :num-players to set the number of
-   players playing. If this is never specified it defaults to
-   10 players. The number of players remains the same until it is reset.
 
 
 "))
