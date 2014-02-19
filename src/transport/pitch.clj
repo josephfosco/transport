@@ -99,6 +99,36 @@
     )
     )
 
+(defn get-nearest-scale-degree
+  "Returns nearest scale degree that is closest to pitch in players key and scale
+   value returned is index to players scale vector from SCALES
+
+   player - player to use key and scale from
+   pitch - pitch to find nearest scale degree in players key and scale"
+  [player pitch]
+  (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)
+        octave-scale (conj (get SCALES (get-scale player)) OCTAVE) ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        ]
+
+    (loop [i 0
+           scale octave-scale
+           ]
+      (let [interval-1 (nth scale 0)
+            interval-2 (nth scale 1)
+            ]
+
+        (if (and (<= semitones-above-root interval-2) (>= semitones-above-root interval-1))
+          (cond (< (- semitones-above-root interval-1)
+                   (- interval-2 semitones-above-root)) i        ;;  closer or = to lower interval
+                (> (- semitones-above-root interval-1)
+                   (- interval-2 semitones-above-root)) (inc i)  ;;  closer or = to higher interval
+                   )
+          (recur (inc i) (subvec scale 1))
+          ))
+      )
+    )
+  )
+
 (defn get-step-up-in-scale
   "Returns the pitch 1 step up in the players scale and key
    Will return 0 if pitch is not in scale and key
@@ -108,12 +138,12 @@
   [player pitch]
   (let [player-scale (get SCALES (get-scale player))
         tst-scale-degree (get-scale-degree player pitch)
-        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
+        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree (get-nearest-scale-degree player pitch))
         ]
-    (if (= scale-degree (- (count player-scale) 1))     ;; if at top of scale
-      (+ pitch (- 12 (get player-scale scale-degree)))  ;; return root above pitch
+    (if (= scale-degree (- (count player-scale) 1))         ;; if at top of scale
+      (+ pitch (- OCTAVE (get player-scale scale-degree)))  ;; return root above pitch
       (+ pitch (- (get player-scale (+ scale-degree 1))
-                  (get player-scale scale-degree)))     ;; else return pitch 1 scale degree up
+                  (get player-scale scale-degree)))         ;; else return pitch 1 scale degree up
       )
     )
   )
@@ -127,13 +157,13 @@
   [player pitch]
   (let [player-scale (get SCALES (get-scale player))
         tst-scale-degree (get-scale-degree player pitch)
-        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree 0) ;; in case pitch is not in scale & key
+        scale-degree (if (not= tst-scale-degree -1) tst-scale-degree (get-nearest-scale-degree player pitch))
         ]
     (if (= scale-degree 0)     ;; if at bottom of scale
       (- pitch
-         (- 12 (get player-scale (- (count player-scale) 1))))  ;; return top of scale below pitch
+         (- OCTAVE (get player-scale (- (count player-scale) 1))))  ;; return top of scale below pitch
       (- pitch (- (get player-scale scale-degree)
-                  (get player-scale (- scale-degree 1))))       ;; else return pitch 1 scale degree down
+                  (get player-scale (- scale-degree 1))))           ;; else return pitch 1 scale degree down
       )
     )
   )
