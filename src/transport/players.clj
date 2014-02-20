@@ -65,11 +65,19 @@
   [player]
   (:key player))
 
-(defn get-melody-continuity
+(defn get-melody-continuity-char
   [player]
   (:continuity (:melody-char player)))
 
-(defn get-melody-smoothness
+(defn get-melody-density-char
+  [player]
+  (:density (:melody-char player)))
+
+(defn get-melody-range-char
+  [player]
+  (:range (:melody-char player)))
+
+(defn get-melody-smoothness-char
   [player]
   (:smoothness (:melody-char player)))
 

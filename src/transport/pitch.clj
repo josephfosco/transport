@@ -121,7 +121,9 @@
           (cond (< (- semitones-above-root interval-1)
                    (- interval-2 semitones-above-root)) i        ;;  closer or = to lower interval
                 (> (- semitones-above-root interval-1)
-                   (- interval-2 semitones-above-root)) (inc i)  ;;  closer or = to higher interval
+                   (- interval-2 semitones-above-root))          ;;  closer or = to higher interval
+                (if (= (count scale) 2) 0 (inc i))               ;;  if at top only return 0 (not octave)
+                :else i                                          ;;  equal distance from each interval
                    )
           (recur (inc i) (subvec scale 1))
           ))
@@ -205,7 +207,7 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-smoothness player)) STEP SKIP))
+    (if (>  rand-rounded (get-melody-smoothness-char player)) STEP SKIP))
   )
 
 (defn dir-ascend

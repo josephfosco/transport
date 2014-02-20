@@ -70,7 +70,7 @@
   (init-ensemble-status)
   )
 
-(defn get-average-note-val-millis
+(defn get-average-note-dur-millis
   []
   (/ (reduce + @note-values-millis) (count @note-values-millis)))
 

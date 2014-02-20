@@ -79,8 +79,10 @@
 
 (declare transport-restart)
 (defn transport-start
-  "Start playing. Use after initializing players wih
-   (transport-init) or (transport-init-players)"
+  "Start playing.
+
+   :num-players - optional key to set the number of players
+                  defaults to 10. Retains it's value once set"
   [& {:keys [num-players]
       :or {num-players @NUM-PLAYERS}}]
   (if (false? @is-playing?)

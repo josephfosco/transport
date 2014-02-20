@@ -75,7 +75,7 @@
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (if (< (get-melody-continuity player) play-note?)
+    (if (< (get-melody-continuity-char player) play-note?)
       true
       (if (not= 0 play-note?)                                              ;; if continuity not 0
         nil                                                                ;; rest

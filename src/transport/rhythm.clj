@@ -15,7 +15,7 @@
 
 (ns transport.rhythm
   (:use
-   [transport.ensemble-status :only [get-average-note-val-millis]]
+   [transport.ensemble-status :only [get-average-note-dur-millis]]
    [transport.players :only [get-behavior-ensemble-action get-dur-millis]]
    [transport.random :only [random-dur random-int weighted-choice]]
    [transport.settings :only [COMPLEMENT]]
@@ -92,45 +92,61 @@
   )
 
 (defn add-probabilities
-  "Adds to probabilities in NOTE-PROBS. This function does not
+  "Adds to probabilities in prob-vector. This function does not
    do any error checking. If multiple values are specified for
    a single index, all the values will be added to the value in
-   NOTE-PROBS.
+   prob-vector.
 
+  prob-vector - vector of probabilities to add probabilities to
   prob-to-add-map - a map of probabilities to add where each entry is
                     key - the index to add to
                     value - the amount to add to the probability"
-  [prob-to-add-map]
-  (loop [prob-vector NOTE-PROBS
+  [prob-vector prob-to-add-map]
+  (loop [cur-prob-vector prob-vector
          prob-indexes (keys prob-to-add-map)
          prob-values (vals prob-to-add-map)]
     (if (= (count prob-indexes) 0)
-      prob-vector
-      (recur (assoc prob-vector (first prob-indexes) (+ (first prob-values) (nth prob-vector (first prob-indexes))))
+      cur-prob-vector
+      (recur (assoc cur-prob-vector (first prob-indexes) (+ (first prob-values) (nth cur-prob-vector (first prob-indexes))))
              (next prob-indexes)
              (next prob-values)))
     )
   )
 
 (defn adjust-note-prob
-  " Finds the index of the rhythmic value closest to note-dur-millis,
-    then adds 10 to that index's probability. It adds 5 to the
+  " Finds the index of the rhythmic value closest to ensemble average duration,
+    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
     is the first or last index, add 5 to the probability of the index
     either before or after the selected one.
+    Returns the new NOTE-PROBS probability map.
 
     note-dur-millis - the dur (in millis) to match "
   [note-durs-millis]
-  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-val-millis)) %1) note-durs-millis))]
+  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
     (cond
      (or (= index-closest-to-average 0) (nil? index-closest-to-average))  ;; first index
-     (add-probabilities {0 10 1 5})
+     (add-probabilities NOTE-PROBS {0 10 1 5})
      (= index-closest-to-average (- (count note-durs-millis) 1))          ;; last index
-     (add-probabilities {(- (count note-durs-millis) 1) 10
+     (add-probabilities NOTE-PROBS
+                        {(- (count note-durs-millis) 1) 10
                          (- (count note-durs-millis) 2) 5})
-     :else (add-probabilities {index-closest-to-average 10
-                          (- index-closest-to-average 1) 5
-                          (+ index-closest-to-average 1) 5}))
+     :else (add-probabilities NOTE-PROBS
+                              {index-closest-to-average 10
+                               (- index-closest-to-average 1) 5
+                               (+ index-closest-to-average 1) 5}))
+    )
+  )
+
+(defn adjust-rhythmic-probabilities
+  [player]
+  (let [ensemble-action (get-behavior-ensemble-action player)
+        note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
+        adjusted-note-prob (if (= COMPLEMENT ensemble-action)
+                             (adjust-note-prob note-durs-millis)
+                             NOTE-PROBS)
+        ]
+    adjusted-note-prob
     )
   )
 
@@ -138,14 +154,8 @@
   "Returns :dur-info map for the next note
 
    player - player map to use when determining next note :dur-info"
-  [ player ]
-  (let [ensemble-action (get-behavior-ensemble-action player)
-        note-prob (if (= COMPLEMENT ensemble-action) (random-int 0 119) (random-int 0 99))
-        note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
-        adjusted-note-prob (if (= COMPLEMENT ensemble-action)
-                             (adjust-note-prob note-durs-millis)
-                             NOTE-PROBS)
-        note-dur (weighted-choice NOTE-PROBS)
+  [player]
+  (let [note-dur (weighted-choice ( adjust-rhythmic-probabilities player))
         ]
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
