@@ -17,7 +17,7 @@
   (:use
    [transport.ensemble-status :only [get-average-note-dur-millis]]
    [transport.players]
-   [transport.random :only [random-dur random-int weighted-choice]]
+   [transport.random :only [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]
    ))
@@ -49,9 +49,9 @@
 )
 
 (def DENSITY-PROBS
-  {0 {0 -999 1 -999 2 -999 3 -999 4 -999 5 -999 6 -999 8 25 9 40 10 40}
-   8 {1 35 3 35 4 25 8 -999 9 -999 10 -999}
-   9 {0 25 1 40 2 25 3 35 7 -999 8 -999 9 -999 10 -999}
+  {0 [-999 -999 -999 -999 -999 -999 -999 0    25   40   40  ]
+   8 [0    35   0    35   25   0    0    0    -999 -999 -999]
+   9 [25   40   25   35   0    0    0    -999 -999 -999 -999]
    }
   )
 
@@ -98,28 +98,6 @@
    :dur-note-dur beats}
   )
 
-(defn add-probabilities
-  "Adds to probabilities in prob-vector. This function does not
-   do any error checking. If multiple values are specified for
-   a single index, all the values will be added to the value in
-   prob-vector.
-
-  prob-vector - vector of probabilities to add probabilities to
-  prob-to-add-map - a map of probabilities to add where each entry is
-                    key - the index to add to
-                    value - the amount to add to the probability"
-  [prob-vector prob-to-add-map]
-  (loop [cur-prob-vector prob-vector
-         prob-indexes (keys prob-to-add-map)
-         prob-values (vals prob-to-add-map)]
-    (if (= (count prob-indexes) 0)
-      cur-prob-vector
-      (recur (assoc cur-prob-vector (first prob-indexes) (+ (first prob-values) (nth cur-prob-vector (first prob-indexes))))
-             (next prob-indexes)
-             (next prob-values)))
-    )
-  )
-
 (defn adjust-note-prob
   " Finds the index of the rhythmic value closest to ensemble average duration,
     then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
@@ -153,7 +131,7 @@
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-density-char player))]
-                              (add-probabilities adjusted-note-prob1 prob-adjust)
+                              (mapv + adjusted-note-prob1 prob-adjust)
                               adjusted-note-prob1)
         final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
         ]

@@ -41,3 +41,25 @@
       (if (<= rnd-total 0)
         i
         (recur (inc i) rnd-total (rest w-vec))))))
+
+(defn add-probabilities
+  "Adds to probabilities in prob-vector. This function does not
+   do any error checking. If multiple values are specified for
+   a single index, all the values will be added to the value in
+   prob-vector.
+
+  prob-vector - vector of probabilities to add probabilities to
+  prob-to-add-map - a map of probabilities to add where each entry is
+                    key - the index to add to
+                    value - the amount to add to the probability"
+  [prob-vector prob-to-add-map]
+  (loop [cur-prob-vector prob-vector
+         prob-indexes (keys prob-to-add-map)
+         prob-values (vals prob-to-add-map)]
+    (if (= (count prob-indexes) 0)
+      cur-prob-vector
+      (recur (assoc cur-prob-vector (first prob-indexes) (+ (first prob-values) (nth cur-prob-vector (first prob-indexes))))
+             (next prob-indexes)
+             (next prob-values)))
+    )
+  )
