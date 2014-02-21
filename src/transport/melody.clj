@@ -29,7 +29,7 @@
 (defn select-melody-continuity
   "Returns a number from 1 to 10 to determine how continuous
    the melody will be.
-   0 - continuous (few rests) -> 10 - discontinuous (all rests)"
+   0 - continuous (few rests) -> 9 - discontinuous (all rests)"
   [player]
   (weighted-choice CONTINUITY-PROBS)
   )
@@ -39,7 +39,7 @@
    the melody will be.
    0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
   [player]
-  (rand-int 9)
+  (rand-int 10)
   )
 
 (defn select-melody-range
@@ -47,7 +47,7 @@
    the melody's range.
    0 - narrow range -> 9 - wide range"
   [player]
-  (rand-int 9)
+  (rand-int 10)
   )
 
 (defn select-melody-smoothness
@@ -55,7 +55,7 @@
    the melody will be.
    0 - mostly steps -> 9 - mostly skips (wide skips)"
   [player]
-  (rand-int 9)
+  (rand-int 10)
   )
 
 (defn select-melody-characteristics

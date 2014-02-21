@@ -16,7 +16,7 @@
 (ns transport.rhythm
   (:use
    [transport.ensemble-status :only [get-average-note-dur-millis]]
-   [transport.players :only [get-behavior-ensemble-action get-dur-millis]]
+   [transport.players]
    [transport.random :only [random-dur random-int weighted-choice]]
    [transport.settings :only [COMPLEMENT]]
    [overtone.live :only [metronome]]
@@ -47,6 +47,13 @@
 (def NOTE-PROBS
   [2 8 5 15 10 15 10 15 10 5 5]
 )
+
+(def DENSITY-PROBS
+  {0 {0 -999 1 -999 2 -999 3 -999 4 -999 5 -999 6 -999 8 25 9 40 10 40}
+   8 {1 35 3 35 4 25 8 -999 9 -999 10 -999}
+   9 {0 25 1 40 2 25 3 35 7 -999 8 -999 9 -999 10 -999}
+   }
+  )
 
 (defn note-dur-to-millis
   "Converts note-dur (in beats) to millis at the mm for player
@@ -142,11 +149,16 @@
   [player]
   (let [ensemble-action (get-behavior-ensemble-action player)
         note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
-        adjusted-note-prob (if (= COMPLEMENT ensemble-action)
+        adjusted-note-prob1 (if (= COMPLEMENT ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
+        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-density-char player))]
+                              (add-probabilities adjusted-note-prob1 prob-adjust)
+                              adjusted-note-prob1)
+        final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
         ]
-    adjusted-note-prob
+    ;; (println "adjusted probabilities:" final-adjusted-note-prob "mm:" (get-mm player))
+    final-adjusted-note-prob
     )
   )
 
