@@ -31,7 +31,7 @@
 (def NOTE-DURS
   [(int (* quarter-note (/ 1 8)))         ; 32nd note - 1
    (int (* quarter-note (/ 1 4)))         ; 16th note - 2
-   (int (+ (* quarter-note (/ 1 4)) (* quarter-note (/ 1 8))))    ; dotted 32nd note - 3
+   (int (+ (* quarter-note (/ 1 4)) (* quarter-note (/ 1 8))))    ; dotted 16nd note - 3
    (int (* quarter-note (/ 1 2)))         ; 8th note - 4
    (int (+ (* quarter-note (/ 1 2)) (* quarter-note (/ 1 4))))    ; dotted 8th note - 6
    quarter-note                           ; quarter note - 8
@@ -49,8 +49,16 @@
 )
 
 (def DENSITY-PROBS
+  ;;  32   16   16.  8    8.   q    q.   h    h.   w    ww
+  ;; [2    8    5    15   10   15   10   15   10   5    5   ]
   {0 [-999 -999 -999 -999 -999 -999 -999 0    25   40   40  ]
-   8 [0    35   0    35   25   0    0    0    -999 -999 -999]
+   1 [-999 -999 -999 -999 -999 0    0    10   20   40   10  ]
+   2 [-999 -999 -999 0    0    15   0    20   20   20   0   ]
+   3 [-999 0    -999 10   0    10   10   10   0    0    0   ]
+   4 [0    0    0    5    0    10   5    0    0    0    0   ]
+   6 [0    10   0    15   0    10   0    0    0    -5   -999]
+   7 [0    10   0    15   10   0    0    -5   -5   -999 -999]
+   8 [10   35   10   35   5    0    0    -10  -999 -999 -999]
    9 [25   40   25   35   0    0    0    -999 -999 -999 -999]
    }
   )
