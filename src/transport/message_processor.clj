@@ -19,6 +19,7 @@
    ))
 
 (def MESSAGES (agent {}))
+(def LISTENERS (agent {}))
 (def FN-LIST (agent {}))
 (def msg-no (atom (long  0)))
 (def last-msg-processed (atom (long  0)))
@@ -58,10 +59,10 @@
   [msg]
   (send-off MESSAGES assoc (swap! msg-no inc-msg-no) msg ))
 
-  (defn remove-msg
-    "Removes amessage from MESSAGES."
-    [cur-msgs msg-num-to-remove]
-    (dissoc cur-msgs msg-num-to-remove))
+(defn remove-msg
+  "Removes amessage from MESSAGES."
+  [cur-msgs msg-num-to-remove]
+  (dissoc cur-msgs msg-num-to-remove))
 
 (defn dispatch-message
   [msg]
@@ -71,7 +72,6 @@
   []
   (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
     (do
-      (println "PROCESSING")
       (swap! last-msg-processed inc-last-msg-processed)
       (dispatch-message (get @MESSAGES @last-msg-processed))
       (send-off MESSAGES remove-msg @last-msg-processed)
@@ -87,6 +87,35 @@
     (process-messages)
     (watch-msg-queue)))
 
-(defn register-fnc
- [msg-type msg-no msg-data]
- )
+(defn add-listener
+  "Called via send-off to add a listener to LISTENERS"
+  [cur-listeners msg-num fnc args]
+  (assoc cur-listeners msg-num (conj (get cur-listeners msg-num) (list fnc args)))
+  )
+
+(defn remove-listener
+  "Called via send-off to remove a listener from LISTENERS"
+  [cur-listeners msg-num fnc args]
+  (if (= 1 (count (get cur-listeners msg-num)))
+    (dissoc @LISTENERS msg-num)
+    (assoc
+        cur-listeners
+      msg-num
+      (loop [lstnrs (get cur-listeners msg-num)
+             new-lstnrs '()]
+        (if (= (count lstnrs) 0)
+          new-lstnrs
+          (if (= (first lstnrs) (list fnc (if (not (nil? args)) args nil)))
+            (recur '() (apply conj new-lstnrs (rest  lstnrs)))
+            (recur (rest lstnrs) (conj new-lstnrs (first lstnrs)))
+            ))
+        ))))
+
+(defn register-listener
+ [msg-num fnc & args]
+ (send-off LISTENERS add-listener msg-num fnc args))
+
+(defn unregister-listener
+  [msg-num fnc & args]
+  (send-off LISTENERS remove-listener msg-num fnc args)
+)
