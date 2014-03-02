@@ -66,8 +66,10 @@
 
 (defn dispatch-message
   [msg]
+  ((apply (first msg) (second msg)))
   (println "message dispatched!!! msg:" msg)
   )
+
 (defn process-messages
   []
   (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
