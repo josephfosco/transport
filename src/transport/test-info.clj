@@ -14,3 +14,5 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (def tst-player {:key 3 :scale :hex-major6 :instrument-info {:range-hi 90 :range-lo 62} :melody [{:note 70} { :note 72} {:note 74}] :melody-char {:smoothness 0} :mm 60  })
+
+(defn lstnr [& {:keys [old new]}] (println "lstnr: " old new))

@@ -65,9 +65,10 @@
   (dissoc cur-msgs msg-num-to-remove))
 
 (defn dispatch-message
-  [msg]
-  ((apply (first msg) (second msg)))
-  (println "message dispatched!!! msg:" msg)
+  [msg & args]
+  (if args
+    (apply (first msg) args (second msg))
+    (apply (first msg) (second msg)))
   )
 
 (defn process-messages
@@ -89,13 +90,13 @@
     (process-messages)
     (watch-msg-queue)))
 
-(defn add-listener
+(defn- add-listener
   "Called via send-off to add a listener to LISTENERS"
   [cur-listeners msg-num fnc args]
   (assoc cur-listeners msg-num (conj (get cur-listeners msg-num) (list fnc args)))
   )
 
-(defn remove-listener
+(defn- remove-listener
   "Called via send-off to remove a listener from LISTENERS"
   [cur-listeners msg-num fnc args]
   (if (= 1 (count (get cur-listeners msg-num)))
@@ -114,6 +115,12 @@
         ))))
 
 (defn register-listener
+  "Register a function to bo called for a specific message
+
+   msg-num - the message to be called for
+   fnc - the function to be called
+   args - an optional argument that is a map of key value pairs
+          passed to fnc"
  [msg-num fnc & args]
  (send-off LISTENERS add-listener msg-num fnc args))
 
