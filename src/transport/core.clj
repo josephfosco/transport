@@ -19,6 +19,7 @@
    [overtone.live]
    [transport.ensemble :only [init-players]]
    [transport.ensemble-status :only [init-ensemble-status reset-ensemble-status]]
+   [transport.message_processor :only [restart-message-processor start-message-processor stop-message-processor]]
    [transport.pitch :only [load-scales]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :only [NUM-PLAYERS set-num-players]]
@@ -92,6 +93,7 @@
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
         (start-scheduler)
+        (start-message-processor)
         (reset! is-playing? true)
         (reset! restart? true)
         ))
@@ -114,6 +116,7 @@
         (reset-ensemble-status)
         (reset-lateness)
         (restart-scheduler)
+        (restart-message-processor)
         (init-players)
         (reset! is-playing? true)
         (start-scheduler))
@@ -135,6 +138,7 @@
   "Stop playing after players finish what they have scheduled"
   []
   (stop-scheduler)
+  (stop-message-processor)
   (reset! is-playing? false))
 
 (transport-help)

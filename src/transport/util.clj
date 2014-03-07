@@ -18,6 +18,12 @@
    [transport.players :only [get-melody get-player get-players]]
    ))
 
+(defn get-max-map-key
+  "For hash-maps with numeric keys, returns the highest key"
+  [map]
+  (reduce max 0 (keys map))
+  )
+
 (defn print-player
   "Pretty Print a player map
 

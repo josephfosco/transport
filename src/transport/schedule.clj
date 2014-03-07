@@ -21,7 +21,7 @@
 
 (def lateness (agent 0))      ; num of milliseconds most recent event was late
 (def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
-(def scheduler-running? true) ; If true, scheduler is paused and will not watch event-queue when it is empty
+(def scheduler-running? true) ; If false, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness
   []

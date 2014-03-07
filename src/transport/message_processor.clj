@@ -16,33 +16,36 @@
 (ns transport.message_processor
   (:use
    [transport.settings]
+   [transport.util :only [get-max-map-key]]
    ))
 
 (def MESSAGES (agent {}))
 (def LISTENERS (agent {}))
 (def FN-LIST (agent {}))
-(def msg-no (atom (long  0)))
+(def msg-id (atom (long  0)))
 (def last-msg-processed (atom (long  0)))
-(def checking-messages? false)
+(def checking-messages? (atom true)) ;; if false, message-processor is pause and will not watch MESSAGES
 
 ;; message type no data
 ;; message-type message-no func
 
-(defn inc-msg-no
-  [cur-msg-val]
-  (inc cur-msg-val))
+(defn inc-msg-id
+  [cur-msg-id]
+  (inc cur-msg-id))
 
 (declare process-messages)
 (defn start-processing-messages
   [key identity old new]
-  (remove-watch MESSAGES :transport-start-processing-messages)
-  (if (= (count  old) 0)
-    (process-messages (first new))
-    (println "MESSAGES NOT nil")))
+  (if (> (get-max-map-key new) @last-msg-processed)  ;; if a new message has been added
+    (do
+      (remove-watch identity key)
+      (process-messages))
+    (println "MESSAGES NOT nil"))
+  )
 
 (defn watch-msg-queue
   []
-  (if (not checking-messages?)
+  (if @checking-messages?
     (do
       (add-watch MESSAGES :transport-start-processing-messages start-processing-messages)
       (println "Watching MESSAGES")
@@ -55,9 +58,10 @@
   [cur-last-msg-proc]
   (inc cur-last-msg-proc))
 
-(defn add-message
+(defn send-message
   [msg]
-  (send-off MESSAGES assoc (swap! msg-no inc-msg-no) msg ))
+  (if @checking-messages?
+    (send-off MESSAGES assoc (swap! msg-id inc-msg-id) msg )))
 
 (defn remove-msg
   "Removes amessage from MESSAGES."
@@ -65,10 +69,13 @@
   (dissoc cur-msgs msg-num-to-remove))
 
 (defn dispatch-message
-  [msg & args]
-  (if args
-    (apply (first msg) args (second msg))
-    (apply (first msg) (second msg)))
+  [msg-num & args]
+  (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
+    (dotimes [lstnr-index (count msg-listeners)]
+      (let [msg-lstnr (nth msg-listeners lstnr-index)]
+        (if args
+          (apply (first msg-lstnr) args (second msg-lstnr))
+          (apply (first msg-lstnr) (second msg-lstnr))))))
   )
 
 (defn process-messages
@@ -80,6 +87,28 @@
       (send-off MESSAGES remove-msg @last-msg-processed)
       ))
   )
+
+(defn start-message-processor
+  "Starts the message-processor.
+     If there are messages in MESSAGES it starts processing them.
+     If there are no messages in MESSAGES it starts watching MESSAGES."
+  []
+  (if (> @msg-id @last-msg-processed)
+    (process-messages)
+    (watch-msg-queue)))
+
+(defn stop-message-processor
+  []
+  "Stops the message-processor from adding any messages.
+     Also,stops the message-processor from watching for new
+     messsages.
+     To get the message-processor going again call
+     restart-message-processor."
+  (reset! checking-messages? false))
+
+(defn restart-message-processor
+  []
+  (reset! checking-messages? true))
 
 (defn start-scheduler
   "Starts the music message processor.
