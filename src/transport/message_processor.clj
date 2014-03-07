@@ -21,7 +21,6 @@
 
 (def MESSAGES (agent {}))
 (def LISTENERS (agent {}))
-(def FN-LIST (agent {}))
 (def msg-id (atom (long  0)))
 (def last-msg-processed (atom (long  0)))
 (def checking-messages? (atom true)) ;; if false, message-processor is pause and will not watch MESSAGES
@@ -61,7 +60,12 @@
 (defn send-message
   [msg]
   (if @checking-messages?
-    (send-off MESSAGES assoc (swap! msg-id inc-msg-id) msg )))
+    (do
+      (send-off MESSAGES assoc (swap! msg-id inc-msg-id) msg )
+      true)    ;; return true if message was queued to be sent
+    false      ;; return false if messsage was not queued
+    )
+  )
 
 (defn remove-msg
   "Removes amessage from MESSAGES."
@@ -104,20 +108,13 @@
      messsages.
      To get the message-processor going again call
      restart-message-processor."
-  (reset! checking-messages? false))
+  (reset! checking-messages? false)
+  true    ;; return true
+  )
 
 (defn restart-message-processor
   []
   (reset! checking-messages? true))
-
-(defn start-scheduler
-  "Starts the music message processor.
-     If there are messages in the message queue it starts processing the queue.
-     If there are no messages in the queue it starts watching the queue."
-  []
-  (if (> (count @MESSAGES) 0)
-    (process-messages)
-    (watch-msg-queue)))
 
 (defn- add-listener
   "Called via send-off to add a listener to LISTENERS"

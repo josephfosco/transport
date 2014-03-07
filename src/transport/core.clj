@@ -86,10 +86,12 @@
                   defaults to 10. Retains it's value once set"
   [& {:keys [num-players]
       :or {num-players @NUM-PLAYERS}}]
+  (println "transport-start is-playing:" @is-playing?)
   (if (false? @is-playing?)
     (if (true? @restart?)
       (transport-restart :num-players num-players)  ;; already started once - restart instead
       (do
+        (println "Starting transport")
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
         (start-scheduler)
@@ -108,6 +110,7 @@
                   defaults to it's prior value"
   [& {:keys [num-players]
       :or {num-players nil}}]
+  (println "Restarting transport")
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
@@ -119,7 +122,8 @@
         (restart-message-processor)
         (init-players)
         (reset! is-playing? true)
-        (start-scheduler))
+        (start-scheduler)
+        (start-message-processor))
       (transport-start))
     (println "WARNING - Can't restart. Already playing")))
 
