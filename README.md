@@ -18,11 +18,11 @@ To try the current version.
 1. Install this software with it's dependencies.
 2. In the clojure REPL
 3. make sure you are in the transport.core namespace - (ns transport.core)
-4. (transport-init)
-5. (trasport-start)
-6. You should then hear notes being played.
-7. (transport-pause) to stop playing notes - after all scheduled notes are played.
-8. (transport-help) to see these instructions
+4. (transport-start)
+5. You should then hear notes being played.
+6. (transport-pause) to stop playing notes - after all scheduled notes are played.
+7. To restart use either (transport-restart) or (transport-start)
+8. (transport-help) to see instructions
 
 ## Options
 
