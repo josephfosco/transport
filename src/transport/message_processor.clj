@@ -25,9 +25,6 @@
 (def last-msg-processed (atom (long  0)))
 (def checking-messages? (atom true)) ;; if false, message-processor is pause and will not watch MESSAGES
 
-;; message type no data
-;; message-type message-no func
-
 (defn inc-msg-id
   [cur-msg-id]
   (inc cur-msg-id))
@@ -52,10 +49,6 @@
     (do
       (println "MESSAGE Watch NOT Added")
       false)))    ; return false if watch is not added
-
-(defn inc-last-msg-processed
-  [cur-last-msg-proc]
-  (inc cur-last-msg-proc))
 
 (defn send-message
   [msg]
@@ -84,12 +77,13 @@
 
 (defn process-messages
   []
-  (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
-    (do
-      (swap! last-msg-processed inc-last-msg-processed)
-      (dispatch-message (get @MESSAGES @last-msg-processed))
-      (send-off MESSAGES remove-msg @last-msg-processed)
-      ))
+  (let [nxt-msg (inc @last-msg-processed)]
+    (while (not (nil? (get @MESSAGES nxt-msg)))
+      (do
+        (reset! last-msg-processed nxt-msg)
+        (dispatch-message (get @MESSAGES nxt-msg))
+        (send-off MESSAGES remove-msg nxt-msg)
+        )))
   )
 
 (defn start-message-processor
@@ -125,18 +119,21 @@
 (defn- remove-listener
   "Called via send-off to remove a listener from LISTENERS"
   [cur-listeners msg-num fnc args]
-  (if (= 1 (count (get cur-listeners msg-num)))
-    (dissoc @LISTENERS msg-num)
+  (if (= 1 (count (get cur-listeners msg-num)))    ;; only 1 listener left in LOSTENERS
+    (dissoc @LISTENERS msg-num)                    ;;   remove it
     (assoc
         cur-listeners
       msg-num
       (loop [lstnrs (get cur-listeners msg-num)
              new-lstnrs '()]
-        (if (= (count lstnrs) 0)
+        (if (empty? lstnrs)
           new-lstnrs
-          (if (= (first lstnrs) (list fnc (if (not (nil? args)) args nil)))
-            (recur '() (apply conj new-lstnrs (rest  lstnrs)))
-            (recur (rest lstnrs) (conj new-lstnrs (first lstnrs)))
+          (if (= (first lstnrs) (list fnc (if (not (nil? args)) args nil)))  ;; is this the one to remove?
+            (recur '()                                                       ;;   yes, remove it
+                   (if (empty? (rest lstnrs))     ;;  removing last listener in list
+                     new-lstnrs
+                     (apply conj new-lstnrs (rest lstnrs))))
+            (recur (rest lstnrs) (conj new-lstnrs (first lstnrs)))           ;;  no, add it to new list
             ))
         ))))
 
