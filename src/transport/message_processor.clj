@@ -25,7 +25,7 @@
 (def last-msg-processed (atom (long  0)))
 (def checking-messages? (atom true)) ;; if false, message-processor is pause and will not watch MESSAGES
 
-(defn inc-msg-id
+(defn- inc-msg-id
   [cur-msg-id]
   (inc cur-msg-id))
 
@@ -39,7 +39,7 @@
     (println "MESSAGES NOT nil"))
   )
 
-(defn watch-msg-queue
+(defn- watch-msg-queue
   []
   (if @checking-messages?
     (do
@@ -60,12 +60,12 @@
     )
   )
 
-(defn remove-msg
-  "Removes amessage from MESSAGES."
+(defn- remove-msg
+  "Removes a message from MESSAGES."
   [cur-msgs msg-num-to-remove]
   (dissoc cur-msgs msg-num-to-remove))
 
-(defn dispatch-message
+(defn- dispatch-message
   [msg-num & args]
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
