@@ -55,9 +55,15 @@
 
 (defn select-behavior
   [player]
-  {:accuracy (ranged-rand 0.25 0.85)
-   :action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
-   :ensemble-action (if (> @NUM-PLAYERS 1) (select-behavior-ensemble-action player) IGNORE)
-   :player-id (rand-player-id-excluding-player player)
-   }
+  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+        ;; select ensemble-action behavior only if not watching another player
+        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+                          (select-behavior-ensemble-action player)
+                          IGNORE)
+        ]
+    {:accuracy (ranged-rand 0.25 0.85)
+     :action behavior-action
+     :ensemble-action ensemble-action
+     :player-id (rand-player-id-excluding-player player)
+     })
   )

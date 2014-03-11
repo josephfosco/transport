@@ -21,11 +21,10 @@
 (def NUM-PLAYERS (atom 10))
 (def SAVED-MELODY-LEN 64)
 
-
-(def COMPLEMENT 0)
-(def CONTRAST 1)
-(def FOLLOW 2)
-(def IGNORE 3)
+(def IGNORE 0)
+(def COMPLEMENT 1)
+(def CONTRAST 2)
+(def FOLLOW 3)
 
 (def STEADY 10)
 (def INCREASING 11)

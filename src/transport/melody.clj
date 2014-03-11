@@ -77,15 +77,15 @@
   (let [play-note? (random-int 0 10)]
     (if (< (get-melody-continuity-char player) play-note?)
       true
-      (if (not= 0 play-note?)                                              ;; if continuity not 0
-        nil                                                                ;; rest
-        (if (and                                                           ;; else
-             (not= {} (get-melody player))                                 ;; if melody not empty
-             (= 0                                                          ;; and last pitch is root
+      (if (not= 0 play-note?)                                ;; if continuity not 0
+        nil                                                  ;; rest
+        (if (and                                             ;; else
+             (not= {} (get-melody player))                   ;; if melody not empty
+             (= 0                                            ;; and last pitch is root
                 (get-scale-degree
                  player
-                 (or (get-last-melody-note player) 0)))                    ;; or rest
-             (< (rand) 0.8))                                               ;; possibly rest
+                 (or (get-last-melody-note player) 0)))      ;; or rest
+             (< (rand) 0.8))                                 ;; possibly rest
           nil
           true)))))
 
@@ -183,5 +183,5 @@
    (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-complement-ensemble player)
    (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
-   :else (next-melody-ignore player))
+   :else (next-melody-ignore player))  ;; COMPLEMENT player uses ibnore - the behavior is handled by player settings
   )
