@@ -45,10 +45,6 @@
   [player]
   (:behavior player))
 
-(defn get-behavior-action
-  [player]
-  (:action (get-behavior player)))
-
 (defn get-behavior-ensemble-action
   [player]
   (:ensemble-action (get-behavior player)))
@@ -65,6 +61,10 @@
   [player]
   (:key player))
 
+(defn get-melody-char
+  [player]
+  (:melody-char player))
+
 (defn get-melody-continuity-char
   [player]
   (:continuity (:melody-char player)))
@@ -80,6 +80,10 @@
 (defn get-melody-smoothness-char
   [player]
   (:smoothness (:melody-char player)))
+
+(defn get-metronome
+  [player]
+  (:metronome player))
 
 (defn get-mm
   [player]

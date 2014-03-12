@@ -15,6 +15,7 @@
 
 (ns transport.melody
   (:use
+   [transport.behavior :only [get-behavior-action-for-player]]
    [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players]
@@ -164,7 +165,7 @@
      }
     ))
 
-(defn next-melody-ignore
+(defn- next-melody-for-player
   [player]
   (let [play-note? (note-or-rest player)
         ]
@@ -180,8 +181,9 @@
     player - the player map"
   [player]
   (cond
-   (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
+   (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-complement-ensemble player)
    (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
-   :else (next-melody-ignore player))  ;; COMPLEMENT player uses ibnore - the behavior is handled by player settings
+   :else (next-melody-for-player player))  ;; pick next melody note based only on players settings
+                                           ;;  do not reference other players or ensemble
   )

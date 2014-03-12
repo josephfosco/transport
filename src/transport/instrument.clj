@@ -16,8 +16,9 @@
 (ns transport.instrument
   (:use
    [overtone.live]
+   [transport.behavior :only [get-behavior-action-for-player]]
    [transport.instruments.osc-instruments]
-   [transport.players :only [get-behavior-action get-behavior-player-id get-player]]
+   [transport.players :only [get-behavior-player-id get-player]]
    [transport.settings :only [FOLLOW]]
    [transport.random :only [random-int]]
    ))
@@ -76,7 +77,7 @@
   [player behavior]
   ;; if :behavior is FOLLOW copy :inst-info from player we are following
   ;; else generate new :inst-info map
-  (if (and  (= (get-behavior-action (hash-map :behavior behavior)) FOLLOW)
+  (if (and  (= (get-behavior-action-for-player (hash-map :behavior behavior)) FOLLOW)
             (not= (get-behavior-player-id (hash-map :behavior behavior)) nil))
     (do
       (get-instrument-info (get-player (get-behavior-player-id (hash-map :behavior behavior)))))

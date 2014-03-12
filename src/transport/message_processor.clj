@@ -119,7 +119,7 @@
 (defn- remove-listener
   "Called via send-off to remove a listener from LISTENERS"
   [cur-listeners msg-num fnc args]
-  (if (= 1 (count (get cur-listeners msg-num)))    ;; only 1 listener left in LOSTENERS
+  (if (= 1 (count (get cur-listeners msg-num)))    ;; only 1 listener left in LISTENERS
     (dissoc @LISTENERS msg-num)                    ;;   remove it
     (assoc
         cur-listeners

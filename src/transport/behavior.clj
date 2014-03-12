@@ -20,6 +20,16 @@
    [transport.settings :only [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
    ))
 
+(defn get-behavior-action
+  [behavior]
+  (:action behavior)
+  )
+
+(defn get-behavior-action-for-player
+  [player]
+  (:action (:behavior player))
+  )
+
 (defn select-behavior-action
   [player]
   (let [action-num (rand)]
@@ -64,6 +74,6 @@
     {:accuracy (ranged-rand 0.25 0.85)
      :action behavior-action
      :ensemble-action ensemble-action
-     :player-id (rand-player-id-excluding-player player)
+     :player-id (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil)
      })
   )

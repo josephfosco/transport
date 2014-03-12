@@ -15,11 +15,11 @@
 
 (ns transport.segment
   (:use
-   [transport.behavior :only [select-behavior]]
-   [transport.instrument :only [select-instrument]]
+   [transport.behavior :only [get-behavior-action select-behavior]]
+   [transport.instrument :only [get-instrument-info select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
-   [transport.players :only [get-melody]]
+   [transport.players]
    [transport.random :only [random-int]]
    [transport.rhythm :only [select-metronome select-mm]]))
 
@@ -30,10 +30,43 @@
   []
   (random-int min-segment-len max-segment-len))
 
+(defn copy-following-info
+  [player]
+  (let [follow-player (get-player (get-behavior-player-id player))]
+    (assoc player
+      :instrument-info (get-instrument-info follow-player)
+      :key (get-key follow-player)
+      :melody-char (get-melody-char follow-player)
+      :metronome (get-metronome follow-player)
+      :mm (get-mm follow-player)
+      :scale (get-scale follow-player)
+      ))
+  )
+
+(defn first-segment
+  [player]
+  (let [new-behavior (transport.behavior/select-behavior player)
+        melody-len (count (get-melody player))
+        behavior-action (get-behavior-action new-behavior)
+        ]
+    (assoc player
+      :behavior new-behavior
+      ;; set instrument-info after :behavior so :instrument-info
+      ;; is copied from FOLLOWing player if required
+      :instrument-info (select-instrument player new-behavior)
+      :key (select-key player)
+      :melody-char (select-melody-characteristics player)
+      :metronome (select-metronome player)
+      :mm (select-mm player)
+      :seg-len (select-segment-length)
+      :seg-start 0
+      :scale (select-scale player))))
+
 (defn new-segment
   [player]
   (let [new-behavior (transport.behavior/select-behavior player)
         melody-len (count (get-melody player))
+        behavior-action (get-behavior-action new-behavior)
         ]
     (assoc player
       :behavior new-behavior
