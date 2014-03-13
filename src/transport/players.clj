@@ -49,10 +49,6 @@
   [player]
   (:ensemble-action (get-behavior player)))
 
-(defn get-behavior-player-id
-  [player]
-  (:player-id (:behavior player)))
-
 (defn get-function
   [player]
   (:function player))
@@ -162,8 +158,6 @@
    this is called from send-off"
   [cur-players new-player]
   (let [player-id (get-player-id new-player)
-        old-behavior-player-id (get-behavior-player-id (get cur-players player-id))
-        new-behavior-player-id (get-behavior-player-id new-player)
         ]
     (assoc @PLAYERS player-id new-player)
     ))

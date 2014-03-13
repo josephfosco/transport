@@ -15,7 +15,7 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action-for-player]]
+   [transport.behavior :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players]
@@ -108,7 +108,7 @@
 
 (defn next-melody-follow
   [player]
-  (let [follow-player-id (get-behavior-player-id player)
+  (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-note (get-last-melody-event-num follow-player-id)
         next-new-event {:note nil
                         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)

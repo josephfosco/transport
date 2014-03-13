@@ -21,7 +21,7 @@
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [get-volume next-melody]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-player-id get-dur-millis get-function get-melody get-player get-player-id get-players reset-players update-player]]
+   [transport.players :only [PLAYERS get-behavior get-dur-millis get-function get-melody get-player get-player-id get-players reset-players update-player]]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [copy-following-info first-segment new-segment]]
@@ -120,9 +120,7 @@
         (send-off PLAYERS
                   assoc
                   (+ player-index 1)
-                  (assoc check-player
-                    :instrument-info
-                    (get-instrument-info (get-player (get-behavior-player-id check-player)))))
+                  (copy-following-info check-player))
         )))
   (await PLAYERS)
 

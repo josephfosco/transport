@@ -15,13 +15,15 @@
 
 (ns transport.segment
   (:use
-   [transport.behavior :only [get-behavior-action select-behavior]]
+   [transport.behavior :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
    [transport.instrument :only [get-instrument-info select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
    [transport.players]
    [transport.random :only [random-int]]
-   [transport.rhythm :only [select-metronome select-mm]]))
+   [transport.rhythm :only [select-metronome select-mm]]
+   [transport.settings]
+   ))
 
 (def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
 (def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
@@ -30,29 +32,38 @@
   []
   (random-int min-segment-len max-segment-len))
 
+(defn- get-following-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  {
+   :instrument-info (get-instrument-info follow-player)
+   :key (get-key follow-player)
+   :melody-char (get-melody-char follow-player)
+   :metronome (get-metronome follow-player)
+   :mm (get-mm follow-player)
+   :scale (get-scale follow-player)
+   }
+  )
+
 (defn copy-following-info
   [player]
-  (let [follow-player (get-player (get-behavior-player-id player))]
-    (assoc player
-      :instrument-info (get-instrument-info follow-player)
-      :key (get-key follow-player)
-      :melody-char (get-melody-char follow-player)
-      :metronome (get-metronome follow-player)
-      :mm (get-mm follow-player)
-      :scale (get-scale follow-player)
-      ))
+  (println)
+  (println
+   (get-player-id player) (get-behavior-player-id-for-player player))
+  (merge player (get-following-info-from-player (get-player (get-behavior-player-id-for-player player))))
   )
 
 (defn first-segment
+  "Used only the first time a player is created.
+   After the first time, use new-segment.
+
+   player - the player to create the segment for"
   [player]
   (let [new-behavior (transport.behavior/select-behavior player)
-        melody-len (count (get-melody player))
         behavior-action (get-behavior-action new-behavior)
         ]
     (assoc player
       :behavior new-behavior
-      ;; set instrument-info after :behavior so :instrument-info
-      ;; is copied from FOLLOWing player if required
       :instrument-info (select-instrument player new-behavior)
       :key (select-key player)
       :melody-char (select-melody-characteristics player)
@@ -65,18 +76,27 @@
 (defn new-segment
   [player]
   (let [new-behavior (transport.behavior/select-behavior player)
-        melody-len (count (get-melody player))
         behavior-action (get-behavior-action new-behavior)
         ]
-    (assoc player
-      :behavior new-behavior
-      ;; set instrument-info after :behavior so :instrument-info
-      ;; is copied from FOLLOWing player if required
-      :instrument-info (select-instrument player new-behavior)
-      :key (select-key player)
-      :melody-char (select-melody-characteristics player)
-      :metronome (select-metronome player)
-      :mm (select-mm player)
-      :seg-len (select-segment-length)
-      :seg-start 0
-      :scale (select-scale player))))
+    (cond
+     (= (get-behavior-action new-behavior) FOLLOW)
+     (merge (assoc player
+              :behavior new-behavior
+              :seg-len (select-segment-length)
+              :seg-start 0
+              )
+            (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
+
+     :else
+     (assoc player
+       :behavior new-behavior
+       ;; set instrument-info after :behavior so :instrument-info
+       ;; is copied from FOLLOWing player if required
+       :instrument-info (select-instrument player new-behavior)
+       :key (select-key player)
+       :melody-char (select-melody-characteristics player)
+       :metronome (select-metronome player)
+       :mm (select-mm player)
+       :seg-len (select-segment-length)
+       :seg-start 0
+       :scale (select-scale player)))))
