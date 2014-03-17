@@ -18,6 +18,8 @@
    [transport.behavior :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
    [transport.instrument :only [get-instrument-info select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
+   [transport.messages]
+   [transport.message_processor :only [send-message]]
    [transport.pitch :only [select-key select-scale]]
    [transport.players]
    [transport.random :only [random-int]]
@@ -45,11 +47,20 @@
    }
   )
 
+(defn- get-complement-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  {
+   :key (get-key follow-player)
+   :melody-char (get-melody-char follow-player)
+   :metronome (get-metronome follow-player)
+   :mm (get-mm follow-player)
+   :scale (get-scale follow-player)
+   }
+  )
+
 (defn copy-following-info
   [player]
-  (println)
-  (println
-   (get-player-id player) (get-behavior-player-id-for-player player))
   (merge player (get-following-info-from-player (get-player (get-behavior-player-id-for-player player))))
   )
 
@@ -75,13 +86,24 @@
 
 (defn new-segment
   [player]
-  (let [new-behavior (transport.behavior/select-behavior player)
+  (println "new-segment")
+  (send-message MSG-PLAYER-NEW-SEGMENT :change-player (get-player-id player))
+  (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         ]
     (cond
-     (= (get-behavior-action new-behavior) FOLLOW)
+     (= behavior-action FOLLOW)
      (merge (assoc player
               :behavior new-behavior
+              :seg-len (select-segment-length)
+              :seg-start 0
+              )
+            (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
+
+     (= behavior-action COMPLEMENT)
+     (merge (assoc player
+              :behavior new-behavior
+              :instrument-info (select-instrument player new-behavior)
               :seg-len (select-segment-length)
               :seg-start 0
               )
@@ -90,8 +112,6 @@
      :else
      (assoc player
        :behavior new-behavior
-       ;; set instrument-info after :behavior so :instrument-info
-       ;; is copied from FOLLOWing player if required
        :instrument-info (select-instrument player new-behavior)
        :key (select-key player)
        :melody-char (select-melody-characteristics player)

@@ -51,10 +51,10 @@
       false)))    ; return false if watch is not added
 
 (defn send-message
-  [msg]
+  [msg & args]
   (if @checking-messages?
     (do
-      (send-off MESSAGES assoc (swap! msg-id inc-msg-id) msg )
+      (send-off MESSAGES assoc (swap! msg-id inc-msg-id) (apply list msg args) )
       true)    ;; return true if message was queued to be sent
     false      ;; return false if messsage was not queued
     )
@@ -67,23 +67,26 @@
 
 (defn- dispatch-message
   [msg-num & args]
+  (println "dispatch msg:" msg-num args)
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)]
         (if args
-          (apply (first msg-lstnr) args (second msg-lstnr))
+          (apply (first msg-lstnr) (flatten (list args (second msg-lstnr))))
           (apply (first msg-lstnr) (second msg-lstnr))))))
   )
 
 (defn process-messages
   []
-  (let [nxt-msg (inc @last-msg-processed)]
-    (while (not (nil? (get @MESSAGES nxt-msg)))
-      (do
+  (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
+    (do
+      (let [nxt-msg (inc @last-msg-processed)]
+        (println "process-messages args:" (rest (get @MESSAGES nxt-msg)))
         (reset! last-msg-processed nxt-msg)
-        (dispatch-message (get @MESSAGES nxt-msg))
+        (apply dispatch-message (first (get @MESSAGES nxt-msg)) (rest (get @MESSAGES nxt-msg)))
         (send-off MESSAGES remove-msg nxt-msg)
         )))
+  (watch-msg-queue)
   )
 
 (defn start-message-processor
