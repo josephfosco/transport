@@ -13,7 +13,10 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.players)
+(ns transport.players
+  (:use
+   [transport.message_processor :only [register-listener]]
+   )  )
 
 (def PLAYERS (agent {}))
 
@@ -157,10 +160,8 @@
   "update the value of a player in agent PLAYERS
    this is called from send-off"
   [cur-players new-player]
-  (let [player-id (get-player-id new-player)
-        ]
-    (assoc @PLAYERS player-id new-player)
-    ))
+  (assoc @PLAYERS (get-player-id new-player) new-player)
+  )
 
 (defn update-player
   [player]
@@ -178,3 +179,21 @@
     (rand-nth (keys (dissoc @PLAYERS (:player-id player))))
     nil
     ))
+
+(defn init-players
+  []
+  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment)
+  )
+
+(defn copy-follow-info
+  [from-player-id to-player-id]
+  (println "copy-follow-info from:" from-player-id "to:" to-player-id)
+  )
+
+(defn player-new-segment
+  [{:keys [change-player]}]
+  (for [player @PLAYERS]
+    (if (= (get-player-id player) change-player)
+      (send-off PLAYERS copy-follow-info change-player (get-player-id player)))
+    )
+  )

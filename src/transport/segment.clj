@@ -18,8 +18,6 @@
    [transport.behavior :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
    [transport.instrument :only [get-instrument-info select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
-   [transport.messages]
-   [transport.message_processor :only [send-message]]
    [transport.pitch :only [select-key select-scale]]
    [transport.players]
    [transport.random :only [random-int]]
@@ -87,7 +85,6 @@
 (defn new-segment
   [player]
   (println "new-segment")
-  (send-message MSG-PLAYER-NEW-SEGMENT :change-player (get-player-id player))
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         ]

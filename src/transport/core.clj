@@ -17,10 +17,11 @@
   (:gen-class)
   (:use
    [overtone.live]
-   [transport.ensemble :only [init-players]]
+   [transport.ensemble :only [init-ensemble]]
    [transport.ensemble-status :only [init-ensemble-status reset-ensemble-status]]
    [transport.message_processor :only [restart-message-processor start-message-processor stop-message-processor]]
    [transport.pitch :only [load-scales]]
+   [transport.players :only [init-players]]
    [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :only [NUM-PLAYERS set-num-players]]
    [transport.util]
@@ -73,7 +74,7 @@
       (set-num-players num-players)
       (transport.pitch/load-scales)
       (init-ensemble-status)
-      (init-players)
+      (init-ensemble)
       (reset! is-initialized? true)
       (println "transport successfully initialized"))
     (println "Warning - transport already initialized")))
@@ -96,6 +97,7 @@
           (transport-init :num-players num-players))
         (start-scheduler)
         (start-message-processor)
+        (init-players)
         (reset! is-playing? true)
         (reset! restart? true)
         ))
@@ -120,10 +122,12 @@
         (reset-lateness)
         (restart-scheduler)
         (restart-message-processor)
-        (init-players)
+        (init-ensemble)
         (reset! is-playing? true)
         (start-scheduler)
-        (start-message-processor))
+        (start-message-processor)
+        (init-players)
+        )
       (transport-start))
     (println "WARNING - Can't restart. Already playing")))
 

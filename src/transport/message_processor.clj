@@ -15,7 +15,6 @@
 
 (ns transport.message_processor
   (:use
-   [transport.settings]
    [transport.util :only [get-max-map-key]]
    ))
 
@@ -28,6 +27,16 @@
 (defn- inc-msg-id
   [cur-msg-id]
   (inc cur-msg-id))
+
+(defn- clear-messages
+  [cur-msgs]
+  {}
+  )
+
+(defn- clear-listeners
+  [cur-lstnrs]
+  {}
+  )
 
 (declare process-messages)
 (defn start-processing-messages
@@ -81,7 +90,6 @@
   (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
     (do
       (let [nxt-msg (inc @last-msg-processed)]
-        (println "process-messages args:" (rest (get @MESSAGES nxt-msg)))
         (reset! last-msg-processed nxt-msg)
         (apply dispatch-message (first (get @MESSAGES nxt-msg)) (rest (get @MESSAGES nxt-msg)))
         (send-off MESSAGES remove-msg nxt-msg)
@@ -106,6 +114,10 @@
      To get the message-processor going again call
      restart-message-processor."
   (reset! checking-messages? false)
+  (send-off LISTENERS clear-listeners)     ;; clear LISTENERS
+  (await MESSAGES)                         ;; wait till MESSAGE queue is cleared
+  (swap! msg-id 0)
+  (swap! last-msg-processed 0)
   true    ;; return true
   )
 

@@ -21,6 +21,8 @@
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
    [transport.melody :only [get-volume next-melody]]
+   [transport.messages]
+   [transport.message_processor :only [send-message]]
    [transport.players :only [PLAYERS get-behavior get-dur-millis get-function get-melody get-player get-player-id get-players reset-players update-player]]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
@@ -48,8 +50,12 @@
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
         ;; if seg-start = 0 this is the begining of the segment, so
-        ;; set seg-start to the time of this event
-        seg-start-time (if (= (:seg-start player) 0) event-time (:seg-start player))
+        ;; set seg-start to the time of this event - also send seg-start msg
+        seg-start-time (if (= (:seg-start player) 0)
+                         (do
+                           (send-message MSG-PLAYER-NEW-SEGMENT :change-player (get-player-id player))
+                           event-time)
+                         (:seg-start player))
         ]
 
     (if (not (nil? (:note melody-event)))
@@ -93,7 +99,7 @@
                :player-id player-no
                :prev-note-beat 0}))
 
-(defn init-players
+(defn init-ensemble
   []
   (let [all-players (map create-player (range 1 (+ @NUM-PLAYERS 1)))]
     (reset-players)
