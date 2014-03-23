@@ -45,7 +45,8 @@
     (do
       (remove-watch identity key)
       (process-messages))
-    (println "MESSAGES NOT nil"))
+    ;; else MESSAGES is empty - don't do anything
+    )
   )
 
 (defn- watch-msg-queue
@@ -63,7 +64,7 @@
   [msg & args]
   (if @checking-messages?
     (do
-      (send-off MESSAGES assoc (swap! msg-id inc-msg-id) (apply list msg args) )
+      (send MESSAGES assoc (swap! msg-id inc-msg-id) (apply list msg args) )
       true)    ;; return true if message was queued to be sent
     false      ;; return false if messsage was not queued
     )
@@ -76,13 +77,17 @@
 
 (defn- dispatch-message
   [msg-num & args]
-  (println "dispatch msg:" msg-num args)
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)]
-        (if args
-          (apply (first msg-lstnr) (flatten (list args (second msg-lstnr))))
-          (apply (first msg-lstnr) (second msg-lstnr))))))
+        (if (second msg-lstnr)
+          (if args
+            (apply (first msg-lstnr) (flatten (list args (second msg-lstnr))))
+            (apply (first msg-lstnr) (second msg-lstnr)))
+          (if args
+            (apply (first msg-lstnr) args)
+            ((first msg-lstnr)))
+          ))))
   )
 
 (defn process-messages
@@ -92,7 +97,7 @@
       (let [nxt-msg (inc @last-msg-processed)]
         (reset! last-msg-processed nxt-msg)
         (apply dispatch-message (first (get @MESSAGES nxt-msg)) (rest (get @MESSAGES nxt-msg)))
-        (send-off MESSAGES remove-msg nxt-msg)
+        (send MESSAGES remove-msg nxt-msg)
         )))
   (watch-msg-queue)
   )
@@ -106,6 +111,10 @@
     (process-messages)
     (watch-msg-queue)))
 
+(defn- set-atom-to-zero
+  [cur-atom-val]
+  0)
+
 (defn stop-message-processor
   []
   "Stops the message-processor from adding any messages.
@@ -114,10 +123,10 @@
      To get the message-processor going again call
      restart-message-processor."
   (reset! checking-messages? false)
-  (send-off LISTENERS clear-listeners)     ;; clear LISTENERS
+  (send LISTENERS clear-listeners)     ;; clear LISTENERS
   (await MESSAGES)                         ;; wait till MESSAGE queue is cleared
-  (swap! msg-id 0)
-  (swap! last-msg-processed 0)
+  (swap! msg-id set-atom-to-zero)
+  (swap! last-msg-processed set-atom-to-zero)
   true    ;; return true
   )
 
@@ -126,13 +135,13 @@
   (reset! checking-messages? true))
 
 (defn- add-listener
-  "Called via send-off to add a listener to LISTENERS"
+  "Called via send or send-off to add a listener to LISTENERS"
   [cur-listeners msg-num fnc args]
   (assoc cur-listeners msg-num (conj (get cur-listeners msg-num) (list fnc args)))
   )
 
 (defn- remove-listener
-  "Called via send-off to remove a listener from LISTENERS"
+  "Called via send or send-off to remove a listener from LISTENERS"
   [cur-listeners msg-num fnc args]
   (if (= 1 (count (get cur-listeners msg-num)))    ;; only 1 listener left in LISTENERS
     (dissoc @LISTENERS msg-num)                    ;;   remove it
@@ -160,9 +169,9 @@
    args - an optional argument that is a map of key value pairs
           passed to fnc"
  [msg-num fnc & args]
- (send-off LISTENERS add-listener msg-num fnc args))
+ (send LISTENERS add-listener msg-num fnc args))
 
 (defn unregister-listener
   [msg-num fnc & args]
-  (send-off LISTENERS remove-listener msg-num fnc args)
+  (send LISTENERS remove-listener msg-num fnc args)
 )

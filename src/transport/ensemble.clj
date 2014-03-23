@@ -23,13 +23,12 @@
    [transport.melody :only [get-volume next-melody]]
    [transport.messages]
    [transport.message_processor :only [send-message]]
-   [transport.players :only [PLAYERS get-behavior get-dur-millis get-function get-melody get-player get-player-id get-players reset-players update-player]]
+   [transport.players]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [copy-following-info first-segment new-segment]]
    [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN FOLLOW CONTRAST]]
-   [transport.util])
-   )
+   ))
 
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
@@ -103,7 +102,7 @@
   []
   (let [all-players (map create-player (range 1 (+ @NUM-PLAYERS 1)))]
     (reset-players)
-    (send-off PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
+    (send PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
     (await PLAYERS)
     )
 
@@ -116,21 +115,23 @@
          (map assoc (vals @PLAYERS) (repeat :behavior) (map select-and-set-behavior-player-id (vals @PLAYERS))))
         ]
     (reset-players)
-    (send-off PLAYERS conj final-players)
+    (send PLAYERS conj final-players)
     (await PLAYERS)
     )
 
   (dotimes [player-index @NUM-PLAYERS]
     (let [check-player (get-player (+ player-index 1))]
       (if (= (get-behavior-action-for-player check-player) FOLLOW)
-        (send-off PLAYERS
+        (send PLAYERS
                   assoc
                   (+ player-index 1)
                   (copy-following-info check-player))
         )))
   (await PLAYERS)
 
-   (dorun (map print-player (get-players)))
+  (init-players)
+
+  (dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players
    (dorun (map sched-event (repeat 0) (map get-function (get-players)) (map get-player-id (get-players))))

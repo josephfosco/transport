@@ -16,6 +16,8 @@
 (ns transport.players
   (:use
    [transport.message_processor :only [register-listener]]
+   [transport.messages]
+   [transport.settings]
    )  )
 
 (def PLAYERS (agent {}))
@@ -138,7 +140,7 @@
 
 (defn reset-players
   []
-  (send-off PLAYERS clear-players)
+  (send PLAYERS clear-players)
   (await PLAYERS))
 
 (defn set-behavior
@@ -165,7 +167,7 @@
 
 (defn update-player
   [player]
-  (send-off PLAYERS update-player-callback player)
+  (send PLAYERS update-player-callback player)
   (await PLAYERS)
   )
 
@@ -180,20 +182,69 @@
     nil
     ))
 
+(defn copy-follow-info
+  [cur-players from-player-id to-player-id]
+  (println "copy-follow-info from:" from-player-id "to:" to-player-id)
+  (println)
+  cur-players
+  )
+
+(defn player-new-segment
+  [& {:keys [change-player]}]
+  (println)
+  (println "player-new-segment change-player:" change-player)
+  (doall (map send
+              (repeat PLAYERS)
+              (repeat copy-follow-info)
+              (repeat change-player)
+              (doall
+               (for [player (vals @PLAYERS)
+                     :when (and
+                            (= (:action (:behavior player)) FOLLOW)
+                            (= (:player-id (:behavior player)) change-player))]
+                 (get-player-id player)))
+              ))
+  )
+
 (defn init-players
   []
   (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment)
   )
 
-(defn copy-follow-info
-  [from-player-id to-player-id]
-  (println "copy-follow-info from:" from-player-id "to:" to-player-id)
-  )
+(defn print-player
+  "Pretty Print a player map
 
-(defn player-new-segment
-  [{:keys [change-player]}]
-  (for [player @PLAYERS]
-    (if (= (get-player-id player) change-player)
-      (send-off PLAYERS copy-follow-info change-player (get-player-id player)))
+  player - the player map to print"
+  [player & {:keys [prnt-full-inst-info]
+             :or {prnt-full-inst-info false}}]
+  (let [sorted-keys (sort (keys player))]
+    (println "player:")
+    (doseq [player-key sorted-keys]
+      (if (and (= player-key :instrument-info) (= prnt-full-inst-info false))
+        (do
+          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
+          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
+          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
+        (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
+      )
+    (prn)
     )
   )
+
+(defn print-player-num
+  [player-id]
+  (print-player (get-player player-id))
+  )
+
+(defn print-player-long
+  "Pretty Print a player map with all instrument-info
+
+  player - the player map to print"
+  [player]
+  (print-player player :prnt-full-inst-info true)
+  )
+
+(defn print-all-players
+  []
+  (dorun (map print-player (get-players)))
+)
