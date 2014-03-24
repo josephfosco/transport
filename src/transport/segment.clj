@@ -16,7 +16,7 @@
 (ns transport.segment
   (:use
    [transport.behavior :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
-   [transport.instrument :only [get-instrument-info select-instrument]]
+   [transport.instrument :only [select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
    [transport.players]
@@ -32,30 +32,6 @@
   []
   (random-int min-segment-len max-segment-len))
 
-(defn- get-following-info-from-player
-  "follow-player - the player to get the following info from"
-  [follow-player]
-  {
-   :instrument-info (get-instrument-info follow-player)
-   :key (get-key follow-player)
-   :melody-char (get-melody-char follow-player)
-   :metronome (get-metronome follow-player)
-   :mm (get-mm follow-player)
-   :scale (get-scale follow-player)
-   }
-  )
-
-(defn- get-complement-info-from-player
-  "follow-player - the player to get the following info from"
-  [follow-player]
-  {
-   :key (get-key follow-player)
-   :melody-char (get-melody-char follow-player)
-   :metronome (get-metronome follow-player)
-   :mm (get-mm follow-player)
-   :scale (get-scale follow-player)
-   }
-  )
 
 (defn copy-following-info
   [player]

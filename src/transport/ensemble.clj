@@ -19,7 +19,7 @@
    [transport.behavior :only [get-behavior-action-for-player select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.ensemble-status :only [update-ensemble-status]]
-   [transport.instrument :only [get-instrument get-instrument-info play-instrument]]
+   [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [get-volume next-melody]]
    [transport.messages]
    [transport.message_processor :only [send-message]]

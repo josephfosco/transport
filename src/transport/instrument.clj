@@ -18,7 +18,7 @@
    [overtone.live]
    [transport.behavior :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.instruments.osc-instruments]
-   [transport.players :only [get-player]]
+   [transport.players :only [get-instrument-info get-player]]
    [transport.settings :only [FOLLOW]]
    [transport.random :only [random-int]]
    ))
@@ -34,21 +34,17 @@
                       {:instrument sine-wave-sus :envelope-type "ASR"}
                       ])
 
-(defn get-instrument-info
-  [player]
-  (:instrument-info player))
-
 (defn get-instrument
   [player]
-  (:instrument (:instrument-info player)))
+  (:instrument (get-instrument-info player)))
 
 (defn get-hi-range
   [player]
-  (:range-hi (:instrument-info player)))
+  (:range-hi (get-instrument-info player)))
 
 (defn get-lo-range
   [player]
-  (:range-lo (:instrument-info player)))
+  (:range-lo (get-instrument-info player)))
 
 (defn get-instrument-range
   [player]
@@ -56,7 +52,7 @@
 
 (defn get-envelope-type
   [player]
-  (:envelope-type (:instrument-info player)))
+  (:envelope-type (get-instrument-info player)))
 
 (defn get-gate-dur
   "player - player map
