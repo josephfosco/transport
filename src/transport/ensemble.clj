@@ -119,16 +119,6 @@
     (await PLAYERS)
     )
 
-  (dotimes [player-index @NUM-PLAYERS]
-    (let [check-player (get-player (+ player-index 1))]
-      (if (= (get-behavior-action-for-player check-player) FOLLOW)
-        (send PLAYERS
-                  assoc
-                  (+ player-index 1)
-                  (copy-following-info check-player))
-        )))
-  (await PLAYERS)
-
   (init-players)
 
   (dorun (map print-player (get-players)))
