@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 (ns transport.behavior
   (:use
    [overtone.live :only [ranged-rand]]
-   [transport.players :only [PLAYERS get-behavior get-behavior-ensemble-action rand-player-id-excluding-player set-behavior-player-id update-player-callback]]
+   [transport.players :only [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
    [transport.settings :only [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
    ))
 
