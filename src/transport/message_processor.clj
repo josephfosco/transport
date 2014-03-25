@@ -80,7 +80,7 @@
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)]
-        (if (second msg-lstnr)
+        (if (second msg-lstnr)                   ;; if message listener specified args
           (if args
             (apply (first msg-lstnr) (flatten (list args (second msg-lstnr))))
             (apply (first msg-lstnr) (second msg-lstnr)))

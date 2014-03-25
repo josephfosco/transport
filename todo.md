@@ -19,9 +19,7 @@
 
 * find a way to have an overall level adjustment based on the number of players
 
-* If a player is FOLLOWing another, needd to know if the FOLLOWer player changes instrument
-
-* Need to implement a message queue for sending information
+* If a player is FOLLOWing another, needxs to know if the FOLLOWer player changes instrument
 
 * In pitch.clj get-step-down-in-scale and get-step-up-in-scale need to return nil if pitch passed in is not in player scale and key
 
@@ -30,3 +28,7 @@
 * need some type of CLI or separate window for messages
 
 * remove duplicate @SCALES
+
+* move :accuracy out of :behavior up to top level
+
+* possibly move next note out of ensemble into player (each player knows when to play next)

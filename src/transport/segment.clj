@@ -80,7 +80,7 @@
               :seg-len (select-segment-length)
               :seg-start 0
               )
-            (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
+            (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      :else
      (assoc player

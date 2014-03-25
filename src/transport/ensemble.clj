@@ -52,7 +52,7 @@
         ;; set seg-start to the time of this event - also send seg-start msg
         seg-start-time (if (= (:seg-start player) 0)
                          (do
-                           (send-message MSG-PLAYER-NEW-SEGMENT :change-player (get-player-id player))
+                           (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
                            event-time)
                          (:seg-start player))
         ]
