@@ -15,7 +15,7 @@
 
 (ns transport.melody
   (:use
-   [transport.behavior :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players]

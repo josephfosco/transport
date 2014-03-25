@@ -15,7 +15,7 @@
 
 (ns transport.pitch
   (:use
-   [transport.behavior :only [get-behavior-action-for-player]]
+   [transport.behaviors :only [get-behavior-action-for-player]]
    [overtone.music.pitch :only [SCALE]]
    [transport.players]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]

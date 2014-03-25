@@ -15,7 +15,7 @@
 
 (ns transport.segment
   (:use
-   [transport.behavior :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
+   [transport.behaviors :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
    [transport.instrument :only [select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
@@ -44,7 +44,7 @@
 
    player - the player to create the segment for"
   [player]
-  (let [new-behavior (transport.behavior/select-behavior player)
+  (let [new-behavior (transport.behaviors/select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         ]
     (assoc player

@@ -16,7 +16,7 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior-action-for-player select-and-set-behavior-player-id]]
+   [transport.behaviors :only [get-behavior-action-for-player select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument play-instrument]]

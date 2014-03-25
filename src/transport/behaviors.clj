@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.behavior
+(ns transport.behaviors
   (:use
    [overtone.live :only [ranged-rand]]
    [transport.players :only [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
