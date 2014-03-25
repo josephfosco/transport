@@ -13,7 +13,13 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.players)
+(ns transport.players
+  (:require
+   [transport.message_processor :refer [register-listener]]
+   [transport.messages :refer :all]
+   [transport.settings :refer :all]
+   )
+  )
 
 (def PLAYERS (agent {}))
 
@@ -29,6 +35,14 @@
   [melody-event]
   (:note melody-event))
 
+(defn get-behavior
+  [player]
+  (:behavior player))
+
+(defn get-behavior-ensemble-action
+  [player]
+  (:ensemble-action (get-behavior player)))
+
 (defn get-dur-info
   [melody-event]
   (:dur-info melody-event))
@@ -41,29 +55,21 @@
   (:dur-millis dur-info)
   )
 
-(defn get-behavior
-  [player]
-  (:behavior player))
-
-(defn get-behavior-action
-  [player]
-  (:action (get-behavior player)))
-
-(defn get-behavior-ensemble-action
-  [player]
-  (:ensemble-action (get-behavior player)))
-
-(defn get-behavior-player-id
-  [player]
-  (:player-id (:behavior player)))
-
 (defn get-function
   [player]
   (:function player))
 
+(defn get-instrument-info
+  [player]
+  (:instrument-info player))
+
 (defn get-key
   [player]
   (:key player))
+
+(defn get-melody-char
+  [player]
+  (:melody-char player))
 
 (defn get-melody-continuity-char
   [player]
@@ -80,6 +86,10 @@
 (defn get-melody-smoothness-char
   [player]
   (:smoothness (:melody-char player)))
+
+(defn get-metronome
+  [player]
+  (:metronome player))
 
 (defn get-mm
   [player]
@@ -135,7 +145,7 @@
 
 (defn reset-players
   []
-  (send-off PLAYERS clear-players)
+  (send PLAYERS clear-players)
   (await PLAYERS))
 
 (defn set-behavior
@@ -157,16 +167,12 @@
   "update the value of a player in agent PLAYERS
    this is called from send-off"
   [cur-players new-player]
-  (let [player-id (get-player-id new-player)
-        old-behavior-player-id (get-behavior-player-id (get cur-players player-id))
-        new-behavior-player-id (get-behavior-player-id new-player)
-        ]
-    (assoc @PLAYERS player-id new-player)
-    ))
+  (assoc @PLAYERS (get-player-id new-player) new-player)
+  )
 
 (defn update-player
   [player]
-  (send-off PLAYERS update-player-callback player)
+  (send PLAYERS update-player-callback player)
   (await PLAYERS)
   )
 
@@ -180,3 +186,107 @@
     (rand-nth (keys (dissoc @PLAYERS (:player-id player))))
     nil
     ))
+
+(defn get-following-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  (println "FOLLOWING...")
+  {
+   :instrument-info (get-instrument-info follow-player)
+   :key (get-key follow-player)
+   :melody-char (get-melody-char follow-player)
+   :metronome (get-metronome follow-player)
+   :mm (get-mm follow-player)
+   :scale (get-scale follow-player)
+   }
+  )
+
+(defn get-complement-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  (println "COMPLEMENTING...")
+  {
+   :key (get-key follow-player)
+   :melody-char (get-melody-char follow-player)
+   :metronome (get-metronome follow-player)
+   :mm (get-mm follow-player)
+   :scale (get-scale follow-player)
+   }
+  )
+(defn copy-follow-complement-info
+  [cur-players from-player-id to-player-id]
+  (println)
+  (println "copy-follow-complement-info from:" from-player-id "to:" to-player-id)
+  (println)
+  (let [to-player (get-player to-player-id)]
+    (if (= from-player-id (:player-id (:behavior to-player)))
+      (assoc @PLAYERS to-player-id
+             (merge to-player
+                    (if (= (:action (:behavior to-player)) FOLLOW)
+                      (get-following-info-from-player
+                       (get-player from-player-id))
+                      (get-complement-info-from-player
+                       (get-player from-player-id))
+                      )))
+      (do
+        (println "copy-follow-info NOT COPYING!")
+        cur-players)))
+  )
+
+(defn player-new-segment
+  [& {:keys [change-player-id]}]
+  (println "player-new-segment change-player-id:" change-player-id)
+  (doseq [player (vals @PLAYERS)
+          :let [player-action (:action (:behavior player))
+                player-behavior-player-id (:player-id (:behavior player))
+                ]
+          :when (and
+                 (or (= player-action FOLLOW)
+                     (= player-action COMPLEMENT))
+                 (= player-behavior-player-id change-player-id))]
+    (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
+    )
+  )
+
+(defn init-players
+  []
+  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment)
+  )
+
+(defn print-player
+  "Pretty Print a player map
+
+  player - the player map to print"
+  [player & {:keys [prnt-full-inst-info]
+             :or {prnt-full-inst-info false}}]
+  (let [sorted-keys (sort (keys player))]
+    (println "player:")
+    (doseq [player-key sorted-keys]
+      (if (and (= player-key :instrument-info) (= prnt-full-inst-info false))
+        (do
+          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
+          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
+          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
+        (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
+      )
+    (prn)
+    )
+  )
+
+(defn print-player-num
+  [player-id]
+  (print-player (get-player player-id))
+  )
+
+(defn print-player-long
+  "Pretty Print a player map with all instrument-info
+
+  player - the player map to print"
+  [player]
+  (print-player player :prnt-full-inst-info true)
+  )
+
+(defn print-all-players
+  []
+  (dorun (map print-player (get-players)))
+)

@@ -15,6 +15,7 @@
 
 (ns transport.melody
   (:use
+   [transport.behavior :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players]
@@ -77,15 +78,15 @@
   (let [play-note? (random-int 0 10)]
     (if (< (get-melody-continuity-char player) play-note?)
       true
-      (if (not= 0 play-note?)                                              ;; if continuity not 0
-        nil                                                                ;; rest
-        (if (and                                                           ;; else
-             (not= {} (get-melody player))                                 ;; if melody not empty
-             (= 0                                                          ;; and last pitch is root
+      (if (not= 0 play-note?)                                ;; if continuity not 0
+        nil                                                  ;; rest
+        (if (and                                             ;; else
+             (not= {} (get-melody player))                   ;; if melody not empty
+             (= 0                                            ;; and last pitch is root
                 (get-scale-degree
                  player
-                 (or (get-last-melody-note player) 0)))                    ;; or rest
-             (< (rand) 0.8))                                               ;; possibly rest
+                 (or (get-last-melody-note player) 0)))      ;; or rest
+             (< (rand) 0.8))                                 ;; possibly rest
           nil
           true)))))
 
@@ -107,7 +108,7 @@
 
 (defn next-melody-follow
   [player]
-  (let [follow-player-id (get-behavior-player-id player)
+  (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-note (get-last-melody-event-num follow-player-id)
         next-new-event {:note nil
                         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
@@ -164,7 +165,7 @@
      }
     ))
 
-(defn next-melody-ignore
+(defn- next-melody-for-player
   [player]
   (let [play-note? (note-or-rest player)
         ]
@@ -180,8 +181,9 @@
     player - the player map"
   [player]
   (cond
-   (= (get-behavior-action player) FOLLOW) (next-melody-follow player)
+   (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-complement-ensemble player)
    (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
-   :else (next-melody-ignore player))
+   :else (next-melody-for-player player))  ;; pick next melody note based only on players settings
+                                           ;;  do not reference other players or ensemble
   )

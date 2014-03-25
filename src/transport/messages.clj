@@ -13,34 +13,6 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.settings
-  "This namespace is a 'terminal namespace'.
-   It should not :require :use :refer or :import any
-   other namespaces")
+(ns transport.messages)
 
-(def NUM-PLAYERS (atom 10))
-(def SAVED-MELODY-LEN 64)
-
-(def IGNORE 0)
-(def COMPLEMENT 1)
-(def CONTRAST 2)
-(def FOLLOW 3)
-
-(def STEADY 10)
-(def INCREASING 11)
-(def DECREASING 12)
-(def RANDOM 13)
-(def SHORT 14)
-(def LONG 15)
-(def RAPID 16)
-(def SLOW 17)
-(def KEEP-BEAT 18)
-
-(def SLOW-TEMPO [0 60])
-(def MED-TEMPO [61 100])
-(def FAST-TEMPO [101 160])
-(def VERY-FAST-TEMPO [161 999])
-
-(defn set-num-players
-  [new-num-players]
-  (reset! NUM-PLAYERS new-num-players))
+(def MSG-PLAYER-NEW-SEGMENT 1)

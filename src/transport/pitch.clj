@@ -15,6 +15,7 @@
 
 (ns transport.pitch
   (:use
+   [transport.behavior :only [get-behavior-action-for-player]]
    [overtone.music.pitch :only [SCALE]]
    [transport.players]
    [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
@@ -255,9 +256,10 @@
 
 (defn next-pitch
   [player & {:keys [note-dir]
-           :or {note-dir nil}}]
-  (cond
-   (= get-behavior-action FOLLOW) (next-pitch-follow player)
-   (= get-behavior-action COMPLEMENT) (next-pitch-complement player)
-   (= get-behavior-action CONTRAST) (next-pitch-contrast player)
-   :else (next-pitch-ignore player)) )
+             :or {note-dir nil}}]
+  (let [player-behavior-action (get-behavior-action-for-player player)]
+    (cond
+     (= player-behavior-action FOLLOW) (next-pitch-follow player)
+     (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
+     (= player-behavior-action CONTRAST) (next-pitch-contrast player)
+     :else (next-pitch-ignore player))) )
