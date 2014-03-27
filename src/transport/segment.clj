@@ -15,7 +15,8 @@
 
 (ns transport.segment
   (:use
-   [transport.behaviors :only [get-behavior-action get-behavior-player-id get-behavior-player-id-for-player select-behavior]]
+   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
+   [transport.behaviors :only [get-behavior-player-id-for-player select-behavior]]
    [transport.instrument :only [select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]

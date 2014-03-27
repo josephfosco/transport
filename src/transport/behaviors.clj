@@ -14,25 +14,17 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.behaviors
-  (:use
-   [overtone.live :only [ranged-rand]]
-   [transport.players :only [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
-   [transport.settings :only [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
-   ))
-
-(defn get-behavior-action
-  [behavior]
-  (:action behavior)
+  (:require
+   [overtone.live :refer [ranged-rand]]
+   [transport.behavior]
+   [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
+   [transport.settings :refer [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   )
+  (:import transport.behavior.Behavior)
   )
-
 (defn get-behavior-action-for-player
   [player]
   (:action (get-behavior player))
-  )
-
-(defn get-behavior-player-id
-  [behavior]
-  (:player-id behavior)
   )
 
 (defn get-behavior-player-id-for-player
@@ -81,9 +73,9 @@
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]
-    {:accuracy (ranged-rand 0.25 0.85)
-     :action behavior-action
-     :ensemble-action ensemble-action
-     :player-id (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil)
-     })
+    (Behavior. (ranged-rand 0.25 0.85)
+               behavior-action
+               ensemble-action
+               (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil))
+    )
   )
