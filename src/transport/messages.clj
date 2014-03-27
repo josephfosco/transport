@@ -16,3 +16,5 @@
 (ns transport.messages)
 
 (def MSG-PLAYER-NEW-SEGMENT 1)
+(def MSG-PLAYER-NEW-FOLLOW-INFO 2)
+(def MSG-PLAYER-NEW-COMPLEMENT-INFO 3)
