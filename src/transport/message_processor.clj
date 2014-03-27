@@ -99,12 +99,16 @@
   (println "dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
-      (let [msg-lstnr (nth msg-listeners lstnr-index)]
-        (if (= (second msg-listeners) nil)  ;; listener doesn't care about msg args
+      (let [msg-lstnr (nth msg-listeners lstnr-index)
+            msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
+            ]
+        (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
           (if args
             (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
+          (if (every? true? (map #(= (% msg-lstnr-msg-args) (% args)) (keys msg-lstnr-msg-args)))
+            (dispatch-message-to-listener msg-lstnr args))  ;; only dispatch if keys match
           )
         )))
   )
@@ -171,7 +175,11 @@
              new-lstnrs '()]
         (if (empty? lstnrs)
           new-lstnrs
-          (if (= (first lstnrs) (list fnc msg-num (if (not (nil? args)) args nil)))  ;; is this the one to remove?
+          (if (= (first lstnrs) (list
+                                 fnc msg-num
+                                 (if (not (nil? args)) args nil)
+                                 (if (not (nil? msg-args)) msg-args nil)
+                                 ))  ;; is this the one to remove?
             (recur '()                                                       ;;   yes, remove it
                    (if (empty? (rest lstnrs))     ;;  removing last listener in list
                      new-lstnrs

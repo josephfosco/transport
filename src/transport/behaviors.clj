@@ -73,9 +73,9 @@
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]
-    (Behavior. (ranged-rand 0.25 0.85)
-               behavior-action
-               ensemble-action
-               (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil))
+    (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
+               behavior-action          ;; action
+               ensemble-action          ;; ensemble-action
+               (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil)) ;; behavior player-id
     )
   )
