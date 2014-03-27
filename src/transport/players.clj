@@ -251,7 +251,7 @@
 
 (defn init-players
   []
-  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment)
+  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment nil)
   )
 
 (defn print-player

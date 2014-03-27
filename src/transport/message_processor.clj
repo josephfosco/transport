@@ -75,19 +75,38 @@
   [cur-msgs msg-num-to-remove]
   (dissoc cur-msgs msg-num-to-remove))
 
+(defn- dispatch-message-to-listener
+  "Can be called with either a msg-lstnr list and msg-args or just msg-args"
+  (
+   [msg-lstnr msg-args]
+     (println "dispatch-message-to-listener 2 args")
+     (if (nth msg-lstnr 2)                   ;; if message listener specified args
+       (apply (first msg-lstnr) (flatten (list msg-args (nth msg-lstnr 2))))
+       (apply (first msg-lstnr) msg-args)
+       )
+     )
+  ([msg-lstnr]
+     (println "dispatch-message-to-listener 1 arg")
+     (if (nth msg-lstnr 2)                   ;; if message listener specified args
+       (apply (first msg-lstnr) (nth msg-lstnr 2))
+       ((first msg-lstnr))
+       )
+     )
+  )
+
 (defn- dispatch-message
   [msg-num & args]
+  (println "dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)]
-        (if (second msg-lstnr)                   ;; if message listener specified args
+        (if (= (second msg-listeners) nil)  ;; listener doesn't care about msg args
           (if args
-            (apply (first msg-lstnr) (flatten (list args (second msg-lstnr))))
-            (apply (first msg-lstnr) (second msg-lstnr)))
-          (if args
-            (apply (first msg-lstnr) args)
-            ((first msg-lstnr)))
-          ))))
+            (dispatch-message-to-listener msg-lstnr args)
+            (dispatch-message-to-listener msg-lstnr)
+            )
+          )
+        )))
   )
 
 (defn process-messages
@@ -136,13 +155,13 @@
 
 (defn- add-listener
   "Called via send or send-off to add a listener to LISTENERS"
-  [cur-listeners msg-num fnc args]
-  (assoc cur-listeners msg-num (conj (get cur-listeners msg-num) (list fnc args)))
+  [cur-listeners msg-num fnc msg-args args]
+  (assoc cur-listeners msg-num (conj (get cur-listeners msg-num) (list fnc msg-args args)))
   )
 
 (defn- remove-listener
   "Called via send or send-off to remove a listener from LISTENERS"
-  [cur-listeners msg-num fnc args]
+  [cur-listeners msg-num fnc msg-args args]
   (if (= 1 (count (get cur-listeners msg-num)))    ;; only 1 listener left in LISTENERS
     (dissoc @LISTENERS msg-num)                    ;;   remove it
     (assoc
@@ -152,7 +171,7 @@
              new-lstnrs '()]
         (if (empty? lstnrs)
           new-lstnrs
-          (if (= (first lstnrs) (list fnc (if (not (nil? args)) args nil)))  ;; is this the one to remove?
+          (if (= (first lstnrs) (list fnc msg-num (if (not (nil? args)) args nil)))  ;; is this the one to remove?
             (recur '()                                                       ;;   yes, remove it
                    (if (empty? (rest lstnrs))     ;;  removing last listener in list
                      new-lstnrs
@@ -168,10 +187,10 @@
    fnc - the function to be called
    args - an optional argument that is a map of key value pairs
           passed to fnc"
- [msg-num fnc & args]
- (send LISTENERS add-listener msg-num fnc args))
+ [msg-num fnc msg-args & args]
+ (send LISTENERS add-listener msg-num fnc msg-args args))
 
 (defn unregister-listener
-  [msg-num fnc & args]
-  (send LISTENERS remove-listener msg-num fnc args)
+  [msg-num fnc msg-args & args]
+  (send LISTENERS remove-listener msg-num fnc msg-args args)
 )
