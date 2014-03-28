@@ -193,6 +193,7 @@
 
    msg-num - the message to be called for
    fnc - the function to be called
+   msg-args - a map of keyword args to match with the args of msg-num
    args - an optional argument that is a map of key value pairs
           passed to fnc"
  [msg-num fnc msg-args & args]
