@@ -119,7 +119,7 @@
           (set-num-players num-players))
         (reset-ensemble-status)
         (reset-lateness)
-        (restart-scheduler)
+        (restart-scheduler :reset-listeners true)
         (restart-message-processor)
         (init-ensemble)
         (reset! is-playing? true)

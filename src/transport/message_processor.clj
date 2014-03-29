@@ -79,14 +79,14 @@
   "Can be called with either a msg-lstnr list and msg-args or just msg-args"
   (
    [msg-lstnr msg-args]
-     (println "dispatch-message-to-listener 2 args")
+     (println "message-processor dispatch-message-to-listener 2 args")
      (if (nth msg-lstnr 2)                   ;; if message listener specified args
        (apply (first msg-lstnr) (flatten (list msg-args (nth msg-lstnr 2))))
        (apply (first msg-lstnr) msg-args)
        )
      )
   ([msg-lstnr]
-     (println "dispatch-message-to-listener 1 arg")
+     (println "message-processor dispatch-message-to-listener 1 arg")
      (if (nth msg-lstnr 2)                   ;; if message listener specified args
        (apply (first msg-lstnr) (nth msg-lstnr 2))
        ((first msg-lstnr))
@@ -97,7 +97,7 @@
 (defn- dispatch-message
   [msg-num & args]
   (println)
-  (println "dispatch-message")
+  (println "message-processor dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)
@@ -149,15 +149,20 @@
      restart-message-processor."
   (reset! checking-messages? false)
   (send LISTENERS clear-listeners)     ;; clear LISTENERS
-  (await MESSAGES)                         ;; wait till MESSAGE queue is cleared
+  (await MESSAGES)                     ;; wait till MESSAGE queue is cleared
   (swap! msg-id set-atom-to-zero)
   (swap! last-msg-processed set-atom-to-zero)
   true    ;; return true
   )
 
 (defn restart-message-processor
-  []
-  (reset! checking-messages? true))
+  [& {:keys [reset-listeners]
+      :or {reset-listeners false}}]
+  (reset! checking-messages? true)
+  (if reset-listeners
+    (send LISTENERS clear-listeners)
+    )
+  )
 
 (defn- add-listener
   "Called via send or send-off to add a listener to LISTENERS"
@@ -199,9 +204,6 @@
    args - an optional argument that is a map of key value pairs
           passed to fnc"
   [msg-num fnc msg-args & args]
-  (println "************************************************************")
-  (println "message-processor.clj - register listener:" msg-num fnc msg-args args)
-  (println "************************************************************")
   (send LISTENERS add-listener msg-num fnc msg-args args))
 
 (defn unregister-listener

@@ -219,7 +219,7 @@
 (defn copy-follow-complement-info
   [cur-players from-player-id to-player-id]
   (println)
-  (println "copy-follow-complement-info from:" from-player-id "to:" to-player-id)
+  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id)
   (println)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
@@ -232,22 +232,27 @@
                        (get-player from-player-id))
                       )))
       (do
-        (println "copy-follow-info NOT COPYING!")
+        (println "players - copy-follow-info NOT COPYING!")
         cur-players)))
   )
 
 (defn player-new-segment
-  [& {:keys [change-player-id]}]
-  (println "players.clj player-new-segment change-player-id:" change-player-id)
-  (doseq [player (vals @PLAYERS)
-          :let [player-action (:action (:behavior player))
-                player-behavior-player-id (:player-id (:behavior player))
-                ]
-          :when (and
-                 (or (= player-action FOLLOW)
-                     (= player-action COMPLEMENT))
-                 (= player-behavior-player-id change-player-id))]
-    (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
+  [& {:keys [change-player-id follow-player-id]}]
+  (println "players.clj player-new-segment change-player-id:" change-player-id "follow-player-id" follow-player-id)
+
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
+
+  (comment
+    (doseq [player (vals @PLAYERS)
+            :let [player-action (:action (:behavior player))
+                  player-behavior-player-id (:player-id (:behavior player))
+                  ]
+            :when (and
+                   (or (= player-action FOLLOW)
+                       (= player-action COMPLEMENT))
+                   (= player-behavior-player-id change-player-id))]
+      (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
+      )
     )
   )
 
