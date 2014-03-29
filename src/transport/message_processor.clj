@@ -61,10 +61,14 @@
       false)))    ; return false if watch is not added
 
 (defn send-message
+  "Sends a message to all listeners listening for msg.
+   args must be key value pairs - args will be converted to a hash map
+
+   args - sets of key value pairs to be passed to the listener"
   [msg & args]
   (if @checking-messages?
     (do
-      (send MESSAGES assoc (swap! msg-id inc-msg-id) (apply list msg args) )
+      (send MESSAGES assoc (swap! msg-id inc-msg-id) (list msg (apply hash-map args)) )
       true)    ;; return true if message was queued to be sent
     false      ;; return false if messsage was not queued
     )
@@ -76,12 +80,16 @@
   (dissoc cur-msgs msg-num-to-remove))
 
 (defn- dispatch-message-to-listener
-  "Can be called with either a msg-lstnr list and msg-args or just msg-args"
+  "Can be called with either a msg-lstnr list and msg-args or just msg-args
+   Calls the msg-lstnr function with all args from the msg-lstnr and the msg"
   (
    [msg-lstnr msg-args]
      (println "message-processor dispatch-message-to-listener 2 args")
      (if (nth msg-lstnr 2)                   ;; if message listener specified args
-       (apply (first msg-lstnr) (flatten (list msg-args (nth msg-lstnr 2))))
+       (apply (first msg-lstnr)
+              (flatten
+               (list (flatten (seq msg-args)) (nth msg-lstnr 2))) ;; create one list from map msg-args and list
+              )
        (apply (first msg-lstnr) msg-args)
        )
      )
@@ -95,7 +103,7 @@
   )
 
 (defn- dispatch-message
-  [msg-num & args]
+  [msg-num args]
   (println)
   (println "message-processor dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
@@ -105,11 +113,11 @@
             ]
         (println "msg-lstnr-msg-args:" msg-lstnr-msg-args "args:" args)
         (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
-          (if args
+          (if (not= args {})
             (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
-          (if (every? true? (map #(= (% msg-lstnr-msg-args) (% (apply hash-map args))) (keys msg-lstnr-msg-args)))
+          (if (every? true? (map #(= (% msg-lstnr-msg-args) (% args)) (keys msg-lstnr-msg-args)))
             (dispatch-message-to-listener msg-lstnr args))  ;; only dispatch if keys match
           )
         )))
