@@ -96,18 +96,20 @@
 
 (defn- dispatch-message
   [msg-num & args]
+  (println)
   (println "dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
+        (println "msg-lstnr-msg-args:" msg-lstnr-msg-args "args:" args)
         (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
           (if args
             (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
-          (if (every? true? (map #(= (% msg-lstnr-msg-args) (% args)) (keys msg-lstnr-msg-args)))
+          (if (every? true? (map #(= (% msg-lstnr-msg-args) (% (apply hash-map args))) (keys msg-lstnr-msg-args)))
             (dispatch-message-to-listener msg-lstnr args))  ;; only dispatch if keys match
           )
         )))
@@ -176,9 +178,9 @@
         (if (empty? lstnrs)
           new-lstnrs
           (if (= (first lstnrs) (list
-                                 fnc msg-num
-                                 (if (not (nil? args)) args nil)
+                                 fnc
                                  (if (not (nil? msg-args)) msg-args nil)
+                                 (if (not (nil? args)) args nil)
                                  ))  ;; is this the one to remove?
             (recur '()                                                       ;;   yes, remove it
                    (if (empty? (rest lstnrs))     ;;  removing last listener in list
@@ -189,17 +191,21 @@
         ))))
 
 (defn register-listener
-  "Register a function to bo called for a specific message
+  "Register a function to be called for a specific message
 
    msg-num - the message to be called for
    fnc - the function to be called
    msg-args - a map of keyword args to match with the args of msg-num
    args - an optional argument that is a map of key value pairs
           passed to fnc"
- [msg-num fnc msg-args & args]
- (send LISTENERS add-listener msg-num fnc msg-args args))
+  [msg-num fnc msg-args & args]
+  (println "************************************************************")
+  (println "message-processor.clj - register listener:" msg-num fnc msg-args args)
+  (println "************************************************************")
+  (send LISTENERS add-listener msg-num fnc msg-args args))
 
 (defn unregister-listener
   [msg-num fnc msg-args & args]
+  (println "message-processor.clj - unregister listener")
   (send LISTENERS remove-listener msg-num fnc msg-args args)
 )

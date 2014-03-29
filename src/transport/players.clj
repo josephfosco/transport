@@ -15,10 +15,12 @@
 
 (ns transport.players
   (:require
+   [transport.behavior]
    [transport.message_processor :refer [register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
    )
+  (:import transport.behavior.Behavior)
   )
 
 (def PLAYERS (agent {}))
@@ -236,7 +238,7 @@
 
 (defn player-new-segment
   [& {:keys [change-player-id]}]
-  (println "player-new-segment change-player-id:" change-player-id)
+  (println "players.clj player-new-segment change-player-id:" change-player-id)
   (doseq [player (vals @PLAYERS)
           :let [player-action (:action (:behavior player))
                 player-behavior-player-id (:player-id (:behavior player))

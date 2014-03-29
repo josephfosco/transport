@@ -29,7 +29,9 @@
    [transport.schedule :only [sched-event]]
    [transport.segment :only [copy-following-info first-segment new-segment]]
    [transport.settings]
-   ))
+   )
+  (:import transport.behavior.Behavior)
+  )
 
 (defn- record-new-segment
   "Called first time player plays a note in a new segment.
@@ -40,6 +42,9 @@
 
    player - the player starting a new segment"
   [player]
+  (println "ensemble.clj record-new-segment")
+  (println "ensemble.clj record-new-segment behavior-action:" (get-behavior-action-for-player player))
+  (println "ensemble.clj record-new-segment behavior:" (transport.players/get-behavior player))
   (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
   (cond
    (or (= (get-behavior-action-for-player player) FOLLOW)
@@ -79,8 +84,8 @@
    player - the player to get a new segment for"
   [player]
   (let [prev-behavior (get-behavior player) ;; behavior before new segment
-        player-new-segment (new-segment player)
         ]
+    (println "update-player-with-new-segment prev-behavior:" prev-behavior)
     (if (or (= (get-behavior-action prev-behavior) FOLLOW)
             (= (get-behavior-action prev-behavior) COMPLEMENT))
       (unregister-listener
@@ -90,6 +95,7 @@
        :follow-player-id (get-player-id player)
        ))
     )
+  (new-segment player)
   )
 
 (defn play-melody
@@ -114,7 +120,7 @@
         ;; set seg-start to the time of this event - also send seg-start msg
         seg-start-time (if (= (:seg-start player) 0)
                          (do
-                           (record-new-segment [player])
+                           (record-new-segment player)
                            event-time)
                          (:seg-start player))
         ]
