@@ -236,24 +236,18 @@
         cur-players)))
   )
 
-(defn player-new-segment
+(defn player-new-segment-follow
   [& {:keys [change-player-id follow-player-id]}]
-  (println "players.clj player-new-segment change-player-id:" change-player-id "follow-player-id" follow-player-id)
+  (println "players.clj player-new-segment-follow change-player-id:" change-player-id "follow-player-id" follow-player-id)
 
   (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
+  )
 
-  (comment
-    (doseq [player (vals @PLAYERS)
-            :let [player-action (:action (:behavior player))
-                  player-behavior-player-id (:player-id (:behavior player))
-                  ]
-            :when (and
-                   (or (= player-action FOLLOW)
-                       (= player-action COMPLEMENT))
-                   (= player-behavior-player-id change-player-id))]
-      (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
-      )
-    )
+(defn player-new-segment-complement
+  [& {:keys [change-player-id follow-player-id]}]
+  (println "players.clj player-new-segment-complement change-player-id:" change-player-id "follow-player-id" follow-player-id)
+
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
   )
 
 (defn init-players
