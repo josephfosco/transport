@@ -16,7 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior]
-   [transport.message_processor :refer [register-listener]]
+   [transport.message_processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
    )
@@ -223,14 +223,19 @@
   (println)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
-      (assoc @PLAYERS to-player-id
-             (merge to-player
-                    (if (= (:action (:behavior to-player)) FOLLOW)
-                      (get-following-info-from-player
-                       (get-player from-player-id))
-                      (get-complement-info-from-player
-                       (get-player from-player-id))
-                      )))
+      (do
+        (if (= (:action (:behavior to-player)) FOLLOW)
+          (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id)
+          (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id)
+          )
+        (assoc @PLAYERS to-player-id
+               (merge to-player
+                      (if (= (:action (:behavior to-player)) FOLLOW)
+                        (get-following-info-from-player
+                         (get-player from-player-id))
+                        (get-complement-info-from-player
+                         (get-player from-player-id))
+                        ))))
       (do
         (println "players - copy-follow-info NOT COPYING!")
         cur-players)))

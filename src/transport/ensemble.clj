@@ -46,16 +46,17 @@
   (println "ensemble.clj listeners-msg-segment behavior-action:" (get-behavior-action-for-player player))
   (println "ensemble.clj listeners-msg-segment behavior:" (transport.players/get-behavior player))
   (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
+  (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id (get-player-id player))
+  (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id (get-player-id player))
 
   (cond
    (= (get-behavior-action-for-player player) FOLLOW)
-   (do
-       (register-listener
-        MSG-PLAYER-NEW-FOLLOW-INFO
-        transport.players/player-new-segment-follow
-        {:change-player-id (get-behavior-player-id-for-player player)}
-        :follow-player-id (get-player-id player)
-        ))
+   (register-listener
+    MSG-PLAYER-NEW-FOLLOW-INFO
+    transport.players/player-new-segment-follow
+    {:change-player-id (get-behavior-player-id-for-player player)}
+    :follow-player-id (get-player-id player)
+    )
 
    (= (get-behavior-action-for-player player) COMPLEMENT)
    (register-listener
