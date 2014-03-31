@@ -16,7 +16,7 @@
 (ns transport.instrument
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.instruments.osc-instruments]
    [transport.players :only [get-instrument-info get-player]]
    [transport.settings :only [FOLLOW]]

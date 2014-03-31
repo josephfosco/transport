@@ -15,7 +15,7 @@
 
 (ns transport.ensemble-status
   (:use
-   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note]]
+   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
    [transport.settings]
    [transport.util])
    )

@@ -16,19 +16,87 @@
 (ns transport.ensemble
   (:use
    [overtone.live]
-   [transport.behavior :only [get-behavior-action-for-player select-and-set-behavior-player-id]]
+   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
+   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player select-and-set-behavior-player-id]]
    [transport.debug :only [debug-run1]]
    [transport.ensemble-status :only [update-ensemble-status]]
    [transport.instrument :only [get-instrument play-instrument]]
    [transport.melody :only [get-volume next-melody]]
    [transport.messages]
-   [transport.message_processor :only [send-message]]
+   [transport.message_processor :only [send-message register-listener unregister-listener]]
    [transport.players]
    [transport.rhythm :only [get-beats]]
    [transport.schedule :only [sched-event]]
    [transport.segment :only [copy-following-info first-segment new-segment]]
-   [transport.settings :only [NUM-PLAYERS SAVED-MELODY-LEN FOLLOW CONTRAST]]
-   ))
+   [transport.settings]
+   )
+  (:import transport.behavior.Behavior)
+  )
+
+(defn- record-new-segment
+  "Called first time player plays a note in a new segment.
+   Sends a message that it is in a new segment, and
+   if the player is FOLLOWing, COMPLEMENTing, or CONTRASTing
+   it will listen for new segmemnts in the player it is
+   FOLLOWing etc...
+
+   player - the player starting a new segment"
+  [player]
+  (println "ensemble.clj record-new-segment")
+  (println "ensemble.clj record-new-segment behavior-action:" (get-behavior-action-for-player player))
+  (println "ensemble.clj record-new-segment behavior:" (transport.players/get-behavior player))
+  (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
+  (cond
+   (or (= (get-behavior-action-for-player player) FOLLOW)
+       (= (get-behavior-action-for-player player) COMPLEMENT)
+       )
+   (register-listener
+    MSG-PLAYER-NEW-SEGMENT
+    transport.players/player-new-segment
+    {:change-player-id (get-behavior-player-id-for-player player)}
+    :follow-player-id (get-player-id player)
+    )
+
+   )
+  )
+
+   (comment
+     (= (get-behavior-action-for-player player COMPLEMENT))
+     (register-listener
+      MSG-PLAYER-NEW-FOLLOW-INFO
+      transport.players/player-new-segment
+      {:change-player-id (get-behavior-player-id-for-player player)}
+      :follow-player-id (get-player-id player)
+      )
+
+     (= (get-behavior-action-for-player player COMPLEMENT))
+     (register-listener
+      MSG-PLAYER-NEW-COMPLEMENT-INFO
+      transport.players/player-new-segment
+      {:change-player-id (get-behavior-player-id-for-player player)}
+      :follow-player-id (get-player-id player)
+      )
+     )
+(defn- update-player-with-new-segment
+  "Get a new segment for player and unregister any listeners
+   based on the previous segment. Returns player with new segment.
+
+   player - the player to get a new segment for"
+  [player]
+  (let [prev-behavior (get-behavior player) ;; behavior before new segment
+        ]
+    (println "update-player-with-new-segment prev-behavior:" prev-behavior)
+    (if (or (= (get-behavior-action prev-behavior) FOLLOW)
+            (= (get-behavior-action prev-behavior) COMPLEMENT))
+      (unregister-listener
+       MSG-PLAYER-NEW-SEGMENT
+       transport.players/player-new-segment
+       {:change-player-id (get-behavior-player-id prev-behavior)}
+       :follow-player-id (get-player-id player)
+       ))
+    )
+  (new-segment player)
+  )
 
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
@@ -52,7 +120,7 @@
         ;; set seg-start to the time of this event - also send seg-start msg
         seg-start-time (if (= (:seg-start player) 0)
                          (do
-                           (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
+                           (record-new-segment player)
                            event-time)
                          (:seg-start player))
         ]
@@ -65,9 +133,10 @@
     ;; else sched event with current segment information
     (let [upd-player
           (if (< (+ seg-start-time (:seg-len player)) event-time)
-            (new-segment (assoc player
-                           :cur-note-beat cur-note-beat
-                           :prev-note-beat prev-note-beat))
+            (update-player-with-new-segment
+             (assoc player
+               :cur-note-beat cur-note-beat
+               :prev-note-beat prev-note-beat))
             (assoc player
               :cur-note-beat cur-note-beat
               :melody (let [cur-melody (get-melody player)
@@ -118,16 +187,6 @@
     (send PLAYERS conj final-players)
     (await PLAYERS)
     )
-
-  (dotimes [player-index @NUM-PLAYERS]
-    (let [check-player (get-player (+ player-index 1))]
-      (if (= (get-behavior-action-for-player check-player) FOLLOW)
-        (send PLAYERS
-                  assoc
-                  (+ player-index 1)
-                  (copy-following-info check-player))
-        )))
-  (await PLAYERS)
 
   (init-players)
 

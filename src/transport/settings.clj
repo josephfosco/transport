@@ -22,8 +22,8 @@
 (def SAVED-MELODY-LEN 64)
 
 (def IGNORE 0)
-(def COMPLEMENT 1)
-(def CONTRAST 2)
+(def CONTRAST 1)
+(def COMPLEMENT 2)
 (def FOLLOW 3)
 
 (def STEADY 10)

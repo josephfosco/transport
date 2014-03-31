@@ -120,7 +120,7 @@
         (reset-ensemble-status)
         (reset-lateness)
         (restart-scheduler)
-        (restart-message-processor)
+        (restart-message-processor :reset-listeners true)
         (init-ensemble)
         (reset! is-playing? true)
         (start-scheduler)

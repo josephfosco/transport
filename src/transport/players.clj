@@ -15,10 +15,12 @@
 
 (ns transport.players
   (:require
+   [transport.behavior]
    [transport.message_processor :refer [register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
    )
+  (:import transport.behavior.Behavior)
   )
 
 (def PLAYERS (agent {}))
@@ -41,6 +43,7 @@
 
 (defn get-behavior-ensemble-action
   [player]
+
   (:ensemble-action (get-behavior player)))
 
 (defn get-dur-info
@@ -216,7 +219,7 @@
 (defn copy-follow-complement-info
   [cur-players from-player-id to-player-id]
   (println)
-  (println "copy-follow-complement-info from:" from-player-id "to:" to-player-id)
+  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id)
   (println)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
@@ -229,28 +232,33 @@
                        (get-player from-player-id))
                       )))
       (do
-        (println "copy-follow-info NOT COPYING!")
+        (println "players - copy-follow-info NOT COPYING!")
         cur-players)))
   )
 
 (defn player-new-segment
-  [& {:keys [change-player-id]}]
-  (println "player-new-segment change-player-id:" change-player-id)
-  (doseq [player (vals @PLAYERS)
-          :let [player-action (:action (:behavior player))
-                player-behavior-player-id (:player-id (:behavior player))
-                ]
-          :when (and
-                 (or (= player-action FOLLOW)
-                     (= player-action COMPLEMENT))
-                 (= player-behavior-player-id change-player-id))]
-    (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
+  [& {:keys [change-player-id follow-player-id]}]
+  (println "players.clj player-new-segment change-player-id:" change-player-id "follow-player-id" follow-player-id)
+
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
+
+  (comment
+    (doseq [player (vals @PLAYERS)
+            :let [player-action (:action (:behavior player))
+                  player-behavior-player-id (:player-id (:behavior player))
+                  ]
+            :when (and
+                   (or (= player-action FOLLOW)
+                       (= player-action COMPLEMENT))
+                   (= player-behavior-player-id change-player-id))]
+      (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
+      )
     )
   )
 
 (defn init-players
   []
-  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment)
+;;  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment nil)
   )
 
 (defn print-player
