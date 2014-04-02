@@ -142,7 +142,7 @@
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
-;    (println "average-volume: " average-volume)
+    (println "average-volume: " average-volume)
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range
@@ -156,7 +156,7 @@
   (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
-;    (println "average-volume: " average-volume)
+    (println "average-volume: " average-volume)
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range

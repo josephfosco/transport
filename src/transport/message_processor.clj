@@ -54,7 +54,6 @@
   (if @checking-messages?
     (do
       (add-watch MESSAGES :transport-start-processing-messages start-processing-messages)
-      (println "Watching MESSAGES")
       true)    ; return true if watch is added
     (do
       (println "MESSAGE Watch NOT Added")
@@ -102,7 +101,6 @@
 
 (defn- dispatch-message
   [msg-num args]
-  (println "message-processor dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)
