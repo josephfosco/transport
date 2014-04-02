@@ -42,9 +42,6 @@
 
    player - the player starting a new segment"
   [player]
-  (println "ensemble.clj listeners-msg-new-segment")
-  (println "ensemble.clj listeners-msg-segment behavior-action:" (get-behavior-action-for-player player))
-  (println "ensemble.clj listeners-msg-segment behavior:" (transport.players/get-behavior player))
   (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
   (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id (get-player-id player))
   (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id (get-player-id player))
@@ -76,7 +73,6 @@
   [player]
   (let [prev-behavior (get-behavior player) ;; behavior before new segment
         ]
-    (println "update-player-with-new-segment prev-behavior:" prev-behavior)
     (cond
      (= (get-behavior-action prev-behavior) FOLLOW)
      (unregister-listener
