@@ -54,7 +54,6 @@
   (if @checking-messages?
     (do
       (add-watch MESSAGES :transport-start-processing-messages start-processing-messages)
-      (println "Watching MESSAGES")
       true)    ; return true if watch is added
     (do
       (println "MESSAGE Watch NOT Added")
@@ -84,7 +83,6 @@
    Calls the msg-lstnr function with all args from the msg-lstnr and the msg"
   (
    [msg-lstnr msg-args]
-     (println "message-processor dispatch-message-to-listener 2 args")
      (if (nth msg-lstnr 2)                   ;; if message listener specified args
        (apply (first msg-lstnr)
               (flatten
@@ -94,7 +92,6 @@
        )
      )
   ([msg-lstnr]
-     (println "message-processor dispatch-message-to-listener 1 arg")
      (if (nth msg-lstnr 2)                   ;; if message listener specified args
        (apply (first msg-lstnr) (nth msg-lstnr 2))
        ((first msg-lstnr))
@@ -104,14 +101,11 @@
 
 (defn- dispatch-message
   [msg-num args]
-  (println)
-  (println "message-processor dispatch-message")
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
-        (println "msg-lstnr-msg-args:" msg-lstnr-msg-args "args:" args)
         (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
           (if (not= args {})
             (dispatch-message-to-listener msg-lstnr args)
@@ -216,6 +210,5 @@
 
 (defn unregister-listener
   [msg-num fnc msg-args & args]
-  (println "message-processor.clj - unregister listener")
   (send LISTENERS remove-listener msg-num fnc msg-args args)
 )

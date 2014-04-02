@@ -16,7 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior]
-   [transport.message_processor :refer [register-listener]]
+   [transport.message_processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
    )
@@ -193,21 +193,14 @@
 (defn get-following-info-from-player
   "follow-player - the player to get the following info from"
   [follow-player]
-  (println "FOLLOWING...")
-  {
+  (assoc (get-complement-info-from-player follow-player)
    :instrument-info (get-instrument-info follow-player)
-   :key (get-key follow-player)
-   :melody-char (get-melody-char follow-player)
-   :metronome (get-metronome follow-player)
-   :mm (get-mm follow-player)
-   :scale (get-scale follow-player)
-   }
+    )
   )
 
 (defn get-complement-info-from-player
   "follow-player - the player to get the following info from"
   [follow-player]
-  (println "COMPLEMENTING...")
   {
    :key (get-key follow-player)
    :melody-char (get-melody-char follow-player)
@@ -216,43 +209,62 @@
    :scale (get-scale follow-player)
    }
   )
+
 (defn copy-follow-complement-info
   [cur-players from-player-id to-player-id]
-  (println)
   (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id)
-  (println)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
-      (assoc @PLAYERS to-player-id
-             (merge to-player
-                    (if (= (:action (:behavior to-player)) FOLLOW)
-                      (get-following-info-from-player
-                       (get-player from-player-id))
-                      (get-complement-info-from-player
-                       (get-player from-player-id))
-                      )))
+      (do
+        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id)
+        (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id)
+        (assoc @PLAYERS to-player-id
+               (merge to-player
+                      (if (= (:action (:behavior to-player)) FOLLOW)
+                        (get-following-info-from-player (get-player from-player-id))
+                        (get-complement-info-from-player (get-player from-player-id))
+                        ))))
       (do
         (println "players - copy-follow-info NOT COPYING!")
         cur-players)))
   )
 
-(defn player-new-segment
+(defn- new-complement-info?
+  [from-player to-player]
+  (if (or (not= (get-key from-player) (get-key to-player))
+          (not= (get-melody-char from-player) (get-melody-char to-player))
+          (not= (get-metronome from-player) (get-metronome to-player))
+          (not= (get-mm from-player) (get-mm to-player))
+          (not= (get-scale from-player) (get-scale to-player))
+          )
+    true    ;; there is new complement info
+    false   ;; there is NO new complement info
+   )
+  )
+
+(defn- new-follow-info?
+  [from-player to-player]
+  (if (or (not= (get-instrument-info from-player) (get-instrument-info to-player))
+          (new-complement-info? from-player to-player)
+          )
+    true    ;; there is new follow info
+    false   ;; there is NO new follow info
+   )
+  )
+
+(defn player-new-segment-follow
   [& {:keys [change-player-id follow-player-id]}]
-  (println "players.clj player-new-segment change-player-id:" change-player-id "follow-player-id" follow-player-id)
+  (if (new-follow-info? (get-player change-player-id) (get-player follow-player-id))
+    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
+    (println "players.clj - player-new-segment-follow: ***** NOT COPYING FOLLOW INFO *****")
+    )
+  )
 
-  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
-
-  (comment
-    (doseq [player (vals @PLAYERS)
-            :let [player-action (:action (:behavior player))
-                  player-behavior-player-id (:player-id (:behavior player))
-                  ]
-            :when (and
-                   (or (= player-action FOLLOW)
-                       (= player-action COMPLEMENT))
-                   (= player-behavior-player-id change-player-id))]
-      (send PLAYERS copy-follow-complement-info change-player-id (get-player-id player))
-      )
+(defn player-new-segment-complement
+  [& {:keys [change-player-id follow-player-id]}]
+  (if (new-complement-info? (get-player change-player-id) (get-player follow-player-id))
+    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
+    (println "players.clj - player-new-segment-complement: ***** NOT COPYING COMPLEMENT INFO *****")
     )
   )
 
