@@ -94,6 +94,46 @@
   (new-segment player)
   )
 
+(defn- update-player-info
+  [player event-time melody-event]
+  (let [prev-note-beat (:cur-note-beat player)
+        cur-note-beat (if (not (nil? (:dur-info melody-event)))
+                        (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
+                        0)
+        ;; if seg-start = 0 this is the begining of the segment, so
+        ;; set seg-start to the time of this event - also send seg-start msg
+        seg-start-time (if (= (:seg-start player) 0)
+                         (do
+                           (listeners-msg-new-segment player) ;; send msgs and set listeners for new segmwnt
+                           event-time)
+                         (:seg-start player))
+
+        ]
+    ;; If current segment is over, sched next event with a new segment
+    ;; else sched event with current segment information
+    (if (< (+ seg-start-time (:seg-len player)) event-time)
+      (update-player-with-new-segment
+       (assoc player
+         :cur-note-beat cur-note-beat
+         :prev-note-beat prev-note-beat))
+      (assoc player
+        :cur-note-beat cur-note-beat
+        :melody (let [cur-melody (get-melody player)
+                      next-key   (if (> (count cur-melody) 0)
+                                   (+ (reduce max (keys cur-melody)) 1)
+                                   1)]
+                  (if (= (count cur-melody) SAVED-MELODY-LEN)
+                    (do
+                      (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
+                        next-key  melody-event)
+                      )
+                    (assoc cur-melody next-key melody-event)
+                    ))
+        :prev-note-beat prev-note-beat
+        :seg-start seg-start-time
+        )))
+  )
+
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
    Checks if the current segment is done, and if so
@@ -108,48 +148,13 @@
         player-action (get-behavior-action-for-player player)
         melody-event (next-melody player )
         melody-dur-millis (get-dur-millis (:dur-info melody-event))
-        prev-note-beat (:cur-note-beat player)
-        cur-note-beat (if (not (nil? (:dur-info melody-event)))
-                        (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
-                        0)
-        ;; if seg-start = 0 this is the begining of the segment, so
-        ;; set seg-start to the time of this event - also send seg-start msg
-        seg-start-time (if (= (:seg-start player) 0)
-                         (do
-                           (listeners-msg-new-segment player) ;; send msgs and set listeners for new segmwnt
-                           event-time)
-                         (:seg-start player))
         ]
 
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
-    ;; If current segment is over, sched next event with a new segment
-    ;; else sched event with current segment information
-    (let [upd-player
-          (if (< (+ seg-start-time (:seg-len player)) event-time)
-            (update-player-with-new-segment
-             (assoc player
-               :cur-note-beat cur-note-beat
-               :prev-note-beat prev-note-beat))
-            (assoc player
-              :cur-note-beat cur-note-beat
-              :melody (let [cur-melody (get-melody player)
-                            next-key   (if (> (count cur-melody) 0)
-                                         (+ (reduce max (keys cur-melody)) 1)
-                                         1)]
-                        (if (= (count cur-melody) SAVED-MELODY-LEN)
-                          (do
-                            (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
-                              next-key  melody-event)
-                            )
-                          (assoc cur-melody next-key melody-event)
-                          ))
-              :prev-note-beat prev-note-beat
-              :seg-start seg-start-time
-              ))
-          ]
+    (let [upd-player (update-player-info player event-time melody-event)]
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
       (update-ensemble-status upd-player)
