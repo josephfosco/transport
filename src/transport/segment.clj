@@ -61,7 +61,6 @@
 
 (defn new-segment
   [player]
-  (println "new-segment")
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         ]

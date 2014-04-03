@@ -190,14 +190,6 @@
     nil
     ))
 
-(defn get-following-info-from-player
-  "follow-player - the player to get the following info from"
-  [follow-player]
-  (assoc (get-complement-info-from-player follow-player)
-   :instrument-info (get-instrument-info follow-player)
-    )
-  )
-
 (defn get-complement-info-from-player
   "follow-player - the player to get the following info from"
   [follow-player]
@@ -208,6 +200,14 @@
    :mm (get-mm follow-player)
    :scale (get-scale follow-player)
    }
+  )
+
+(defn get-following-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  (assoc (get-complement-info-from-player follow-player)
+   :instrument-info (get-instrument-info follow-player)
+    )
   )
 
 (defn copy-follow-complement-info

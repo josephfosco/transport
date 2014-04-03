@@ -228,12 +228,14 @@
       (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player)))))
   )
 
-(declare next-pitch-ignore)
-(defn next-pitch-follow
+(defn next-pitch-ignore
   [player]
-  ;; if following, ignore key and scale and mach pitch as accurately as you can
-  (next-pitch-ignore player)
- )
+  (let [direction (select-direction player)]
+    (cond
+     (= direction ASCEND) (dir-ascend player)
+     (= direction DESCEND) ( dir-descend player)
+     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
+     :else (get-last-melody-note player)))  )
 
 (defn next-pitch-complement
   [player]
@@ -245,21 +247,12 @@
   (next-pitch-ignore player)
   )
 
-(defn next-pitch-ignore
-  [player]
-  (let [direction (select-direction player)]
-    (cond
-     (= direction ASCEND) (dir-ascend player)
-     (= direction DESCEND) ( dir-descend player)
-     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (get-last-melody-note player)))  )
-
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
   (let [player-behavior-action (get-behavior-action-for-player player)]
     (cond
-     (= player-behavior-action FOLLOW) (next-pitch-follow player)
      (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
      (= player-behavior-action CONTRAST) (next-pitch-contrast player)
-     :else (next-pitch-ignore player))) )
+     (= player-behavior-action IGNORE) (next-pitch-ignore player)
+     :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )

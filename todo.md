@@ -34,3 +34,5 @@
 * make each player a record (defrecord) for better performance
 
 * find a way to not call process-messages in message-processor when messages are removed from queue
+
+* need to work on ending

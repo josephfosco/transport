@@ -71,7 +71,7 @@
 
 (defn note-or-rest
   "Determines whether to play a note or rest  next.
-   If player is supposed to rest, returns nil
+   Returne true for note, false for rest
 
    player - the player to determine note or rest for"
   [player]
@@ -79,7 +79,7 @@
     (if (< (get-melody-continuity-char player) play-note?)
       true
       (if (not= 0 play-note?)                                ;; if continuity not 0
-        nil                                                  ;; rest
+        false                                                ;; rest
         (if (and                                             ;; else
              (not= {} (get-melody player))                   ;; if melody not empty
              (= 0                                            ;; and last pitch is root
@@ -87,7 +87,7 @@
                  player
                  (or (get-last-melody-note player) 0)))      ;; or rest
              (< (rand) 0.8))                                 ;; possibly rest
-          nil
+          false
           true)))))
 
 (defn note-or-rest-follow-ensemble
@@ -137,7 +137,7 @@
         )))
   )
 
-(defn next-melody-complement-ensemble
+(defn- next-melody-complement-ensemble
   [player]
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
@@ -151,7 +151,7 @@
      }
     ))
 
-(defn next-melody-contrast-ensemble
+(defn- next-melody-contrast-ensemble
   [player]
   (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
