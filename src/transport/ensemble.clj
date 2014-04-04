@@ -162,11 +162,11 @@
 
 (defn create-player
   [player-no]
-  (first-segment{:cur-note-beat 0
-               :function transport.ensemble/play-melody
-               :melody {}
-               :player-id player-no
-               :prev-note-beat 0}))
+  (first-segment {:cur-note-beat 0
+                  :function transport.ensemble/play-melody
+                  :melody {}
+                  :player-id player-no
+                  :prev-note-beat 0}))
 
 (defn init-ensemble
   []
@@ -177,8 +177,6 @@
     )
 
   ;; set the :behavior :player-id for all players that are FOLLOWING or COMPLEMENT
-  ;; then, for all players that are FOLLOWING
-  ;;  reset :instrument-info to that of the player they are FOLOWING
   (let [final-players
         (zipmap
          (keys @PLAYERS)
