@@ -176,7 +176,7 @@
     (await PLAYERS)
     )
 
-  ;; set the :behavior :player-id for all players that are FOLLOWING or COMPLEMENT
+  ;; set the :behavior :player-id for all players that are FOLLOWing,COMPLEMENTing or CONTRASTing
   (let [final-players
         (zipmap
          (keys @PLAYERS)

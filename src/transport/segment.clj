@@ -16,7 +16,7 @@
 (ns transport.segment
   (:use
    [transport.behavior :only [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :only [get-behavior-player-id-for-player select-behavior]]
+   [transport.behaviors :only [get-behavior-player-id-for-player select-first-behavior select-behavior]]
    [transport.instrument :only [select-instrument]]
    [transport.melody :only [select-melody-characteristics]]
    [transport.pitch :only [select-key select-scale]]
@@ -45,7 +45,7 @@
 
    player - the player to create the segment for"
   [player]
-  (let [new-behavior (transport.behaviors/select-behavior player)
+  (let [new-behavior (select-first-behavior player)
         behavior-action (get-behavior-action new-behavior)
         ]
     (assoc player
@@ -63,33 +63,38 @@
   [player]
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
+        upd-player (assoc player
+                     :behavior new-behavior
+                     :seg-len (select-segment-length)
+                     :seg-start 0
+                     )
         ]
     (cond
      (= behavior-action FOLLOW)
-     (merge (assoc player
-              :behavior new-behavior
-              :seg-len (select-segment-length)
-              :seg-start 0
-              )
+     (merge upd-player
             (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      (= behavior-action COMPLEMENT)
-     (merge (assoc player
-              :behavior new-behavior
+     (merge (assoc upd-player
               :instrument-info (select-instrument player new-behavior)
-              :seg-len (select-segment-length)
-              :seg-start 0
               )
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
-     :else
-     (assoc player
-       :behavior new-behavior
+     (= behavior-action CONTRAST)
+     (assoc upd-player
        :instrument-info (select-instrument player new-behavior)
-       :key (select-key player)
-       :melody-char (select-melody-characteristics player)
-       :metronome (select-metronome player)
-       :mm (select-mm player)
-       :seg-len (select-segment-length)
-       :seg-start 0
-       :scale (select-scale player)))))
+       :key (select-key upd-player)
+       :melody-char (select-melody-characteristics upd-player)
+       :metronome (select-metronome upd-player)
+       :mm (select-mm upd-player)
+       :scale (select-scale upd-player)
+       )
+
+     :else
+     (assoc upd-player
+       :instrument-info (select-instrument player new-behavior)
+       :key (select-key upd-player)
+       :melody-char (select-melody-characteristics upd-player)
+       :metronome (select-metronome upd-player)
+       :mm (select-mm upd-player)
+       :scale (select-scale upd-player)))))
