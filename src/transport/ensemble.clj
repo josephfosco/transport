@@ -14,21 +14,21 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.ensemble
-  (:use
+  (:require
    [overtone.live]
-   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player select-and-set-behavior-player-id]]
-   [transport.debug :only [debug-run1]]
-   [transport.ensemble-status :only [update-ensemble-status]]
-   [transport.instrument :only [get-instrument play-instrument]]
-   [transport.melody :only [get-volume next-melody]]
-   [transport.messages]
-   [transport.message_processor :only [send-message register-listener unregister-listener]]
-   [transport.players]
-   [transport.rhythm :only [get-beats]]
-   [transport.schedule :only [sched-event]]
-   [transport.segment :only [copy-following-info first-segment new-segment]]
-   [transport.settings]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player select-and-set-behavior-player-id]]
+   [transport.debug :refer [debug-run1]]
+   [transport.ensemble-status :refer [update-ensemble-status]]
+   [transport.instrument :refer [get-instrument play-instrument]]
+   [transport.melody :refer [get-volume next-melody]]
+   [transport.messages :refer :all]
+   [transport.message_processor :refer [send-message register-listener unregister-listener]]
+   [transport.players :refer :all]
+   [transport.rhythm :refer [get-beats]]
+   [transport.schedule :refer [sched-event]]
+   [transport.segment :refer [copy-following-info first-segment new-segment]]
+   [transport.settings :refer :all]
    )
   (:import transport.behavior.Behavior)
   )

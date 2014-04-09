@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.instrument
-  (:use
+  (:require
    [overtone.live]
-   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
-   [transport.instruments.osc-instruments]
-   [transport.players :only [get-instrument-info get-player]]
-   [transport.settings :only [FOLLOW]]
-   [transport.random :only [random-int]]
+   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.instruments.osc-instruments :refer :all]
+   [transport.players :refer [get-instrument-info get-player]]
+   [transport.settings :refer :all]
+   [transport.random :refer [random-int]]
    ))
 
 (defn note->hz

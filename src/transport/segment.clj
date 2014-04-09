@@ -1,4 +1,4 @@
-;    Copyright (C) 2013 - 2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -59,6 +59,22 @@
       :seg-start 0
       :scale (select-scale player))))
 
+(defn- contrasting-info-for-player
+  "Returns a map of key value pairs for a player that must
+   CONTRAST another player
+
+   player - player to get info for"
+  [player]
+  {
+   :instrument-info (select-instrument player (get-behavior player))
+   :key (select-key player)
+   :melody-char (select-melody-characteristics player)
+   :metronome (select-metronome player)
+   :mm (select-mm player)
+   :scale (select-scale player)
+   }
+  )
+
 (defn new-segment
   [player]
   (let [new-behavior (select-behavior player)
@@ -81,13 +97,8 @@
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      (= behavior-action CONTRAST)
-     (assoc upd-player
-       :instrument-info (select-instrument player new-behavior)
-       :key (select-key upd-player)
-       :melody-char (select-melody-characteristics upd-player)
-       :metronome (select-metronome upd-player)
-       :mm (select-mm upd-player)
-       :scale (select-scale upd-player)
+     (merge upd-player
+            (contrasting-info-for-player upd-player)
        )
 
      :else
