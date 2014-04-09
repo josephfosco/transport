@@ -42,28 +42,30 @@
 
    player - the player starting a new segment"
   [player]
-  (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id (get-player-id player))
-  (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id (get-player-id player))
-  (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id (get-player-id player))
+  (let [player-id (get-player-id player)]
+       (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id player-id :originator-player-id player-id)
 
-  (cond
-   (= (get-behavior-action-for-player player) FOLLOW)
-   (register-listener
-    MSG-PLAYER-NEW-FOLLOW-INFO
-    transport.players/player-new-segment-follow
-    {:change-player-id (get-behavior-player-id-for-player player)}
-    :follow-player-id (get-player-id player)
-    )
+       (cond
+        (= (get-behavior-action-for-player player) FOLLOW)
+        (register-listener
+         MSG-PLAYER-NEW-FOLLOW-INFO
+         transport.players/player-new-follow-info
+         {:change-player-id (get-behavior-player-id-for-player player)}
+         :follow-player-id player-id
+         )
 
-   (= (get-behavior-action-for-player player) COMPLEMENT)
-   (register-listener
-    MSG-PLAYER-NEW-COMPLEMENT-INFO
-    transport.players/player-new-segment-complement
-    {:change-player-id (get-behavior-player-id-for-player player)}
-    :follow-player-id (get-player-id player)
-    )
+        (= (get-behavior-action-for-player player) COMPLEMENT)
+        (register-listener
+         MSG-PLAYER-NEW-COMPLEMENT-INFO
+         transport.players/player-new-complement-info
+         {:change-player-id (get-behavior-player-id-for-player player)}
+         :follow-player-id player-id
+         )
+        )
+       )
    )
-  )
 
 (defn- update-player-with-new-segment
   "Get a new segment for player and unregister any listeners
@@ -77,7 +79,7 @@
      (= (get-behavior-action prev-behavior) FOLLOW)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
-      transport.players/player-new-segment-follow
+      transport.players/player-new-follow-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
@@ -85,7 +87,7 @@
      (= (get-behavior-action prev-behavior) COMPLEMENT)
      (unregister-listener
       MSG-PLAYER-NEW-COMPLEMENT-INFO
-      transport.players/player-new-segment-complement
+      transport.players/player-new-complement-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )

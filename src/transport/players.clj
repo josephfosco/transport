@@ -211,13 +211,16 @@
   )
 
 (defn copy-follow-complement-info
-  [cur-players from-player-id to-player-id]
-  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id)
+  [cur-players from-player-id to-player-id originator-player-id]
+  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
       (do
-        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id)
-        (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id)
+        (if (not= originator-player-id to-player-id)
+          (do
+            (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id :originator-player-id  originator-player-id))
+          (println "players.clj - copy-follow-complement-info - NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id
                (merge to-player
                       (if (= (:action (:behavior to-player)) FOLLOW)
@@ -252,19 +255,19 @@
    )
   )
 
-(defn player-new-segment-follow
-  [& {:keys [change-player-id follow-player-id]}]
+(defn player-new-follow-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
   (if (new-follow-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
-    (println "players.clj - player-new-segment-follow: ***** NOT COPYING FOLLOW INFO *****")
+    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id  originator-player-id)
+    (println "players.clj - player-new-follow-info: ***** NOT COPYING FOLLOW INFO *****")
     )
   )
 
-(defn player-new-segment-complement
-  [& {:keys [change-player-id follow-player-id]}]
+(defn player-new-complement-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
   (if (new-complement-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
-    (println "players.clj - player-new-segment-complement: ***** NOT COPYING COMPLEMENT INFO *****")
+    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id originator-player-id)
+    (println "players.clj - player-new-complement-info: ***** NOT COPYING COMPLEMENT INFO *****")
     )
   )
 

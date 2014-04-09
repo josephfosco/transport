@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013 - 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,9 +15,17 @@
 
 (ns transport.test-info
   (:require
+   [overtone.live :refer :all]
    [transport.behavior :refer :all]
+   [transport.ensemble :refer [play-melody]]
+   [transport.instruments.osc-instruments :refer :all]
+   [transport.message_processor :refer [restart-message-processor start-message-processor]]
    [transport.players :refer :all]
+   [transport.random :refer [random-int]]
+   [transport.rhythm :refer [select-metronome]]
+   [transport.schedule :refer [sched-event restart-scheduler start-scheduler]]
    [transport.settings :refer :all]
+   [overtone.live :refer [metronome]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -26,61 +34,102 @@
 
 (defn lstnr [& {:keys [old new]}] (println "lstnr: " old new))
 
-(comment
-  {
-   :behavior #transport.behavior.Behavior{:accuracy 0.2966165302092916, :action 3, :ensemble-action 0, :player-id 3}
-   :cur-note-beat 0
-   :function  #<ensemble$play_melody transport.ensemble$play_melody@75a80485>
-   :instrument-info :name saw-wave-sus
-   :instrument-info :range-lo 82
-   :instrument-info :range-hi 113
-   :key 0
-   :melody {}
-   :melody-char {:continuity 9, :density 4, :range 2, :smoothness 0}
-   :metronome #<Metronome overtone.music.rhythm.Metronome@7ada4eda>
-   :mm 64
-   :player-id 2
-   :prev-note-beat 0
-   :scale :ionian
-   :seg-len 19726
-   :seg-start 0
-   }
+(def all-instruments [
+                      {:instrument tri-wave-sus :envelope-type "ASR"}
+                      {:instrument saw-wave-sus :envelope-type "ASR"}
+                      {:instrument sine-wave-sus :envelope-type "ASR"}
+                      ])
 
-  {
-   :behavior #transport.behavior.Behavior{:accuracy 0.4798252752058973, :action 3, :ensemble-action 0, :player-id 4}
-   :cur-note-beat 0
-   :function #<ensemble$play_melody transport.ensemble$play_melody@75a80485>
-   :instrument-info :name tri-wave-sus
-   :instrument-info :range-lo 82
-   :instrument-info :range-hi 120
-   :key 8
-   :melody {}
-   :melody-char {:continuity 1, :density 7, :range 2, :smoothness 6}
-   :metronome #<Metronome overtone.music.rhythm.Metronome@126f0939>
-   :mm 94
-   :player-id 3
-   :prev-note-beat 0
-   :scale :hindu
-   :seg-len 10565
-   :seg-start 0
-   }
+(defn select-range
+  []
+  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
+        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
+    (list lo hi)
+    ))
 
-  {
-   :behavior #transport.behavior.Behavior{:accuracy 0.7334685676866797, :action 3, :ensemble-action 0, :player-id 2}
-   :cur-note-beat 0
-   :function #<ensemble$play_melody transport.ensemble$play_melody@75a80485>
-   :instrument-info :name saw-wave-sus
-   :instrument-info :range-lo 17
-   :instrument-info :range-hi 110
-   :key 0
-   :melody {}
-   :melody-char {:continuity 9, :density 7, :range 4, :smoothness 5}
-   :metronome #<Metronome overtone.music.rhythm.Metronome@37c686a3>
-   :mm 115
-   :player-id 4
-   :prev-note-beat 0
-   :scale :major
-   :seg-len 16310
-   :seg-start 0
-   }
+(defn select-instrument
+  []
+  (let [inst-range (select-range)
+        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        ]
+    {:instrument (:instrument inst-info)
+     :envelope-type (:envelope-type inst-info)
+     :range-hi (last inst-range)
+     :range-lo (first inst-range)}
+    ))
+
+(defn test-loop
+  []
+  (let [tst-players
+        {
+         1
+         {
+          :behavior (Behavior. 0.2966165302092916, 3, 0, 3)
+          :cur-note-beat 0
+          :function  transport.ensemble/play-melody
+          :instrument-info (select-instrument)
+          :key 0
+          :melody {}
+          :melody-char {:continuity 9, :density 4, :range 2, :smoothness 0}
+          :metronome (metronome 64)
+          :mm 64
+          :player-id 1
+          :prev-note-beat 0
+          :scale :ionian
+          :seg-len 19726
+          :seg-start 0
+          }
+
+         2
+         {
+          :behavior (Behavior. 0.4798252752058973, 3, 0, 1)
+          :cur-note-beat 0
+          :function transport.ensemble/play-melody
+          :instrument-info(select-instrument)
+          :key 8
+          :melody {}
+          :melody-char {:continuity 1, :density 7, :range 2, :smoothness 6}
+          :metronome (metronome 94)
+          :mm 94
+          :player-id 2
+          :prev-note-beat 0
+          :scale :hindu
+          :seg-len 10565
+          :seg-start 0
+          }
+
+         3
+         {
+          :behavior (Behavior. 0.7334685676866797, 3, 0, 2)
+          :cur-note-beat 0
+          :function transport.ensemble/play-melody
+          :instrument-info (select-instrument)
+          :key 0
+          :melody {}
+          :melody-char {:continuity 9, :density 7, :range 4, :smoothness 5}
+          :metronome (metronome 115)
+          :mm 115
+          :player-id 3
+          :prev-note-beat 0
+          :scale :major
+          :seg-len 16310
+          :seg-start 0
+          }
+         }]
+
+    (restart-message-processor :reset-listeners true)
+    (restart-scheduler)
+
+    (reset-players)
+    (send PLAYERS conj tst-players)
+    (await PLAYERS)
+
+    (dorun (map sched-event (repeat 0) (map get-function (get-players)) (map get-player-id (get-players))))
+    (start-scheduler)
+    (start-message-processor)
+
+
+    )
+
+
   )

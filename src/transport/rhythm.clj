@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013 - 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.rhythm
-  (:use
-   [transport.ensemble-status :only [get-average-note-dur-millis]]
-   [transport.players]
-   [transport.random :only [add-probabilities random-dur random-int weighted-choice]]
-   [transport.settings :only [COMPLEMENT]]
-   [overtone.live :only [metronome]]
+  (:require
+   [transport.ensemble-status :refer [get-average-note-dur-millis]]
+   [transport.players :refer :all]
+   [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
+   [transport.settings :refer [COMPLEMENT]]
+   [overtone.live :refer [metronome]]
    ))
 
 (def min-mm 40)
