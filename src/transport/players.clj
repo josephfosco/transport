@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013 - 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -232,43 +232,14 @@
         cur-players)))
   )
 
-(defn- new-complement-info?
-  [from-player to-player]
-  (if (or (not= (get-key from-player) (get-key to-player))
-          (not= (get-melody-char from-player) (get-melody-char to-player))
-          (not= (get-metronome from-player) (get-metronome to-player))
-          (not= (get-mm from-player) (get-mm to-player))
-          (not= (get-scale from-player) (get-scale to-player))
-          )
-    true    ;; there is new complement info
-    false   ;; there is NO new complement info
-   )
-  )
-
-(defn- new-follow-info?
-  [from-player to-player]
-  (if (or (not= (get-instrument-info from-player) (get-instrument-info to-player))
-          (new-complement-info? from-player to-player)
-          )
-    true    ;; there is new follow info
-    false   ;; there is NO new follow info
-   )
-  )
-
 (defn player-new-follow-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (if (new-follow-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id  originator-player-id)
-    (println "players.clj - player-new-follow-info: ***** NOT COPYING FOLLOW INFO *****")
-    )
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id  originator-player-id)
   )
 
 (defn player-new-complement-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (if (new-complement-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id originator-player-id)
-    (println "players.clj - player-new-complement-info: ***** NOT COPYING COMPLEMENT INFO *****")
-    )
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id originator-player-id)
   )
 
 (defn init-players

@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013 - 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,16 +14,16 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.segment
-  (:use
-   [transport.behavior :only [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :only [get-behavior-player-id-for-player select-first-behavior select-behavior]]
-   [transport.instrument :only [select-instrument]]
-   [transport.melody :only [select-melody-characteristics]]
-   [transport.pitch :only [select-key select-scale]]
-   [transport.players]
-   [transport.random :only [random-int]]
-   [transport.rhythm :only [select-metronome select-mm]]
-   [transport.settings]
+  (:require
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
+   [transport.instrument :refer [select-instrument]]
+   [transport.melody :refer [select-melody-characteristics]]
+   [transport.pitch :refer [select-key select-scale]]
+   [transport.players :refer :all]
+   [transport.random :refer [random-int]]
+   [transport.rhythm :refer [select-metronome select-mm]]
+   [transport.settings :refer :all]
    ))
 
 (def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
