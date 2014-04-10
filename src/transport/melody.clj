@@ -27,36 +27,54 @@
 
 (def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
 
-(defn select-melody-continuity
+(defn- select-melody-continuity
   "Returns a number from 1 to 10 to determine how continuous
    the melody will be.
    0 - continuous (few rests) -> 9 - discontinuous (all rests)"
-  [player]
-  (weighted-choice CONTINUITY-PROBS)
+  ([] (weighted-choice CONTINUITY-PROBS))
+  ([player]
+     (weighted-choice CONTINUITY-PROBS)
+     )
   )
 
-(defn select-melody-density
+(defn- select-melody-density
   "Returns a number from 1 to 9 to determine how dense
    the melody will be.
    0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
-  [player]
-  (rand-int 10)
+  ([] (rand-int 10))
+  ([player]
+     (rand-int 10)
+     )
   )
 
-(defn select-melody-range
+(defn- select-melody-range
   "Returns a number from 1 to 9 to determine the width of
    the melody's range.
    0 - narrow range -> 9 - wide range"
-  [player]
-  (rand-int 10)
+  ([] (rand-int 10))
+  ([player]
+     (rand-int 10)
+     )
   )
 
-(defn select-melody-smoothness
+(defn- select-melody-smoothness
   "Returns a number from 1 to 9 to determine how smooth (stepwise)
    the melody will be.
    0 - mostly steps -> 9 - mostly skips (wide skips)"
-  [player]
-  (rand-int 10)
+  ([] (rand-int 10))
+  ([player]
+     (rand-int 10)
+     )
+  )
+
+(defn select-random-melody-characteristics
+  []
+  {
+   :continuity (select-melody-continuity)
+   :density (select-melody-density)
+   :range (select-melody-range)
+   :smoothness (select-melody-smoothness)
+   }
   )
 
 (defn select-melody-characteristics

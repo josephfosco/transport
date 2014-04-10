@@ -85,9 +85,15 @@
   )
 
 (defn select-mm
-  [player]
-  (random-int min-mm max-mm)
+  ([] (random-int min-mm max-mm))
+  ([player]
+     (random-int min-mm max-mm)
+     )
   )
+
+(defn select-metronome-mm
+  [mm]
+  (metronome mm))
 
 (defn select-metronome
   [player]

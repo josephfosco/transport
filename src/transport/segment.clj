@@ -18,11 +18,11 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
    [transport.instrument :refer [select-instrument select-random-instrument]]
-   [transport.melody :refer [select-melody-characteristics]]
+   [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
-   [transport.rhythm :refer [select-metronome select-mm]]
+   [transport.rhythm :refer [select-metronome select-metronome-mm select-mm]]
    [transport.settings :refer :all]
    ))
 
@@ -45,14 +45,16 @@
 
    player - the player to create the segment for"
   [player]
-  (let [ new-behavior (select-first-behavior player) ]
+  (let [new-behavior (select-first-behavior player)
+        rnd-mm (select-mm)
+        ]
     (assoc player
       :behavior new-behavior
       :instrument-info (select-random-instrument)
       :key (select-random-key)
-      :melody-char (select-melody-characteristics player)
-      :metronome (select-metronome player)
-      :mm (select-mm player)
+      :melody-char (select-random-melody-characteristics)
+      :metronome (select-metronome-mm rnd-mm)
+      :mm rnd-mm
       :seg-len (select-segment-length)
       :seg-start 0
       :scale (select-random-scale))))
