@@ -67,7 +67,7 @@
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.
-   Does not set behavior player-id.
+   Always sets behavior player-id to nil.
 
    player - the player to set behavior for"
   [player]

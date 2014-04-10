@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -171,6 +171,12 @@
     )
   )
 
+(defn select-random-key
+  "Returns a randow number between 1- 11
+   to represent a key. 0=C"
+  []
+  (random-int 0 11))
+
 (defn select-key
   "returns a randow number between 1- 11
    to represent a key. 0=C"
@@ -190,6 +196,11 @@
           ASCEND
           REPEAT-NOTE))
       )))
+
+(defn select-random-scale
+  "returns a scale"
+  []
+  ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
 
 (defn select-scale
   "returns a scale"

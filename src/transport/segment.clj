@@ -17,9 +17,9 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
-   [transport.instrument :refer [select-instrument]]
+   [transport.instrument :refer [select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics]]
-   [transport.pitch :refer [select-key select-scale]]
+   [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome select-mm]]
@@ -45,28 +45,26 @@
 
    player - the player to create the segment for"
   [player]
-  (let [new-behavior (select-first-behavior player)
-        behavior-action (get-behavior-action new-behavior)
-        ]
+  (let [ new-behavior (select-first-behavior player) ]
     (assoc player
       :behavior new-behavior
-      :instrument-info (select-instrument player new-behavior)
-      :key (select-key player)
+      :instrument-info (select-random-instrument)
+      :key (select-random-key)
       :melody-char (select-melody-characteristics player)
       :metronome (select-metronome player)
       :mm (select-mm player)
       :seg-len (select-segment-length)
       :seg-start 0
-      :scale (select-scale player))))
+      :scale (select-random-scale))))
 
-(defn- contrasting-info-for-player
+(defn- get-contrasting-info-for-player
   "Returns a map of key value pairs for a player that must
    CONTRAST another player
 
    player - player to get info for"
   [player]
   {
-   :instrument-info (select-instrument player (get-behavior player))
+   :instrument-info (select-instrument player)
    :key (select-key player)
    :melody-char (select-melody-characteristics player)
    :metronome (select-metronome player)
@@ -92,18 +90,18 @@
 
      (= behavior-action COMPLEMENT)
      (merge (assoc upd-player
-              :instrument-info (select-instrument player new-behavior)
+              :instrument-info (select-instrument player)
               )
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      (= behavior-action CONTRAST)
      (merge upd-player
-            (contrasting-info-for-player upd-player)
+            (get-contrasting-info-for-player upd-player)
        )
 
      :else
      (assoc upd-player
-       :instrument-info (select-instrument player new-behavior)
+       :instrument-info (select-instrument player)
        :key (select-key upd-player)
        :melody-char (select-melody-characteristics upd-player)
        :metronome (select-metronome upd-player)

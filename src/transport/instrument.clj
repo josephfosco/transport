@@ -15,7 +15,7 @@
 
 (ns transport.instrument
   (:require
-   [overtone.live]
+   [overtone.live :refer :all]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.instruments.osc-instruments :refer :all]
    [transport.players :refer [get-instrument-info get-player]]
@@ -62,6 +62,13 @@
     (/ (- note-duration 110) 1000.0) ; currently assumes an attack of .01 secs and decay of .1 secs
     0.001))
 
+(defn select-random-range
+  []
+  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
+        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
+    (list lo hi)
+    ))
+
 (defn select-range
   [player]
   (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
@@ -69,23 +76,37 @@
     (list lo hi)
     ))
 
+(defn select-random-instrument
+  "Selects random instrument-info for player.
+   Can be used the first time instrument-info is set."
+  []
+  (let [inst-range (select-random-range)
+        ;; select instrument info from all-insruments map
+        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        ]
+    {:instrument (:instrument inst-info)
+     :envelope-type (:envelope-type inst-info)
+     :range-hi (last inst-range)
+     :range-lo (first inst-range)}
+    ))
+
 (defn select-instrument
-  [player behavior]
-  ;; if :behavior is FOLLOW copy :inst-info from player we are following
-  ;; else generate new :inst-info map
-  (if (and  (= (get-behavior-action-for-player (hash-map :behavior behavior)) FOLLOW)
-            (not= (get-behavior-player-id-for-player (hash-map :behavior behavior)) nil))
-    (do
-      (get-instrument-info (get-player (get-behavior-player-id-for-player (hash-map :behavior behavior)))))
-    (let [inst-range (select-range player)
-          ;; select instrument info from all-insruments map
-          inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
-          ]
-      {:instrument (:instrument inst-info)
-       :envelope-type (:envelope-type inst-info)
-       :range-hi (last inst-range)
-       :range-lo (first inst-range)}
-      )))
+  "Selects a random instrument-info for player.
+   Generally this should not be used if player is FOLLOWing
+   another player -in that case the instrument-info should be copied
+   from the player that is being FOLLOWed
+
+   player - the player to get instrument for"
+  [player]
+  (let [inst-range (select-range player)
+        ;; select instrument info from all-insruments map
+        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        ]
+    {:instrument (:instrument inst-info)
+     :envelope-type (:envelope-type inst-info)
+     :range-hi (last inst-range)
+     :range-lo (first inst-range)}
+    ))
 
 (defn play-instrument-asr
   "player - player map
