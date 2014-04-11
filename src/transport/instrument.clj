@@ -23,9 +23,9 @@
    [transport.random :refer [random-int]]
    ))
 
-(defn note->hz
-  [music-note]
-  (midi->hz music-note))
+(def LO-RANGE 47)
+(def MID-RANGE 79)
+(def HI-RANGE  (last MIDI-RANGE))
 
 (def all-instruments [
 ;                      {:instrument triangle-wave :envelope-type "AD"}
@@ -33,6 +33,10 @@
                       {:instrument saw-wave-sus :envelope-type "ASR"}
                       {:instrument sine-wave-sus :envelope-type "ASR"}
                       ])
+
+(defn note->hz
+  [music-note]
+  (midi->hz music-note))
 
 (defn get-instrument
   [player]
@@ -69,12 +73,36 @@
     (list lo hi)
     ))
 
-(defn select-range
+(defn- select-contrasting-range
+  [player]
+  (let [cntrst-plyr (get-player (get-behavior-player-id-for-player player))
+        cntrst-plyr-lo (get-lo-range cntrst-plyr)
+        cntrst-plyr-hi (get-hi-range cntrst-plyr)
+        lowest-note (cond
+                     (<= cntrst-plyr-hi LO-RANGE) (+ LO-RANGE 1)
+                     (<= cntrst-plyr-hi MID-RANGE) (+ cntrst-plyr-lo 1)
+                     :else (first MIDI-RANGE)
+                     )
+        highest-note (cond
+                      ;; if cntrst-plyr has wide range then set to narrow range
+                      (> (- cntrst-plyr-hi cntrst-plyr-lo) (* OCTAVE 4)) (+ lowest-note (- OCTAVE 1))
+                      (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
+                     :else (last MIDI-RANGE)
+                      )
+        lo (random-int lowest-note highest-note)
+        hi (if (= lo highest-note) highest-note (random-int lowest-note highest-note))
+        ]
+    (list lo hi)
+    )
+  )
+
+(defn- select-range
   [player]
   (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
         hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
     (list lo hi)
-    ))
+    )
+  )
 
 (defn select-random-instrument
   "Selects random instrument-info for player.
@@ -98,7 +126,9 @@
 
    player - the player to get instrument for"
   [player]
-  (let [inst-range (select-range player)
+  (let [inst-range (if (= (get-behavior-action-for-player player) CONTRAST)
+                     (select-contrasting-range player)
+                     (select-range player))
         ;; select instrument info from all-insruments map
         inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
         ]

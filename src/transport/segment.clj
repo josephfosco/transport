@@ -92,7 +92,7 @@
 
      (= behavior-action COMPLEMENT)
      (merge (assoc upd-player
-              :instrument-info (select-instrument player)
+              :instrument-info (select-instrument upd-player)
               )
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
@@ -103,7 +103,7 @@
 
      :else
      (assoc upd-player
-       :instrument-info (select-instrument player)
+       :instrument-info (select-instrument upd-player)
        :key (select-key upd-player)
        :melody-char (select-melody-characteristics upd-player)
        :metronome (select-metronome upd-player)

@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 (def NUM-PLAYERS (atom 10))
 (def SAVED-MELODY-LEN 64)
+(def OCTAVE 12)
 
 (def IGNORE 0)
 (def CONTRAST 1)

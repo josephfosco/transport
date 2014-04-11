@@ -14,13 +14,13 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.pitch
-  (:use
-   [transport.behaviors :only [get-behavior-action-for-player]]
-   [overtone.music.pitch :only [SCALE]]
-   [transport.players]
-   [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
-   [transport.random :only [random-pitch random-int]]
-   [transport.settings]
+  (:require
+   [transport.behaviors :refer [get-behavior-action-for-player]]
+   [overtone.music.pitch :refer [SCALE]]
+   [transport.players :refer :all]
+   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
+   [transport.random :refer [random-pitch random-int]]
+   [transport.settings :refer :all]
    ))
 
 (def SCALES {})
@@ -30,7 +30,6 @@
 (def RANDOM-NOTE 4)
 (def STEP 0)
 (def SKIP 1)
-(def OCTAVE 12)
 
 (defn convert-scale
   "Convert a list that represents a scale as intervals between adjacent notes
