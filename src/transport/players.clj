@@ -41,11 +41,6 @@
   [player]
   (:behavior player))
 
-(defn get-behavior-ensemble-action
-  [player]
-
-  (:ensemble-action (get-behavior player)))
-
 (defn get-dur-info
   [melody-event]
   (:dur-info melody-event))

@@ -15,7 +15,7 @@
 
 (ns transport.melody
   (:use
-   [transport.behaviors :only [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :only [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :only [get-scale-degree next-pitch]]
    [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
    [transport.players]
@@ -200,8 +200,8 @@
   [player]
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action player) COMPLEMENT) (next-melody-complement-ensemble player)
-   (= (get-behavior-ensemble-action player) CONTRAST) (next-melody-contrast-ensemble player)
+   (= (get-behavior-ensemble-action-for-player player) COMPLEMENT) (next-melody-complement-ensemble player)
+   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player)
    :else (next-melody-for-player player))  ;; pick next melody note based only on players settings
                                            ;;  do not reference other players or ensemble
   )

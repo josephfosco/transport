@@ -33,6 +33,10 @@
   (:player-id (get-behavior player))
   )
 
+(defn get-behavior-ensemble-action-for-player
+  [player]
+  (:ensemble-action (get-behavior player)))
+
 (defn select-behavior-action
   [player]
   (let [action-num (rand)]

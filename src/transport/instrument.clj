@@ -25,7 +25,7 @@
 
 (def LO-RANGE 47)
 (def MID-RANGE 79)
-(def HI-RANGE  (last MIDI-RANGE))
+(def HI-RANGE (last MIDI-RANGE))
 
 (def all-instruments [
 ;                      {:instrument triangle-wave :envelope-type "AD"}
@@ -74,9 +74,11 @@
     ))
 
 (defn- select-contrasting-range
-  [player]
-  (let [cntrst-plyr (get-player (get-behavior-player-id-for-player player))
-        cntrst-plyr-lo (get-lo-range cntrst-plyr)
+  "If CONTRAST player is in low range, will return a high range
+   If CONTRAST player is in high range, will return a lower range
+   If CONTRAST player has wide range, will return a narrow range"
+  [player cntrst-plyr]
+  (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
         cntrst-plyr-hi (get-hi-range cntrst-plyr)
         lowest-note (cond
                      (<= cntrst-plyr-hi LO-RANGE) (+ LO-RANGE 1)
@@ -110,7 +112,7 @@
   []
   (let [inst-range (select-random-range)
         ;; select instrument info from all-insruments map
-        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        inst-info (rand-nth all-instruments)
         ]
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
@@ -126,11 +128,27 @@
 
    player - the player to get instrument for"
   [player]
-  (let [inst-range (if (= (get-behavior-action-for-player player) CONTRAST)
-                     (select-contrasting-range player)
+  (let [behavior-action (get-behavior-action-for-player player)
+        cntrst-plyr (get-player (get-behavior-player-id-for-player player))
+        inst-range (if (= behavior-action CONTRAST)
+                     (select-contrasting-range player cntrst-plyr)
                      (select-range player))
         ;; select instrument info from all-insruments map
-        inst-info (nth all-instruments (random-int 0 (- (count all-instruments) 1)))
+        ;; if not CONTRASTing, select a random instrument
+        ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
+        inst-info (if (not= behavior-action CONTRAST)
+                    (rand-nth all-instruments)
+                    (let [instrument-index (rand-int (count all-instruments))]
+                      (if (=
+                           (:name (:instrument (get-instrument-info cntrst-plyr)))
+                           (:name (:instrument (nth all-instruments instrument-index))))
+                        (nth all-instruments (mod
+                                              (+ instrument-index (rand-int (dec (count all-instruments))))
+                                              (dec (count all-instruments))))
+                        (nth all-instruments instrument-index)
+                        )
+                      )
+                    )
         ]
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)

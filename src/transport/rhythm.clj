@@ -15,6 +15,7 @@
 
 (ns transport.rhythm
   (:require
+   [transport.behaviors :refer [get-behavior-ensemble-action-for-player]]
    [transport.ensemble-status :refer [get-average-note-dur-millis]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
@@ -139,7 +140,7 @@
 
 (defn adjust-rhythmic-probabilities
   [player]
-  (let [ensemble-action (get-behavior-ensemble-action player)
+  (let [ensemble-action (get-behavior-ensemble-action-for-player player)
         note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
         adjusted-note-prob1 (if (= COMPLEMENT ensemble-action)
                              (adjust-note-prob note-durs-millis)
