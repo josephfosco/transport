@@ -13,11 +13,16 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.melody-char)
+(ns transport.melodychar)
 
 (defrecord MelodyChar [continuity density range smoothness])
 
+(defn get-melody-char-continuity
+  [melody-char]
+  (:continuity melody-char)
+  )
+
 (defn get-melody-char-density
   [melody-char]
-  (:density behavior)
+  (:density melody-char)
   )

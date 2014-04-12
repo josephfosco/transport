@@ -129,7 +129,9 @@
    player - the player to get instrument for"
   [player]
   (let [behavior-action (get-behavior-action-for-player player)
-        cntrst-plyr (get-player (get-behavior-player-id-for-player player))
+        cntrst-plyr (if (= behavior-action CONTRAST)
+                      (get-player (get-behavior-player-id-for-player player))
+                      nil)
         inst-range (if (= behavior-action CONTRAST)
                      (select-contrasting-range player cntrst-plyr)
                      (select-range player))
@@ -154,7 +156,8 @@
      :envelope-type (:envelope-type inst-info)
      :range-hi (last inst-range)
      :range-lo (first inst-range)}
-    ))
+    )
+  )
 
 (defn play-instrument-asr
   "player - player map

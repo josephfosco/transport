@@ -148,9 +148,9 @@
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-density-char player))]
                               (mapv + adjusted-note-prob1 prob-adjust)
                               adjusted-note-prob1)
+        ;; make all probs < 0 be 0
         final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
         ]
-    ;; (println "adjusted probabilities:" final-adjusted-note-prob "mm:" (get-mm player))
     final-adjusted-note-prob
     )
   )

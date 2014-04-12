@@ -14,41 +14,74 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.melody
-  (:use
-   [transport.behaviors :only [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
-   [transport.pitch :only [get-scale-degree next-pitch]]
-   [transport.ensemble-status :only [ get-average-volume get-rest-probability]]
-   [transport.players]
-   [transport.random :only [random-int weighted-choice]]
-   [transport.rhythm :only [get-dur-info-for-beats next-note-dur]]
-   [transport.settings]
-   [transport.volume :only [select-volume select-volume-in-range]]
-   ))
+  (::require
+   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
+   [transport.pitch :refer [get-scale-degree next-pitch]]
+   [transport.ensemble-status :refer [ get-average-volume get-rest-probability]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density]]
+   [transport.players :refer :all]
+   [transport.random :refer [random-int weighted-choice]]
+   [transport.rhythm :refer [get-dur-info-for-beats next-note-dur]]
+   [transport.settings :refer :all]
+   [transport.volume :refer [select-volume select-volume-in-range]]
+   )
+  (:import transport.melodychar.MelodyChar)
+  )
 
 (def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
 
 (defn- select-melody-continuity
-  "Returns a number from 1 to 10 to determine how continuous
+  "Returns a number from 0 to 10 to determine how continuous
    the melody will be.
    0 - continuous (few rests) -> 9 - discontinuous (all rests)"
   ([] (weighted-choice CONTINUITY-PROBS))
   ([player]
      (weighted-choice CONTINUITY-PROBS)
      )
+  ([player cntrst-plyr cntrst-melody-char]
+     (let [cntrst-continuity (get-melody-char-continuity cntrst-melody-char)
+           cntrst-continuity-probs (cond
+                                    (and (> cntrst-continuity 0) (< cntrst-continuity 9))
+                                    (assoc CONTINUITY-PROBS
+                                      (- cntrst-continuity 1) 0
+                                      cntrst-continuity 0
+                                      (+ cntrst-continuity 1) 0)
+                                    (= cntrst-continuity 0)
+                                    (assoc CONTINUITY-PROBS 0 0 1 0)
+                                    :else
+                                    (assoc CONTINUITY-PROBS 8 0 9 0)
+                                    )
+           ]
+       (weighted-choice cntrst-continuity-probs)
+       )
+     )
   )
 
 (defn- select-melody-density
-  "Returns a number from 1 to 9 to determine how dense
+  "Returns a number from 0 to 9 to determine how dense
    the melody will be.
    0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
   ([] (rand-int 10))
   ([player]
      (rand-int 10)
      )
+  ([player cntrst-plyr cntrst-melody-char]
+     (let [cntrst-density (get-melody-char-density cntrst-melody-char)]
+       (cond
+        (and (> cntrst-density 0) (< cntrst-density 9))
+        (let [density (rand-int 7)]
+          (if (> density (dec cntrst-density)) density (+ density 3)))
+        (= cntrst-density 0)
+        (+ (rand-int 8) 2)
+        :else
+        (rand-int 8)
+        )
+       )
+     )
   )
 
 (defn- select-melody-range
-  "Returns a number from 1 to 9 to determine the width of
+  "Returns a number from 0 to 9 to determine the width of
    the melody's range.
    0 - narrow range -> 9 - wide range"
   ([] (rand-int 10))
@@ -58,7 +91,7 @@
   )
 
 (defn- select-melody-smoothness
-  "Returns a number from 1 to 9 to determine how smooth (stepwise)
+  "Returns a number from 0 to 9 to determine how smooth (stepwise)
    the melody will be.
    0 - mostly steps -> 9 - mostly skips (wide skips)"
   ([] (rand-int 10))
@@ -69,22 +102,30 @@
 
 (defn select-random-melody-characteristics
   []
-  {
-   :continuity (select-melody-continuity)
-   :density (select-melody-density)
-   :range (select-melody-range)
-   :smoothness (select-melody-smoothness)
-   }
+  (MelodyChar. (select-melody-continuity)
+               (select-melody-density)
+               (select-melody-range)
+               (select-melody-smoothness))
   )
 
 (defn select-melody-characteristics
   [player]
-  {
-   :continuity (select-melody-continuity player)
-   :density (select-melody-density player)
-   :range (select-melody-range player)
-   :smoothness (select-melody-smoothness player)
-   }
+  (let [cntrst-plyr (if (= (get-behavior-action-for-player player) CONTRAST)
+                      (get-player (get-behavior-player-id-for-player player))
+                      nil)
+        ]
+    (if (= cntrst-plyr nil)
+      (MelodyChar. (select-melody-continuity player)
+                   (select-melody-density player)
+                   (select-melody-range player)
+                   (select-melody-smoothness player))
+      (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
+            (MelodyChar. (select-melody-continuity player cntrst-plyr cntrst-melody-char)
+                         (select-melody-density player)
+                         (select-melody-range player)
+                         (select-melody-smoothness player))
+            )))
+    )
   )
 
 (defn note-or-rest
