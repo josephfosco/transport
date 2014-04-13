@@ -19,10 +19,16 @@
 
 (defn get-melody-char-continuity
   [melody-char]
-  (:continuity melody-char)
-  )
+  (:continuity melody-char))
 
 (defn get-melody-char-density
   [melody-char]
-  (:density melody-char)
-  )
+  (:density melody-char))
+
+(defn get-melody-char-range
+  [melody-char]
+  (:range melody-char))
+
+(defn get-melody-char-smoothness
+  [melody-char]
+  (:smoothness melody-char))

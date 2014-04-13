@@ -18,7 +18,7 @@
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
    [transport.ensemble-status :refer [ get-average-volume get-rest-probability]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [get-dur-info-for-beats next-note-dur]]
@@ -88,6 +88,19 @@
   ([player]
      (rand-int 10)
      )
+  ([player cntrst-plyr cntrst-melody-char]
+     (let [cntrst-range (get-melody-char-range cntrst-melody-char)]
+       (cond
+        (and (> cntrst-range 0) (< cntrst-range 9))
+        (let [range (rand-int 7)]
+          (if (> range (dec cntrst-range)) range (+ range 3)))
+        (= cntrst-range 0)
+        (+ (rand-int 8) 2)
+        :else
+        (rand-int 8)
+        )
+       )
+     )
   )
 
 (defn- select-melody-smoothness
@@ -97,6 +110,19 @@
   ([] (rand-int 10))
   ([player]
      (rand-int 10)
+     )
+  ([player cntrst-plyr cntrst-melody-char]
+     (let [cntrst-smoothness (get-melody-char-smoothness cntrst-melody-char)]
+       (cond
+        (and (> cntrst-smoothness 0) (< cntrst-smoothness 9))
+        (let [smoothness (rand-int 7)]
+          (if (> smoothness (dec cntrst-smoothness)) smoothness (+ smoothness 3)))
+        (= cntrst-smoothness 0)
+        (+ (rand-int 8) 2)
+        :else
+        (rand-int 8)
+        )
+       )
      )
   )
 
@@ -121,7 +147,7 @@
                    (select-melody-smoothness player))
       (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
             (MelodyChar. (select-melody-continuity player cntrst-plyr cntrst-melody-char)
-                         (select-melody-density player)
+                         (select-melody-density player cntrst-plyr cntrst-melody-char)
                          (select-melody-range player)
                          (select-melody-smoothness player))
             )))
