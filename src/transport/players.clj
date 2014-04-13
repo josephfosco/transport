@@ -211,11 +211,11 @@
           (do
             (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
             (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
-            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id to-player-id :originator-player-id  originator-player-id))
-          (println "players.clj - copy-follow-complement-info - NOT SENDING MESSAGES FOR CONTRAST"))
-
-        (assoc @PLAYERS to-player-id (merge to-player new-contrasting-info-map))
-        )
+            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
+            (assoc @PLAYERS to-player-id (merge to-player new-contrasting-info-map))
+            )
+          (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
+        cur-players)
       (do
         (println "players - set-new-contrast-info NOT SETTING CONTRAST!")
         cur-players)))

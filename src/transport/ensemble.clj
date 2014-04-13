@@ -113,7 +113,7 @@
      (= (get-behavior-action prev-behavior) CONTRAST)
      (unregister-listener
       MSG-PLAYER-NEW-CONTRAST-INFO
-      transport.players/player-new-contrast-info
+      transport.ensemble/new-contrast-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
