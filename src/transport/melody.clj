@@ -53,8 +53,7 @@
                                     )
            ]
        (weighted-choice cntrst-continuity-probs)
-       )
-     )
+       ))
   )
 
 (defn- select-melody-density
@@ -75,9 +74,7 @@
         (+ (rand-int 8) 2)
         :else
         (rand-int 8)
-        )
-       )
-     )
+        )))
   )
 
 (defn- select-melody-range
@@ -98,9 +95,7 @@
         (+ (rand-int 8) 2)
         :else
         (rand-int 8)
-        )
-       )
-     )
+        )))
   )
 
 (defn- select-melody-smoothness
@@ -121,9 +116,7 @@
         (+ (rand-int 8) 2)
         :else
         (rand-int 8)
-        )
-       )
-     )
+        )))
   )
 
 (defn select-random-melody-characteristics
@@ -161,7 +154,7 @@
    player - the player to determine note or rest for"
   [player]
   (let [play-note? (random-int 0 10)]
-    (if (< (get-melody-continuity-char player) play-note?)
+    (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
       true
       (if (not= 0 play-note?)                                ;; if continuity not 0
         false                                                ;; rest

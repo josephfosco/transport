@@ -59,7 +59,7 @@
       :seg-start 0
       :scale (select-random-scale))))
 
-(defn- get-contrasting-info-for-player
+(defn get-contrasting-info-for-player
   "Returns a map of key value pairs for a player that must
    CONTRAST another player
 
@@ -67,11 +67,7 @@
   [player]
   {
    :instrument-info (select-instrument player)
-   :key (select-key player)
    :melody-char (select-melody-characteristics player)
-   :metronome (select-metronome player)
-   :mm (select-mm player)
-   :scale (select-scale player)
    }
   )
 
@@ -96,12 +92,7 @@
               )
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
-     (= behavior-action CONTRAST)
-     (merge upd-player
-            (get-contrasting-info-for-player upd-player)
-       )
-
-     :else
+     :else  ;;  IGNORE or CONTRAST
      (assoc upd-player
        :instrument-info (select-instrument upd-player)
        :key (select-key upd-player)

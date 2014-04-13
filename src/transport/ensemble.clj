@@ -27,10 +27,21 @@
    [transport.players :refer :all]
    [transport.rhythm :refer [get-beats]]
    [transport.schedule :refer [sched-event]]
-   [transport.segment :refer [copy-following-info first-segment new-segment]]
+   [transport.segment :refer [copy-following-info first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
    )
   (:import transport.behavior.Behavior)
+  )
+
+(defn new-contrast-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
+  (send PLAYERS
+        set-new-contrast-info
+        change-player-id
+        follow-player-id
+        originator-player-id
+        (get-contrasting-info-for-player follow-player-id)
+        )
   )
 
 (defn- listeners-msg-new-segment
@@ -46,6 +57,7 @@
        (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
        (cond
         (= (get-behavior-action-for-player player) FOLLOW)
@@ -60,6 +72,13 @@
         (register-listener
          MSG-PLAYER-NEW-COMPLEMENT-INFO
          transport.players/player-new-complement-info
+         {:change-player-id (get-behavior-player-id-for-player player)}
+         :follow-player-id player-id
+         )
+        (= (get-behavior-action-for-player player) CONTRAST)
+        (register-listener
+         MSG-PLAYER-NEW-CONTRAST-INFO
+         transport.ensemble/new-contrast-info
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
          )
@@ -88,6 +107,13 @@
      (unregister-listener
       MSG-PLAYER-NEW-COMPLEMENT-INFO
       transport.players/player-new-complement-info
+      {:change-player-id (get-behavior-player-id prev-behavior)}
+      :follow-player-id (get-player-id player)
+      )
+     (= (get-behavior-action prev-behavior) CONTRAST)
+     (unregister-listener
+      MSG-PLAYER-NEW-CONTRAST-INFO
+      transport.players/player-new-contrast-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
