@@ -69,18 +69,6 @@
   [player]
   (:melody-char player))
 
-(defn get-melody-density-char
-  [player]
-  (:density (:melody-char player)))
-
-(defn get-melody-range-char
-  [player]
-  (:range (:melody-char player)))
-
-(defn get-melody-smoothness-char
-  [player]
-  (:smoothness (:melody-char player)))
-
 (defn get-metronome
   [player]
   (:metronome player))
@@ -202,17 +190,17 @@
   )
 
 (defn set-new-contrast-info
-  [cur-players from-player-id to-player-id originator-player-id new-contrasting-info-map]
-  (println "players - new-contrast-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
-  (let [to-player (get-player to-player-id)]
-    (if (= from-player-id (:player-id (:behavior to-player)))
+  [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
+  (println "players - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
+  (let [contrasting-player (get-player contrasting-player-id)]
+    (if (= change-player-id (:player-id (:behavior contrasting-player)))
       (do
-        (if (not= originator-player-id to-player-id)
+        (if (not= originator-player-id contrasting-player-id)
           (do
-            (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
-            (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
-            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
-            (assoc @PLAYERS to-player-id (merge to-player new-contrasting-info-map))
+            (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
           (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
         cur-players)

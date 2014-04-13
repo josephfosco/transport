@@ -17,8 +17,9 @@
   (:require
    [transport.behaviors :refer [get-behavior-action-for-player]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.players :refer :all]
    [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
+   [transport.melodychar :refer [get-melody-char-smoothness]]
+   [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
    ))
@@ -218,7 +219,7 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-smoothness-char player)) STEP SKIP))
+    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP))
   )
 
 (defn dir-ascend

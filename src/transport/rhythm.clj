@@ -17,6 +17,7 @@
   (:require
    [transport.behaviors :refer [get-behavior-ensemble-action-for-player]]
    [transport.ensemble-status :refer [get-average-note-dur-millis]]
+   [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :refer [COMPLEMENT]]
@@ -145,7 +146,7 @@
         adjusted-note-prob1 (if (= COMPLEMENT ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
-        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-density-char player))]
+        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
                               (mapv + adjusted-note-prob1 prob-adjust)
                               adjusted-note-prob1)
         ;; make all probs < 0 be 0
