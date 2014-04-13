@@ -18,7 +18,7 @@
 (def TRANSPORT-VERSION {:major 0
                         :minor 1
                         :patch 0
-                        :snapshot true})
+                        :snapshot false})
 
 (def TRANSPORT-VERSION-STR
   (let [version TRANSPORT-VERSION]
