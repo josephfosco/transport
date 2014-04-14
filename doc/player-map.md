@@ -28,6 +28,18 @@
         * :follow-note - when FOLLOWing another player the melody-event this melody-event is in the FOLLOWers melody
       - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
+    + continuity - hom continuous the melody will be
+        - 0 -continuous (few rests) ->
+        - 9 discontinuous (all rests)
+    + density - melody density
+        - 0 - sparse (few notes of long duration)
+        - 9 - dense (many notes of short duration)
+    + range - width of the melody's ramge
+        - 0 narrow range
+        - 9 - wide range
+    + smoothness - how stepwise the melody will be
+        - 0 - mostly steps
+        - 9 - mostly skips (wide skips)
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)

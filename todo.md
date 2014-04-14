@@ -1,5 +1,3 @@
-* Document the :player map
-
 * Rework rhythm.clj to use Overtone metronome instead of current method (if posssible) ???
 
 * Use at- function from Overtone in ensemble.clj play-melody for more accurate playback
