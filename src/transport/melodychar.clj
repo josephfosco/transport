@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,19 +13,22 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.volume
-  (:require
-   [transport.settings :refer [COMPLEMENT FOLLOW]]
-   ))
+(ns transport.melodychar)
 
-(defn select-volume
-  [player]
-  (rand))
+(defrecord MelodyChar [continuity density range smoothness])
 
-(defn select-volume-in-range
-  "Returns a random float between lo-vol and hi-vol(exclusive).
+(defn get-melody-char-continuity
+  [melody-char]
+  (:continuity melody-char))
 
-  lo-vol - lowest value that can be returned
-  hi-vol - highest value that can be returned(exclusive)"
-  [lo-vol hi-vol]
-  (+ (rand (- hi-vol lo-vol)) lo-vol))
+(defn get-melody-char-density
+  [melody-char]
+  (:density melody-char))
+
+(defn get-melody-char-range
+  [melody-char]
+  (:range melody-char))
+
+(defn get-melody-char-smoothness
+  [melody-char]
+  (:smoothness melody-char))

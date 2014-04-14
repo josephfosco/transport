@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,7 +14,9 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.schedule
-  (:use [ transport.debug :only [debug-transport debug-run1]]))
+  (:require
+   [transport.debug :refer [debug-transport debug-run1]]
+   ))
 
 (import '(java.util Date TimerTask Timer))
 (declare check-events)

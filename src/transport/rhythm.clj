@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,12 +14,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.rhythm
-  (:use
-   [transport.ensemble-status :only [get-average-note-dur-millis]]
-   [transport.players]
-   [transport.random :only [add-probabilities random-dur random-int weighted-choice]]
-   [transport.settings :only [COMPLEMENT]]
-   [overtone.live :only [metronome]]
+  (:require
+   [transport.behaviors :refer [get-behavior-ensemble-action-for-player]]
+   [transport.ensemble-status :refer [get-average-note-dur-millis]]
+   [transport.melodychar :refer [get-melody-char-density]]
+   [transport.players :refer :all]
+   [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
+   [transport.settings :refer [COMPLEMENT]]
+   [overtone.live :refer [metronome]]
    ))
 
 (def min-mm 40)
@@ -85,9 +87,15 @@
   )
 
 (defn select-mm
-  [player]
-  (random-int min-mm max-mm)
+  ([] (random-int min-mm max-mm))
+  ([player]
+     (random-int min-mm max-mm)
+     )
   )
+
+(defn select-metronome-mm
+  [mm]
+  (metronome mm))
 
 (defn select-metronome
   [player]
@@ -133,17 +141,17 @@
 
 (defn adjust-rhythmic-probabilities
   [player]
-  (let [ensemble-action (get-behavior-ensemble-action player)
+  (let [ensemble-action (get-behavior-ensemble-action-for-player player)
         note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
         adjusted-note-prob1 (if (= COMPLEMENT ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
-        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-density-char player))]
+        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
                               (mapv + adjusted-note-prob1 prob-adjust)
                               adjusted-note-prob1)
+        ;; make all probs < 0 be 0
         final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
         ]
-    ;; (println "adjusted probabilities:" final-adjusted-note-prob "mm:" (get-mm player))
     final-adjusted-note-prob
     )
   )

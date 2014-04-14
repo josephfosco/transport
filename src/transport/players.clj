@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -41,11 +41,6 @@
   [player]
   (:behavior player))
 
-(defn get-behavior-ensemble-action
-  [player]
-
-  (:ensemble-action (get-behavior player)))
-
 (defn get-dur-info
   [melody-event]
   (:dur-info melody-event))
@@ -73,22 +68,6 @@
 (defn get-melody-char
   [player]
   (:melody-char player))
-
-(defn get-melody-continuity-char
-  [player]
-  (:continuity (:melody-char player)))
-
-(defn get-melody-density-char
-  [player]
-  (:density (:melody-char player)))
-
-(defn get-melody-range-char
-  [player]
-  (:range (:melody-char player)))
-
-(defn get-melody-smoothness-char
-  [player]
-  (:smoothness (:melody-char player)))
 
 (defn get-metronome
   [player]
@@ -183,20 +162,12 @@
   "Select a random player-id not including the
    player-id of player
 
-   player - player to exclude fromm possible player-ids"
+   player - player to exclude from possible player-ids"
   [player]
   (if (> (count @PLAYERS) 0)
     (rand-nth (keys (dissoc @PLAYERS (:player-id player))))
     nil
     ))
-
-(defn get-following-info-from-player
-  "follow-player - the player to get the following info from"
-  [follow-player]
-  (assoc (get-complement-info-from-player follow-player)
-   :instrument-info (get-instrument-info follow-player)
-    )
-  )
 
 (defn get-complement-info-from-player
   "follow-player - the player to get the following info from"
@@ -210,14 +181,46 @@
    }
   )
 
+(defn get-following-info-from-player
+  "follow-player - the player to get the following info from"
+  [follow-player]
+  (assoc (get-complement-info-from-player follow-player)
+   :instrument-info (get-instrument-info follow-player)
+    )
+  )
+
+(defn set-new-contrast-info
+  [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
+  (println "players - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
+  (let [contrasting-player (get-player contrasting-player-id)]
+    (if (= change-player-id (:player-id (:behavior contrasting-player)))
+      (do
+        (if (not= originator-player-id contrasting-player-id)
+          (do
+            (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id contrasting-player-id :originator-player-id  originator-player-id)
+            (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
+            )
+          (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
+        cur-players)
+      (do
+        (println "players - set-new-contrast-info NOT SETTING CONTRAST!")
+        cur-players)))
+  )
+
 (defn copy-follow-complement-info
-  [cur-players from-player-id to-player-id]
-  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id)
+  [cur-players from-player-id to-player-id originator-player-id]
+  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
   (let [to-player (get-player to-player-id)]
     (if (= from-player-id (:player-id (:behavior to-player)))
       (do
-        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id)
-        (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id)
+        (if (not= originator-player-id to-player-id)
+          (do
+            (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id to-player-id :originator-player-id  originator-player-id)
+            (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id to-player-id :originator-player-id  originator-player-id))
+          (println "players.clj - copy-follow-complement-info - NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id
                (merge to-player
                       (if (= (:action (:behavior to-player)) FOLLOW)
@@ -229,43 +232,14 @@
         cur-players)))
   )
 
-(defn- new-complement-info?
-  [from-player to-player]
-  (if (or (not= (get-key from-player) (get-key to-player))
-          (not= (get-melody-char from-player) (get-melody-char to-player))
-          (not= (get-metronome from-player) (get-metronome to-player))
-          (not= (get-mm from-player) (get-mm to-player))
-          (not= (get-scale from-player) (get-scale to-player))
-          )
-    true    ;; there is new complement info
-    false   ;; there is NO new complement info
-   )
+(defn player-new-follow-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id  originator-player-id)
   )
 
-(defn- new-follow-info?
-  [from-player to-player]
-  (if (or (not= (get-instrument-info from-player) (get-instrument-info to-player))
-          (new-complement-info? from-player to-player)
-          )
-    true    ;; there is new follow info
-    false   ;; there is NO new follow info
-   )
-  )
-
-(defn player-new-segment-follow
-  [& {:keys [change-player-id follow-player-id]}]
-  (if (new-follow-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
-    (println "players.clj - player-new-segment-follow: ***** NOT COPYING FOLLOW INFO *****")
-    )
-  )
-
-(defn player-new-segment-complement
-  [& {:keys [change-player-id follow-player-id]}]
-  (if (new-complement-info? (get-player change-player-id) (get-player follow-player-id))
-    (send PLAYERS copy-follow-complement-info change-player-id follow-player-id)
-    (println "players.clj - player-new-segment-complement: ***** NOT COPYING COMPLEMENT INFO *****")
-    )
+(defn player-new-complement-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
+  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id originator-player-id)
   )
 
 (defn init-players

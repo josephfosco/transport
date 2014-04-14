@@ -27,10 +27,15 @@
   (:action (get-behavior player))
   )
 
+
 (defn get-behavior-player-id-for-player
   [player]
   (:player-id (get-behavior player))
   )
+
+(defn get-behavior-ensemble-action-for-player
+  [player]
+  (:ensemble-action (get-behavior player)))
 
 (defn select-behavior-action
   [player]
@@ -64,6 +69,25 @@
       )
     (get-behavior player)
     ))
+
+(defn select-first-behavior
+  "Only used the first time Behavior is set.
+   Always sets behavior player-id to nil.
+
+   player - the player to set behavior for"
+  [player]
+  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+        ;; select ensemble-action behavior only if not watching another player
+        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+                          (select-behavior-ensemble-action player)
+                          IGNORE)
+        ]
+    (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
+               behavior-action          ;; action
+               ensemble-action          ;; ensemble-action
+               nil)                     ;; behavior player-id
+    )
+  )
 
 (defn select-behavior
   [player]

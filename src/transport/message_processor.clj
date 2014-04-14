@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.message_processor
-  (:use
-   [transport.util :only [get-max-map-key]]
+  (:require
+   [transport.util :refer [get-max-map-key]]
    ))
 
 (def MESSAGES (agent {}))

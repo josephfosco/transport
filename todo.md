@@ -1,5 +1,3 @@
-* Document the :player map
-
 * Rework rhythm.clj to use Overtone metronome instead of current method (if posssible) ???
 
 * Use at- function from Overtone in ensemble.clj play-melody for more accurate playback
@@ -34,3 +32,9 @@
 * make each player a record (defrecord) for better performance
 
 * find a way to not call process-messages in message-processor when messages are removed from queue
+
+* need to work on ending
+
+* Could FOLLOW/COMPLEMENT/CONTRAST up or down an octave or other interval
+
+* change message processor to use type in addition to message number

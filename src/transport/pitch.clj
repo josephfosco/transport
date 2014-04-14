@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,13 +14,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.pitch
-  (:use
-   [transport.behaviors :only [get-behavior-action-for-player]]
-   [overtone.music.pitch :only [SCALE]]
-   [transport.players]
-   [transport.instrument :only [get-hi-range get-lo-range get-instrument-range]]
-   [transport.random :only [random-pitch random-int]]
-   [transport.settings]
+  (:require
+   [transport.behaviors :refer [get-behavior-action-for-player]]
+   [overtone.music.pitch :refer [SCALE]]
+   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
+   [transport.melodychar :refer [get-melody-char-smoothness]]
+   [transport.players :refer :all]
+   [transport.random :refer [random-pitch random-int]]
+   [transport.settings :refer :all]
    ))
 
 (def SCALES {})
@@ -30,7 +31,6 @@
 (def RANDOM-NOTE 4)
 (def STEP 0)
 (def SKIP 1)
-(def OCTAVE 12)
 
 (defn convert-scale
   "Convert a list that represents a scale as intervals between adjacent notes
@@ -171,6 +171,12 @@
     )
   )
 
+(defn select-random-key
+  "Returns a randow number between 1- 11
+   to represent a key. 0=C"
+  []
+  (random-int 0 11))
+
 (defn select-key
   "returns a randow number between 1- 11
    to represent a key. 0=C"
@@ -191,6 +197,11 @@
           REPEAT-NOTE))
       )))
 
+(defn select-random-scale
+  "returns a scale"
+  []
+  ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
+
 (defn select-scale
   "returns a scale"
   [player]
@@ -208,7 +219,7 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-smoothness-char player)) STEP SKIP))
+    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP))
   )
 
 (defn dir-ascend
@@ -228,12 +239,14 @@
       (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player)))))
   )
 
-(declare next-pitch-ignore)
-(defn next-pitch-follow
+(defn next-pitch-ignore
   [player]
-  ;; if following, ignore key and scale and mach pitch as accurately as you can
-  (next-pitch-ignore player)
- )
+  (let [direction (select-direction player)]
+    (cond
+     (= direction ASCEND) (dir-ascend player)
+     (= direction DESCEND) ( dir-descend player)
+     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
+     :else (get-last-melody-note player)))  )
 
 (defn next-pitch-complement
   [player]
@@ -245,21 +258,12 @@
   (next-pitch-ignore player)
   )
 
-(defn next-pitch-ignore
-  [player]
-  (let [direction (select-direction player)]
-    (cond
-     (= direction ASCEND) (dir-ascend player)
-     (= direction DESCEND) ( dir-descend player)
-     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (get-last-melody-note player)))  )
-
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
   (let [player-behavior-action (get-behavior-action-for-player player)]
     (cond
-     (= player-behavior-action FOLLOW) (next-pitch-follow player)
      (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
      (= player-behavior-action CONTRAST) (next-pitch-contrast player)
-     :else (next-pitch-ignore player))) )
+     (= player-behavior-action IGNORE) (next-pitch-ignore player)
+     :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )

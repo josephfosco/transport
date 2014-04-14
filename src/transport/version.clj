@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 (def TRANSPORT-VERSION {:major 0
                         :minor 1
                         :patch 0
-                        :snapshot true})
+                        :development false})
 
 (def TRANSPORT-VERSION-STR
   (let [version TRANSPORT-VERSION]
@@ -26,4 +26,4 @@
          "."
          (:minor version)
          (if-not (= 0 (:patch version)) (str "." (:patch version)) "")
-         (if (:snapshot version) "-dev" ""))))
+         (if (:development version) "-dev" ""))))
