@@ -15,17 +15,17 @@
 
 (ns transport.core
   (:gen-class)
-  (:use
-   [overtone.live]
-   [transport.ensemble :only [init-ensemble]]
-   [transport.ensemble-status :only [init-ensemble-status reset-ensemble-status]]
-   [transport.message_processor :only [restart-message-processor start-message-processor stop-message-processor]]
-   [transport.pitch :only [load-scales]]
-   [transport.players :only [init-players]]
-   [transport.schedule :only [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
-   [transport.settings :only [NUM-PLAYERS set-num-players]]
-   [transport.util]
-   [transport.version]
+  (:require
+   [overtone.live :refer :all]
+   [transport.ensemble :refer [init-ensemble]]
+   [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
+   [transport.message_processor :refer [restart-message-processor start-message-processor stop-message-processor]]
+   [transport.pitch :refer [load-scales]]
+   [transport.players :refer [init-players]]
+   [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
+   [transport.settings :refer [NUM-PLAYERS set-num-players]]
+   [transport.util :refer :all]
+   [transport.version :refer :all]
    ))
 
  (defn -main

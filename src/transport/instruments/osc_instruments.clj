@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 (ns transport.instruments.osc-instruments
   ^{:author "Joseph Fosco"
     :doc "All instruments that are basically just an oscillator with an envelope"}
-  (:use
-   [overtone.live]
+  (:require
+   [overtone.live :refer :all]
    ))
 
 (definst triangle-wave

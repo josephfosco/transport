@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.volume
-  (:use
-   [transport.settings :only [COMPLEMENT FOLLOW]]
+  (:require
+   [transport.settings :refer [COMPLEMENT FOLLOW]]
    ))
 
 (defn select-volume

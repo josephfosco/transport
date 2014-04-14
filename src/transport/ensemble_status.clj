@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,10 +14,10 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.ensemble-status
-  (:use
-   [transport.players :only [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
-   [transport.settings]
-   [transport.util])
+  (:require
+   [transport.players :refer [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
+   [transport.settings :refer :all]
+   [transport.util :refer :all])
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))

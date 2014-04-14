@@ -34,3 +34,7 @@
 * find a way to not call process-messages in message-processor when messages are removed from queue
 
 * need to work on ending
+
+* Could FOLLOW/COMPLEMENT/CONTRAST up or down an octave or other interval
+
+* change message processor to use type in addition to message number
