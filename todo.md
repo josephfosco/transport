@@ -38,3 +38,5 @@
 * Could FOLLOW/COMPLEMENT/CONTRAST up or down an octave or other interval
 
 * change message processor to use type in addition to message number
+
+* make melody events records
