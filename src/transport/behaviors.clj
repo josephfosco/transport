@@ -16,7 +16,7 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
-   [transport.behavior]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id get-behavior-ensemble-action]]
    [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
    [transport.settings :refer [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
    )
@@ -24,18 +24,18 @@
   )
 (defn get-behavior-action-for-player
   [player]
-  (:action (get-behavior player))
+  (get-behavior-action (get-behavior player))
   )
 
 
 (defn get-behavior-player-id-for-player
   [player]
-  (:player-id (get-behavior player))
+  (get-behavior-player-id (get-behavior player))
   )
 
 (defn get-behavior-ensemble-action-for-player
   [player]
-  (:ensemble-action (get-behavior player)))
+  (get-behavior-ensemble-action (get-behavior player)))
 
 (defn select-behavior-action
   [player]
@@ -63,7 +63,7 @@
 
    player - the player to set :behavior :player-id"
   [player]
-  (if (not= (:action (get-behavior player)) IGNORE)
+  (if (not= (get-behavior-action (get-behavior player)) IGNORE)
     (let [player-id (rand-player-id-excluding-player player)]
       (set-behavior-player-id player player-id)
       )

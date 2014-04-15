@@ -19,10 +19,12 @@
 
 (defn get-behavior-action
   [behavior]
-  (:action behavior)
-  )
+  (:action behavior))
 
 (defn get-behavior-player-id
   [behavior]
-  (:player-id behavior)
-  )
+  (:player-id behavior))
+
+(defn get-behavior-ensemble-action
+  [behavior]
+  (:ensemble-action behavior))
