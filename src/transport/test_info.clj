@@ -19,7 +19,7 @@
    [transport.behavior :refer :all]
    [transport.ensemble :refer [play-melody]]
    [transport.instruments.osc-instruments :refer :all]
-   [transport.message_processor :refer [restart-message-processor start-message-processor]]
+   [transport.message-processor :refer [restart-message-processor start-message-processor]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome]]

@@ -16,7 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior]
-   [transport.message_processor :refer [send-message register-listener]]
+   [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
    )

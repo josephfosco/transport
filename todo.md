@@ -3,10 +3,6 @@
 * Use at- function from Overtone in ensemble.clj play-melody for more accurate playback
   - Will require some type of latency compensation in ensemble.clj to schedule sooner than neede
 
-* Change SCALES to an atom or agent
-
-* CHANGE scheduler-running to an atom or agent
-
 * make create-player in ensemble.clj a closure that tracks player-id
 
 * need to find a way to stop assuming :player-id is a sequential number starting with 1 in ensemble.clj
@@ -40,3 +36,5 @@
 * change message processor to use type in addition to message number
 
 * make melody events records
+
+* possibly helpful to track mm changes in maelody - (can get this now from dur-millis and dur-note)

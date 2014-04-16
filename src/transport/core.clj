@@ -19,7 +19,7 @@
    [overtone.live :refer :all]
    [transport.ensemble :refer [init-ensemble]]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
-   [transport.message_processor :refer [restart-message-processor start-message-processor stop-message-processor]]
+   [transport.message-processor :refer [restart-message-processor start-message-processor stop-message-processor]]
    [transport.pitch :refer [load-scales]]
    [transport.players :refer [init-players]]
    [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]

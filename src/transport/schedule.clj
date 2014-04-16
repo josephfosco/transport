@@ -23,7 +23,7 @@
 
 (def lateness (agent 0))      ; num of milliseconds most recent event was late
 (def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
-(def scheduler-running? true) ; If false, scheduler is paused and will not watch event-queue when it is empty
+(def scheduler-running? (atom true)) ; If false, scheduler is paused and will not watch event-queue when it is empty
 
 (defn print-lateness
   []
@@ -165,7 +165,7 @@
 
   (defn watch-queue
     []
-    (if scheduler-running?
+    (if @scheduler-running?
       (do
         (add-watch event-queue :sound-start-scheduling start-scheduling-events)
         (println "Watching Queue")
@@ -181,11 +181,11 @@
      the scheduler is restarted.
      To get the scheduler going again call restart-scheduler
      then schedule events. Events can be scheduled with init-player."
-    (def scheduler-running? false))
+    (reset! scheduler-running? false))
 
   (defn restart-scheduler
     []
-    (def scheduler-running? true))
+    (reset! scheduler-running? true))
 
   (defn check-events
     []
@@ -246,7 +246,7 @@
                            false)]
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
-      (if scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
+      (if @scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
         (do
           (send event-queue conj new-event )
           (await event-queue)

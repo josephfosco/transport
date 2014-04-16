@@ -15,6 +15,8 @@
 
 (ns transport.ensemble-status
   (:require
+   [transport.messages :refer :all]
+   [transport.message-processor :refer [register-listener]]
    [transport.players :refer [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
    [transport.settings :refer :all]
    [transport.util :refer :all])
@@ -27,6 +29,11 @@
 (def rest-prob-len (* @NUM-PLAYERS 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
+
+(defn player-new-note
+  [& {:keys [player]}]
+  (println "ensemble-status.clj - player-new-note")
+  )
 
 (defn init-ensemble-status
   []
@@ -43,6 +50,13 @@
   (dotimes [n note-volumes-len]
     (reset! note-volumes (conj @note-volumes (rand)))
     )
+
+  (register-listener
+   MSG-PLAYER-NEW-NOTE
+   transport.ensemble-status/player-new-note
+   {}
+   )
+
   )
 
 (defn update-ensemble-status

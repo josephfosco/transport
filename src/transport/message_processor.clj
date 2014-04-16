@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.message_processor
+(ns transport.message-processor
   (:require
    [transport.util :refer [get-max-map-key]]
    ))
@@ -106,9 +106,9 @@
       (let [msg-lstnr (nth msg-listeners lstnr-index)
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
-        (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
-          (if (not= args {})
-            (dispatch-message-to-listener msg-lstnr args)
+        (if (= msg-lstnr-msg-args {})                 ;; listener doesn't care about msg args
+          (if (not= args nil)
+            (apply dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
           (if (every? true? (map #(= (% msg-lstnr-msg-args) (% args)) (keys msg-lstnr-msg-args)))

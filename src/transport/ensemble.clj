@@ -23,7 +23,7 @@
    [transport.instrument :refer [get-instrument play-instrument]]
    [transport.melody :refer [get-volume next-melody]]
    [transport.messages :refer :all]
-   [transport.message_processor :refer [send-message register-listener unregister-listener]]
+   [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.players :refer :all]
    [transport.rhythm :refer [get-beats]]
    [transport.schedule :refer [sched-event]]
@@ -186,6 +186,7 @@
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
       (update-ensemble-status upd-player)
+      (send-message MSG-PLAYER-NEW-NOTE :player upd-player)
       )))
 
 (defn create-player
