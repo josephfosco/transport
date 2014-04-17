@@ -107,7 +107,7 @@
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
         (if (= msg-lstnr-msg-args {})                 ;; listener doesn't care about msg args
-          (if (not= args nil)
+          (if (not= args {})
             (apply dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
