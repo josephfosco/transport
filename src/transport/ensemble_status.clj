@@ -65,7 +65,7 @@
   (dotimes [n note-volumes-len]
     (reset! note-volumes (conj @note-volumes (rand)))
     )
-
+  ;; update ensemble-status with each new note
   (register-listener
    MSG-PLAYER-NEW-NOTE
    transport.ensemble-status/update-ensemble-status
