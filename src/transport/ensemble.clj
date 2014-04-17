@@ -173,7 +173,6 @@
   [player-id event-time]
   (let [
         player (get-player player-id)
-        player-action (get-behavior-action-for-player player)
         melody-event (next-melody player )
         melody-dur-millis (get-dur-millis (:dur-info melody-event))
         ]
@@ -185,7 +184,6 @@
     (let [upd-player (update-player-info player event-time melody-event)]
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
-      (update-ensemble-status upd-player)
       (send-message MSG-PLAYER-NEW-NOTE :player upd-player)
       )))
 

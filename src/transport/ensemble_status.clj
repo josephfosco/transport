@@ -30,9 +30,24 @@
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
-(defn player-new-note
+(defn update-ensemble-status
   [& {:keys [player]}]
-  (println "ensemble-status.clj - player-new-note")
+  (let [last-melody (get-last-melody-event player)]
+    ;; if note (not rest) update note-values-millis with latest note rhythm value
+    ;;   and rest-prob (with new note)
+    ;; else just update rest-prob (with new rest)
+    (if (not (nil? (get-note last-melody)))
+      (do
+        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
+        (reset! rest-prob (conj (butlast @rest-prob) true))
+        )
+      (do
+        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
+        (reset! rest-prob (conj (butlast @rest-prob) false))
+        )
+      )
+    )
   )
 
 (defn init-ensemble-status
@@ -53,30 +68,9 @@
 
   (register-listener
    MSG-PLAYER-NEW-NOTE
-   transport.ensemble-status/player-new-note
+   transport.ensemble-status/update-ensemble-status
    {}
    )
-
-  )
-
-(defn update-ensemble-status
-  [player]
-  (let [last-melody (get-last-melody-event player)]
-    ;; if note (not rest) update note-values-millis with latest note rhythm value
-    ;;   and rest-prob (with new note)
-    ;; else just update rest-prob (with new rest)
-    (if (not (nil? (get-note last-melody)))
-      (do
-        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
-        (reset! rest-prob (conj (butlast @rest-prob) true))
-        )
-      (do
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
-        (reset! rest-prob (conj (butlast @rest-prob) false))
-        )
-      )
-    )
   )
 
 (defn reset-ensemble-status
