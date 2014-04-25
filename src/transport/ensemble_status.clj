@@ -17,15 +17,15 @@
   (:require
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
-   [transport.players :refer [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
+   [transport.players :refer :all]
    [transport.settings :refer :all]
    [transport.util :refer :all])
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
-(def note-volumes-len (* @NUM-PLAYERS 3))
-;; note-volumes is list of volumes for notes
-(def note-volumes (atom '()))
+;; player-volumes is vector of the volume of the last not played for each player
+;;  player-id is index into vector. Index 0 is not used
+(def player-volumes (atom (apply vector (repeat (inc @NUM-PLAYERS) 0))))
 (def rest-prob-len (* @NUM-PLAYERS 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
@@ -34,19 +34,20 @@
   [& {:keys [player]}]
   (let [last-melody (get-last-melody-event player)]
     ;; if note (not rest) update note-values-millis with latest note rhythm value
+    ;;   note-volumes with new note volume
     ;;   and rest-prob (with new note)
-    ;; else just update rest-prob (with new rest)
-    (if (not (nil? (get-note last-melody)))
-      (do
-        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
-        (reset! rest-prob (conj (butlast @rest-prob) true))
-        )
-      (do
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
-        (reset! rest-prob (conj (butlast @rest-prob) false))
-        )
-      )
+    ;; else just update rest-prob (with new rest) and note-volumes
+    (do
+      (reset! player-volumes (assoc @player-volumes (get-player-id player) (get-volume-for-note last-melody)))
+      (if (not (nil? (get-note last-melody)))
+        (do
+          (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+          (reset! rest-prob (conj (butlast @rest-prob) true))
+          )
+        (do
+          (reset! rest-prob (conj (butlast @rest-prob) false))
+          )
+        ))
     )
   )
 
@@ -60,11 +61,6 @@
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
-  ;; initialize note-volumes to random values
-  (reset! note-volumes '())
-  (dotimes [n note-volumes-len]
-    (reset! note-volumes (conj @note-volumes (rand)))
-    )
   ;; update ensemble-status with each new note
   (register-listener
    MSG-PLAYER-NEW-NOTE
@@ -84,7 +80,7 @@
 
 (defn get-average-volume
   []
-  (/ (reduce + @note-volumes) note-volumes-len))
+  (/ (reduce + @player-volumes) @NUM-PLAYERS))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob returns fraction or float."
