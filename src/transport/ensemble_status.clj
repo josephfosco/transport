@@ -24,8 +24,8 @@
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-volumes is vector of the volume of the last not played for each player
-;;  player-id is index into vector. Index 0 is not used
-(def player-volumes (atom (apply vector (repeat (inc @NUM-PLAYERS) 0))))
+;;  player-id is index into vector.
+(def player-volumes (atom (apply vector (repeat @NUM-PLAYERS 0))))
 (def rest-prob-len (* @NUM-PLAYERS 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
@@ -54,6 +54,7 @@
 (defn init-ensemble-status
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
+  (reset! player-volumes (apply vector (repeat @NUM-PLAYERS 0)))
   ;; initialize rest-prob
   (reset! rest-prob '())
   (dotimes [n rest-prob-len]

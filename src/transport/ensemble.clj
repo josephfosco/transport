@@ -197,7 +197,7 @@
 
 (defn init-ensemble
   []
-  (let [all-players (map create-player (range 1 (+ @NUM-PLAYERS 1)))]
+  (let [all-players (map create-player (range @NUM-PLAYERS))]
     (reset-players)
     (send PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
     (await PLAYERS)

@@ -117,10 +117,10 @@
       (do
         (if (not (nil? num-players))
           (set-num-players num-players))
-        (reset-ensemble-status)
         (reset-lateness)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
+        (reset-ensemble-status)    ;; must occur after restart-message-processor
         (init-ensemble)
         (reset! is-playing? true)
         (start-scheduler)
