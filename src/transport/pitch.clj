@@ -15,14 +15,18 @@
 
 (ns transport.pitch
   (:require
+   [transport.behavior :refer [get-behavior-ensemble-action]]
    [transport.behaviors :refer [get-behavior-action-for-player]]
+   [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
    [transport.melodychar :refer [get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
-   ))
+   )
+  (:import transport.behavior.Behavior)
+  )
 
 (def SCALES (atom {}))
 (def DESCEND 0)
@@ -172,16 +176,18 @@
   )
 
 (defn select-random-key
-  "Returns a randow number between 1- 11
+  "Returns a randow number between 0 - 11
    to represent a key. 0=C"
   []
-  (random-int 0 11))
+  (rand-int 12))
 
 (defn select-key
-  "returns a randow number between 1- 11
+  "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (random-int 0 11))
+  (if (= (get-behavior-ensemble-action (get-behavior player)) COMPLEMENT)  ;; if COMPLEMENTing ensemble
+    (get-ensemble-key-for-player player)  ;; get key from ensemble else
+    (rand-int 12))) ;; return random key
 
 (defn select-direction
   [player]

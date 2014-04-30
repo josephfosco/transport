@@ -26,19 +26,25 @@
 ;; player-volumes is vector of the volume of the last not played for each player
 ;;  player-id is index into vector.
 (def player-volumes (atom (apply vector (repeat @NUM-PLAYERS 0))))
+(def player-keys (atom (apply vector (repeat @NUM-PLAYERS (rand 12)))))
 (def rest-prob-len (* @NUM-PLAYERS 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
 (defn update-ensemble-status
   [& {:keys [player]}]
-  (let [last-melody (get-last-melody-event player)]
+  (let [last-melody (get-last-melody-event player)
+        player-id (get-player-id player)
+        ]
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   note-volumes with new note volume
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest) and note-volumes
     (do
-      (reset! player-volumes (assoc @player-volumes (get-player-id player) (get-volume-for-note last-melody)))
+      (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
+      (if (not= (get-key player) (get player-keys player-id))
+        (reset! player-keys (assoc @player-keys player-id (get-key player)))
+        )
       (if (not (nil? (get-note last-melody)))
         (do
           (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
@@ -87,3 +93,14 @@
   "Compute the percent of rests in rest-prob returns fraction or float."
   []
   (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
+
+(defn get-ensemble-key-for-player
+  "Select a kay for player from keys currently playing in ensemble"
+  [player]
+  (let [rand-index (rand-int (dec @NUM-PLAYERS)) ;; select a rand index into player-keys
+        ]
+    (if (>= rand-index (get-player-id player))   ;; return a key from player-keys but
+      (get @player-keys (inc rand-index))         ;;  do not return key for player
+      (get @player-keys rand-index))
+    )
+  )

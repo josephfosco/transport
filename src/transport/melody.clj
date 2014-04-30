@@ -224,7 +224,7 @@
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range
-              (if (<= average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
+              (if (< average-volume 0.1) 0 (- average-volume 0.1))  ;; set range of volume to
               (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
      }
     ))
