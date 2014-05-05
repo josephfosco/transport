@@ -40,7 +40,7 @@
         change-player-id
         follow-player-id
         originator-player-id
-        (get-contrasting-info-for-player follow-player-id)
+        (get-contrasting-info-for-player (get-player follow-player-id))
         )
   )
 

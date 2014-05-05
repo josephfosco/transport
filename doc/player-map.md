@@ -34,9 +34,18 @@
     + density - melody density
         - 0 - sparse (few notes of long duration)
         - 9 - dense (many notes of short duration)
-    + range - width of the melody's ramge
-        - 0 narrow range
-        - 9 - wide range
+    + range - width of the melody's ramge in semitones
+        - Ranges in semitones
+          * 0 - 4 semitones
+          * 1 - 12 semitones
+          * 2 - 24 semitones
+          * 3 - 36 semitones
+          * 4 - 48 semitones
+          * 5 - 64 semitones
+          * 6 - 82 semitones
+          * 7 - 100 semitones
+          * 8 - 114 semitones
+          * 9 - 127 semitones
     + smoothness - how stepwise the melody will be
         - 0 - mostly steps
         - 9 - mostly skips (wide skips)

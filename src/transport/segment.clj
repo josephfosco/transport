@@ -93,10 +93,11 @@
             (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      :else  ;;  IGNORE or CONTRAST
-     (assoc upd-player
-       :instrument-info (select-instrument upd-player)
-       :key (select-key upd-player)
-       :melody-char (select-melody-characteristics upd-player)
-       :metronome (select-metronome upd-player)
-       :mm (select-mm upd-player)
-       :scale (select-scale upd-player)))))
+     (let [new-instrument (select-instrument upd-player)]
+       (assoc upd-player
+         :instrument-info new-instrument
+         :key (select-key upd-player)
+         :melody-char (select-melody-characteristics (assoc upd-player :instrument-info new-instrument))
+         :metronome (select-metronome upd-player)
+         :mm (select-mm upd-player)
+         :scale (select-scale upd-player))))))

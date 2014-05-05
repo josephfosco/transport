@@ -75,8 +75,7 @@
 
 (defn- select-contrasting-range
   "If CONTRAST player is in low range, will return a high range
-   If CONTRAST player is in high range, will return a lower range
-   If CONTRAST player has wide range, will return a narrow range"
+   If CONTRAST player is in high range, will return a lower range"
   [player cntrst-plyr]
   (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
         cntrst-plyr-hi (get-hi-range cntrst-plyr)
@@ -86,13 +85,11 @@
                      :else (first MIDI-RANGE)
                      )
         highest-note (cond
-                      ;; if cntrst-plyr has wide range then set to narrow range
-                      (> (- cntrst-plyr-hi cntrst-plyr-lo) (* OCTAVE 4)) (+ lowest-note (- OCTAVE 1))
-                      (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
-                     :else (last MIDI-RANGE)
+                     (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
+                     :else cntrst-plyr-lo
                       )
         lo (random-int lowest-note highest-note)
-        hi (if (= lo highest-note) highest-note (random-int lowest-note highest-note))
+        hi (if (= lo highest-note) highest-note (random-int lo highest-note))
         ]
     (list lo hi)
     )

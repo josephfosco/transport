@@ -18,6 +18,7 @@
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
    [transport.ensemble-status :refer [ get-average-volume get-rest-probability]]
+   [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
@@ -77,14 +78,17 @@
         )))
   )
 
+(def range-semitones [4 12 24 36 48 64 82 100 114 127])
+
 (defn- select-melody-range
-  "Returns a number from 0 to 9 to determine the width of
-   the melody's range.
-   0 - narrow range -> 9 - wide range"
-  ([] (rand-int 10))
+  "Returns a number that is the maximum width of
+   the melody's range in semitones."
+  ([] (get range-semitones (rand-int 10)))
   ([player]
-     (rand-int 10)
-     )
+     (println "melody.clj - get-melody-range lo-range:" (get-lo-range player) "hi-range:" (get-hi-range player))
+     (let [instrument-range (inc (- (get-hi-range player) (get-lo-range player)))]
+       (get range-semitones (rand-int (inc instrument-range)))
+     ))
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-range (get-melody-char-range cntrst-melody-char)]
        (cond
