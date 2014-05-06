@@ -36,22 +36,14 @@
         - 9 - dense (many notes of short duration)
     + range - width of the melody's ramge in semitones
         - Ranges in semitones
-          * 0 - 4 semitones
-          * 1 - 12 semitones
-          * 2 - 24 semitones
-          * 3 - 36 semitones
-          * 4 - 48 semitones
-          * 5 - 64 semitones
-          * 6 - 82 semitones
-          * 7 - 100 semitones
-          * 8 - 114 semitones
-          * 9 - 127 semitones
     + smoothness - how stepwise the melody will be
         - 0 - mostly steps
         - 9 - mostly skips (wide skips)
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)
+* :seg-hi-range - the highest note played during this segment so far (used for melody range)
+* :seg-lo-range - the lowest note played during this segment so far (used for melody range)
 * :seg-len - the length of the player's current segment in milliseconds
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment
 * :scale - the scale this player is using

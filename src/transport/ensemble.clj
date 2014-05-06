@@ -192,6 +192,8 @@
   (first-segment {:cur-note-beat 0
                   :function transport.ensemble/play-melody
                   :melody {}
+                  :seg-hi-range nil
+                  :seg-lo-range nil
                   :player-id player-no
                   :prev-note-beat 0}))
 

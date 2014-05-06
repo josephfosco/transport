@@ -77,6 +77,8 @@
         behavior-action (get-behavior-action new-behavior)
         upd-player (assoc player
                      :behavior new-behavior
+                     :seg-hi-range nil
+                     :seg-lo-range nil
                      :seg-len (select-segment-length)
                      :seg-start 0
                      )

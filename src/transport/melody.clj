@@ -15,6 +15,7 @@
 
 (ns transport.melody
   (::require
+   [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
    [transport.ensemble-status :refer [ get-average-volume get-rest-probability]]
@@ -78,28 +79,21 @@
         )))
   )
 
-(def range-semitones [4 12 24 36 48 64 82 100 114 127])
-
 (defn- select-melody-range
   "Returns a number that is the maximum width of
    the melody's range in semitones."
-  ([] (get range-semitones (rand-int 10)))
+  ([] (rand-int (inc (last MIDI-RANGE))))
   ([player]
-     (println "melody.clj - get-melody-range lo-range:" (get-lo-range player) "hi-range:" (get-hi-range player))
      (let [instrument-range (inc (- (get-hi-range player) (get-lo-range player)))]
-       (get range-semitones (rand-int (inc instrument-range)))
+       (rand-int (inc instrument-range))
      ))
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-range (get-melody-char-range cntrst-melody-char)]
-       (cond
-        (and (> cntrst-range 0) (< cntrst-range 9))
-        (let [range (rand-int 7)]
-          (if (> range (dec cntrst-range)) range (+ range 3)))
-        (= cntrst-range 0)
-        (+ (rand-int 8) 2)
-        :else
-        (rand-int 8)
-        )))
+       (if (< cntrst-range 13)                              ;; if CONTRASTing player has narrow range
+         (- (get-hi-range player) (get-lo-range player))    ;;   use as wide a range as possible
+         (rand-int 13)                                      ;;   else use a range no wider than an octave
+         )
+       ))
   )
 
 (defn- select-melody-smoothness
