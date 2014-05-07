@@ -65,6 +65,10 @@
   [player]
   (:key player))
 
+(defn get-melody
+  [player]
+  (:melody player))
+
 (defn get-melody-char
   [player]
   (:melody-char player))
@@ -81,9 +85,17 @@
   [player]
   (:player-id player))
 
-(defn get-melody
+(defn get-scale
   [player]
-  (:melody player))
+  (:scale player))
+
+(defn get-seg-hi-range
+  [player]
+  (:seg-hi-range player))
+
+(defn get-seg-lo-range
+  [player]
+  (:seg-lo-range player))
 
 (defn get-last-melody-event-num
   [player-id]
@@ -110,10 +122,6 @@
     (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
     )
   )
-
-(defn get-scale
-  [player]
-  (:scale player))
 
 (defn get-volume-for-note
   [melody-event]

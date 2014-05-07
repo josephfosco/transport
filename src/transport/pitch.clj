@@ -138,7 +138,6 @@
 
 (defn get-step-up-in-scale
   "Returns the pitch 1 step up in the players scale and key
-   Will return 0 if pitch is not in scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step above"
@@ -157,7 +156,6 @@
 
 (defn get-step-down-in-scale
   "Returns the pitch 1 step down in the players scale and key
-   Will return 0 if pitch is not in scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step below"
@@ -191,17 +189,20 @@
 
 (defn select-direction
   [player]
-  ;; if at the begining of a segment, play a random note
-  ;; else pick direction for this note
-  (if (= (get-last-melody-note player) nil)
-    RANDOM-NOTE
-    (let [rand-dir (rand)]
-      (if (<= rand-dir 0.45)
-        DESCEND
-        (if ( <= rand-dir 0.9)
-          ASCEND
-          REPEAT-NOTE))
-      )))
+  (let [cur-melody-range (if (nil? (get-seg-hi-range player))
+                           0
+                           (- (get-seg-hi-range player) (get-seg-lo-range player)))]
+    ;; if at the begining of a segment, play a random note
+    ;; else pick direction for this note
+    (if (= (get-last-melody-note player) nil)
+      RANDOM-NOTE
+      (let [rand-dir (rand)]
+        (if (<= rand-dir 0.45)
+          DESCEND
+          (if ( <= rand-dir 0.9)
+            ASCEND
+            REPEAT-NOTE))
+        ))))
 
 (defn select-random-scale
   "returns a scale"
