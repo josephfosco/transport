@@ -20,7 +20,7 @@
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
-   [transport.melodychar :refer [get-melody-char-smoothness]]
+   [transport.melodychar :refer [get-melody-char-range get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
@@ -270,12 +270,9 @@
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
   (let [player-behavior-action (get-behavior-action-for-player player)
-        cur-melody-range (if (nil? (get-seg-hi-range player))
-                           0
-                           (- (get-seg-hi-range player) (get-seg-lo-range player)))
         ]
     (cond
-     (= player-behavior-action COMPLEMENT) (next-pitch-complement player cur-melody-range)
-     (= player-behavior-action CONTRAST) (next-pitch-contrast player cur-melody-range)
-     (= player-behavior-action IGNORE) (next-pitch-ignore player cur-melody-range)
+     (= player-behavior-action COMPLEMENT) (next-pitch-complement player (get-melody-char-range (get-melody-char player)))
+     (= player-behavior-action CONTRAST) (next-pitch-contrast player (get-melody-char-range (get-melody-char player)))
+     (= player-behavior-action IGNORE) (next-pitch-ignore player (get-melody-char-range (get-melody-char player)))
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )

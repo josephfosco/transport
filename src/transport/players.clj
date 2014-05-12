@@ -93,14 +93,6 @@
   [player]
   (:scale player))
 
-(defn get-seg-hi-range
-  [player]
-  (:seg-hi-range player))
-
-(defn get-seg-lo-range
-  [player]
-  (:seg-lo-range player))
-
 (defn get-last-melody-event-num
   [player-id]
   (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]

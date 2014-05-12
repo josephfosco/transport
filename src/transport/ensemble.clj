@@ -126,8 +126,6 @@
   [player event-time melody-event]
   (let [prev-note-beat (:cur-note-beat player)
         cur-note (get-note melody-event)
-        cur-seg-hi-range(get-seg-hi-range player)
-        cur-seg-lo-range(get-seg-lo-range player)
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
@@ -163,16 +161,6 @@
                     ))
         :prev-note-beat prev-note-beat
         :seg-start seg-start-time
-        :seg-hi-range (cond
-                       (nil? cur-note) cur-seg-hi-range
-                       (or (nil? cur-seg-hi-range) (<= cur-seg-hi-range cur-note)) cur-note
-                       :else cur-seg-hi-range
-                       )
-        :seg-lo-range (cond
-                       (nil? cur-note) cur-seg-lo-range
-                       (or (nil? cur-seg-lo-range) (>= cur-seg-lo-range cur-note)) cur-note
-                       :else cur-seg-lo-range
-                       )
         )))
   )
 
@@ -206,8 +194,6 @@
   (first-segment {:cur-note-beat 0
                   :function transport.ensemble/play-melody
                   :melody {}
-                  :seg-hi-range nil
-                  :seg-lo-range nil
                   :player-id player-no
                   :prev-note-beat 0}))
 
