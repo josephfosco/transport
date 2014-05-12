@@ -39,4 +39,4 @@
 
 * possibly helpful to track mm changes in melody - (can get this now from dur-millis and dur-note)
 
-* Find  way to sync players to match beats not just tempo
+* Find a way to sync players to match beats not just tempo

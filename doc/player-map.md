@@ -36,7 +36,7 @@
         - 0 - sparse (few notes of long duration)
         - 9 - dense (many notes of short duration)
     + range - width of the melody's ramge in semitones
-        - Ranges in semitones
+        - Range in semitones
     + smoothness - how stepwise the melody will be
         - 0 - mostly steps
         - 9 - mostly skips (wide skips)
