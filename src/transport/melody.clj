@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.ensemble-status :refer [ get-average-volume get-rest-probability]]
+   [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.players :refer :all]
@@ -82,17 +82,40 @@
 (defn- select-melody-range
   "Returns a number that is the maximum width of
    the melody's range in semitones."
-  ([] (rand-int (inc (last MIDI-RANGE))))
+  ([lo-range hi-range]
+     (let [range-lo (random-int lo-range hi-range)]
+       (list range-lo (random-int range-lo hi-range))))
   ([player]
-     (let [instrument-range (inc (- (get-hi-range player) (get-lo-range player)))]
-       (rand-int (inc instrument-range))
-     ))
+     (list (get-lo-range player) (get-hi-range player))
+     )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-range (get-melody-char-range cntrst-melody-char)]
-       (if (< cntrst-range 13)                              ;; if CONTRASTing player has narrow range
-         (- (get-hi-range player) (get-lo-range player))    ;;   use as wide a range as possible
-         (rand-int 13)                                      ;;   else use a range no wider than an octave
-         )
+       ;; if CONTRASTing player has narrow range
+       ;;   use as wide a range as possible
+       ;;   else use a range no wider than an octave
+       (let [cntrst-hi (second cntrst-range)
+             cntrst-lo (first cntrst-range)]
+         (if (< (- cntrst-hi cntrst-lo) 13)
+           (do
+             (list (get-lo-range player) (get-hi-range player)))
+           (let [player-lo (get-lo-range player)
+                 player-hi (get-hi-range player)
+                 range-in-semitones (rand-int 13)
+                 melody-range-lo (cond
+                                  (or (> player-lo cntrst-hi) (< player-hi cntrst-lo))
+                                  player-lo
+                                  (<= (+  cntrst-hi range-in-semitones) player-hi)
+                                  (inc cntrst-hi)
+                                  (<= (+  player-lo range-in-semitones) cntrst-lo)
+                                  player-lo
+                                  (< player-lo cntrst-lo)
+                                  player-lo
+                                  :else
+                                  (- player-hi range-in-semitones)
+                                  )
+                 ]
+             (list melody-range-lo (+ melody-range-lo range-in-semitones)))
+           ))
        ))
   )
 
@@ -118,10 +141,10 @@
   )
 
 (defn select-random-melody-characteristics
-  []
+  [lo-range hi-range]
   (MelodyChar. (select-melody-continuity)
                (select-melody-density)
-               (select-melody-range)
+               (select-melody-range lo-range hi-range)
                (select-melody-smoothness))
   )
 
@@ -139,7 +162,7 @@
       (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
             (MelodyChar. (select-melody-continuity player cntrst-plyr cntrst-melody-char)
                          (select-melody-density player cntrst-plyr cntrst-melody-char)
-                         (select-melody-range player)
+                         (select-melody-range player cntrst-plyr cntrst-melody-char)
                          (select-melody-smoothness player))
             )))
     )
@@ -154,7 +177,7 @@
   (let [play-note? (random-int 0 10)]
     (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
       true
-      (if (not= 0 play-note?)                                ;; if continuity not 0
+      (if (not= 0 play-note?)                                ;; if play-note? not 0
         false                                                ;; rest
         (if (and                                             ;; else
              (not= {} (get-melody player))                   ;; if melody not empty
@@ -218,7 +241,7 @@
   (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
-    (println "average-volume: " average-volume)
+;;    (println "average-volume: " average-volume)
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range
@@ -232,7 +255,7 @@
   (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
-    (println "average-volume: " average-volume)
+;;    (println "average-volume: " average-volume)
     {:note next-note-or-rest
      :dur-info (next-note-dur player)
      :volume (select-volume-in-range

@@ -65,6 +65,10 @@
   [player]
   (:key player))
 
+(defn get-last-pitch
+  [player]
+  (:last-pitch player))
+
 (defn get-melody
   [player]
   (:melody player))

@@ -42,6 +42,14 @@
   [player]
   (:instrument (get-instrument-info player)))
 
+(defn get-instrument-hi-range
+  [instrument-info]
+  (:range-hi instrument-info))
+
+(defn get-instrument-lo-range
+  [instrument-info]
+  (:range-lo instrument-info))
+
 (defn get-hi-range
   [player]
   (:range-hi (get-instrument-info player)))
@@ -50,7 +58,7 @@
   [player]
   (:range-lo (get-instrument-info player)))
 
-(defn get-instrument-range
+(defn get-instrument-range-for-player
   [player]
   (list (get-lo-range player) (get-hi-range player)))
 

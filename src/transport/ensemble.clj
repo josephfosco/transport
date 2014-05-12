@@ -149,6 +149,7 @@
          :prev-note-beat prev-note-beat))
       (assoc player
         :cur-note-beat cur-note-beat
+        :last-pitch (if (not (nil? cur-note)) cur-note (get-last-pitch player))
         :melody (let [cur-melody (get-melody player)
                       next-key   (if (> (count cur-melody) 0)
                                    (+ (reduce max (keys cur-melody)) 1)

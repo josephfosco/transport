@@ -19,7 +19,7 @@
    [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
+   [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
@@ -189,20 +189,17 @@
 
 (defn select-direction
   [player]
-  (let [cur-melody-range (if (nil? (get-seg-hi-range player))
-                           0
-                           (- (get-seg-hi-range player) (get-seg-lo-range player)))]
-    ;; if at the begining of a segment, play a random note
-    ;; else pick direction for this note
-    (if (= (get-last-melody-note player) nil)
-      RANDOM-NOTE
-      (let [rand-dir (rand)]
-        (if (<= rand-dir 0.45)
-          DESCEND
-          (if ( <= rand-dir 0.9)
-            ASCEND
-            REPEAT-NOTE))
-        ))))
+  ;; if at the begining of a segment, play a random note
+  ;; else pick direction for this note
+  (if (= (get-last-melody-note player) nil)
+    RANDOM-NOTE
+    (let [rand-dir (rand)]
+      (if (<= rand-dir 0.45)
+        DESCEND
+        (if ( <= rand-dir 0.9)
+          ASCEND
+          REPEAT-NOTE))
+      )))
 
 (defn select-random-scale
   "returns a scale"
@@ -230,16 +227,20 @@
   )
 
 (defn dir-ascend
-  [player]
+  [player cur-melody-range]
   (if (= (choose-step-or-skip player) STEP)
-    (get-step-up-in-scale player (get-last-melody-note player))
+    (let [possible-note (get-step-up-in-scale player (get-last-melody-note player))]
+      possible-note
+      )
     (let [prev-note (get-last-melody-note player)
-          lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
-      (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)))))
-  )
+          lo (if (nil? prev-note) (get-lo-range player) (inc prev-note))
+          ]
+      (get-scale-pitch-in-range player :lo-range lo)
+      )
+    ))
 
 (defn dir-descend
-  [player]
+  [player cur-melody-range]
   (if (= (choose-step-or-skip player) STEP)
     (get-step-down-in-scale player (get-last-melody-note player))
     (let [prev-note (get-last-melody-note player)]
@@ -247,30 +248,34 @@
   )
 
 (defn next-pitch-ignore
-  [player]
+  [player cur-melody-range]
   (let [direction (select-direction player)]
     (cond
-     (= direction ASCEND) (dir-ascend player)
-     (= direction DESCEND) ( dir-descend player)
+     (= direction ASCEND) (dir-ascend player cur-melody-range)
+     (= direction DESCEND) ( dir-descend player cur-melody-range)
      (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
      :else (get-last-melody-note player)))  )
 
 (defn next-pitch-complement
-  [player]
-  (next-pitch-ignore player)
+  [player cur-melody-range]
+  (next-pitch-ignore player cur-melody-range)
   )
 
 (defn next-pitch-contrast
-  [player]
-  (next-pitch-ignore player)
+  [player cur-melody-range]
+  (next-pitch-ignore player cur-melody-range)
   )
 
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (let [player-behavior-action (get-behavior-action-for-player player)]
+  (let [player-behavior-action (get-behavior-action-for-player player)
+        cur-melody-range (if (nil? (get-seg-hi-range player))
+                           0
+                           (- (get-seg-hi-range player) (get-seg-lo-range player)))
+        ]
     (cond
-     (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
-     (= player-behavior-action CONTRAST) (next-pitch-contrast player)
-     (= player-behavior-action IGNORE) (next-pitch-ignore player)
+     (= player-behavior-action COMPLEMENT) (next-pitch-complement player cur-melody-range)
+     (= player-behavior-action CONTRAST) (next-pitch-contrast player cur-melody-range)
+     (= player-behavior-action IGNORE) (next-pitch-ignore player cur-melody-range)
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
