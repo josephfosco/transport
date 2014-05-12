@@ -37,4 +37,6 @@
 
 * make melody events records
 
-* possibly helpful to track mm changes in maelody - (can get this now from dur-millis and dur-note)
+* possibly helpful to track mm changes in melody - (can get this now from dur-millis and dur-note)
+
+* Find  way to sync players to match beats not just tempo

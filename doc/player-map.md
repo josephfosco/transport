@@ -43,8 +43,6 @@
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)
-* :seg-hi-range - the highest note played during this segment so far (used for melody range)
-* :seg-lo-range - the lowest note played during this segment so far (used for melody range)
 * :seg-len - the length of the player's current segment in milliseconds
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment
 * :scale - the scale this player is using
