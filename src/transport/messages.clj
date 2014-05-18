@@ -15,8 +15,12 @@
 
 (ns transport.messages)
 
+;; player messages
 (def MSG-PLAYER-NEW-SEGMENT 1)
 (def MSG-PLAYER-NEW-FOLLOW-INFO 2)
 (def MSG-PLAYER-NEW-COMPLEMENT-INFO 3)
 (def MSG-PLAYER-NEW-CONTRAST-INFO 4)
 (def MSG-PLAYER-NEW-NOTE 5)
+
+;; ensemble status messages
+(def LOUD-INTERUPT-EVENT 20)

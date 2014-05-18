@@ -16,7 +16,7 @@
 (ns transport.ensemble-status
   (:require
    [transport.messages :refer :all]
-   [transport.message-processor :refer [register-listener]]
+   [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
    [transport.settings :refer :all]
    [transport.util :refer :all])
@@ -31,29 +31,54 @@
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
+(defn- players-soft?
+  "Returns true if the current volume of 90% of all players except
+   exception-player-id is less than 3.5"
+  [exception-player-id]
+;;  (every? #(if (< % 0.4) true false) (assoc @player-volumes exception-player-id 0))
+  (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
+    (cond (> (count rslt) (* @NUM-PLAYERS 0.1)) false
+          (empty? vols-to-check) true
+          (>= (first vols-to-check) 0.4) (recur (conj rslt true) (rest vols-to-check))
+          :else (recur rslt (rest vols-to-check))
+          )
+    )
+  )
+
+(defn- send-status-msgs
+  [player player-last-melody player-id]
+  (if (and (> (get-volume-for-note player-last-melody) 0.85) (players-soft? player-id))
+    (do
+      (send-message LOUD-INTERUPT-EVENT :player player-id)
+      (println "SENDING LOUD-INTERRUPT-EVENT MSG")
+      )
+    )
+  )
+
 (defn update-ensemble-status
   [& {:keys [player]}]
   (let [last-melody (get-last-melody-event player)
         player-id (get-player-id player)
         ]
+    ;; update this player's volume in player-volumes
+    (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
+    ;; if player has new key - record it in player-keys
+    (if (not= (get-key player) (get player-keys player-id))
+      (reset! player-keys (assoc @player-keys player-id (get-key player)))
+      )
     ;; if note (not rest) update note-values-millis with latest note rhythm value
-    ;;   note-volumes with new note volume
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest) and note-volumes
-    (do
-      (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
-      (if (not= (get-key player) (get player-keys player-id))
-        (reset! player-keys (assoc @player-keys player-id (get-key player)))
+    (if (not (nil? (get-note last-melody)))
+      (do
+        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        (reset! rest-prob (conj (butlast @rest-prob) true))
         )
-      (if (not (nil? (get-note last-melody)))
-        (do
-          (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
-          (reset! rest-prob (conj (butlast @rest-prob) true))
-          )
-        (do
-          (reset! rest-prob (conj (butlast @rest-prob) false))
-          )
-        ))
+      (do
+        (reset! rest-prob (conj (butlast @rest-prob) false))
+        )
+      )
+    (send-status-msgs player last-melody player-id)
     )
   )
 

@@ -4,7 +4,7 @@
     + :accuracy - this players accuracy
     + :action - interaction with other players (can be follow, complement, contrast, ignore)
     + :ensemble-action - interaction with the entire ensemple (can be complement, contrast, ignore)
-    + :player-id - player id of player that is being observed (optional only if :action is follow or contrast)
+    + :player-id - player id of player that is being observed (optional only if :action is follow, complement or contrast)
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :function - function to call when event is triggered
 * :instrument-info - a map containing
