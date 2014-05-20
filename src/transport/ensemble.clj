@@ -186,7 +186,8 @@
     (let [upd-player (update-player-info player event-time melody-event)]
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (update-player upd-player)
-      (send-message MSG-PLAYER-NEW-NOTE :player upd-player)
+      (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
+;;      (send-message MSG-PLAYER-NEW-NOTE :player upd-player)
       )))
 
 (defn create-player

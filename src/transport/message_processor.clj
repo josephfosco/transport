@@ -88,7 +88,7 @@
               (flatten
                (list (flatten (seq msg-args)) (nth msg-lstnr 2))) ;; create one list from map msg-args and list
               )
-       (apply (first msg-lstnr) msg-args)
+       (apply (first msg-lstnr) (flatten (seq msg-args)))
        )
      )
   ([msg-lstnr]
@@ -108,7 +108,7 @@
             ]
         (if (= msg-lstnr-msg-args {})                 ;; listener doesn't care about msg args
           (if (not= args {})
-            (apply dispatch-message-to-listener msg-lstnr args)
+            (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
             )
           (if (every? true? (map #(= (% msg-lstnr-msg-args) (% args)) (keys msg-lstnr-msg-args)))

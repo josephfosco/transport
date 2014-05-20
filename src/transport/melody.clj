@@ -169,7 +169,7 @@
   )
 
 (defn note-or-rest
-  "Determines whether to play a note or rest  next.
+  "Determines whether to play a note or rest.
    Returne true for note, false for rest
 
    player - the player to determine note or rest for"

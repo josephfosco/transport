@@ -23,4 +23,4 @@
 (def MSG-PLAYER-NEW-NOTE 5)
 
 ;; ensemble status messages
-(def LOUD-INTERUPT-EVENT 20)
+(def MSG-LOUD-INTERUPT-EVENT 20)

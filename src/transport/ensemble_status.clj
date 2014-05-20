@@ -46,17 +46,17 @@
   )
 
 (defn- send-status-msgs
-  [player player-last-melody player-id]
+  [player player-last-melody player-id note-time]
   (if (and (> (get-volume-for-note player-last-melody) 0.85) (players-soft? player-id))
     (do
-      (send-message LOUD-INTERUPT-EVENT :player player-id)
-      (println "SENDING LOUD-INTERRUPT-EVENT MSG")
+      (send-message MSG-LOUD-INTERUPT-EVENT :player player-id :time note-time)
+      (println "ensemble-status.clj send-status-msgs - SENDING LOUD-INTERRUPT-EVENT MSG")
       )
     )
   )
 
 (defn update-ensemble-status
-  [& {:keys [player]}]
+  [& {:keys [player note-time]}]
   (let [last-melody (get-last-melody-event player)
         player-id (get-player-id player)
         ]
@@ -78,13 +78,14 @@
         (reset! rest-prob (conj (butlast @rest-prob) false))
         )
       )
-    (send-status-msgs player last-melody player-id)
+    (send-status-msgs player last-melody player-id note-time)
     )
   )
 
 (defn init-ensemble-status
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
+
   (reset! player-volumes (apply vector (repeat @NUM-PLAYERS 0)))
   ;; initialize rest-prob
   (reset! rest-prob '())
