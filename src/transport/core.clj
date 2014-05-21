@@ -20,6 +20,7 @@
    [transport.ensemble :refer [init-ensemble]]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.message-processor :refer [restart-message-processor start-message-processor stop-message-processor]]
+   [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
    [transport.players :refer [init-players]]
    [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
@@ -97,6 +98,7 @@
           (transport-init :num-players num-players))
         (start-scheduler)
         (start-message-processor)
+        (init-melody)
         (reset! is-playing? true)
         (reset! restart? true)
         ))
@@ -125,6 +127,9 @@
         (reset! is-playing? true)
         (start-scheduler)
         (start-message-processor)
+        ;; if melody reset after scheduler and msg processor won't listen for
+        ;; LOUD EVENTmsgs right away
+        (reset-melody)
         )
       (transport-start))
     (println "WARNING - Can't restart. Already playing")))

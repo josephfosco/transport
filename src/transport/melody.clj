@@ -21,6 +21,8 @@
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
+   [transport.messages :refer :all]
+   [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [get-dur-info-for-beats next-note-dur]]
@@ -31,6 +33,34 @@
   )
 
 (def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
+(def loud-player (atom nil))        ;; player-id of loud player interrupt
+(def loud-player-time (atom nil))   ;; start time of loud player interrupt
+
+(defn melody-loud-interrupt-event
+  [& {:keys [player-id time]}]
+  (if (nil? @loud-player)
+    (do
+      (reset! loud-player player-id)
+      (reset! loud-player-time time)
+      ))
+  )
+
+(defn init-melody
+  "Set loud player vars to nil and register listener for MSG-LOUD-INTERUPT-EVENT"
+  []
+  (reset! loud-player nil)
+  (reset! loud-player-time nil)
+  (register-listener
+   MSG-LOUD-INTERUPT-EVENT
+   transport.melody/melody-loud-interrupt-event
+   nil
+   )
+  )
+
+(defn reset-melody
+  []
+  (init-melody)
+  )
 
 (defn- select-melody-continuity
   "Returns a number from 0 to 10 to determine how continuous
@@ -173,7 +203,7 @@
    Returne true for note, false for rest
 
    player - the player to determine note or rest for"
-  [player]
+  [player note-time]
   (let [play-note? (random-int 0 10)]
     (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
       true
@@ -190,11 +220,11 @@
           true)))))
 
 (defn note-or-rest-follow-ensemble
-  [player]
+  [player note-time]
   (if (< 0.5 (get-rest-probability)) nil true))
 
 (defn note-or-rest-contrast-ensemble
-  [player]
+  [player note-time]
   (if (< 0.5 (get-rest-probability)) true nil))
 
 (defn get-volume
@@ -237,8 +267,8 @@
   )
 
 (defn- next-melody-complement-ensemble
-  [player]
-  (let [next-note-or-rest (if (note-or-rest-follow-ensemble player) (next-pitch player) nil)
+  [player event-time]
+  (let [next-note-or-rest (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
 ;;    (println "average-volume: " average-volume)
@@ -251,8 +281,8 @@
     ))
 
 (defn- next-melody-contrast-ensemble
-  [player]
-  (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player) (next-pitch player) nil)
+  [player event-time]
+  (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil)
         average-volume (get-average-volume)
         ]
 ;;    (println "average-volume: " average-volume)
@@ -265,8 +295,8 @@
     ))
 
 (defn- next-melody-for-player
-  [player]
-  (let [play-note? (note-or-rest player)
+  [player event-time]
+  (let [play-note? (note-or-rest player event-time)
         ]
        {:note (if play-note? (next-pitch player) nil)
         :dur-info (next-note-dur player)
@@ -278,11 +308,13 @@
   "Returns the next note information as a map for player
 
     player - the player map"
-  [player]
+  [player event-time]
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action-for-player player) COMPLEMENT) (next-melody-complement-ensemble player)
-   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player)
-   :else (next-melody-for-player player))  ;; pick next melody note based only on players settings
-                                           ;;  do not reference other players or ensemble
+   (= (get-behavior-ensemble-action-for-player player) COMPLEMENT) (next-melody-complement-ensemble player event-time)
+   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
+   ;; else pick next melody note based only on players settings
+   ;;  do not reference other players or ensemble
+   :else (next-melody-for-player player event-time))
+
   )

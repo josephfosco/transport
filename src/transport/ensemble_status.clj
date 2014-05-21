@@ -33,9 +33,8 @@
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
-   exception-player-id is less than 3.5"
+   exception-player-id is less than .4"
   [exception-player-id]
-;;  (every? #(if (< % 0.4) true false) (assoc @player-volumes exception-player-id 0))
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @NUM-PLAYERS 0.1)) false
           (empty? vols-to-check) true
@@ -49,7 +48,7 @@
   [player player-last-melody player-id note-time]
   (if (and (> (get-volume-for-note player-last-melody) 0.85) (players-soft? player-id))
     (do
-      (send-message MSG-LOUD-INTERUPT-EVENT :player player-id :time note-time)
+      (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
       (println "ensemble-status.clj send-status-msgs - SENDING LOUD-INTERRUPT-EVENT MSG")
       )
     )

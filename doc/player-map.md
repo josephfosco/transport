@@ -30,7 +30,7 @@
       - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
     + continuity - hom continuous the melody will be
-        - 0 -continuous (few rests) ->
+        - 0 -continuous (few rests)
         - 9 discontinuous (all rests)
     + density - melody density
         - 0 - sparse (few notes of long duration)
