@@ -198,6 +198,34 @@
     )
   )
 
+(defn- get-loud-event-prob
+  [note-time]
+  (let [time-diff (- note-time @loud-player-time)]
+    (if (> time-diff 10000)
+      (do
+        (reset! loud-player nil)
+        (reset! loud-player-time nil)
+        0
+        )
+      (* time-diff 0.0001)
+      )
+    )
+  )
+
+(defn- loud-rest?
+  "Should player rest because of loud interrupt
+   Returns true for rest false to not rest
+
+   player - player checking if it should rest
+   note-time - the time (in millis) that the player is supposed to play"
+  [player note-time]
+  (let [loud-event-prob (if (or (nil? @loud-player) (= get-player-id player))
+                           0
+                           (get-loud-event-prob note-time))]
+    (if (> loud-event-prob (rand)) true false)
+   )
+  )
+
 (defn note-or-rest
   "Determines whether to play a note or rest.
    Returne true for note, false for rest
@@ -205,19 +233,24 @@
    player - the player to determine note or rest for"
   [player note-time]
   (let [play-note? (random-int 0 10)]
-    (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
-      true
-      (if (not= 0 play-note?)                                ;; if play-note? not 0
-        false                                                ;; rest
-        (if (and                                             ;; else
-             (not= {} (get-melody player))                   ;; if melody not empty
-             (= 0                                            ;; and last pitch is root
-                (get-scale-degree
-                 player
-                 (or (get-last-melody-note player) 0)))      ;; or rest
-             (< (rand) 0.8))                                 ;; possibly rest
-          false
-          true)))))
+    (if (loud-rest? player note-time)
+      (do
+        (println "REST becaous of LOUD interupt")
+        false     ;; rest because of loud interruption
+        )
+      (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
+        true
+        (if (not= 0 play-note?)                                ;; if play-note? not 0
+          false                                                ;; rest
+          (if (and                                             ;; else
+               (not= {} (get-melody player))                   ;; if melody not empty
+               (= 0                                            ;; and last pitch is root
+                  (get-scale-degree
+                   player
+                   (or (get-last-melody-note player) 0)))      ;; or rest
+               (< (rand) 0.8))                                 ;; possibly rest
+            false
+            true))))))
 
 (defn note-or-rest-follow-ensemble
   [player note-time]
@@ -268,7 +301,10 @@
 
 (defn- next-melody-complement-ensemble
   [player event-time]
-  (let [next-note-or-rest (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
+  (let [next-note-or-rest (if (loud-rest? player event-time)
+                            nil
+                            (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
+                            )
         average-volume (get-average-volume)
         ]
 ;;    (println "average-volume: " average-volume)
@@ -282,7 +318,9 @@
 
 (defn- next-melody-contrast-ensemble
   [player event-time]
-  (let [next-note-or-rest (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil)
+  (let [next-note-or-rest (if (loud-rest? player event-time)
+                            nil
+                            (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
         average-volume (get-average-volume)
         ]
 ;;    (println "average-volume: " average-volume)
