@@ -42,6 +42,7 @@
     (do
       (reset! loud-player player-id)
       (reset! loud-player-time time)
+      (println "loud-interrupt-event loud-player:" @loud-player)
       ))
   )
 
@@ -55,6 +56,7 @@
    transport.melody/melody-loud-interrupt-event
    nil
    )
+  true
   )
 
 (defn reset-melody
@@ -200,14 +202,17 @@
 
 (defn- get-loud-event-prob
   [note-time]
-  (let [time-diff (- note-time @loud-player-time)]
-    (if (> time-diff 10000)
+  (let [time-diff (- note-time @loud-player-time)
+        rest-prob (- 1 (* time-diff 0.00001))
+        ]
+    (if (<= rest-prob 0)
       (do
+        (println "LOUD EVENT DONE")
         (reset! loud-player nil)
         (reset! loud-player-time nil)
         0
         )
-      (* time-diff 0.0001)
+      rest-prob
       )
     )
   )
@@ -235,7 +240,6 @@
   (let [play-note? (random-int 0 10)]
     (if (loud-rest? player note-time)
       (do
-        (println "REST becaous of LOUD interupt")
         false     ;; rest because of loud interruption
         )
       (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)

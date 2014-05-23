@@ -123,6 +123,10 @@
   [melody-event]
   (:volume melody-event))
 
+(defn get-dur-millis-for-note
+  [melody-event]
+  (:dur-millis (:dur-info melody-event)))
+
 (defn clear-players
   "used by send or send-off to clear agents"
   [cur-players]
