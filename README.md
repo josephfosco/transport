@@ -16,15 +16,19 @@ Download from github.com
 To try the current version.
 
 1. Install this software with it's dependencies.
-2. If you use the REPL, at this time you can start playing but will not be able to start
-3. If you connect to the REPL using Emacs, you can start and stop from Emacs nrepl
-4. In the clojure REPL or the Emacs nrepl:
-5. make sure you are in the transport.core namespace - (ns transport.core)
-6. (transport-start)
-7. You should then hear notes being played.
-8. (transport-pause) in Emacs nrepl to stop playing notes - after all scheduled notes are played.
-9. To restart use either (transport-restart) or (transport-start) in Emacs nrepl
-10. (transport-help) to see instructions
+- Start the application by opening a terminal window and cd to the directory where transport is installed
+- At the terminal prompt type lein REPL
+- If you use the REPL, at this time you can start playing but will not be able to stop due to status information being printed to the console.
+- To be able to start and stop from the terminal, open an new terminal window (or tab), cd to the transport directory and at the terminal prompt enter lein repl :connect <port REPL is running in other terminal window>
+- Enter transport commands in the new terminal window
+- If you connect to the REPL using Emacs, you can start and stop from Emacs nrepl
+- In the clojure REPL or the Emacs nrepl:
+- make sure you are in the transport.core namespace - (ns transport.core)
+- (transport-start)
+- You should then hear notes being played.
+- (transport-pause) in Emacs nrepl to stop playing notes - after all scheduled notes are played.
+- To restart use either (transport-restart) or (transport-start) in Emacs nrepl
+- (transport-help) to see instructions
 
 ## Options
 
