@@ -33,12 +33,12 @@
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
-   exception-player-id is less than .25"
+   exception-player-id is less than .15"
   [exception-player-id]
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @NUM-PLAYERS 0.1)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) 0.25) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) 0.15) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )
@@ -47,7 +47,7 @@
 (defn- send-status-msgs
   [player player-last-melody player-id note-time]
   (if (and (> (get-volume-for-note player-last-melody) 0.85)
-           (> (get-dur-millis-for-note player-last-melody) 2000)
+           (> (get-dur-millis-for-note player-last-melody) 3000)
            (players-soft? player-id))
     (do
       (println "send-status-msgs volume:" (get-volume-for-note player-last-melody))

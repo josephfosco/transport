@@ -237,11 +237,9 @@
 
    player - the player to determine note or rest for"
   [player note-time]
-  (let [play-note? (random-int 0 10)]
-    (if (loud-rest? player note-time)
-      (do
-        false     ;; rest because of loud interruption
-        )
+  (if (loud-rest? player note-time)
+    false     ;; rest because of loud interruption
+    (let [play-note? (random-int 0 10)]
       (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
         true
         (if (not= 0 play-note?)                                ;; if play-note? not 0
