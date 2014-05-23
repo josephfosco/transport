@@ -15,8 +15,8 @@ Download from github.com
 
 To try the current version.
 
-- Install this software with it's dependencies.
-- Start the application by opening a terminal window ad cd to the directory where transport is installed
+1. Install this software with it's dependencies.
+- Start the application by opening a terminal window and cd to the directory where transport is installed
 - At the terminal prompt type lein REPL
 - If you use the REPL, at this time you can start playing but will not be able to stop due to status information being printed to the console.
 - To be able to start and stop from the terminal, open an new terminal window (or tab), cd to the transport directory nad at the terminal prompt enter lein repl :connect <port REPL is running in other terminal window>
