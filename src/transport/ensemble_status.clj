@@ -25,9 +25,9 @@
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-volumes is vector of the volume of the last not played for each player
 ;;  player-id is index into vector.
-(def player-volumes (atom (apply vector (repeat @NUM-PLAYERS 0))))
-(def player-keys (atom (apply vector (repeat @NUM-PLAYERS (rand 12)))))
-(def rest-prob-len (* @NUM-PLAYERS 3))
+(def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+(def rest-prob-len (* @number-of-players 3))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
@@ -36,7 +36,7 @@
    exception-player-id is less than .15"
   [exception-player-id]
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
-    (cond (> (count rslt) (* @NUM-PLAYERS 0.1)) false
+    (cond (> (count rslt) (* @number-of-players 0.1)) false
           (empty? vols-to-check) true
           (>= (first vols-to-check) 0.15) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
@@ -91,7 +91,7 @@
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
-  (reset! player-volumes (apply vector (repeat @NUM-PLAYERS 0)))
+  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   ;; initialize rest-prob
   (reset! rest-prob '())
   (dotimes [n rest-prob-len]
@@ -118,7 +118,7 @@
 
 (defn get-average-volume
   []
-  (/ (reduce + @player-volumes) @NUM-PLAYERS))
+  (/ (reduce + @player-volumes) @number-of-players))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob returns fraction or float."
@@ -128,7 +128,7 @@
 (defn get-ensemble-key-for-player
   "Select a kay for player from keys currently playing in ensemble"
   [player]
-  (let [rand-index (rand-int (dec @NUM-PLAYERS)) ;; select a rand index into player-keys
+  (let [rand-index (rand-int (dec @number-of-players)) ;; select a rand index into player-keys
         ]
     (if (>= rand-index (get-player-id player))   ;; return a key from player-keys but
       (get @player-keys (inc rand-index))         ;;  do not return key for player

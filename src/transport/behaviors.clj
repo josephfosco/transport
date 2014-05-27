@@ -18,7 +18,7 @@
    [overtone.live :refer [ranged-rand]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id get-behavior-ensemble-action]]
    [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
-   [transport.settings :refer [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   [transport.settings :refer [number-of-players COMPLEMENT CONTRAST FOLLOW IGNORE]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -76,9 +76,9 @@
 
    player - the player to set behavior for"
   [player]
-  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]
@@ -91,9 +91,9 @@
 
 (defn select-behavior
   [player]
-  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]

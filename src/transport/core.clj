@@ -24,7 +24,7 @@
    [transport.pitch :refer [load-scales]]
    [transport.players :refer [init-players]]
    [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
-   [transport.settings :refer [NUM-PLAYERS set-num-players]]
+   [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util :refer :all]
    [transport.version :refer :all]
    ))
@@ -72,7 +72,7 @@
       :or {num-players 10}}]
   (if (false? @is-initialized?)
     (do
-      (set-num-players num-players)
+      (set-number-of-players num-players)
       (transport.pitch/load-scales)
       (init-ensemble-status)
       (init-ensemble)
@@ -87,7 +87,7 @@
    :num-players - optional key to set the number of players
                   defaults to 10. Retains it's value once set"
   [& {:keys [num-players]
-      :or {num-players @NUM-PLAYERS}}]
+      :or {num-players @number-of-players}}]
   (println "transport-start is-playing:" @is-playing?)
   (if (false? @is-playing?)
     (if (true? @restart?)
@@ -118,7 +118,7 @@
     (if (true? @restart?)
       (do
         (if (not (nil? num-players))
-          (set-num-players num-players))
+          (set-number-of-players num-players))
         (reset-lateness)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)

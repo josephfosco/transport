@@ -18,7 +18,7 @@
    It should not :require :use :refer or :import any
    other namespaces")
 
-(def NUM-PLAYERS (atom 10))
+(def number-of-players (atom 10))
 (def SAVED-MELODY-LEN 64)
 (def OCTAVE 12)
 
@@ -42,6 +42,6 @@
 (def FAST-TEMPO [101 160])
 (def VERY-FAST-TEMPO [161 999])
 
-(defn set-num-players
+(defn set-number-of-players
   [new-num-players]
-  (reset! NUM-PLAYERS new-num-players))
+  (reset! number-of-players new-num-players))
