@@ -18,6 +18,7 @@
    [overtone.live :refer :all]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.instruments.osc-instruments :refer :all]
+   [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.players :refer [get-instrument-info get-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
@@ -32,6 +33,7 @@
                       {:instrument tri-wave-sus :envelope-type "ASR"}
                       {:instrument saw-wave-sus :envelope-type "ASR"}
                       {:instrument sine-wave-sus :envelope-type "ASR"}
+                      {:instrument steel-drum :envelope-type "AD"}
                       ])
 
 (defn note->hz
@@ -164,6 +166,15 @@
     )
   )
 
+(defn play-instrument-ar
+  "player - player map
+   note-num - midi note number
+   note-duration - note duration in milliseconds
+   volume - the volume to play this note"
+  [player note-num note-duration volume]
+  ((get-instrument player) (midi->hz note-num) volume)
+  )
+
 (defn play-instrument-asr
   "player - player map
    note-num - midi note number
@@ -182,5 +193,6 @@
   [player note-num note-duration volume]
   (let [ env-type (get-envelope-type player)]
     (cond
+     (.equals env-type "AD") (play-instrument-ar player note-num note-duration volume)
      (.equals env-type "ASR") (play-instrument-asr player note-num note-duration volume)
      :else ((get-instrument player) (midi->hz note-num)))))
