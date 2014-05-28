@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer :all]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.players :refer [get-instrument-info get-player]]
@@ -33,6 +34,7 @@
                       {:instrument tri-wave-sus :envelope-type "ASR"}
                       {:instrument saw-wave-sus :envelope-type "ASR"}
                       {:instrument sine-wave-sus :envelope-type "ASR"}
+                      {:instrument reedy-organ :envelope-type "ASR"}
                       {:instrument steel-drum :envelope-type "AD"}
                       ])
 
@@ -159,6 +161,7 @@
                       )
                     )
         ]
+    (println "new-instrument:" (:name (:instrument inst-info)))
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
      :range-hi (last inst-range)
