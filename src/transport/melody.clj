@@ -14,7 +14,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns transport.melody
-  (::require
+  (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
@@ -272,6 +272,7 @@
 
 (defn next-melody-follow
   [player]
+    (println "next-melody-follow")
   (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-note (get-last-melody-event-num follow-player-id)
         next-new-event {:note nil
@@ -303,6 +304,7 @@
 
 (defn- next-melody-complement-ensemble
   [player event-time]
+  (println "next-melody-complement-ensemble")
   (let [next-note-or-rest (if (loud-rest? player event-time)
                             nil
                             (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
@@ -320,6 +322,7 @@
 
 (defn- next-melody-contrast-ensemble
   [player event-time]
+  (println "next-melody-contrast-ensemble")
   (let [next-note-or-rest (if (loud-rest? player event-time)
                             nil
                             (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
@@ -336,6 +339,7 @@
 
 (defn- next-melody-for-player
   [player event-time]
+  (println "next-melody-for-player")
   (let [play-note? (note-or-rest player event-time)
         ]
        {:note (if play-note? (next-pitch player) nil)

@@ -17,8 +17,9 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
-   [transport.instrument :refer [get-instrument-hi-range get-instrument-lo-range select-instrument select-random-instrument]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
+   [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
@@ -54,7 +55,7 @@
       :instrument-info new-instrument
       :key (select-random-key)
       :last-pitch nil
-      :melody-char (select-random-melody-characteristics (get-instrument-lo-range new-instrument) (get-instrument-hi-range new-instrument))
+      :melody-char (select-random-melody-characteristics (get-instrument-range-lo new-instrument) (get-instrument-range-hi new-instrument))
       :metronome (select-metronome-mm rnd-mm)
       :mm rnd-mm
       :seg-len (select-segment-length)
@@ -92,10 +93,38 @@
             (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      (= behavior-action COMPLEMENT)
-     (merge (assoc upd-player
-              :instrument-info (select-instrument upd-player)
-              )
-            (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior))))
+     (let [complement-player-info (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior)))
+           complement-melody-char (:melody-char complement-player-info)
+           new-instrument (select-instrument upd-player)
+           new-melody-char (assoc complement-melody-char
+                             :range (list (if (<=
+                                               (get-instrument-range-lo new-instrument)
+                                               (get-melody-char-range-lo complement-melody-char)
+                                               (get-instrument-range-hi new-instrument)
+                                               )
+                                            (get-melody-char-range-lo complement-melody-char)
+                                            (get-instrument-range-lo new-instrument)
+                                            )
+                                          (if (>
+                                               (get-melody-char-range-hi complement-melody-char)
+                                               (get-instrument-range-hi new-instrument))
+                                            (get-instrument-range-hi new-instrument)
+                                            (get-melody-char-range-hi complement-melody-char))
+                                          )
+                             )
+           new-complement-info (assoc complement-player-info :melody-char new-melody-char)
+           ]
+       (println "&&&&&&&&&&")
+       (println "segment.clj - new-segment (complement) Complement-player-info:" complement-player-info)
+       (println "segment.clj - new-segment (complement) Complement-melody-char:" complement-melody-char)
+       (println "segment.clj - new-segment (complement) new-instrument:" new-instrument)
+       (println "segment.clj - new-segment (complement) new-melody-char:" new-melody-char)
+       (println "segment.clj - new-segment (complement) new-complement-info:" new-complement-info)
+       (println "&&&&&&&&&&")
+       (merge (assoc upd-player
+                :instrument-info new-instrument
+                )
+              new-complement-info))
 
      :else  ;;  IGNORE or CONTRAST
      (let [new-instrument (select-instrument upd-player)]

@@ -42,3 +42,7 @@
 * Find a way to sync players to match beats not just tempo
 
 * find a way to normalise volumes across different instruments and instrument ranges
+
+* incorporate instrument-type into instruments
+
+* get range of melody from some melody characteristic (with inst range considered)

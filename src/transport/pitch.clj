@@ -69,10 +69,9 @@
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-melody-char-range-lo (get-melody-char player))
                   hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
-  (let [lo-pitch lo-range
-        hi-pitch hi-range
-        player-key (:key player)
-        rand-pitch (random-int lo-pitch hi-pitch)
+  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
+  (let [player-key (get-key player)
+        rand-pitch (random-int lo-range hi-range)
         rand-octave (int (/ rand-pitch OCTAVE)) ;; octave multiplier for rand-pitch
         semitones-above-c (mod rand-pitch OCTAVE)
         semitones-above-tonic (mod (+ semitones-above-c (- OCTAVE player-key)) OCTAVE)
@@ -86,11 +85,11 @@
         possible-rtn-pitch (+ (* rand-octave OCTAVE) scale-degree-in-range player-key)
         ]
     (cond
-     (<= lo-pitch possible-rtn-pitch hi-pitch) ;; if new-pitch within range
+     (<= lo-range possible-rtn-pitch hi-range) ;; if new-pitch within range
      possible-rtn-pitch                          ;; return it
-     (<= lo-pitch (- possible-rtn-pitch OCTAVE) hi-pitch);;  try octve lower
+     (<= lo-range (- possible-rtn-pitch OCTAVE) hi-range);;  try octve lower
      (- possible-rtn-pitch OCTAVE)
-     :else lo-pitch )))                                ;; else return lo-pitch
+     :else lo-range )))                                ;; else return lo-range
 
 (defn get-scale-degree
   "Returns the scale degree (zero-based) of pitch in player's scale and key.
@@ -228,23 +227,36 @@
 
 (defn dir-ascend
   [player]
+  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^")
   (if (= (choose-step-or-skip player) STEP)
     (let [possible-note (get-step-up-in-scale player (get-last-melody-note player))]
+      (println "dir-ascend step rtn:" possible-note "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
       possible-note
       )
     (let [prev-note (get-last-melody-note player)
           lo (if (nil? prev-note) (get-melody-char-range-lo (get-melody-char player)) (inc prev-note))
+          rtn (get-scale-pitch-in-range player :lo-range lo)
           ]
-      (get-scale-pitch-in-range player :lo-range lo)
+      (println "dir-ascend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+      rtn
       )
     ))
 
 (defn dir-descend
   [player]
+  (println "pitch.clj - dir-descend ------------")
   (if (= (choose-step-or-skip player) STEP)
-    (get-step-down-in-scale player (get-last-melody-note player))
-    (let [prev-note (get-last-melody-note player)]
-      (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-melody-char-range-hi (get-melody-char player))))))
+    (let [rtn (get-step-down-in-scale player (get-last-melody-note player))
+          ]
+      (println "dir-descend step rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+      rtn
+      )
+    (let [prev-note (get-last-melody-note player)
+          rtn (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-melody-char-range-hi (get-melody-char player))))
+          ]
+      (println "dir-descend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+      rtn
+      ))
   )
 
 (defn next-pitch-ignore
@@ -253,8 +265,9 @@
     (cond
      (= direction ASCEND) (dir-ascend player)
      (= direction DESCEND) ( dir-descend player)
-     (= direction RANDOM-NOTE) (random-int (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)))
-     :else (get-last-melody-note player)))  )
+     (= direction REPEAT-NOTE) (get-last-melody-note player)
+     :else (random-int (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)))
+     ))  )
 
 (defn next-pitch-complement
   [player]
@@ -269,6 +282,7 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
+  (println "next-pitch")
   (let [player-behavior-action (get-behavior-action-for-player player)
         ]
     (cond

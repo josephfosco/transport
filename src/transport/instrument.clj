@@ -20,7 +20,8 @@
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
-   [transport.players :refer [get-instrument-info get-player]]
+   [transport.instruments.trad-instruments :refer :all]
+   [transport.players :refer [get-instrument-info get-player print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    ))
@@ -31,11 +32,25 @@
 
 (def all-instruments [
 ;                      {:instrument triangle-wave :envelope-type "AD"}
-                      {:instrument tri-wave-sus :envelope-type "ASR"}
-                      {:instrument saw-wave-sus :envelope-type "ASR"}
-                      {:instrument sine-wave-sus :envelope-type "ASR"}
-                      {:instrument reedy-organ :envelope-type "ASR"}
-                      {:instrument steel-drum :envelope-type "AD"}
+                      {:instrument bassoon
+                       :envelope-type "ASR"
+                       :range-lo 0 :range-hi 84}
+                      {:instrument saw-wave-sus
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
+                      {:instrument sine-wave-sus
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
+                      {:instrument reedy-organ
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE)
+                       :range-hi (last MIDI-RANGE)}
+                      {:instrument steel-drum
+                       :envelope-type "AD"
+                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
+                      {:instrument tri-wave-sus
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
                       ])
 
 (defn note->hz
@@ -46,11 +61,11 @@
   [player]
   (:instrument (get-instrument-info player)))
 
-(defn get-instrument-hi-range
+(defn get-instrument-range-hi
   [instrument-info]
   (:range-hi instrument-info))
 
-(defn get-instrument-lo-range
+(defn get-instrument-range-lo
   [instrument-info]
   (:range-lo instrument-info))
 
@@ -79,9 +94,9 @@
     0.001))
 
 (defn select-random-range
-  []
-  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
-        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
+  [inst-lo inst-hi]
+  (let [lo (random-int inst-lo inst-hi)
+        hi (if (= lo inst-hi) inst-hi (random-int lo inst-hi))]
     (list lo hi)
     ))
 
@@ -108,9 +123,9 @@
   )
 
 (defn- select-range
-  [player]
-  (let [lo (random-int (first MIDI-RANGE) (last MIDI-RANGE))
-        hi (if (= lo (last MIDI-RANGE)) (last MIDI-RANGE) (random-int lo (last MIDI-RANGE)))]
+  [player inst-lo inst-hi]
+  (let [lo (random-int inst-lo inst-hi)
+        hi (if (= lo inst-hi) inst-hi (random-int lo inst-hi))]
     (list lo hi)
     )
   )
@@ -119,9 +134,9 @@
   "Selects random instrument-info for player.
    Can be used the first time instrument-info is set."
   []
-  (let [inst-range (select-random-range)
-        ;; select instrument info from all-insruments map
-        inst-info (rand-nth all-instruments)
+  (let [inst-info (rand-nth all-instruments)
+        inst-range (select-random-range (:range-lo inst-info) (:range-hi inst-info))
+
         ]
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
@@ -141,9 +156,6 @@
         cntrst-plyr (if (= behavior-action CONTRAST)
                       (get-player (get-behavior-player-id-for-player player))
                       nil)
-        inst-range (if (= behavior-action CONTRAST)
-                     (select-contrasting-range player cntrst-plyr)
-                     (select-range player))
         ;; select instrument info from all-insruments map
         ;; if not CONTRASTing, select a random instrument
         ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
@@ -155,13 +167,15 @@
                            (:name (:instrument (nth all-instruments instrument-index))))
                         (nth all-instruments (mod
                                               (+ instrument-index (rand-int (dec (count all-instruments))))
-                                              (dec (count all-instruments))))
+                                              (dec(count all-instruments))))
                         (nth all-instruments instrument-index)
                         )
                       )
                     )
+        inst-range (if (= behavior-action CONTRAST)
+                     (select-contrasting-range player cntrst-plyr)
+                     (select-range player (:range-lo inst-info) (:range-hi inst-info)))
         ]
-    (println "new-instrument:" (:name (:instrument inst-info)))
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
      :range-hi (last inst-range)
@@ -186,6 +200,13 @@
   [player note-num note-duration volume]
   (let [gate-duration (get-gate-dur player note-duration)]
     ((get-instrument player) (midi->hz note-num) gate-duration volume)
+    (if (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) ))
+      (do
+        (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE")
+        (println "insrument:" (:name (get-instrument player)) "note-num:" note-num "dur:" note-duration "vol:" volume)
+        (println ":range-lo:" (:range-lo (get-instrument-info player)) ":range-hi:" (:range-hi (get-instrument-info player)))
+        (println "player:" (print-player player))
+        ))
     ))
 
 (defn play-instrument

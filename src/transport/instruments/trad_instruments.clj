@@ -13,17 +13,17 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.instruments.elec-instruments
+(ns transport.instruments.trad-instruments
   ^{:author "Joseph Fosco"
-    :doc "Electronic instruments"}
+    :doc "Electronic imitations of traditional instruments"}
   (:require
    [overtone.live :refer :all]
    ))
 
-(definst reedy-organ
-  [freq 440 gate-dur 0.8 vol 0.3 attack 0.01 sustain 0.3 release 0.1]
+(definst bassoon
+  [freq 110 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
   (let [env-gate (trig 1 gate-dur)
         ]
-    (* (env-gen (asr attack sustain release) env-gate vol 0 1 FREE)
-       (* (+ (sin-osc freq) (saw freq) (saw (+ freq 3)) (sin-osc (* 2 freq))))))
+    (* (env-gen (asr attack sustain release) env-gate (* vol 4) 0 1 FREE)
+       (bpf (saw freq) (* 2 freq) 2.0)))
   )
