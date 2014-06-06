@@ -96,21 +96,24 @@
      (let [complement-player-info (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior)))
            complement-melody-char (:melody-char complement-player-info)
            new-instrument (select-instrument upd-player)
+           new-melody-lo (if (<=
+                              (get-instrument-range-lo new-instrument)
+                              (get-melody-char-range-lo complement-melody-char)
+                              (get-instrument-range-hi new-instrument)
+                              )
+                           (get-melody-char-range-lo complement-melody-char)
+                           (get-instrument-range-lo new-instrument)
+                           )
+           new-melody-hi (if (> (get-instrument-range-hi new-instrument)
+                                (get-melody-char-range-hi complement-melody-char)
+                                new-melody-lo
+                                )
+                           (get-melody-char-range-hi complement-melody-char)
+                           (get-instrument-range-hi new-instrument)
+                           )
+
            new-melody-char (assoc complement-melody-char
-                             :range (list (if (<=
-                                               (get-instrument-range-lo new-instrument)
-                                               (get-melody-char-range-lo complement-melody-char)
-                                               (get-instrument-range-hi new-instrument)
-                                               )
-                                            (get-melody-char-range-lo complement-melody-char)
-                                            (get-instrument-range-lo new-instrument)
-                                            )
-                                          (if (>
-                                               (get-melody-char-range-hi complement-melody-char)
-                                               (get-instrument-range-hi new-instrument))
-                                            (get-instrument-range-hi new-instrument)
-                                            (get-melody-char-range-hi complement-melody-char))
-                                          )
+                             :range (list new-melody-lo new-melody-hi)
                              )
            new-complement-info (assoc complement-player-info :melody-char new-melody-char)
            ]
@@ -124,7 +127,8 @@
        (merge (assoc upd-player
                 :instrument-info new-instrument
                 )
-              new-complement-info))
+              new-complement-info)
+       )
 
      :else  ;;  IGNORE or CONTRAST
      (let [new-instrument (select-instrument upd-player)]

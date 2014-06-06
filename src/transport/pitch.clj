@@ -69,7 +69,7 @@
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-melody-char-range-lo (get-melody-char player))
                   hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
-  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
+;;  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
   (let [player-key (get-key player)
         rand-pitch (random-int lo-range hi-range)
         rand-octave (int (/ rand-pitch OCTAVE)) ;; octave multiplier for rand-pitch
@@ -227,34 +227,34 @@
 
 (defn dir-ascend
   [player]
-  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^")
+;;  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^")
   (if (= (choose-step-or-skip player) STEP)
     (let [possible-note (get-step-up-in-scale player (get-last-melody-note player))]
-      (println "dir-ascend step rtn:" possible-note "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+;;      (println "dir-ascend step rtn:" possible-note "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
       possible-note
       )
     (let [prev-note (get-last-melody-note player)
           lo (if (nil? prev-note) (get-melody-char-range-lo (get-melody-char player)) (inc prev-note))
           rtn (get-scale-pitch-in-range player :lo-range lo)
           ]
-      (println "dir-ascend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+;;      (println "dir-ascend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
       rtn
       )
     ))
 
 (defn dir-descend
   [player]
-  (println "pitch.clj - dir-descend ------------")
+;;  (println "pitch.clj - dir-descend ------------")
   (if (= (choose-step-or-skip player) STEP)
     (let [rtn (get-step-down-in-scale player (get-last-melody-note player))
           ]
-      (println "dir-descend step rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+;;      (println "dir-descend step rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
       rtn
       )
     (let [prev-note (get-last-melody-note player)
           rtn (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-melody-char-range-hi (get-melody-char player))))
           ]
-      (println "dir-descend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
+;;      (println "dir-descend skip rtn:" rtn "range-lo:" (get-melody-char-range-lo (get-melody-char player)) "range-hi:" (get-melody-char-range-hi (get-melody-char player)))
       rtn
       ))
   )
@@ -282,7 +282,7 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (println "next-pitch")
+;;  (println "next-pitch")
   (let [player-behavior-action (get-behavior-action-for-player player)
         ]
     (cond

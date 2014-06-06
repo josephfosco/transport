@@ -21,7 +21,7 @@
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
-   [transport.players :refer [get-instrument-info get-player print-player]]
+   [transport.players :refer [get-instrument-info get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    ))
@@ -203,7 +203,7 @@
     (if (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) ))
       (do
         (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE")
-        (println "insrument:" (:name (get-instrument player)) "note-num:" note-num "dur:" note-duration "vol:" volume)
+        (println "player:" (:name (get-player-id player)) "note-num:" note-num "dur:" note-duration "vol:" volume)
         (println ":range-lo:" (:range-lo (get-instrument-info player)) ":range-hi:" (:range-hi (get-instrument-info player)))
         (println "player:" (print-player player))
         ))
