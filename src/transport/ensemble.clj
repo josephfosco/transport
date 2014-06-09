@@ -24,6 +24,7 @@
    [transport.melody :refer [get-volume next-melody]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
+   [transport.player-copy :refer [player-copy-new-complement-info]]
    [transport.players :refer :all]
    [transport.rhythm :refer [get-beats]]
    [transport.schedule :refer [sched-event]]
@@ -71,7 +72,7 @@
         (= (get-behavior-action-for-player player) COMPLEMENT)
         (register-listener
          MSG-PLAYER-NEW-COMPLEMENT-INFO
-         transport.players/player-new-complement-info
+         transport.player-copy/player-copy-new-complement-info
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
          )
@@ -106,7 +107,7 @@
      (= (get-behavior-action prev-behavior) COMPLEMENT)
      (unregister-listener
       MSG-PLAYER-NEW-COMPLEMENT-INFO
-      transport.players/player-new-complement-info
+      transport.player-copy/player-copy-new-complement-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )

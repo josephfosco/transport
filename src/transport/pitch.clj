@@ -19,7 +19,7 @@
    [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.instrument :refer [get-hi-range get-lo-range]]
+   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
@@ -190,15 +190,19 @@
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  (if (= (get-last-melody-note player) nil)
-    RANDOM-NOTE
-    (let [rand-dir (rand)]
-      (if (<= rand-dir 0.45)
-        DESCEND
-        (if ( <= rand-dir 0.9)
-          ASCEND
-          REPEAT-NOTE))
-      )))
+  (let [last-note (get-last-melody-note player)]
+    (cond (=  last-note nil) RANDOM-NOTE
+          (<= last-note (get-instrument-range-lo (get-instrument-info player))) ASCEND
+          (>= last-note (get-instrument-range-hi (get-instrument-info player))) DESCEND
+          :else
+          (let [rand-dir (rand)]
+            (if (<= rand-dir 0.45)
+              DESCEND
+              (if ( <= rand-dir 0.9)
+                ASCEND
+                REPEAT-NOTE))
+            )))
+  )
 
 (defn select-random-scale
   "returns a scale"
