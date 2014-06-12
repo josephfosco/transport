@@ -89,6 +89,7 @@
   [& {:keys [num-players]
       :or {num-players @number-of-players}}]
   (println "transport-start is-playing:" @is-playing?)
+  (println "transport-start restart:" @restart?)
   (if (false? @is-playing?)
     (if (true? @restart?)
       (transport-restart :num-players num-players)  ;; already started once - restart instead
@@ -96,11 +97,15 @@
         (println "Starting transport")
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
-        (start-scheduler)
-        (start-message-processor)
+        (println "transport-start about to init-melody")
         (init-melody)
+        (start-scheduler)
+        (println "transport-start about to start-message-processor")
+        (start-message-processor)
+        (println "transport-start init-melody-complete")
         (reset! is-playing? true)
         (reset! restart? true)
+        (println "transport-start restart:" @restart?)
         ))
     (println "WARNING - Can't start. Already Playing.")))
 

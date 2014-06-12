@@ -209,11 +209,11 @@
   [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
   (println "players - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
   (let [contrasting-player (get-player contrasting-player-id)]
-    (if (= change-player-id (:player-id (:behavior contrasting-player)))
+    (if (= change-player-id (get-player-id (:behavior contrasting-player)))
       (do
         (if (not= originator-player-id contrasting-player-id)
           (do
-            (send-new-player-info-msgs change-player-id originator-player-id)
+            (send-new-player-info-msgs contrasting-player-id originator-player-id)
             (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
           (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
@@ -223,21 +223,22 @@
         cur-players)))
   )
 
-(defn copy-follow-complement-info
+(defn copy-follow-info
   [cur-players from-player-id to-player-id originator-player-id]
-  (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
+  (println "players - copy-follow-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
   (let [to-player (get-player to-player-id)]
-    (if (= from-player-id (:player-id (:behavior to-player)))
+    (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id)
-          (println "players.clj - copy-follow-complement-info - NOT SENDING MESSAGES"))
+          (println "players.clj - copy-follow-info - NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id
                (merge to-player
                       (if (= (:action (:behavior to-player)) FOLLOW)
                         (get-following-info-from-player (get-player from-player-id))
                         (get-complement-info-from-player (get-player from-player-id))
-                        ))))
+                        )))
+        )
       (do
         (println "players - copy-follow-info NOT COPYING!")
         cur-players)))
@@ -245,26 +246,26 @@
 
 (defn replace-complement-info
   [cur-players from-player-id to-player originator-player-id]
-  (let [to-player-id (get-player to-player)]
-    (println "players - copy-follow-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
-    (if (= from-player-id (:player-id (:behavior to-player)))
+  (println "players.clj-replace-complement-info - to-player:")
+  (print-player to-player)
+  (let [to-player-id (get-player-id to-player)]
+    (println "players.clj - replace-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
+    (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id)
-          (println "players.clj - copy-follow-complement-info - NOT SENDING MESSAGES"))
-        (assoc @PLAYERS to-player-id
-               (merge to-player-id to-player))
+          (println "players.clj - replace-complement-info - NOT SENDING MESSAGES"))
+        (assoc @PLAYERS to-player-id to-player)
         )
       (do
-        (println "players - copy-follow-info NOT COPYING!")
+        (println "players - replace-complement-info NOT COPYING!")
         cur-players)))
   )
 
 (defn player-new-follow-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (send PLAYERS copy-follow-complement-info change-player-id follow-player-id  originator-player-id)
+  (send PLAYERS copy-follow-info change-player-id follow-player-id  originator-player-id)
   )
-
 (defn player-new-complement-info-replace
   [& {:keys [change-player-id follow-player originator-player-id]}]
   (send PLAYERS replace-complement-info change-player-id follow-player originator-player-id)

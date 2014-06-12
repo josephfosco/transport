@@ -353,6 +353,7 @@
 
     player - the player map"
   [player event-time]
+  (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action-for-player player) COMPLEMENT) (next-melody-complement-ensemble player event-time)
