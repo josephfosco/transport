@@ -203,9 +203,10 @@
     (if (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) ))
       (do
         (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE")
-        (println "player:" (:name (get-player-id player)) "note-num:" note-num "dur:" note-duration "vol:" volume)
+        (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:" note-num "dur:" note-duration "vol:" volume)
         (println ":range-lo:" (:range-lo (get-instrument-info player)) ":range-hi:" (:range-hi (get-instrument-info player)))
-        (println "player:" (print-player player))
+        (print-player player)
+        (println "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
         ))
     ))
 

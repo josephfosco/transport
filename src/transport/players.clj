@@ -246,8 +246,6 @@
 
 (defn replace-complement-info
   [cur-players from-player-id to-player originator-player-id]
-  (println "players.clj-replace-complement-info - to-player:")
-  (print-player to-player)
   (let [to-player-id (get-player-id to-player)]
     (println "players.clj - replace-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
     (if (= from-player-id (get-player-id (:behavior to-player)))
