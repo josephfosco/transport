@@ -202,7 +202,7 @@
     ((get-instrument player) (midi->hz note-num) gate-duration volume)
     (if (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) ))
       (do
-        (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE")
+        (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
         (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:" note-num "dur:" note-duration "vol:" volume)
         (println ":range-lo:" (:range-lo (get-instrument-info player)) ":range-hi:" (:range-hi (get-instrument-info player)))
         (print-player player)
