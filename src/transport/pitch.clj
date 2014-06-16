@@ -231,17 +231,20 @@
 
 (defn dir-ascend
   [player]
-  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^")
+  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^ player:" (get-player-id player))
 
   (let [rtn-note (if (= (choose-step-or-skip player) STEP)
                    (get-step-up-in-scale player (get-last-melody-note player))
-                   (let [prev-note (get-last-melody-note player)]
-
+                   (let [prev-note (get-last-melody-note player)
+                         melody-lo-range (get-melody-char-range-lo (get-melody-char player))
+                         ]
                      (get-scale-pitch-in-range player
                                                :lo-range
-                                               (if (nil? prev-note)
-                                                 (get-melody-char-range-lo (get-melody-char player))
-                                                 (inc prev-note))
+                                               (or (if (and prev-note (>= prev-note melody-lo-range))
+                                                     (inc prev-note)
+                                                     nil)
+                                                   melody-lo-range
+                                                   )
                                                )
                      )
                    )]
@@ -259,15 +262,19 @@
 
      player - the player to find the pitch for"
   [player]
-  (println "pitch.clj - dir-descend ------------")
+  (println "pitch.clj - dir-descend ------------ player:" (get-player-id player))
 
   (let [rtn-note (if (= (choose-step-or-skip player) STEP)
                    (get-step-down-in-scale player (get-last-melody-note player))
-                   (let [prev-note (get-last-melody-note player)]
+                   (let [prev-note (get-last-melody-note player)
+                         melody-hi-range (get-melody-char-range-hi (get-melody-char player))
+                         ]
                      (get-scale-pitch-in-range player
                                                :hi-range
-                                               (or (if prev-note (- prev-note 1) nil)
-                                                   (get-melody-char-range-hi (get-melody-char player)))))
+                                               (or (if (and prev-note (<= prev-note melody-hi-range))
+                                                     (- prev-note 1)
+                                                     nil)
+                                                   melody-hi-range)))
                    )
         ]
     ;; if rtn-note is lower than player's melody range return -1
@@ -280,7 +287,9 @@
 (defn next-pitch-ignore
   [player]
   (let [direction (select-direction player)
+        last-pitch (get-last-melody-note player)
         next-pitch (cond
+                    (nil? last-pitch) (get-scale-pitch-in-range player)
                     (= direction ASCEND) (dir-ascend player)
                     (= direction DESCEND) ( dir-descend player)
                     (= direction REPEAT-NOTE) (get-last-melody-note player)

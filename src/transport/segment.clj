@@ -117,13 +117,6 @@
                              )
            new-complement-info (assoc complement-player-info :melody-char new-melody-char)
            ]
-       (println "&&&&&&&&&&")
-       (println "segment.clj - new-segment (complement) Complement-player-info:" complement-player-info)
-       (println "segment.clj - new-segment (complement) Complement-melody-char:" complement-melody-char)
-       (println "segment.clj - new-segment (complement) new-instrument:" new-instrument)
-       (println "segment.clj - new-segment (complement) new-melody-char:" new-melody-char)
-       (println "segment.clj - new-segment (complement) new-complement-info:" new-complement-info)
-       (println "&&&&&&&&&&")
        (merge (assoc upd-player
                 :instrument-info new-instrument
                 )
