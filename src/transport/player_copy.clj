@@ -60,7 +60,8 @@
         (player-new-complement-info-replace
          :change-player-id change-player-id
          :follow-player (merge to-player new-complement-info)
-         :originator-player-id originator-player-id)
+         :originator-player-id originator-player-id
+         )
         )
       (do
         (println "players-copy.clj - player-copy-new-complement-info NOT COPYING!")

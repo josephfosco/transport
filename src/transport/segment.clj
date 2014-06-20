@@ -52,6 +52,7 @@
         ]
     (assoc player
       :behavior new-behavior
+      :change-follow-info-note nil
       :instrument-info new-instrument
       :key (select-random-key)
       :last-pitch nil
@@ -80,9 +81,8 @@
         behavior-action (get-behavior-action new-behavior)
         upd-player (assoc player
                      :behavior new-behavior
+                     :change-follow-info-note nil
                      :last-pitch nil
-                     :seg-hi-range nil
-                     :seg-lo-range nil
                      :seg-len (select-segment-length)
                      :seg-start 0
                      )

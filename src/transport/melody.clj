@@ -146,7 +146,7 @@
                                   (- player-hi range-in-semitones)
                                   )
                  ]
-             (list melody-range-lo (+ melody-range-lo range-in-semitones)))
+             (list melody-range-lo (min player-hi (+ melody-range-lo range-in-semitones))))
            ))
        ))
   )
@@ -261,6 +261,10 @@
 (defn note-or-rest-contrast-ensemble
   [player note-time]
   (if (< 0.5 (get-rest-probability)) true nil))
+
+(defn get-follow-note
+  [melody-event]
+  (:follow-note melody-event))
 
 (defn get-volume
   [melody-event]

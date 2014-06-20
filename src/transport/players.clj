@@ -41,6 +41,10 @@
   [player]
   (:behavior player))
 
+(defn get-change-follow-info-note
+  [player]
+  (:change-follow-info-note  player))
+
 (defn get-dur-info
   [melody-event]
   (:dur-info melody-event))
@@ -96,6 +100,13 @@
 (defn get-last-melody-event-num
   [player-id]
   (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
+    (if (= last-melody-key 0) nil last-melody-key)
+    )
+  )
+
+(defn get-last-melody-event-num-for-player
+  [player]
+  (let [last-melody-key (reduce max 0 (keys (get-melody player)))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
@@ -197,9 +208,21 @@
     )
   )
 
+(defn set-change-follow-info-note
+  [cur-players from-player-id to-player-id originator-player-id melody-no]
+  (println "players.clj - set-change-follow-info-note from:" from-player-id "to:" to-player-id "originator:" originator-player-id "melody-no:" melody-no)
+  (let [to-player (get-player to-player-id)]
+    (if (= from-player-id (get-player-id (:behavior to-player)))
+      (assoc @PLAYERS to-player-id
+             (assoc to-player :change-follow-info-note melody-no))
+      (do
+        (println "players.clj - set-change-follow-info-note NOT COPYING!")
+        cur-players)))
+  )
+
 (defn- send-new-player-info-msgs
-  [change-player-id originator-player-id]
-  (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
+  [change-player-id originator-player-id melody-no]
+  (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id change-player-id :originator-player-id  originator-player-id :melody-no melody-no)
   (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
   (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
 
@@ -213,7 +236,7 @@
       (do
         (if (not= originator-player-id contrasting-player-id)
           (do
-            (send-new-player-info-msgs contrasting-player-id originator-player-id)
+            (send-new-player-info-msgs contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
             (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
           (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
@@ -224,24 +247,17 @@
   )
 
 (defn copy-follow-info
-  [cur-players from-player-id to-player-id originator-player-id]
-  (println "players - copy-follow-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
-  (let [to-player (get-player to-player-id)]
-    (if (= from-player-id (get-player-id (:behavior to-player)))
-      (do
-        (if (not= originator-player-id to-player-id)
-          (send-new-player-info-msgs to-player-id originator-player-id)
-          (println "players.clj - copy-follow-info - NOT SENDING MESSAGES"))
-        (assoc @PLAYERS to-player-id
-               (merge to-player
-                      (if (= (:action (:behavior to-player)) FOLLOW)
-                        (get-following-info-from-player (get-player from-player-id))
-                        (get-complement-info-from-player (get-player from-player-id))
-                        )))
-        )
-      (do
-        (println "players - copy-follow-info NOT COPYING!")
-        cur-players)))
+  [cur-players to-player]
+  (let [to-player-id (get-player-id to-player)
+        from-player-id (get-player-id (:behavior to-player))
+        ]
+    (println "players - copy-follow-info to-player-id:" to-player-id)
+    (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
+    (assoc @PLAYERS to-player-id
+           (merge to-player
+                  (get-following-info-from-player (get-player from-player-id))
+                  ))
+    )
   )
 
 (defn replace-complement-info
@@ -251,7 +267,7 @@
     (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
-          (send-new-player-info-msgs to-player-id originator-player-id)
+          (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
           (println "players.clj - replace-complement-info - NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id to-player)
         )
@@ -260,13 +276,20 @@
         cur-players)))
   )
 
-(defn player-new-follow-info
-  [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (send PLAYERS copy-follow-info change-player-id follow-player-id  originator-player-id)
-  )
 (defn player-new-complement-info-replace
   [& {:keys [change-player-id follow-player originator-player-id]}]
   (send PLAYERS replace-complement-info change-player-id follow-player originator-player-id)
+  )
+
+(defn new-change-follow-info-note-for-player
+  [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
+  (send PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
+  )
+
+(defn update-player-and-follow-info
+  [player]
+  (send PLAYERS copy-follow-info player)
+  (await PLAYERS)
   )
 
 (defn init-players

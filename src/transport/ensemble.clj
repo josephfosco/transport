@@ -21,7 +21,7 @@
    [transport.debug :refer [debug-run1]]
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument]]
-   [transport.melody :refer [get-volume next-melody]]
+   [transport.melody :refer [get-follow-note get-volume next-melody]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-complement-info]]
@@ -35,7 +35,7 @@
   )
 
 (defn new-contrast-info
-  [& {:keys [change-player-id follow-player-id originator-player-id]}]
+  [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
   (send PLAYERS
         set-new-contrast-info
         change-player-id
@@ -52,11 +52,13 @@
    it will listen for new segmemnts in the player it is
    FOLLOWing etc...
 
-   player - the player starting a new segment"
-  [player]
+   player - the player starting a new segment
+   melody-no - the key of the melody event that is being played"
+  [player melody-no]
+  (println "ensemble.clj - listeners-msg-new-segment melody-no:" melody-no)
   (let [player-id (get-player-id player)]
        (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
-       (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id :melody-no melody-no)
        (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
@@ -64,7 +66,7 @@
         (= (get-behavior-action-for-player player) FOLLOW)
         (register-listener
          MSG-PLAYER-NEW-FOLLOW-INFO
-         transport.players/player-new-follow-info
+         transport.players/new-change-follow-info-note-for-player
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
          )
@@ -99,7 +101,7 @@
      (= (get-behavior-action prev-behavior) FOLLOW)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
-      transport.players/player-new-follow-info
+      transport.players/new-change-follow-info-note-for-player
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
@@ -130,11 +132,16 @@
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
+        cur-melody (get-melody player)
+        next-melody-no (if (> (count cur-melody) 0)
+                         (inc (reduce max (keys cur-melody)))
+                         1)
         ;; if seg-start = 0 this is the begining of the segment, so
         ;; set seg-start to the time of this event - also send seg-start msg
         seg-start-time (if (= (:seg-start player) 0)
                          (do
-                           (listeners-msg-new-segment player) ;; send msgs and set listeners for new segmwnt
+                           ;; send msgs and set listeners for new segmwnt
+                           (listeners-msg-new-segment player next-melody-no)
                            event-time)
                          (:seg-start player))
 
@@ -149,20 +156,17 @@
       (assoc player
         :cur-note-beat cur-note-beat
         :last-pitch (if (not (nil? cur-note)) cur-note (get-last-pitch player))
-        :melody (let [cur-melody (get-melody player)
-                      next-key   (if (> (count cur-melody) 0)
-                                   (+ (reduce max (keys cur-melody)) 1)
-                                   1)]
-                  (if (= (count cur-melody) SAVED-MELODY-LEN)
-                    (do
-                      (assoc (dissoc cur-melody (- next-key SAVED-MELODY-LEN))
-                        next-key  melody-event)
-                      )
-                    (assoc cur-melody next-key melody-event)
-                    ))
+        :melody (if (= (count cur-melody) SAVED-MELODY-LEN)
+                  (do
+                    (assoc (dissoc cur-melody (- next-melody-no SAVED-MELODY-LEN))
+                      next-melody-no  melody-event)
+                    )
+                  (assoc cur-melody next-melody-no melody-event)
+                  )
         :prev-note-beat prev-note-beat
         :seg-start seg-start-time
-        )))
+        )
+      ))
   )
 
 (defn play-melody
@@ -186,9 +190,17 @@
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
       (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
-      (update-player upd-player)
+      (let [cur-change-follow-info-note (get-change-follow-info-note player)]
+        (if cur-change-follow-info-note
+          (let [follow-note (get-follow-note (get-last-melody-event player))]
+            (if (and follow-note (>= (inc follow-note) cur-change-follow-info-note))
+              (update-player-and-follow-info upd-player)
+              (update-player upd-player)))
+          (update-player upd-player)
+          ))
       (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
-      )))
+      ))
+  )
 
 (defn create-player
   [player-no]

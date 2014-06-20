@@ -229,6 +229,17 @@
     (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP))
   )
 
+(defn check-note-in-range
+  "Checks if note is in the melody range of player.
+   Returns note if it is within range, else returns -1"
+  [player note]
+  (if (or (< note (get-melody-char-range-lo (get-melody-char player)))
+          (> note (get-melody-char-range-hi (get-melody-char player))))
+    -1
+    note
+    )
+  )
+
 (defn dir-ascend
   [player]
   (println "pitch.clj - dir-ascend ^^^^^^^^^^^^ player:" (get-player-id player))
@@ -248,10 +259,7 @@
                                                )
                      )
                    )]
-       ;; if rtn-note is lower than player's melody range return -1
-    (if (> rtn-note (get-melody-char-range-lo (get-melody-char player)))
-      -1
-      rtn-note)
+    rtn-note
     )
   )
 
@@ -277,10 +285,7 @@
                                                    melody-hi-range)))
                    )
         ]
-    ;; if rtn-note is lower than player's melody range return -1
-    (if (< rtn-note (get-melody-char-range-lo (get-melody-char player)))
-      -1
-      rtn-note)
+    rtn-note
     )
   )
 
@@ -297,7 +302,7 @@
                     )
         ]
     ;; if no pitch is available in direction selected, return a random pitch in melody range
-    (if (not= next-pitch -1)
+    (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
       (do
         (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH")
