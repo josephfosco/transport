@@ -189,15 +189,25 @@
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
-      (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (let [cur-change-follow-info-note (get-change-follow-info-note player)]
         (if cur-change-follow-info-note
           (let [follow-note (get-follow-note (get-last-melody-event player))]
-            (if (and follow-note (>= (inc follow-note) cur-change-follow-info-note))
-              (update-player-and-follow-info upd-player)
-              (update-player upd-player)))
+            (if (nil? follow-note)
+              (do
+                ;; this is the first note player is FOLLOWing
+                (println "ensemble.clj - play-melody - follow 1 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
+                (update-player-and-follow-info upd-player)
+                )
+              (if (>= (inc follow-note) cur-change-follow-info-note)
+                (do
+                  (println "ensemble.clj - play-melody - follow 1 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
+                  (update-player-and-follow-info upd-player)
+                  )
+                (update-player upd-player)))
+            )
           (update-player upd-player)
           ))
+      (sched-event melody-dur-millis (get-function upd-player) (get-player-id upd-player))
       (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
       ))
   )

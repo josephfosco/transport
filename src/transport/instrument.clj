@@ -204,8 +204,9 @@
       (do
         (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
         (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:" note-num "dur:" note-duration "vol:" volume)
-        (println ":range-lo:" (:range-lo (get-instrument-info player)) ":range-hi:" (:range-hi (get-instrument-info player)))
         (print-player player)
+        (println "FOLLOWING PLAYER")
+        (print-player (get-player (get-behavior-player-id-for-player player)))
         (println "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
         ))
     ))

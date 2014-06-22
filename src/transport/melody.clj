@@ -294,7 +294,7 @@
       ;; play FOLLOWer melody event after last-melody event
       (let [
             last-melody-event-played (get-last-melody-event player)
-            cur-note-to-play (+ (:follow-note last-melody-event-played) 1)
+            cur-note-to-play (inc (:follow-note last-melody-event-played))
             next-melody-event (get-melody-event follow-player-id cur-note-to-play)
             ]
         (if (nil? next-melody-event)

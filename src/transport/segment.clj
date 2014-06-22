@@ -52,7 +52,7 @@
         ]
     (assoc player
       :behavior new-behavior
-      :change-follow-info-note nil
+      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW) 0 nil)
       :instrument-info new-instrument
       :key (select-random-key)
       :last-pitch nil
