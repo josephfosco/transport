@@ -183,14 +183,37 @@
     )
   )
 
+(defn- check-note-out-of-range
+  [player note-num]
+  (if (and
+       (not (nil? (get-instrument-info player)))
+       (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) )))
+    (do
+      (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
+      (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:")
+      (print-player player)
+      (println "FOLLOWING PLAYER")
+      (print-player (get-player (get-behavior-player-id-for-player player)))
+      (println "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
+      ))
+  )
+
+(defn get-instrument-for-note
+  [player]
+  (get-instrument player)
+  )
+
 (defn play-instrument-ar
   "player - player map
    note-num - midi note number
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
   [player note-num note-duration volume]
-  ((get-instrument player) (midi->hz note-num) volume)
-  )
+  (let [instrument (get-instrument-for-note player)]
+
+    (instrument (midi->hz note-num) volume)
+    (check-note-out-of-range player note-num)
+    ))
 
 (defn play-instrument-asr
   "player - player map
@@ -198,17 +221,11 @@
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
   [player note-num note-duration volume]
-  (let [gate-duration (get-gate-dur player note-duration)]
-    ((get-instrument player) (midi->hz note-num) gate-duration volume)
-    (if (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) ))
-      (do
-        (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
-        (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:" note-num "dur:" note-duration "vol:" volume)
-        (print-player player)
-        (println "FOLLOWING PLAYER")
-        (print-player (get-player (get-behavior-player-id-for-player player)))
-        (println "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
-        ))
+  (let [gate-duration (get-gate-dur player note-duration)
+        instrument (get-instrument player)
+        ]
+    (instrument (midi->hz note-num) gate-duration volume)
+    (check-note-out-of-range player note-num)
     ))
 
 (defn play-instrument

@@ -297,6 +297,17 @@
 ;;  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment nil)
   )
 
+(defn print-player-melody
+  [melody]
+  (let [sorted-keys (sort (keys melody))]
+    (println (format "%-20s" "  :melody "))
+    (doseq [melody-key sorted-keys]
+      (println (format "%-29s" (str "  " melody-key "-" (dissoc (get melody melody-key) :instrument-info))))
+      (println (format "%-29s" (str "  " melody-key " :instrument-name:" "-" (:name (:instrument (:instrument-info (get melody melody-key)))))))
+      )
+    )
+  )
+
 (defn print-player
   "Pretty Print a player map
 
@@ -306,11 +317,17 @@
   (let [sorted-keys (sort (keys player))]
     (println "player:")
     (doseq [player-key sorted-keys]
-      (if (and (= player-key :instrument-info) (= prnt-full-inst-info false))
-        (do
-          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
-          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
-          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
+      (cond
+       (and (= player-key :instrument-info) (= prnt-full-inst-info false))
+       (do
+         (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
+         (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
+         (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
+
+        (= player-key :melody)
+        (print-player-melody (:melody player))
+
+       :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
     (prn)

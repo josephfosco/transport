@@ -348,6 +348,7 @@
         ]
        {:note (if play-note? (next-pitch player) nil)
         :dur-info (next-note-dur player)
+        :instrument-info (get-instrument-info player)
         :volume (if play-note? (select-volume player) 0) ;; 0 volume if rest
         })
   )

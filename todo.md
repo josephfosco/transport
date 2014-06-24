@@ -46,3 +46,5 @@
 * incorporate instrument-type into instruments
 
 * get range of melody from some melody characteristic (with inst range considered)
+
+* make certain melody range starts and ends on pitch in player scale

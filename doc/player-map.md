@@ -28,6 +28,7 @@
         * :dur-millis - the duration of :note in milliseconds
         * :dur-note-dur - the duration of :note in beats
         * :follow-note - when FOLLOWing another player the melody-event this melody-event is in the FOLLOWers melody
+      -  instrument-info - the instrument for this event
       - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
     + continuity - hom continuous the melody will be
