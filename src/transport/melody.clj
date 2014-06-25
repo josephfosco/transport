@@ -21,6 +21,7 @@
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
+   [transport.melodyevent :refer [get-follow-note get-volume]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
@@ -29,7 +30,10 @@
    [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-in-range]]
    )
-  (:import transport.melodychar.MelodyChar)
+  (:import
+   transport.melodychar.MelodyChar
+   transport.melodyevent.MelodyEvent
+   )
   )
 
 (def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
@@ -262,14 +266,6 @@
   [player note-time]
   (if (< 0.5 (get-rest-probability)) true nil))
 
-(defn get-follow-note
-  [melody-event]
-  (:follow-note melody-event))
-
-(defn get-volume
-  [melody-event]
-  (:volume melody-event))
-
 (defn get-melody-event
   [player-id melody-event-no]
   (get (get-melody (get-player player-id)) melody-event-no))
@@ -278,14 +274,15 @@
   [player]
 ;;    (println "next-melody-follow")
   (let [follow-player-id (get-behavior-player-id-for-player player)
-        follow-player-last-note (get-last-melody-event-num follow-player-id)
-        next-new-event {:note nil
-                        :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
-                        :follow-note (if (nil? follow-player-last-note)
+        follow-player-last-event (get-last-melody-event-num follow-player-id)
+        next-new-event (MelodyEvent. nil
+                                     (get-dur-info-for-beats (get-player follow-player-id) 3)
+                                     (if (nil? follow-player-last-event)
                                        0
-                                       (- follow-player-last-note 1))
-                        :volume (select-volume player)
-                        }
+                                       (- follow-player-last-event 1))
+                                     nil
+                                     (select-volume player)
+                                     )
         ]
     (if (nil? (:follow-note (get-last-melody-event player)))
       ;; first time, rest 3 beats
@@ -316,12 +313,14 @@
         average-volume (get-average-volume)
         ]
 ;;    (println "average-volume: " average-volume)
-    {:note next-note-or-rest
-     :dur-info (next-note-dur player)
-     :volume (select-volume-in-range
-              (if (< average-volume 0.1) 0 (- average-volume 0.1))  ;; set range of volume to
-              (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
-     }
+    (MelodyEvent. next-note-or-rest
+                  (next-note-dur player)
+                  nil
+                  nil
+                  (select-volume-in-range
+                   (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
+                   (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
+                  )
     ))
 
 (defn- next-melody-contrast-ensemble
@@ -332,13 +331,15 @@
                             (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
         average-volume (get-average-volume)
         ]
-;;    (println "average-volume: " average-volume)
-    {:note next-note-or-rest
-     :dur-info (next-note-dur player)
-     :volume (select-volume-in-range
-              (if (< average-volume 0.5) 0.5 0)  ;; set range of volume eithe 0.5 - 1 or
-              (if (< average-volume 0.5) 1 0.5)) ;; 0 - 0.5 opposite of ensemble
-     }
+    ;;    (println "average-volume: " average-volume)
+    (MelodyEvent. next-note-or-rest
+                  (next-note-dur player)
+                  nil
+                  nil
+                  (select-volume-in-range
+                   (if (< average-volume 0.5) 0.5 0) ;; set range of volume eithe 0.5 - 1 or
+                   (if (< average-volume 0.5) 1 0.5)) ;; 0 - 0.5 opposite of ensemble
+                  )
     ))
 
 (defn- next-melody-for-player
@@ -346,11 +347,12 @@
 ;;  (println "next-melody-for-player")
   (let [play-note? (note-or-rest player event-time)
         ]
-       {:note (if play-note? (next-pitch player) nil)
-        :dur-info (next-note-dur player)
-        :instrument-info (get-instrument-info player)
-        :volume (if play-note? (select-volume player) 0) ;; 0 volume if rest
-        })
+    (MelodyEvent. (if play-note? (next-pitch player) nil)
+                  (next-note-dur player)
+                  nil
+                  (get-instrument-info player)
+                  (if play-note? (select-volume player) 0) ;; 0 volume if rest
+                  ))
   )
 
 (defn next-melody

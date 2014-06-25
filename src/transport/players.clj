@@ -45,18 +45,6 @@
   [player]
   (:change-follow-info-note  player))
 
-(defn get-dur-info
-  [melody-event]
-  (:dur-info melody-event))
-
-(defn get-dur-millis
-  "Returns the millis duraition for the dur-info
-
-   dur-info - duration info to get millis from"
-  [dur-info]
-  (:dur-millis dur-info)
-  )
-
 (defn get-function
   [player]
   (:function player))

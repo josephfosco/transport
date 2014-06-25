@@ -71,6 +71,7 @@
    player - player to get mm for
    note-dur - note duration in beats"
   [player note-dur]
+  (println "rhythm.clj - note-dur-to-millis :mm:" (:mm player) "note-dur" note-dur)
   (int (* (* (/ 60.0 (:mm player)) note-dur)  1000))
   )
 

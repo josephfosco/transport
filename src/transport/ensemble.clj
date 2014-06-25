@@ -21,7 +21,8 @@
    [transport.debug :refer [debug-run1]]
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument]]
-   [transport.melody :refer [get-follow-note get-volume next-melody]]
+   [transport.melody :refer [next-melody]]
+   [transport.melodyevent :refer [get-dur-info get-dur-millis get-follow-note get-volume]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-complement-info]]
@@ -178,10 +179,11 @@
    player - map for the current player
    event-time - time this note event was scheduled for"
   [player-id event-time]
+  (println "ensemble.clj - play-melody - player-id:" player-id)
   (let [
         player (get-player player-id)
         melody-event (next-melody player event-time)
-        melody-dur-millis (get-dur-millis (:dur-info melody-event))
+        melody-dur-millis (get-dur-millis (get-dur-info melody-event))
         ]
 
     (if (not (nil? (:note melody-event)))
@@ -200,7 +202,7 @@
                 )
               (if (>= (inc follow-note) cur-change-follow-info-note)
                 (do
-                  (println "ensemble.clj - play-melody - follow 1 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
+                  (println "ensemble.clj - play-melody - follow 2 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
                   (update-player-and-follow-info upd-player)
                   )
                 (update-player upd-player)))
