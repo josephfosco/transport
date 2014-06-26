@@ -22,7 +22,7 @@
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument]]
    [transport.melody :refer [next-melody]]
-   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-note-for-event get-volume-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-complement-info]]
@@ -190,6 +190,11 @@
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
+    (if (nil? (get-instrument-info-for-event melody-event))
+      (do
+        (println "MELODY EVENT INSTRUMENT-INFO IS NILL !!!! player:")
+        )
+      )
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note player)]
         (if cur-change-follow-info-note

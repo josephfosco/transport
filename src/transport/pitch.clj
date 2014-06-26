@@ -226,7 +226,8 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP))
+    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP)
+    )
   )
 
 (defn check-note-in-range

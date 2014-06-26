@@ -228,7 +228,7 @@
    player - player checking if it should rest
    note-time - the time (in millis) that the player is supposed to play"
   [player note-time]
-  (let [loud-event-prob (if (or (nil? @loud-player) (= get-player-id player))
+  (let [loud-event-prob (if (or (nil? @loud-player) (= loud-player (get-player-id player)))
                            0
                            (get-loud-event-prob note-time))]
     (if (> loud-event-prob (rand)) true false)
@@ -315,7 +315,7 @@
     (MelodyEvent. next-note-or-rest
                   (next-note-dur player)
                   nil
-                  nil
+                  (get-instrument-info player)
                   (select-volume-in-range
                    (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
                    (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
@@ -334,7 +334,7 @@
     (MelodyEvent. next-note-or-rest
                   (next-note-dur player)
                   nil
-                  nil
+                  (get-instrument-info player)
                   (select-volume-in-range
                    (if (< average-volume 0.5) 0.5 0) ;; set range of volume eithe 0.5 - 1 or
                    (if (< average-volume 0.5) 1 0.5)) ;; 0 - 0.5 opposite of ensemble
@@ -344,13 +344,15 @@
 (defn- next-melody-for-player
   [player event-time]
 ;;  (println "next-melody-for-player")
-  (let [play-note? (note-or-rest player event-time)
+  (let [next-note-or-rest (if (loud-rest? player event-time)
+                            nil
+                            (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
         ]
-    (MelodyEvent. (if play-note? (next-pitch player) nil)
+    (MelodyEvent. next-note-or-rest
                   (next-note-dur player)
                   nil
                   (get-instrument-info player)
-                  (if play-note? (select-volume player) 0) ;; 0 volume if rest
+                  (if next-note-or-rest (select-volume player) 0) ;; 0 volume if rest
                   ))
   )
 

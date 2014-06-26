@@ -186,7 +186,7 @@
 (defn- check-note-out-of-range
   [player note-num]
   (if (and
-       (not (nil? (get-instrument-info player)))
+       (not= (get-behavior-action-for-player FOLLOW))
        (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) )))
     (do
       (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")

@@ -198,7 +198,7 @@
   "follow-player - the player to get the following info from"
   [follow-player]
   (assoc (get-complement-info-from-player follow-player)
-   :instrument-info (get-instrument-info follow-player)
+   :instrument-info nil
     )
   )
 
