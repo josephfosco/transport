@@ -162,7 +162,7 @@
 
    player - player map to use when determining next note :dur-info"
   [player]
-  (let [note-dur (weighted-choice ( adjust-rhythmic-probabilities player))
+  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player))
         ]
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}

@@ -17,7 +17,7 @@
 
 (defrecord MelodyEvent [note dur-info follow-note instrument-info volume])
 
-(defn get-dur-info
+(defn get-dur-info-for-event
   [melody-event]
   (:dur-info melody-event))
 
@@ -29,10 +29,18 @@
   (:dur-millis dur-info)
   )
 
-(defn get-follow-note
+(defn get-follow-note-for-event
   [melody-event]
   (:follow-note melody-event))
 
-(defn get-volume
+(defn get-instrument-info-for-event
+  [melody-event]
+  (:instrument-info melody-event))
+
+(defn get-note-for-event
+  [melody-event]
+  (:note melody-event))
+
+(defn get-volume-for-event
   [melody-event]
   (:volume melody-event))

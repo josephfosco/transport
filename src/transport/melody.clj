@@ -21,7 +21,7 @@
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
-   [transport.melodyevent :refer [get-follow-note get-volume]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
@@ -275,31 +275,30 @@
 ;;    (println "next-melody-follow")
   (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-event (get-last-melody-event-num follow-player-id)
-        next-new-event (MelodyEvent. nil
-                                     (get-dur-info-for-beats (get-player follow-player-id) 3)
-                                     (if (nil? follow-player-last-event)
-                                       0
-                                       (- follow-player-last-event 1))
-                                     nil
-                                     (select-volume player)
-                                     )
+        last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         ]
-    (if (nil? (:follow-note (get-last-melody-event player)))
+    (if (nil? last-follow-event-num)
       ;; first time, rest 3 beats
-      next-new-event
+      (MelodyEvent. nil
+                    (get-dur-info-for-beats (get-player follow-player-id) 3)
+                    (if (nil? follow-player-last-event)
+                      0
+                      (- follow-player-last-event 1))
+                    (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event))
+                    (select-volume player)
+                    )
       ;; else
       ;; play FOLLOWer melody event after last-melody event
       (let [
-            last-melody-event-played (get-last-melody-event player)
-            cur-note-to-play (inc (:follow-note last-melody-event-played))
-            next-melody-event (get-melody-event follow-player-id cur-note-to-play)
+            event-num-to-play (inc last-follow-event-num)
+            next-melody-event (get-melody-event follow-player-id event-num-to-play)
             ]
         (if (nil? next-melody-event)
           ;; unless
           ;; FOLLOWer ahead of FOLLOWed
           ;; then repeat whatever melody-event just played
-          (assoc last-melody-event-played :follow-note (:follow-note last-melody-event-played))
-          (assoc next-melody-event :follow-note cur-note-to-play))
+          (get-last-melody-event player)
+          (assoc next-melody-event :follow-note event-num-to-play))
         )))
   )
 
@@ -368,5 +367,4 @@
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
    :else (next-melody-for-player player event-time))
-
   )

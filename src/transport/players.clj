@@ -16,6 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior]
+   [transport.melodyevent :refer [get-instrument-info-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
@@ -33,10 +34,6 @@
   [player-id]
   (get @PLAYERS player-id))
 
-(defn get-note
-  [melody-event]
-  (:note melody-event))
-
 (defn get-behavior
   [player]
   (:behavior player))
@@ -49,9 +46,18 @@
   [player]
   (:function player))
 
+(declare get-last-melody-event)
 (defn get-instrument-info
+  "Returns instrument info if it is not nil else
+     returns instrument info from last melody-event
+
+   player - the player to return instrument info from"
   [player]
-  (:instrument-info player))
+  (let [instrument-info (:instrument-info player)]
+    (if (nil? instrument-info)
+      (get-instrument-info-for-event (get-last-melody-event player))
+      instrument-info
+      )))
 
 (defn get-key
   [player]
@@ -85,6 +91,14 @@
   [player]
   (:scale player))
 
+(defn get-volume-for-note
+  [melody-event]
+  (:volume melody-event))
+
+(defn get-dur-millis-for-note
+  [melody-event]
+  (:dur-millis (:dur-info melody-event)))
+
 (defn get-last-melody-event-num
   [player-id]
   (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
@@ -117,14 +131,6 @@
     (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
     )
   )
-
-(defn get-volume-for-note
-  [melody-event]
-  (:volume melody-event))
-
-(defn get-dur-millis-for-note
-  [melody-event]
-  (:dur-millis (:dur-info melody-event)))
 
 (defn clear-players
   "used by send or send-off to clear agents"

@@ -22,7 +22,7 @@
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument]]
    [transport.melody :refer [next-melody]]
-   [transport.melodyevent :refer [get-dur-info get-dur-millis get-follow-note get-volume]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-complement-info]]
@@ -129,7 +129,7 @@
 (defn- update-player-info
   [player event-time melody-event]
   (let [prev-note-beat (:cur-note-beat player)
-        cur-note (get-note melody-event)
+        cur-note (get-note-for-event melody-event)
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
@@ -183,17 +183,17 @@
   (let [
         player (get-player player-id)
         melody-event (next-melody player event-time)
-        melody-dur-millis (get-dur-millis (get-dur-info melody-event))
+        melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
     (if (not (nil? (:note melody-event)))
-      (play-instrument player (:note melody-event) melody-dur-millis (get-volume melody-event)))
+      (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note player)]
         (if cur-change-follow-info-note
-          (let [follow-note (get-follow-note (get-last-melody-event player))]
+          (let [follow-note (get-follow-note-for-event (get-last-melody-event player))]
             (if (nil? follow-note)
               (do
                 ;; this is the first note player is FOLLOWing

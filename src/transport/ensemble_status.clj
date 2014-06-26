@@ -15,7 +15,7 @@
 
 (ns transport.ensemble-status
   (:require
-   [transport.melodyevent :refer [get-dur-info get-dur-millis]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
@@ -75,9 +75,9 @@
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest) and note-volumes
-    (if (not (nil? (get-note last-melody)))
+    (if (not (nil? (get-note-for-event last-melody)))
       (do
-        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
+        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info-for-event last-melody))))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (do
