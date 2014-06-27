@@ -164,6 +164,12 @@
   [player]
   (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player))
         ]
+    (if (nil? (get-mm player))
+      (do
+        (println "rhythm.clj - next-note-dur - mm is nil!!!!")
+        (print-player player)
+        )
+      )
     {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))

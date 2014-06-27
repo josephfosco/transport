@@ -186,15 +186,17 @@
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
+    (if (nil? (get-instrument-info-for-event melody-event))
+      (do
+        (println "ERROR ERROR ERROR ERROR MELODY EVENT INSTRUMENT-INFO IS NILL !!!! ERROR ERROR ERROR ERROR")
+        (println "ensemble.clj - play-melody melody-event:" melody-event)
+        (print-player-num player-id)
+        )
+      )
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
-    (if (nil? (get-instrument-info-for-event melody-event))
-      (do
-        (println "MELODY EVENT INSTRUMENT-INFO IS NILL !!!! player:")
-        )
-      )
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note player)]
         (if cur-change-follow-info-note

@@ -45,6 +45,7 @@
     new-melody-char
     )
      )
+
 (defn player-copy-new-complement-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
   (println "player_copy.clj - player-copy-new-complement-info change-player-id:" change-player-id "follow-player-id:" follow-player-id "originator-player-id:" originator-player-id)
@@ -52,10 +53,7 @@
     (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
       (let [complement-player-info (get-complement-info-from-player (get-player change-player-id))
            complement-melody-char (:melody-char complement-player-info)
-           new-complement-info (assoc complement-player-info
-                                 :melody-char (adjust-melody-char-for-instrument
-                                               complement-melody-char
-                                               (get-instrument-info to-player)))
+           new-complement-info (assoc complement-player-info :melody-char complement-melody-char)
            ]
         (player-new-complement-info-replace
          :change-player-id change-player-id

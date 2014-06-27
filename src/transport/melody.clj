@@ -244,19 +244,27 @@
   (if (loud-rest? player note-time)
     false     ;; rest because of loud interruption
     (let [play-note? (random-int 0 10)]
-      (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
-        true
-        (if (not= 0 play-note?)                                ;; if play-note? not 0
-          false                                                ;; rest
-          (if (and                                             ;; else
-               (not= {} (get-melody player))                   ;; if melody not empty
-               (= 0                                            ;; and last pitch is root
-                  (get-scale-degree
-                   player
-                   (or (get-last-melody-note player) 0)))      ;; or rest
-               (< (rand) 0.8))                                 ;; possibly rest
-            false
-            true))))))
+      (try
+        (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
+          true
+          (if (not= 0 play-note?)                                ;; if play-note? not 0
+            false                                                ;; rest
+            (if (and                                             ;; else
+                 (not= {} (get-melody player))                   ;; if melody not empty
+                 (= 0                                            ;; and last pitch is root
+                    (get-scale-degree
+                     player
+                     (or (get-last-melody-note player) 0)))      ;; or rest
+                 (< (rand) 0.8))                                 ;; possibly rest
+              false
+              true)))
+        (catch Exception e
+          (println "melody.clj - note-or-rest play-note?:" play-note?)
+          (print-player player)
+          )
+        (finally true))
+      )
+    ))
 
 (defn note-or-rest-follow-ensemble
   [player note-time]
@@ -284,7 +292,12 @@
                     (if (nil? follow-player-last-event)
                       0
                       (- follow-player-last-event 1))
-                    (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event))
+                    ;; instrument-info
+                    ;; if follow-player has not played a note yet, get follow-player instrument-info
+                    ;; otherwise get instrument-info from last follow-player-event
+                    (if (nil? follow-player-last-event)
+                      (get-instrument-info (get-player follow-player-id))
+                      (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event)))
                     (select-volume player)
                     )
       ;; else
@@ -346,7 +359,7 @@
 ;;  (println "next-melody-for-player")
   (let [next-note-or-rest (if (loud-rest? player event-time)
                             nil
-                            (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
+                            (if (note-or-rest player event-time) (next-pitch player) nil))
         ]
     (MelodyEvent. next-note-or-rest
                   (next-note-dur player)
