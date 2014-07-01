@@ -126,6 +126,17 @@
   (new-segment player)
   )
 
+(defn- update-melody
+  [cur-melody next-melody-no new-melody-event]
+  (if (= (count cur-melody) SAVED-MELODY-LEN)
+    (do
+      (assoc (dissoc cur-melody (- next-melody-no SAVED-MELODY-LEN))
+        next-melody-no  new-melody-event)
+      )
+    (assoc cur-melody next-melody-no new-melody-event)
+    )
+  )
+
 (defn- update-player-info
   [player event-time melody-event]
   (let [prev-note-beat (:cur-note-beat player)
@@ -134,9 +145,9 @@
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
         cur-melody (get-melody player)
-        next-melody-no (if (> (count cur-melody) 0)
-                         (inc (reduce max (keys cur-melody)))
-                         1)
+        next-melody-no (if (empty? cur-melody)
+                         1
+                         (inc (reduce max (keys cur-melody))))
         ;; if seg-start = 0 this is the begining of the segment, so
         ;; set seg-start to the time of this event - also send seg-start msg
         seg-start-time (if (= (:seg-start player) 0)
@@ -152,18 +163,13 @@
     (if (< (+ seg-start-time (:seg-len player)) event-time)
       (update-player-with-new-segment
        (assoc player
+         :melody (update-melody cur-melody next-melody-no melody-event)
          :cur-note-beat cur-note-beat
          :prev-note-beat prev-note-beat))
       (assoc player
         :cur-note-beat cur-note-beat
         :last-pitch (if (not (nil? cur-note)) cur-note (get-last-pitch player))
-        :melody (if (= (count cur-melody) SAVED-MELODY-LEN)
-                  (do
-                    (assoc (dissoc cur-melody (- next-melody-no SAVED-MELODY-LEN))
-                      next-melody-no  melody-event)
-                    )
-                  (assoc cur-melody next-melody-no melody-event)
-                  )
+        :melody (update-melody cur-melody next-melody-no melody-event)
         :prev-note-beat prev-note-beat
         :seg-start seg-start-time
         )
@@ -198,7 +204,7 @@
     (if (nil? melody-dur-millis)
       (println "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
-      (let [cur-change-follow-info-note (get-change-follow-info-note player)]
+      (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
         (if cur-change-follow-info-note
           (let [follow-note (get-follow-note-for-event (get-last-melody-event player))]
             (if (nil? follow-note)

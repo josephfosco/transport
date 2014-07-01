@@ -15,8 +15,8 @@
 
 (ns transport.players
   (:require
-   [transport.behavior]
-   [transport.melodyevent :refer [get-instrument-info-for-event]]
+   [transport.behavior :refer [get-behavior-player-id]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
@@ -40,7 +40,7 @@
 
 (defn get-change-follow-info-note
   [player]
-  (:change-follow-info-note  player))
+  (:change-follow-info-note player))
 
 (defn get-function
   [player]
@@ -90,6 +90,10 @@
 (defn get-scale
   [player]
   (:scale player))
+
+(defn get-seg-num
+  [player]
+  (:seg-num player))
 
 (defn get-volume-for-note
   [melody-event]
@@ -198,7 +202,8 @@
   "follow-player - the player to get the following info from"
   [follow-player]
   (assoc (get-complement-info-from-player follow-player)
-   :instrument-info nil
+    :instrument-info nil
+    :change-follow-info-note nil
     )
   )
 
@@ -243,14 +248,28 @@
 (defn copy-follow-info
   [cur-players to-player]
   (let [to-player-id (get-player-id to-player)
-        from-player-id (get-player-id (:behavior to-player))
+        from-player-id (get-behavior-player-id (get-behavior to-player))
+        cur-change-follow-info-note (get-change-follow-info-note to-player)
+        last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
     (println "players - copy-follow-info to-player-id:" to-player-id)
-    (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
-    (assoc @PLAYERS to-player-id
-           (merge to-player
-                  (get-following-info-from-player (get-player from-player-id))
-                  ))
+    (if (and
+         (not (nil? from-player-id))
+         (not (nil? cur-change-follow-info-note))
+         (not (nil? last-follow-note))
+         (>= cur-change-follow-info-note last-follow-note))
+      (do
+        (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
+        (assoc @PLAYERS to-player-id
+               (merge to-player
+                      (get-following-info-from-player (get-player from-player-id))
+                      )))
+      (do
+        (println "players.clj - copy-follow-info NOT COPYING FOLLOW INFO from-player-id:" from-player-id "to-player-id:" to-player-id "cur-change-follow-info-note:" cur-change-follow-info-note "last-follow-note:" last-follow-note)
+        (print-player to-player)
+        cur-players
+        )
+      )
     )
   )
 

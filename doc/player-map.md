@@ -46,6 +46,7 @@
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)
 * :seg-len - the length of the player's current segment in milliseconds
+* :seg-num - the number of the player's current segment
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment
 * :scale - the scale this player is using
 

@@ -60,6 +60,7 @@
       :metronome (select-metronome-mm rnd-mm)
       :mm rnd-mm
       :seg-len (select-segment-length)
+      :seg-num 1
       :seg-start 0
       :scale (select-random-scale))))
 
@@ -84,6 +85,7 @@
                      :change-follow-info-note nil
                      :last-pitch nil
                      :seg-len (select-segment-length)
+                     :seg-num (inc (get-seg-num player))
                      :seg-start 0
                      )
         ]

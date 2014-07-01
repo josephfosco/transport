@@ -48,3 +48,10 @@
 * get range of melody from some melody characteristic (with inst range considered)
 
 * make certain melody range starts and ends on pitch in player scale
+
+* Allow (relatively) short lbe repeated over and over
+
+* Allow follow at ocatve and/or different intervals
+
+* Be able to bring back a portion of my melody or another player's melody
+
