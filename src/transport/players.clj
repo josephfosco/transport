@@ -245,6 +245,7 @@
         cur-players)))
   )
 
+(declare print-player)
 (defn copy-follow-info
   [cur-players to-player]
   (let [to-player-id (get-player-id to-player)
@@ -257,7 +258,7 @@
          (not (nil? from-player-id))
          (not (nil? cur-change-follow-info-note))
          (not (nil? last-follow-note))
-         (>= cur-change-follow-info-note last-follow-note))
+         (>= (inc last-follow-note) cur-change-follow-info-note))
       (do
         (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
         (assoc @PLAYERS to-player-id
@@ -267,7 +268,7 @@
       (do
         (println "players.clj - copy-follow-info NOT COPYING FOLLOW INFO from-player-id:" from-player-id "to-player-id:" to-player-id "cur-change-follow-info-note:" cur-change-follow-info-note "last-follow-note:" last-follow-note)
         (print-player to-player)
-        cur-players
+        (assoc @PLAYERS to-player-id to-player)
         )
       )
     )

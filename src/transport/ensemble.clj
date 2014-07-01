@@ -206,7 +206,7 @@
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
         (if cur-change-follow-info-note
-          (let [follow-note (get-follow-note-for-event (get-last-melody-event player))]
+          (let [follow-note (get-follow-note-for-event (get-last-melody-event upd-player))]
             (if (nil? follow-note)
               (do
                 ;; this is the first note player is FOLLOWing

@@ -243,8 +243,6 @@
 
 (defn dir-ascend
   [player]
-  (println "pitch.clj - dir-ascend ^^^^^^^^^^^^ player:" (get-player-id player))
-
   (let [rtn-note (if (= (choose-step-or-skip player) STEP)
                    (get-step-up-in-scale player (get-last-melody-note player))
                    (let [prev-note (get-last-melody-note player)
@@ -271,8 +269,6 @@
 
      player - the player to find the pitch for"
   [player]
-  (println "pitch.clj - dir-descend ------------ player:" (get-player-id player))
-
   (let [rtn-note (if (= (choose-step-or-skip player) STEP)
                    (get-step-down-in-scale player (get-last-melody-note player))
                    (let [prev-note (get-last-melody-note player)
