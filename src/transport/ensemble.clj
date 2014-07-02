@@ -20,7 +20,7 @@
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player select-and-set-behavior-player-id]]
    [transport.debug :refer [debug-run1]]
    [transport.ensemble-status :refer [update-ensemble-status]]
-   [transport.instrument :refer [get-instrument play-instrument]]
+   [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
@@ -192,9 +192,11 @@
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
-    (if (nil? (get-instrument-info-for-event melody-event))
+    (if (and (not (nil? (:note melody-event)))
+             (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
+                 (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
       (do
-        (println "ERROR ERROR ERROR ERROR MELODY EVENT INSTRUMENT-INFO IS NILL !!!! ERROR ERROR ERROR ERROR")
+        (println "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
         (println "ensemble.clj - play-melody melody-event:" melody-event)
         (print-player-num player-id)
         )

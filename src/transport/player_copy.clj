@@ -52,7 +52,9 @@
   (let [to-player (get-player follow-player-id)]
     (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
       (let [complement-player-info (get-complement-info-from-player (get-player change-player-id))
-           complement-melody-char (:melody-char complement-player-info)
+            complement-melody-char (adjust-melody-char-for-instrument
+                                    (:melody-char complement-player-info)
+                                    (get-instrument-info to-player))
            new-complement-info (assoc complement-player-info :melody-char complement-melody-char)
            ]
         (player-new-complement-info-replace
