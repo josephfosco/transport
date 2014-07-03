@@ -147,7 +147,7 @@
                                   (< player-lo cntrst-lo)
                                   player-lo
                                   :else
-                                  (- player-hi range-in-semitones)
+                                  (max (- player-hi range-in-semitones) 0)
                                   )
                  ]
              (list melody-range-lo (min player-hi (+ melody-range-lo range-in-semitones))))

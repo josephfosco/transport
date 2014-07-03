@@ -104,22 +104,28 @@
   "If CONTRAST player is in low range, will return a high range
    If CONTRAST player is in high range, will return a lower range"
   [player cntrst-plyr]
-  (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
-        cntrst-plyr-hi (get-hi-range cntrst-plyr)
-        lowest-note (cond
-                     (<= cntrst-plyr-hi LO-RANGE) (+ LO-RANGE 1)
-                     (<= cntrst-plyr-hi MID-RANGE) (+ cntrst-plyr-lo 1)
-                     :else (first MIDI-RANGE)
-                     )
-        highest-note (cond
-                     (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
-                     :else cntrst-plyr-lo
-                      )
-        lo (random-int lowest-note highest-note)
-        hi (if (= lo highest-note) highest-note (random-int lo highest-note))
+  (let [player-lo (get-lo-range player)
+        player-hi (get-hi-range player)
         ]
-    (list lo hi)
-    )
+    (if (or (not= player-lo (first MIDI-RANGE) (not= player-hi (last MIDI-RANGE))))
+      (list player-lo player-hi)
+      (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
+            cntrst-plyr-hi (get-hi-range cntrst-plyr)
+            lowest-note (cond
+                         (<= cntrst-plyr-hi LO-RANGE) (+ cntrst-plyr-hi 1)
+                         (<= cntrst-plyr-hi MID-RANGE) (+ cntrst-plyr-lo 1)
+                         :else (first MIDI-RANGE)
+                         )
+            highest-note (cond
+                          (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
+                          :else cntrst-plyr-lo
+                          )
+            lo (random-int lowest-note highest-note)
+            hi (if (= lo highest-note) highest-note (random-int lo highest-note))
+            ]
+        (list lo hi)
+        )
+      ))
   )
 
 (defn- select-range
