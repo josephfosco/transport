@@ -125,33 +125,34 @@
      (list (get-lo-range player) (get-hi-range player))
      )
   ([player cntrst-plyr cntrst-melody-char]
-     (let [cntrst-range (get-melody-char-range cntrst-melody-char)]
-       ;; if CONTRASTing player has narrow range
-       ;;   use as wide a range as possible
-       ;;   else use a range no wider than an octave
-       (let [cntrst-hi (second cntrst-range)
-             cntrst-lo (first cntrst-range)]
-         (if (< (- cntrst-hi cntrst-lo) 13)
-           (do
-             (list (get-lo-range player) (get-hi-range player)))
-           (let [player-lo (get-lo-range player)
-                 player-hi (get-hi-range player)
-                 range-in-semitones (rand-int 13)
-                 melody-range-lo (cond
-                                  (or (> player-lo cntrst-hi) (< player-hi cntrst-lo))
-                                  player-lo
-                                  (<= (+  cntrst-hi range-in-semitones) player-hi)
-                                  (inc cntrst-hi)
-                                  (<= (+  player-lo range-in-semitones) cntrst-lo)
-                                  player-lo
-                                  (< player-lo cntrst-lo)
-                                  player-lo
-                                  :else
-                                  (max (- player-hi range-in-semitones) 0)
-                                  )
-                 ]
-             (list melody-range-lo (min player-hi (+ melody-range-lo range-in-semitones))))
-           ))
+     ;; if CONTRASTing player has narrow range
+     ;;   use as wide a range as possible
+     ;;   else use a range no wider than an octave
+     (let [cntrst-range (get-melody-char-range cntrst-melody-char)
+           cntrst-hi (second cntrst-range)
+           cntrst-lo (first cntrst-range)
+           ]
+       (if (< (- cntrst-hi cntrst-lo) 13)
+         (do
+           (list (get-lo-range player) (get-hi-range player)))
+         (let [player-lo (get-lo-range player)
+               player-hi (get-hi-range player)
+               range-in-semitones (rand-int 13)
+               melody-range-lo (cond
+                                (or (> player-lo cntrst-hi) (< player-hi cntrst-lo))
+                                player-lo
+                                (<= (+  cntrst-hi range-in-semitones) player-hi)
+                                (min (inc cntrst-hi) (second MIDI-RANGE))
+                                (<= (+  player-lo range-in-semitones) cntrst-lo)
+                                player-lo
+                                (< player-lo cntrst-lo)
+                                player-lo
+                                :else
+                                (max (- player-hi range-in-semitones) 0)
+                                )
+               ]
+           (list melody-range-lo (min player-hi (+ melody-range-lo range-in-semitones))))
+         )
        ))
   )
 

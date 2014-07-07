@@ -15,6 +15,7 @@
 
 (ns transport.pitch
   (:require
+   [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-ensemble-action]]
    [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
@@ -154,7 +155,9 @@
   )
 
 (defn get-step-down-in-scale
-  "Returns the pitch 1 step down in the players scale and key
+  "Returns the pitch 1 step down in the players scale and key or
+   a negative number if there are no further pitches below
+   in the players scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step below"
@@ -234,10 +237,10 @@
   "Checks if note is in the melody range of player.
    Returns note if it is within range, else returns -1"
   [player note]
-  (if (or (< note (get-melody-char-range-lo (get-melody-char player)))
-          (> note (get-melody-char-range-hi (get-melody-char player))))
-    -1
+  (if (and (<= (first MIDI-RANGE) (get-melody-char-range-lo (get-melody-char player)) note)
+           (<= note (get-melody-char-range-hi (get-melody-char player)) (last MIDI-RANGE)))
     note
+    -1
     )
   )
 
@@ -269,17 +272,27 @@
 
      player - the player to find the pitch for"
   [player]
-  (let [rtn-note (if (= (choose-step-or-skip player) STEP)
-                   (get-step-down-in-scale player (get-last-melody-note player))
-                   (let [prev-note (get-last-melody-note player)
-                         melody-hi-range (get-melody-char-range-hi (get-melody-char player))
+  (let [prev-note (get-last-melody-note player)
+        rtn-note (if (= (choose-step-or-skip player) STEP)
+                   (let [step-down (get-step-down-in-scale player (get-last-melody-note player))
                          ]
-                     (get-scale-pitch-in-range player
-                                               :hi-range
-                                               (or (if (and prev-note (<= prev-note melody-hi-range))
-                                                     (- prev-note 1)
-                                                     nil)
-                                                   melody-hi-range)))
+                     (if (>= step-down (get-melody-char-range-lo (get-melody-char player)))
+                       step-down
+                       prev-note
+                       )
+                     )
+                   (let [hi-range (or (if (and
+                                           prev-note
+                                           (<= prev-note (get-melody-char-range-hi (get-melody-char player))))
+                                        (- prev-note 1)
+                                        nil)
+                                      (get-melody-char-range-hi (get-melody-char player)))
+                         ]
+                     (if (> hi-range (get-melody-char-range-lo (get-melody-char player)))
+                            (get-scale-pitch-in-range player :hi-range hi-range)
+                            prev-note
+                            )
+                     )
                    )
         ]
     rtn-note
@@ -293,7 +306,7 @@
         next-pitch (cond
                     (nil? last-pitch) (get-scale-pitch-in-range player)
                     (= direction ASCEND) (dir-ascend player)
-                    (= direction DESCEND) ( dir-descend player)
+                    (= direction DESCEND) (dir-descend player)
                     (= direction REPEAT-NOTE) (get-last-melody-note player)
                     :else (get-scale-pitch-in-range player)
                     )
@@ -302,7 +315,7 @@
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
       (do
-        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH")
+        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)))
         (get-scale-pitch-in-range player)
         )
       )

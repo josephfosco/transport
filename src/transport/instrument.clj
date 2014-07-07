@@ -100,41 +100,44 @@
     (list lo hi)
     ))
 
-(defn- select-contrasting-range
-  "If CONTRAST player is in low range, will return a high range
-   If CONTRAST player is in high range, will return a lower range"
-  [player cntrst-plyr]
-  (let [player-lo (get-lo-range player)
-        player-hi (get-hi-range player)
-        ]
-    (if (or (not= player-lo (first MIDI-RANGE) (not= player-hi (last MIDI-RANGE))))
-      (list player-lo player-hi)
-      (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
-            cntrst-plyr-hi (get-hi-range cntrst-plyr)
-            lowest-note (cond
-                         (<= cntrst-plyr-hi LO-RANGE) (+ cntrst-plyr-hi 1)
-                         (<= cntrst-plyr-hi MID-RANGE) (+ cntrst-plyr-lo 1)
-                         :else (first MIDI-RANGE)
-                         )
-            highest-note (cond
-                          (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
-                          :else cntrst-plyr-lo
-                          )
-            lo (random-int lowest-note highest-note)
-            hi (if (= lo highest-note) highest-note (random-int lo highest-note))
-            ]
-        (list lo hi)
-        )
-      ))
-  )
+(comment
+  NOW JUST USING Instrument range - range is limnited by melody characteristics
 
-(defn- select-range
-  [player inst-lo inst-hi]
-  (let [lo (random-int inst-lo inst-hi)
-        hi (if (= lo inst-hi) inst-hi (random-int lo inst-hi))]
-    (list lo hi)
+  (defn- select-contrasting-range
+    "If CONTRAST player is in low range, will return a high range
+   If CONTRAST player is in high range, will return a lower range"
+    [player cntrst-plyr]
+    (let [player-lo (get-lo-range player)
+          player-hi (get-hi-range player)
+          ]
+      (if (or (not= player-lo (first MIDI-RANGE) (not= player-hi (last MIDI-RANGE))))
+        (list player-lo player-hi)
+        (let [cntrst-plyr-lo (get-lo-range cntrst-plyr)
+              cntrst-plyr-hi (get-hi-range cntrst-plyr)
+              lowest-note (cond
+                           (<= cntrst-plyr-hi LO-RANGE) (+ cntrst-plyr-hi 1)
+                           (<= cntrst-plyr-hi MID-RANGE) (+ cntrst-plyr-lo 1)
+                           :else (first MIDI-RANGE)
+                           )
+              highest-note (cond
+                            (<= cntrst-plyr-hi MID-RANGE) (last MIDI-RANGE)
+                            :else cntrst-plyr-lo
+                            )
+              lo (random-int lowest-note highest-note)
+              hi (if (= lo highest-note) highest-note (random-int lo highest-note))
+              ]
+          (list lo hi)
+          )
+        ))
     )
-  )
+
+  (defn- select-range
+    [player inst-lo inst-hi]
+    (let [lo (random-int inst-lo inst-hi)
+          hi (if (= lo inst-hi) inst-hi (random-int lo inst-hi))]
+      (list lo hi)
+      )
+    ))
 
 (defn select-random-instrument
   "Selects random instrument-info for player.
@@ -178,14 +181,11 @@
                         )
                       )
                     )
-        inst-range (if (= behavior-action CONTRAST)
-                     (select-contrasting-range player cntrst-plyr)
-                     (select-range player (:range-lo inst-info) (:range-hi inst-info)))
         ]
     {:instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
-     :range-hi (last inst-range)
-     :range-lo (first inst-range)}
+     :range-hi (:range-hi inst-info)
+     :range-lo (:range-lo inst-info)}
     )
   )
 

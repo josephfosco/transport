@@ -55,3 +55,4 @@
 
 * Be able to bring back a portion of my melody or another player's melody
 
+* Eventually move throw (exception) for note-out-of-range in ensemble.clj

@@ -199,6 +199,7 @@
         (println "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
         (println "ensemble.clj - play-melody melody-event:" melody-event)
         (print-player-num player-id)
+        (throw (Throwable. "NOTE OUT OF RANGE"))
         )
       )
     (if (not (nil? (:note melody-event)))
