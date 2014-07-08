@@ -56,7 +56,6 @@
    player - the player starting a new segment
    melody-no - the key of the melody event that is being played"
   [player melody-no]
-  (println "ensemble.clj - listeners-msg-new-segment melody-no:" melody-no)
   (let [player-id (get-player-id player)]
        (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id :melody-no melody-no)

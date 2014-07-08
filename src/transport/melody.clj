@@ -245,25 +245,19 @@
   (if (loud-rest? player note-time)
     false     ;; rest because of loud interruption
     (let [play-note? (random-int 0 10)]
-      (try
-        (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
-          true
-          (if (not= 0 play-note?)                                ;; if play-note? not 0
-            false                                                ;; rest
-            (if (and                                             ;; else
-                 (not= {} (get-melody player))                   ;; if melody not empty
-                 (= 0                                            ;; and last pitch is root
-                    (get-scale-degree
-                     player
-                     (or (get-last-melody-note player) 0)))      ;; or rest
-                 (< (rand) 0.8))                                 ;; possibly rest
-              false
-              true)))
-        (catch Exception e
-          (println "melody.clj - note-or-rest play-note?:" play-note?)
-          (print-player player)
-          )
-        (finally true))
+      (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
+        true
+        (if (not= 0 play-note?)                                ;; if play-note? not 0
+          false                                                ;; rest
+          (if (and                                             ;; else
+               (not= {} (get-melody player))                   ;; if melody not empty
+               (= 0                                            ;; and last pitch is root
+                  (get-scale-degree
+                   player
+                   (or (get-last-melody-note player) 0)))      ;; or rest
+               (< (rand) 0.8))                                 ;; possibly rest
+            false
+            true)))
       )
     ))
 
