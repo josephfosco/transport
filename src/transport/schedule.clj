@@ -122,9 +122,8 @@
 
   (defn remove-all-events
     [cur-queue]
-    (if (= (count cur-queue) 1)
-      (disj cur-queue (first cur-queue))
-      (recur (disj cur-queue (first cur-queue)))))
+    (sorted-set-by event-queue-sort-fn)
+    )
 
   (defn remove-all-sched-events
     []
@@ -136,6 +135,14 @@
     "Removes the first (head) event from the event-queue."
     [cur-queue]
     (disj cur-queue (first cur-queue)))
+
+  (defn clear-scheduler
+    "Clear scheduled events and reset lateness
+     Does not stop or start scheduler"
+    []
+    (remove-all-sched-events)
+    (reset-lateness)
+    )
 
   (defn sched-timer
     [sound-event]

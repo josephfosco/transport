@@ -38,6 +38,15 @@
   {}
   )
 
+(defn clear-message-processor
+  "Clears messages and clears listeners"
+  []
+  (send MESSAGES clear-messages)
+  (await MESSAGES)
+  (send LISTENERS clear-listeners)
+  (await LISTENERS)
+  )
+
 (declare process-messages)
 (defn start-processing-messages
   [key identity old new]

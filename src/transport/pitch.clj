@@ -315,7 +315,7 @@
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
       (do
-        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)))
+        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)) "key:" (get-key player))
         (get-scale-pitch-in-range player)
         )
       )

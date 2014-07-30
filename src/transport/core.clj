@@ -19,11 +19,11 @@
    [overtone.live :refer :all]
    [transport.ensemble :refer [init-ensemble]]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
-   [transport.message-processor :refer [restart-message-processor start-message-processor stop-message-processor]]
+   [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
-   [transport.players :refer [init-players]]
-   [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
+   [transport.players :refer [reset-players init-players]]
+   [transport.schedule :refer [clear-scheduler reset-lateness restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util :refer :all]
    [transport.version :refer :all]
@@ -159,5 +159,13 @@
   (stop-scheduler)
   (stop-message-processor)
   (reset! is-playing? false))
+
+(defn transport-clear
+  "Clears the scheduler, message-processor, and players"
+  []
+  (clear-scheduler)
+  (clear-message-processor)
+  (reset-players)
+  )
 
 (transport-help)

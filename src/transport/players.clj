@@ -210,13 +210,20 @@
 (defn set-change-follow-info-note
   [cur-players from-player-id to-player-id originator-player-id melody-no]
   (println "players.clj - set-change-follow-info-note from:" from-player-id "to:" to-player-id "originator:" originator-player-id "melody-no:" melody-no)
-  (let [to-player (get-player to-player-id)]
-    (if (= from-player-id (get-player-id (:behavior to-player)))
-      (assoc @PLAYERS to-player-id
-             (assoc to-player :change-follow-info-note melody-no))
-      (do
-        (println "players.clj - set-change-follow-info-note NOT COPYING!")
-        cur-players)))
+  (if (not= originator-player-id to-player-id)
+    (do
+      (let [to-player (get-player to-player-id)]
+        (if (= from-player-id (get-player-id (:behavior to-player)))
+          (assoc @PLAYERS to-player-id
+                 (assoc to-player :change-follow-info-note melody-no))
+          (do
+            (println "players.clj - set-change-follow-info-note NOT COPYING!")
+            cur-players))))
+    (do
+      (println "players.clj - set-change-follow-info-note same originator NOT COPYING!")
+      cur-players)
+
+    )
   )
 
 (defn- send-new-player-info-msgs
