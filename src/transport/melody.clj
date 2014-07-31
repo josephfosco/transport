@@ -116,8 +116,8 @@
   )
 
 (defn- select-melody-range
-  "Returns a number that is the maximum width of
-   the melody's range in semitones."
+  "Returns a list that is the lo note and the hi note of
+   the melody's range."
   ([lo-range hi-range]
      (let [range-lo (random-int lo-range hi-range)]
        (list range-lo (random-int range-lo hi-range))))
