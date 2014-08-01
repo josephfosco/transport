@@ -36,7 +36,7 @@
    )
   )
 
-(def CONTINUITY-PROBS [4 3 2 1 1 1 1 2 2 1])
+(def CONTINUITY-PROBS [1 2 2 1 1 1 1 2 3 4])
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
 (def loud-player-time (atom nil))   ;; start time of loud player interrupt
 
@@ -71,7 +71,7 @@
 (defn- select-melody-continuity
   "Returns a number from 0 to 10 to determine how continuous
    the melody will be.
-   0 - continuous (few rests) -> 9 - discontinuous (all rests)"
+   0 - discontinuous (all rests) -> 9 - continuous (few rests)"
   ([] (weighted-choice CONTINUITY-PROBS))
   ([player]
      (weighted-choice CONTINUITY-PROBS)
@@ -245,9 +245,9 @@
   (if (loud-rest? player note-time)
     false     ;; rest because of loud interruption
     (let [play-note? (random-int 0 10)]
-      (if (< (get-melody-char-continuity (get-melody-char player)) play-note?)
+      (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
         true
-        (if (not= 0 play-note?)                                ;; if play-note? not 0
+        (if (not= 9 play-note?)                                ;; if play-note? not 0
           false                                                ;; rest
           (if (and                                             ;; else
                (not= {} (get-melody player))                   ;; if melody not empty
