@@ -110,7 +110,7 @@
    beats - the number of beats to use in dur-info and
              convert to milliseconds"
   [player beats]
-  {:dur-millis (note-dur-to-millis player (* quarter-note beats))
+  {:dur-millis (note-dur-to-millis player beats)
    :dur-note-dur beats}
   )
 

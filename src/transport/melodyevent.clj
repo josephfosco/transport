@@ -15,7 +15,7 @@
 
 (ns transport.melodyevent)
 
-(defrecord MelodyEvent [note dur-info follow-note instrument-info volume])
+(defrecord MelodyEvent [note dur-info follow-note instrument-info volume seg-num])
 
 (defn get-dur-info-for-event
   [melody-event]
@@ -40,6 +40,10 @@
 (defn get-note-for-event
   [melody-event]
   (:note melody-event))
+
+(defn get-seg-num-for-event
+  [melody-event]
+  (:seg-num melody-event))
 
 (defn get-volume-for-event
   [melody-event]

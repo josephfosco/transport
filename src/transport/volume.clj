@@ -15,17 +15,37 @@
 
 (ns transport.volume
   (:require
-   [transport.settings :refer [COMPLEMENT FOLLOW]]
+   [transport.melodychar :refer [get-melody-char-smoothness]]
+   [transport.melodyevent :refer [get-volume-for-event]]
+   [transport.players :refer :all]
    ))
 
-(defn select-volume
-  [player]
-  (rand))
+(def volume-smoothness [9 8 7 6 5 4 3 2 1 0])
 
 (defn select-volume-in-range
   "Returns a random float between lo-vol and hi-vol(exclusive).
+   precision is only to .999
 
   lo-vol - lowest value that can be returned
   hi-vol - highest value that can be returned(exclusive)"
   [lo-vol hi-vol]
-  (+ (rand (- hi-vol lo-vol)) lo-vol))
+  (float (/ (int (* (+ (rand (- hi-vol lo-vol)) lo-vol) 1000)) 1000))
+  )
+
+(defn- select-random-volume
+  []
+  (float (/ (int (* (rand) 1000)) 1000))
+    )
+
+(defn select-volume
+  [player]
+  (let [smoothness (volume-smoothness (get-melody-char-smoothness (get-melody-char player)))
+        last-volume (get-volume-for-event (get-last-melody-event player))
+        vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
+        vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
+        ]
+    (if (not= last-volume 0)
+      (select-volume-in-range vol-min vol-max)
+      (select-random-volume)
+      )
+    ))

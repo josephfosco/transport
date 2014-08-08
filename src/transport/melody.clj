@@ -21,7 +21,7 @@
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
@@ -158,8 +158,8 @@
 
 (defn- select-melody-smoothness
   "Returns a number from 0 to 9 to determine how smooth (stepwise)
-   the melody will be.
-   0 - mostly steps -> 9 - mostly skips (wide skips)"
+   the melody will be (steps vs skips and changes in volume levels.
+   0 - mostly steps, same voolume -> 9 - mostly skips (wide skips), large volume changes"
   ([] (rand-int 10))
   ([player]
      (rand-int 10)
@@ -279,22 +279,28 @@
   (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-event (get-last-melody-event-num follow-player-id)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
+        player-seg-num (get-seg-num player)
         ]
-    (if (nil? last-follow-event-num)
-      ;; first time, rest 3 beats
-      (MelodyEvent. nil
-                    (get-dur-info-for-beats (get-player follow-player-id) 3)
-                    (if (nil? follow-player-last-event)
-                      0
-                      (- follow-player-last-event 1))
-                    ;; instrument-info
-                    ;; if follow-player has not played a note yet, get follow-player instrument-info
-                    ;; otherwise get instrument-info from last follow-player-event
-                    (if (nil? follow-player-last-event)
-                      (get-instrument-info (get-player follow-player-id))
-                      (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event)))
-                    (select-volume player)
-                    )
+    (if (or (nil? last-follow-event-num)
+            (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
+            )
+      ;; first time or new segment, rest 3 beats
+      (do
+        (println "melody.clj - next-melody-follow player seg-num" (get-seg-num player) "following seg-num:" (get-seg-num-for-event (get-last-melody-event player)))
+        (MelodyEvent. nil
+                      (get-dur-info-for-beats (get-player follow-player-id) 3)
+                      (if (nil? follow-player-last-event)
+                        0
+                        (- follow-player-last-event 1))
+                      ;; instrument-info
+                      ;; if follow-player has not played a note yet, get follow-player instrument-info
+                      ;; otherwise get instrument-info from last follow-player-event
+                      (if (nil? follow-player-last-event)
+                        (get-instrument-info (get-player follow-player-id))
+                        (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event)))
+                      0  ;; 0 volume for rest
+                      player-seg-num
+                      ))
       ;; else
       ;; play FOLLOWer melody event after last-melody event
       (let [
@@ -305,8 +311,20 @@
           ;; unless
           ;; FOLLOWer ahead of FOLLOWed
           ;; then repeat whatever melody-event just played
-          (get-last-melody-event player)
-          (assoc next-melody-event :follow-note event-num-to-play))
+          (do
+            (println "*************** FOLLOWER AHEAD OF FOLLOWED ***************")
+            (print-player player)
+            (print-player-num follow-player-id)
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (assoc (get-last-melody-event player) :seg-num player-seg-num)
+            )
+          (assoc next-melody-event :follow-note event-num-to-play :seg-num player-seg-num))
         )))
   )
 
@@ -327,6 +345,7 @@
                   (select-volume-in-range
                    (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
                    (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
+                  (get-seg-num player)
                   )
     ))
 
@@ -344,8 +363,9 @@
                   nil
                   (get-instrument-info player)
                   (select-volume-in-range
-                   (if (< average-volume 0.5) 0.5 0) ;; set range of volume eithe 0.5 - 1 or
-                   (if (< average-volume 0.5) 1 0.5)) ;; 0 - 0.5 opposite of ensemble
+                   (if (< average-volume 0.5) 0.7 0) ;; set range of volume eithe 0.7 - 1 or
+                   (if (< average-volume 0.5) 1 0.3)) ;; 0 - 0.3 opposite of ensemble
+                  (get-seg-num player)
                   )
     ))
 
@@ -361,6 +381,7 @@
                   nil
                   (get-instrument-info player)
                   (if next-note-or-rest (select-volume player) 0) ;; 0 volume if rest
+                  (get-seg-num player)
                   ))
   )
 

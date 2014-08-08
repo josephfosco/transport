@@ -32,16 +32,16 @@
       - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
     + continuity - hom continuous the melody will be
-        - 0 -continuous (few rests)
-        - 9 discontinuous (all rests)
+        - 0 - discontinuous (all rests)
+        - 9 - continuous (few rests)
     + density - melody density
         - 0 - sparse (few notes of long duration)
         - 9 - dense (many notes of short duration)
     + range - width of the melody's ramge in semitones
         - Range in semitones
-    + smoothness - how stepwise the melody will be
-        - 0 - mostly steps
-        - 9 - mostly skips (wide skips)
+    + smoothness - how stepwise the melody will be and the change in volume from note to note
+        - 0 - mostly steps, same volume levels
+        - 9 - mostly skips (wide skips), large volume differences
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
 * :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)
