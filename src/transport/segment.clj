@@ -89,7 +89,6 @@
                      :seg-start 0
                      )
         ]
-    (print-player player)
     (cond
      (= behavior-action FOLLOW)
      (merge upd-player
