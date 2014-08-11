@@ -28,7 +28,7 @@
 ;;  player-id is index into vector.
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
 (def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
-(def rest-prob-len (* @number-of-players 3))
+(def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
@@ -93,9 +93,11 @@
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
+  (reset! player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+  (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
-  (dotimes [n rest-prob-len]
+  (dotimes [n @rest-prob-len]
     (if (< (rand) 0.8)
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
@@ -124,7 +126,7 @@
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob returns fraction or float."
   []
-  (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
+  (/ (count (filter #(= false %1) @rest-prob)) @rest-prob-len))
 
 (defn get-ensemble-key-for-player
   "Select a kay for player from keys currently playing in ensemble"
