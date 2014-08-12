@@ -145,10 +145,17 @@
         (reset-ensemble-status)    ;; must occur after restart-message-processor
         (init-ensemble)
         (reset! is-playing? true)
-        (println "transport-restart about to start-scheduler")
+
+        (println "***")
+        (println "*** transport-restart about to start-scheduler")
+        (println "***")
         (start-scheduler)
-        (println "transport-restart about to start-message-processor")
+
+        (println "***")
+        (println "*** transport-restart about to start-message-processor")
+        (println "***")
         (start-message-processor)
+
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
         (reset-melody)
