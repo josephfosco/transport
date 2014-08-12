@@ -327,7 +327,7 @@
       (println (format
                 "%-29s"
                 (str "  " melody-key
-                     ":instrument-name:" "-" (:name (:instrument (:instrument-info (get melody melody-key))))
+                     ":instrument-name:" (:name (:instrument (:instrument-info (get melody melody-key))))
                      " range-lo: " (:range-lo (:instrument-info (get melody melody-key)))
                      " range-hi: " (:range-hi (:instrument-info (get melody melody-key))) )))
       )))
