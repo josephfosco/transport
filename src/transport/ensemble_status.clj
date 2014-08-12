@@ -93,7 +93,7 @@
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
-  (reset! player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+  (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())

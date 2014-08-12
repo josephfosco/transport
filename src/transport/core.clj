@@ -97,29 +97,29 @@
       (transport-restart :num-players num-players)  ;; already started once - restart instead
       (do
         (println "***")
-        (println "*** Starting transport ***")
+        (println "*** Starting transport")
         (println "***")
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
 
         (println "***")
-        (println "*** transport-start about to start-scheduler ***")
+        (println "*** transport-start about to start-scheduler")
         (println "***")
         (start-scheduler)
 
         (println "***")
-        (println "*** transport-start about to start-message-processor ***")
+        (println "*** transport-start about to start-message-processor")
         (println "***")
         (start-message-processor)
 
         (println "***")
-        (println "*** transport-start init-melody-complete ***")
+        (println "*** transport-start init-melody-complete")
         (println "***")
         (reset! is-playing? true)
         (reset! restart? true)
 
         (println "***")
-        (println "*** transport-start restart: ***" @restart?)
+        (println "*** transport-start restart:" @restart?)
         (println "***")
         ))
     (println "WARNING - Can't start. Already Playing.")))

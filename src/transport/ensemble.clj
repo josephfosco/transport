@@ -184,7 +184,7 @@
    player - map for the current player
    event-time - time this note event was scheduled for"
   [player-id event-time]
-  (println "ensemble.clj - play-melody - player-id:" player-id)
+;;  (println "ensemble.clj - play-melody - player-id:" player-id)
   (let [
         player (get-player player-id)
         melody-event (next-melody player event-time)
