@@ -25,7 +25,7 @@
    [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
-   [transport.player-copy :refer [player-copy-new-complement-info]]
+   [transport.player-copy :refer [player-copy-new-similar-info]]
    [transport.players :refer :all]
    [transport.rhythm :refer [get-beats]]
    [transport.schedule :refer [sched-event]]
@@ -74,7 +74,7 @@
         (= (get-behavior-action-for-player player) SIMILAR)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
-         transport.player-copy/player-copy-new-complement-info
+         transport.player-copy/player-copy-new-similar-info
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
          )
@@ -109,7 +109,7 @@
      (= (get-behavior-action prev-behavior) SIMILAR)
      (unregister-listener
       MSG-PLAYER-NEW-SIMILAR-INFO
-      transport.player-copy/player-copy-new-complement-info
+      transport.player-copy/player-copy-new-similar-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )

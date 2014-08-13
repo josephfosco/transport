@@ -323,7 +323,7 @@
       )
     )  )
 
-(defn next-pitch-complement
+(defn next-pitch-similar
   [player]
   (next-pitch-ignore player)
   )
@@ -339,7 +339,7 @@
   (let [player-behavior-action (get-behavior-action-for-player player)
         ]
     (cond
-     (= player-behavior-action SIMILAR) (next-pitch-complement player)
+     (= player-behavior-action SIMILAR) (next-pitch-similar player)
      (= player-behavior-action CONTRAST) (next-pitch-contrast player)
      (= player-behavior-action IGNORE) (next-pitch-ignore player)
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )

@@ -95,34 +95,34 @@
             (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
      (= behavior-action SIMILAR)
-     (let [complement-player-info (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior)))
-           complement-melody-char (:melody-char complement-player-info)
+     (let [similar-player-info (get-similar-info-from-player (get-player (get-behavior-player-id new-behavior)))
+           similar-melody-char (:melody-char similar-player-info)
            new-instrument (select-instrument upd-player)
            new-melody-lo (if (<=
                               (get-instrument-range-lo new-instrument)
-                              (get-melody-char-range-lo complement-melody-char)
+                              (get-melody-char-range-lo similar-melody-char)
                               (get-instrument-range-hi new-instrument)
                               )
-                           (get-melody-char-range-lo complement-melody-char)
+                           (get-melody-char-range-lo similar-melody-char)
                            (get-instrument-range-lo new-instrument)
                            )
            new-melody-hi (if (> (get-instrument-range-hi new-instrument)
-                                (get-melody-char-range-hi complement-melody-char)
+                                (get-melody-char-range-hi similar-melody-char)
                                 new-melody-lo
                                 )
-                           (get-melody-char-range-hi complement-melody-char)
+                           (get-melody-char-range-hi similar-melody-char)
                            (get-instrument-range-hi new-instrument)
                            )
 
-           new-melody-char (assoc complement-melody-char
+           new-melody-char (assoc similar-melody-char
                              :range (list new-melody-lo new-melody-hi)
                              )
-           new-complement-info (assoc complement-player-info :melody-char new-melody-char)
+           new-similar-info (assoc similar-player-info :melody-char new-melody-char)
            ]
        (merge (assoc upd-player
                 :instrument-info new-instrument
                 )
-              new-complement-info)
+              new-similar-info)
        )
 
      :else  ;;  IGNORE or CONTRAST

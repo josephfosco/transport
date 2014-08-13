@@ -186,7 +186,7 @@
     nil
     ))
 
-(defn get-complement-info-from-player
+(defn get-similar-info-from-player
   "follow-player - the player to get the following info from"
   [follow-player]
   {
@@ -201,7 +201,7 @@
 (defn get-following-info-from-player
   "follow-player - the player to get the following info from"
   [follow-player]
-  (assoc (get-complement-info-from-player follow-player)
+  (assoc (get-similar-info-from-player follow-player)
     :instrument-info nil
     :change-follow-info-note nil
     )
@@ -281,25 +281,25 @@
     )
   )
 
-(defn replace-complement-info
+(defn replace-similar-info
   [cur-players from-player-id to-player originator-player-id]
   (let [to-player-id (get-player-id to-player)]
-    (println "players.clj - replace-complement-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
+    (println "players.clj - replace-similar-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
     (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
-          (println "players.clj - replace-complement-info - NOT SENDING MESSAGES"))
+          (println "players.clj - replace-similar-info - NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id to-player)
         )
       (do
-        (println "players - replace-complement-info NOT COPYING!")
+        (println "players - replace-similar-info NOT COPYING!")
         cur-players)))
   )
 
-(defn player-new-complement-info-replace
+(defn player-new-similar-info-replace
   [& {:keys [change-player-id follow-player originator-player-id]}]
-  (send PLAYERS replace-complement-info change-player-id follow-player originator-player-id)
+  (send PLAYERS replace-similar-info change-player-id follow-player originator-player-id)
   )
 
 (defn new-change-follow-info-note-for-player

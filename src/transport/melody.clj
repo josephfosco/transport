@@ -328,9 +328,8 @@
         )))
   )
 
-(defn- next-melody-complement-ensemble
+(defn- next-melody-similar-ensemble
   [player event-time]
-;;  (println "next-melody-complement-ensemble")
   (let [next-note-or-rest (if (loud-rest? player event-time)
                             nil
                             (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
@@ -393,7 +392,7 @@
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-complement-ensemble player event-time)
+   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
    (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
