@@ -393,7 +393,7 @@
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action-for-player player) COMPLEMENT) (next-melody-complement-ensemble player event-time)
+   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-complement-ensemble player event-time)
    (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble

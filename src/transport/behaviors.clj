@@ -18,7 +18,7 @@
    [overtone.live :refer [ranged-rand]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id get-behavior-ensemble-action]]
    [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
-   [transport.settings :refer [number-of-players COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   [transport.settings :refer [number-of-players SIMILAR CONTRAST FOLLOW IGNORE]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -43,7 +43,7 @@
     (cond
      (< action-num 0.25) FOLLOW
      (< action-num 0.50) CONTRAST
-     (< action-num 0.75) COMPLEMENT
+     (< action-num 0.75) SIMILAR
      :else IGNORE
      ))  )
 
@@ -51,7 +51,7 @@
   [player]
   (let [action-num (rand)]
     (cond
-     (< action-num 0.34) COMPLEMENT
+     (< action-num 0.34) SIMILAR
      (< action-num 0.66) CONTRAST
      :else IGNORE
      ))  )

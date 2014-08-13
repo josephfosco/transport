@@ -229,7 +229,7 @@
 (defn- send-new-player-info-msgs
   [change-player-id originator-player-id melody-no]
   (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id change-player-id :originator-player-id  originator-player-id :melody-no melody-no)
-  (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
+  (send-message MSG-PLAYER-NEW-SIMILAR-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
   (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
 
   )

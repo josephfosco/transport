@@ -94,7 +94,7 @@
      (merge upd-player
             (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
 
-     (= behavior-action COMPLEMENT)
+     (= behavior-action SIMILAR)
      (let [complement-player-info (get-complement-info-from-player (get-player (get-behavior-player-id new-behavior)))
            complement-melody-char (:melody-char complement-player-info)
            new-instrument (select-instrument upd-player)

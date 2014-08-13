@@ -49,7 +49,7 @@
 (defn- listeners-msg-new-segment
   "Called first time player plays a note in a new segment.
    Sends a message that it is in a new segment, and
-   if the player is FOLLOWing, COMPLEMENTing, or CONTRASTing
+   if the player is FOLLOWing, SIMILARing, or CONTRASTing
    it will listen for new segmemnts in the player it is
    FOLLOWing etc...
 
@@ -59,7 +59,7 @@
   (let [player-id (get-player-id player)]
        (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id :melody-no melody-no)
-       (send-message MSG-PLAYER-NEW-COMPLEMENT-INFO :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-SIMILAR-INFO :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
        (cond
@@ -71,9 +71,9 @@
          :follow-player-id player-id
          )
 
-        (= (get-behavior-action-for-player player) COMPLEMENT)
+        (= (get-behavior-action-for-player player) SIMILAR)
         (register-listener
-         MSG-PLAYER-NEW-COMPLEMENT-INFO
+         MSG-PLAYER-NEW-SIMILAR-INFO
          transport.player-copy/player-copy-new-complement-info
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
@@ -106,9 +106,9 @@
       :follow-player-id (get-player-id player)
       )
 
-     (= (get-behavior-action prev-behavior) COMPLEMENT)
+     (= (get-behavior-action prev-behavior) SIMILAR)
      (unregister-listener
-      MSG-PLAYER-NEW-COMPLEMENT-INFO
+      MSG-PLAYER-NEW-SIMILAR-INFO
       transport.player-copy/player-copy-new-complement-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
@@ -245,7 +245,7 @@
     (await PLAYERS)
     )
 
-  ;; set the :behavior :player-id for all players that are FOLLOWing,COMPLEMENTing or CONTRASTing
+  ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing
   (let [final-players
         (zipmap
          (keys @PLAYERS)

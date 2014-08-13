@@ -24,7 +24,7 @@
 
 (def IGNORE 0)
 (def CONTRAST 1)
-(def COMPLEMENT 2)
+(def SIMILAR 2)
 (def FOLLOW 3)
 
 (def STEADY 10)

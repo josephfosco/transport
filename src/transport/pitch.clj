@@ -185,7 +185,7 @@
   "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (if (= (get-behavior-ensemble-action (get-behavior player)) COMPLEMENT)  ;; if COMPLEMENTing ensemble
+  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR)  ;; if SIMILARng ensemble
     (get-ensemble-key-for-player player)  ;; get key from ensemble else
     (rand-int 12))) ;; return random key
 
@@ -339,7 +339,7 @@
   (let [player-behavior-action (get-behavior-action-for-player player)
         ]
     (cond
-     (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
+     (= player-behavior-action SIMILAR) (next-pitch-complement player)
      (= player-behavior-action CONTRAST) (next-pitch-contrast player)
      (= player-behavior-action IGNORE) (next-pitch-ignore player)
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
