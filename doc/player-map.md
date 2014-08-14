@@ -7,6 +7,7 @@
     + :player-id - player id of player that is being observed (optional only if :action is follow, complement or contrast)
 * :change-follow-info-note When following another player, if the player you are following changes instruments, this is the note they changed on
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
+* :cur-note-time - the time the next note to be played will be played (starts at 0)
 * :function - function to call when event is triggered
 * :instrument-info - a map containing
     + :envelope-type - the type of envelope this instrument uses current vlaues
@@ -44,7 +45,8 @@
         - 9 - mostly skips (wide skips), large volume differences
 * :mm - BPM for this player
 * :player-id - unique id for each player (does not change as long as transport is not paused
-* :prev-note-beat - the beat the  note that is playing played was played on (starts at 0)
+* :prev-note-beat - the beat the note that is playing was played on (starts at 0)
+* :prev-note-time - the time the note that is playing was played (starts at 0)
 * :seg-len - the length of the player's current segment in milliseconds
 * :seg-num - the number of the player's current segment
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment

@@ -24,6 +24,7 @@
 (def lateness (agent 0))      ; num of milliseconds most recent event was late
 (def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
 (def scheduler-running? (atom true)) ; If false, scheduler is paused and will not watch event-queue when it is empty
+(def zero-time (atom nil))
 
 (defn print-lateness
   []
@@ -98,13 +99,21 @@
     (nth (first @event-queue) 3))
 
   (defn get-next-sched-event-time
-    "Returns the time the next event to be executed is scheduled for
-      if the next event is scheduled for 0 then return the current time
-      this generally happens for a player's first note only"
+    "Returns the time the next event to be executed is scheduled for.
+      If the next event is scheduled for 0 then return the variable zero-time.
+      If zero-time is nil set zero-time to current system time.
+      zero-time is nil only for the very first event coming through"
     []
     (if (> (count @event-queue) 0)
       (let [next-queue-time (first (first @event-queue))]
-        (if (> next-queue-time 0) next-queue-time (System/currentTimeMillis)))
+        (if (> next-queue-time 0)
+          next-queue-time
+          (do
+            (println "schedule.clj - get-next-sched-event-time zero-time:" @zero-time)
+            (if (nil? @zero-time) (reset! zero-time (System/currentTimeMillis)))
+            @zero-time
+            )
+          ))
       nil))
 
   (defn cancel-timerTask
@@ -118,6 +127,7 @@
     []
     (.cancel the-timer)
     (reset-lateness)
+    (reset! zero-time nil)
     (debug-run1 (println "Timer canceled")))
 
   (defn remove-all-events
@@ -142,6 +152,7 @@
     []
     (remove-all-sched-events)
     (reset-lateness)
+    (reset! zero-time nil)
     )
 
   (defn sched-timer
@@ -231,14 +242,22 @@
       (watch-queue)))
 
   (defn sched-event
-    "Add an event to the event queue
+    "Add an event to the event queue.
+     If keyword :time is specified, event will be scheduled for that time (from System/currentTimeMillis)
+       else event will be specified to occur event delay-millis from now.
+
      event-delay - is the number of milliseconds from now that this event will occur
      event-func - the function to call after event-delay has elapsed
      event-data - is the information that will be passed to the function that will
-     be called when this event is executed."
-    [event-delay event-func event-data]
+     be called when this event is executed.
+
+     keyword :time - the time to fire to run this event. :time takes precedence over event-delay"
+    [event-delay event-func event-data & {:keys [time]
+                                          :or {time 0}}]
     (debug-run1 (println "1 sched-event - num items in event-queue:  " (count @event-queue)))
-    (let [new-event-time (if (> event-delay 0) (+ (System/currentTimeMillis) event-delay) 0)
+    (let [new-event-time (cond (> time 0) time
+                               (> event-delay 0) (+ (System/currentTimeMillis) event-delay)
+                               :else 0)
           new-event (list new-event-time (swap! event-counter inc-event-counter) event-func event-data)
           ;; if there are events in event-queue, and
           ;; this new event will be placed first in the event-queue

@@ -76,11 +76,23 @@
       (transport.pitch/load-scales)
       (init-ensemble-status)
       (init-ensemble)
-      (println "transport-start about to init-melody")
+
+      (println "***")
+      (println "*** transport-init about to init-melody")
+      (println "***")
       (init-melody)
       (reset! is-initialized? true)
-      (println "transport successfully initialized"))
-    (println "Warning - transport already initialized")))
+
+      (println "***")
+      (println "*** transport successfully initialized")
+      (println "***")
+      )
+    (do
+      (println "!!!")
+      (println "!!! Warning - transport already initialized")
+      (println "!!!")
+      )
+    ))
 
 (declare transport-restart)
 (defn transport-start
@@ -119,7 +131,10 @@
         (reset! restart? true)
 
         (println "***")
-        (println "*** transport-start restart:" @restart?)
+        (println "*** transport-start - restart:" @restart?)
+        (println "***")
+        (println "***")
+        (println "*** transport-start - start complete")
         (println "***")
         ))
     (println "WARNING - Can't start. Already Playing.")))
@@ -156,9 +171,16 @@
         (println "***")
         (start-message-processor)
 
+        (println "***")
+        (println "*** transport-restart about to reset-melody")
+        (println "***")
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
         (reset-melody)
+
+        (println "***")
+        (println "*** transport-restart restart complete")
+        (println "***")
         )
       (transport-start))
     (println "WARNING - Can't restart. Already playing")))

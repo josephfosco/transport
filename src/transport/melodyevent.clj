@@ -29,6 +29,14 @@
   (:dur-millis dur-info)
   )
 
+(defn get-dur-millis-for-event
+  "Returns the millis duraition for the melody-event
+
+   dur-info - melody-event to get millis from"
+  [melody-event]
+  (:dur-millis (get-dur-info-for-event melody-event))
+  )
+
 (defn get-follow-note-for-event
   [melody-event]
   (:follow-note melody-event))

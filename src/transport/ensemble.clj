@@ -22,7 +22,7 @@
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.melody :refer [next-melody]]
-   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-dur-millis-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-similar-info]]
@@ -143,6 +143,8 @@
         cur-note-beat (if (not (nil? (:dur-info melody-event)))
                         (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
                         0)
+        prev-note-time event-time
+        cur-note-time (+ prev-note-time (get-dur-millis-for-event melody-event))
         cur-melody (get-melody player)
         next-melody-no (if (empty? cur-melody)
                          1
@@ -164,12 +166,17 @@
        (assoc player
          :melody (update-melody cur-melody next-melody-no melody-event)
          :cur-note-beat cur-note-beat
-         :prev-note-beat prev-note-beat))
+         :cur-note-time cur-note-time
+         :prev-note-beat prev-note-beat
+         :prev-note-time prev-note-time
+         ))
       (assoc player
         :cur-note-beat cur-note-beat
+        :cur-note-time cur-note-time
         :last-pitch (if (not (nil? cur-note)) cur-note (get-last-pitch player))
         :melody (update-melody cur-melody next-melody-no melody-event)
         :prev-note-beat prev-note-beat
+        :prev-note-time prev-note-time
         :seg-start seg-start-time
         )
       ))
@@ -224,7 +231,7 @@
             )
           (update-player upd-player)
           ))
-      (sched-event melody-dur-millis (get-function upd-player) player-id)
+      (sched-event 0 (get-function upd-player) player-id :time (+ event-time melody-dur-millis))
       (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
       ))
   )
@@ -232,10 +239,13 @@
 (defn create-player
   [player-no]
   (first-segment {:cur-note-beat 0
+                  :cur-note-time 0
                   :function transport.ensemble/play-melody
                   :melody {}
                   :player-id player-no
-                  :prev-note-beat 0}))
+                  :prev-note-beat 0
+                  :prev-note-time 0
+                  }))
 
 (defn init-ensemble
   []
