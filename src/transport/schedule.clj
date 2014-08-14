@@ -109,7 +109,6 @@
         (if (> next-queue-time 0)
           next-queue-time
           (do
-            (println "schedule.clj - get-next-sched-event-time zero-time:" @zero-time)
             (if (nil? @zero-time) (reset! zero-time (System/currentTimeMillis)))
             @zero-time
             )

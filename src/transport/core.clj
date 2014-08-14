@@ -148,7 +148,9 @@
                   defaults to it's prior value"
   [& {:keys [num-players]
       :or {num-players nil}}]
-  (println "Restarting transport")
+  (println "***")
+  (println "*** Restarting transport")
+  (println "***")
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
