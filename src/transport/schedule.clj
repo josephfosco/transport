@@ -52,6 +52,12 @@
   (reset! max-lateness 0)
   )
 
+(defn reset-scheduler
+  []
+  (reset-lateness)
+  (reset! zero-time nil)
+  )
+
 (defn event-queue-sort-fn
   "Sort function for the event que.
    First Compares the time of the events.
@@ -126,7 +132,6 @@
     []
     (.cancel the-timer)
     (reset-lateness)
-    (reset! zero-time nil)
     (debug-run1 (println "Timer canceled")))
 
   (defn remove-all-events

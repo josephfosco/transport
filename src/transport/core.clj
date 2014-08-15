@@ -23,7 +23,7 @@
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
    [transport.players :refer [reset-players init-players]]
-   [transport.schedule :refer [clear-scheduler reset-lateness restart-scheduler start-scheduler stop-scheduler]]
+   [transport.schedule :refer [clear-scheduler reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util :refer :all]
    [transport.version :refer :all]
@@ -156,7 +156,7 @@
       (do
         (if (not (nil? num-players))
           (set-number-of-players num-players))
-        (reset-lateness)
+        (reset-scheduler)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
         (reset-ensemble-status)    ;; must occur after restart-message-processor
