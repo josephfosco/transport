@@ -138,11 +138,13 @@
 
 (defn- update-player-info
   [player event-time melody-event]
+  (println "ensemble.clj - update-player-info player-id:" (get-player-id player) "cur-note-beat:" (:cur-note-beat player) "beats:" (get-beats (:dur-info melody-event)))
   (let [prev-note-beat (:cur-note-beat player)
         cur-note (get-note-for-event melody-event)
-        cur-note-beat (if (not (nil? (:dur-info melody-event)))
-                        (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
-                        0)
+        cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil
+                            (nil? (:cur-note-beat player)) 0   ;; right after sync beat this will be nill so reset it
+                            (not (nil? (:dur-info melody-event))) (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
+                            :else 0)
         prev-note-time event-time
         cur-note-time (+ prev-note-time (get-dur-millis-for-event melody-event))
         cur-melody (get-melody player)
@@ -159,6 +161,18 @@
                          (:seg-start player))
 
         ]
+    (let [dur-type (type cur-note-beat)]
+      (if (and (not (ratio? cur-note-beat))
+               (not (integer? cur-note-beat))
+               (not (nil? cur-note-beat))
+               )
+        (do
+          (println "!!!!!!!!!")
+          (println "!!!!!!!!! NEW DURATION TYPE:" dur-type)
+          (println "!!!!!!!!!")
+          (print-player player)
+          )
+        ))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
     (if (< (+ seg-start-time (:seg-len player)) event-time)
@@ -178,6 +192,7 @@
         :prev-note-beat prev-note-beat
         :prev-note-time prev-note-time
         :seg-start seg-start-time
+        :sync-beat-player-id nil
         )
       ))
   )
@@ -245,6 +260,7 @@
                   :player-id player-no
                   :prev-note-beat 0
                   :prev-note-time 0
+                  :sync-beat-player-id nil
                   }))
 
 (defn init-ensemble

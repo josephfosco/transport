@@ -384,6 +384,17 @@
                   ))
   )
 
+(defn- sync-beat
+  [player event-time]
+  (cond
+   (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
+   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
+   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
+   ;; else pick next melody note based only on players settings
+   ;;  do not reference other players or ensemble
+   :else (next-melody-for-player player event-time))
+  )
+
 (defn next-melody
   "Returns the next note information as a map for player
 
@@ -391,6 +402,7 @@
   [player event-time]
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
+   (not (nil? (get-sync-beat-player-id player))) (sync-beat player event-time)
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
    (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)

@@ -77,6 +77,9 @@
   )
 
 (defn new-segment
+  "Returns map player wit new segment info in it
+
+   player - player map to get (and return new segment info for"
   [player]
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
@@ -91,8 +94,10 @@
         ]
     (cond
      (= behavior-action FOLLOW)
-     (merge upd-player
-            (get-following-info-from-player (get-player (get-behavior-player-id new-behavior))))
+     (let [following-player-id (get-behavior-player-id new-behavior)]
+       (merge upd-player
+              (get-following-info-from-player (get-player following-player-id))
+              {:sync-beat-player-id following-player-id}))
 
      (= behavior-action SIMILAR)
      (let [similar-player-info (get-similar-info-from-player (get-player (get-behavior-player-id new-behavior)))

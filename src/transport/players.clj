@@ -95,6 +95,10 @@
   [player]
   (:seg-num player))
 
+(defn get-sync-beat-player-id
+  [player]
+  (:sync-beat-player-id player))
+
 (defn get-volume-for-note
   [melody-event]
   (:volume melody-event))

@@ -51,5 +51,6 @@
 * :seg-num - the number of the player's current segment
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment
 * :scale - the scale this player is using
+* :sync-beat-player-id - when not nil, sync downbeat with this player
 
 Copyright 2013-2014  Joseph Fosco. All Rights Reserved
