@@ -22,12 +22,12 @@
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.melody :refer [next-melody]]
-   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-dur-millis-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-similar-info]]
    [transport.players :refer :all]
-   [transport.rhythm :refer [get-beats]]
+   [transport.rhythm :refer [get-dur-beats get-dur-millis]]
    [transport.schedule :refer [sched-event]]
    [transport.segment :refer [copy-following-info first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
@@ -138,15 +138,15 @@
 
 (defn- update-player-info
   [player event-time melody-event]
-  (println "ensemble.clj - update-player-info player-id:" (get-player-id player) "cur-note-beat:" (:cur-note-beat player) "beats:" (get-beats (:dur-info melody-event)))
+  (println "ensemble.clj - update-player-info player-id:" (get-player-id player) "cur-note-beat:" (:cur-note-beat player) "beats:" (get-dur-beats (:dur-info melody-event)))
   (let [prev-note-beat (:cur-note-beat player)
         cur-note (get-note-for-event melody-event)
-        cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil
+        cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil ;; eventually this should be (int +2)
                             (nil? (:cur-note-beat player)) 0   ;; right after sync beat this will be nill so reset it
-                            (not (nil? (:dur-info melody-event))) (+ (:cur-note-beat player) (get-beats (:dur-info melody-event)))
+                            (not (nil? (:dur-info melody-event))) (+ (:cur-note-beat player) (get-dur-beats (:dur-info melody-event)))
                             :else 0)
         prev-note-time event-time
-        cur-note-time (+ prev-note-time (get-dur-millis-for-event melody-event))
+        cur-note-time (+ prev-note-time (get-dur-millis (get-dur-info-for-event melody-event)))
         cur-melody (get-melody player)
         next-melody-no (if (empty? cur-melody)
                          1

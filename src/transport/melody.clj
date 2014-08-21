@@ -21,12 +21,12 @@
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
-   [transport.rhythm :refer [get-dur-info-for-beats next-note-dur]]
+   [transport.rhythm :refer [get-dur-info-for-beats next-note-dur note-dur-to-millis]]
    [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-in-range]]
    )
@@ -273,6 +273,49 @@
   [player-id melody-event-no]
   (get (get-melody (get-player player-id)) melody-event-no))
 
+(defn- compute-sync-time
+  "Returns the time of a downbeat. The time returned completes any fractional
+   part of the current beat and adds 1.  So, if the current beat is 1.5, this
+   function will return the time for beat 3"
+  [mm beat time]
+  (let [fractional-beat (if (not= (int beat) beat)
+                          (- 1 (- beat (int beat)))
+                          0)]
+    (+ time (note-dur-to-millis mm (+ 1 fractional-beat)))
+    )
+  )
+
+(defn- sync-beat-follow
+  [player follow-player-id]
+  (println "melody.clj - sync-beat-follow player:" (get-player-id player))
+  (let [follow-player (get-player-id player)
+        follow-player-mm (get-mm follow-player)
+        follow-player-beat (get-cur-note-beat follow-player)
+        follow-player-time (get-cur-note-time)
+        follow-player-last-melody-event (get-last-melody-event follow-player)
+        seg-num (get-seg-num player)
+        last-seg-num (get-seg-num-for-event follow-player-last-melody-event)
+        ]
+    (comment
+      (create-melody-event
+       :note nil
+       :dur-info (if (= seg-num last-seg-num)
+                   (compute-sync-time follow-player-mm follow-player-beat follow-player-time)
+                   (compute-sync-time
+                    (compute-mm-from-dur-info
+                     (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
+                     (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
+                    )
+                   )
+       :follow-note nil
+       :instrument-info (get-instrument-info player)
+       :volume 0
+       :seg-num (get-seg-num player))
+       )
+      )
+    )
+  )
+
 (defn next-melody-follow
   [player]
 ;;    (println "next-melody-follow")
@@ -281,7 +324,9 @@
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
-    (if (or (nil? last-follow-event-num)
+    (cond
+     (not (nil? (get-sync-beat-player-id player))) (sync-beat-follow player follow-player-id)
+     (or (nil? last-follow-event-num)
             (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
             )
       ;; first time or new segment, rest 3 beats
@@ -301,7 +346,7 @@
                       0  ;; 0 volume for rest
                       player-seg-num
                       ))
-      ;; else
+      :else
       ;; play FOLLOWer melody event after last-melody event
       (let [
             event-num-to-play (inc last-follow-event-num)
@@ -384,17 +429,6 @@
                   ))
   )
 
-(defn- sync-beat
-  [player event-time]
-  (cond
-   (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
-   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
-   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
-   ;; else pick next melody note based only on players settings
-   ;;  do not reference other players or ensemble
-   :else (next-melody-for-player player event-time))
-  )
-
 (defn next-melody
   "Returns the next note information as a map for player
 
@@ -402,7 +436,6 @@
   [player event-time]
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
-   (not (nil? (get-sync-beat-player-id player))) (sync-beat player event-time)
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player)
    (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
    (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)

@@ -66,19 +66,44 @@
   )
 
 (defn note-dur-to-millis
+  "Converts note-dur (in beats) to millis at the specified mm
+
+   mm - the mm to compute note-dur with
+   note-dur - note duration in beats"
+  [mm note-dur]
+  (int (* (* (/ 60.0 mm) note-dur)  1000))
+  )
+
+(defn note-dur-to-millis-player
   "Converts note-dur (in beats) to millis at the mm for player
 
    player - player to get mm for
    note-dur - note duration in beats"
   [player note-dur]
-  (int (* (* (/ 60.0 (:mm player)) note-dur)  1000))
+  (note-dur-to-millis (:mm player) note-dur)
   )
 
 (defn millis-to-note-dur
   [player millis]
   (/ millis (* (/ 60.0 (:mm player)) 1000)))
 
-(defn get-beats
+(defn compute-mm-from-dur-info
+  [millis beats]
+  (let [quarter-note-millis (+ (* millis (/ (- 1 beats) beats)) millis)
+        ]
+
+    (* (/ quarter-note-millis 1000) 60))
+  )
+
+(defn get-dur-millis
+  "Returns the millis of this dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
+(defn get-dur-beats
   "Returns the duration in beats of this dur-info
 
    dur-info - duration info to get dur-beats from"
@@ -110,13 +135,12 @@
    beats - the number of beats to use in dur-info and
              convert to milliseconds"
   [player beats]
-  {:dur-millis (note-dur-to-millis player beats)
+  {:dur-millis (note-dur-to-millis-player player beats)
    :dur-note-dur beats}
   )
 
 (defn adjust-note-prob
-  " Finds the index of the rhythmic value closest to ensemble average duration,
-    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
+  " Finds the index of the rhythmic value closest to ensemble average duration,    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
     is the first or last index, add 5 to the probability of the index
     either before or after the selected one.
@@ -142,7 +166,7 @@
 (defn adjust-rhythmic-probabilities
   [player]
   (let [ensemble-action (get-behavior-ensemble-action-for-player player)
-        note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
+        note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
         adjusted-note-prob1 (if (= SIMILAR ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
@@ -154,6 +178,10 @@
         ]
     final-adjusted-note-prob
     )
+  )
+
+(defn create-note-dur
+  []
   )
 
 (defn next-note-dur
@@ -169,7 +197,7 @@
         (print-player player)
         )
       )
-    {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
+    {:dur-millis (note-dur-to-millis-player player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
 

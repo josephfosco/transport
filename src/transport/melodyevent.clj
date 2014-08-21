@@ -17,6 +17,17 @@
 
 (defrecord MelodyEvent [note dur-info follow-note instrument-info volume seg-num])
 
+(defn create-melody-event
+  [& {:keys [note dur-info follow-note instrument-info volume seg-num]}]
+  (MelodyEvent. note
+                dur-info
+                follow-note
+                instrument-info
+                volume
+                seg-num
+                )
+  )
+
 (defn get-dur-info-for-event
   [melody-event]
   (:dur-info melody-event))
@@ -27,14 +38,6 @@
    dur-info - duration info to get millis from"
   [dur-info]
   (:dur-millis dur-info)
-  )
-
-(defn get-dur-millis-for-event
-  "Returns the millis duraition for the melody-event
-
-   dur-info - melody-event to get millis from"
-  [melody-event]
-  (:dur-millis (get-dur-info-for-event melody-event))
   )
 
 (defn get-follow-note-for-event
