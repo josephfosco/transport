@@ -226,7 +226,7 @@
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
-      (println "MELODY EVENT :DUR IS NILL !!!!"))
+      (println "ensemble.clj - play-melody MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
         (if cur-change-follow-info-note

@@ -74,6 +74,10 @@
   (int (* (* (/ 60.0 mm) note-dur)  1000))
   )
 
+(defn millis-to-note-dur
+  [mm millis]
+  (/ millis (* (/ 60.0 mm)) 1000))
+
 (defn note-dur-to-millis-player
   "Converts note-dur (in beats) to millis at the mm for player
 
@@ -83,15 +87,15 @@
   (note-dur-to-millis (:mm player) note-dur)
   )
 
-(defn millis-to-note-dur
+(defn millis-to-note-dur-player
   [player millis]
-  (/ millis (* (/ 60.0 (:mm player)) 1000)))
+  (millis-to-note-dur (:mm player) millis))
 
 (defn compute-mm-from-dur-info
   [millis beats]
+  (println "rhythm.clj - compute-mm-from-dur-info millis:" millis "beats:" beats)
   (let [quarter-note-millis (+ (* millis (/ (- 1 beats) beats)) millis)
         ]
-
     (* (/ quarter-note-millis 1000) 60))
   )
 
@@ -125,6 +129,19 @@
 (defn select-metronome
   [player]
   (metronome (:mm player)))
+
+(defn get-dur-info-for-millis-and-mm
+  "Returns :dur-info map with
+     :dur-note-dur = beats
+     :dur-millis = beats converted to milliseconds
+
+   mm - mm to use to determine beats
+   millis - the number of millis to use in dur-info and
+             convert to beats"
+  [mm millis]
+  {:dur-millis millis
+   :dur-note-dur (note-dur-to-millis mm millis)}
+  )
 
 (defn get-dur-info-for-beats
   "Returns :dur-info map with
