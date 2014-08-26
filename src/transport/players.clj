@@ -107,6 +107,10 @@
   [player]
   (:seg-num player))
 
+(defn get-seg-start
+  [player]
+  (:seg-start player))
+
 (defn get-sync-beat-player-id
   [player]
   (:sync-beat-player-id player))

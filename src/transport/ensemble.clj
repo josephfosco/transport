@@ -138,12 +138,11 @@
 
 (defn- update-player-info
   [player event-time melody-event]
-  (println "ensemble.clj - update-player-info player-id:" (get-player-id player) "cur-note-beat:" (:cur-note-beat player) "beats:" (get-dur-beats (:dur-info melody-event)))
-  (let [prev-note-beat (:cur-note-beat player)
+  (let [prev-note-beat (get-cur-note-beat player)
         cur-note (get-note-for-event melody-event)
         cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil ;; eventually this should be (int +2)
-                            (nil? (:cur-note-beat player)) 0   ;; right after sync beat this will be nill so reset it
-                            (not (nil? (:dur-info melody-event))) (+ (:cur-note-beat player) (get-dur-beats (:dur-info melody-event)))
+                            (nil? (get-cur-note-beat player)) 0   ;; right after sync beat this will be nill so reset it
+                            (not (nil? (get-dur-info-for-event melody-event))) (+ (get-cur-note-beat player) (get-dur-beats (get-dur-info-for-event melody-event)))
                             :else 0)
         prev-note-time event-time
         cur-note-time (+ prev-note-time (get-dur-millis (get-dur-info-for-event melody-event)))
@@ -153,26 +152,15 @@
                          (inc (reduce max (keys cur-melody))))
         ;; if seg-start = 0 this is the begining of the segment, so
         ;; set seg-start to the time of this event - also send seg-start msg
-        seg-start-time (if (= (:seg-start player) 0)
+        seg-start-time (if (= (get-seg-start player) 0)
                          (do
                            ;; send msgs and set listeners for new segmwnt
                            (listeners-msg-new-segment player next-melody-no)
                            event-time)
-                         (:seg-start player))
+                         (get-seg-start player))
 
         ]
-    (let [dur-type (type cur-note-beat)]
-      (if (and (not (ratio? cur-note-beat))
-               (not (integer? cur-note-beat))
-               (not (nil? cur-note-beat))
-               )
-        (do
-          (println "!!!!!!!!!")
-          (println "!!!!!!!!! NEW DURATION TYPE:" dur-type)
-          (println "!!!!!!!!!")
-          (print-player player)
-          )
-        ))
+
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
     (if (< (+ seg-start-time (get-seg-len player)) event-time)
