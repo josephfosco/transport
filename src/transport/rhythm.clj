@@ -75,8 +75,13 @@
   )
 
 (defn millis-to-note-dur
+  "Converts millis to beats at the specified mm
+
+   mm - the mm to compute note-dur with
+   millis - note duration in millis"
   [mm millis]
   (/ millis (* (/ 60.0 mm)) 1000))
+
 
 (defn note-dur-to-millis-player
   "Converts note-dur (in beats) to millis at the mm for player
