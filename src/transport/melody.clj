@@ -302,25 +302,35 @@
         seg-num (get-seg-num player)
         last-seg-num (get-seg-num-for-event follow-player-last-melody-event)
         ]
-    (println "melody.clj - sync-beat-follow follow-player-last-melody-event:" follow-player-last-melody-event)
+    (println "melody.clj - sync-beat-follow computed mm:"
+             (compute-mm-from-dur-info
+              (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
+              (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
+              )
+             "follow-player mm:" (get-mm follow-player)
+             )
     (create-melody-event
      :note nil
      :dur-info (if (= seg-num last-seg-num)
-                 (get-dur-info-for-millis-and-mm
-                  (get-mm player)
-                  (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time))
-                 (get-dur-info-for-millis-and-mm
-                  (get-mm player)
-                  (- (compute-sync-time
-                      (compute-mm-from-dur-info
-                       (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
-                       (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
-                       )
-                      follow-player-beat
-                      follow-player-time
-                      )
-                     event-time)
-                  ))
+                 (do
+                   (println "melody.clj - sync-beat-follow get-dur-info-for-millis-and-mm 1")
+                   (get-dur-info-for-millis-and-mm
+                    (get-mm player)
+                    (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time)))
+                 (do
+                   (println "melody.clj - sync-beat-follow get-dur-info-for-millis-and-mm 2")
+                   (get-dur-info-for-millis-and-mm
+                    (get-mm player)
+                    (- (compute-sync-time
+                        (compute-mm-from-dur-info
+                         (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
+                         (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
+                         )
+                        follow-player-beat
+                        follow-player-time
+                        )
+                       event-time)
+                    )))
      :follow-note nil
      :instrument-info (get-instrument-info player)
      :volume 0

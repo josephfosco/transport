@@ -71,7 +71,7 @@
    mm - the mm to compute note-dur with
    note-dur - note duration in beats"
   [mm note-dur]
-  (int (* (* (/ 60.0 mm) note-dur)  1000))
+  (int (+ 0.5 (* (* (/ 60.0 mm) note-dur)  1000)))   ;; round up or down
   )
 
 (defn millis-to-note-dur
@@ -84,19 +84,19 @@
    player - player to get mm for
    note-dur - note duration in beats"
   [player note-dur]
-  (note-dur-to-millis (:mm player) note-dur)
+  (note-dur-to-millis (get-mm player) note-dur)
   )
 
 (defn millis-to-note-dur-player
   [player millis]
-  (millis-to-note-dur (:mm player) millis))
+  (millis-to-note-dur (get-mm player) millis))
 
 (defn compute-mm-from-dur-info
   [millis beats]
   (println "rhythm.clj - compute-mm-from-dur-info millis:" millis "beats:" beats)
   (let [quarter-note-millis (+ (* millis (/ (- 1 beats) beats)) millis)
         ]
-    (* (/ quarter-note-millis 1000) 60))
+    (int (+ 0.5 (* (/ 1000 quarter-note-millis) 60)))) ;; round up or down
   )
 
 (defn get-dur-millis
@@ -140,7 +140,7 @@
              convert to beats"
   [mm millis]
   {:dur-millis millis
-   :dur-note-dur (note-dur-to-millis mm millis)}
+   :dur-note-dur (millis-to-note-dur mm millis)}
   )
 
 (defn get-dur-info-for-beats

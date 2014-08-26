@@ -175,7 +175,7 @@
         ))
     ;; If current segment is over, sched next event with a new segment
     ;; else sched event with current segment information
-    (if (< (+ seg-start-time (:seg-len player)) event-time)
+    (if (< (+ seg-start-time (get-seg-len player)) event-time)
       (update-player-with-new-segment
        (assoc player
          :melody (update-melody cur-melody next-melody-no melody-event)
@@ -237,6 +237,7 @@
                 (println "ensemble.clj - play-melody - follow 1 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
                 (update-player-and-follow-info upd-player)
                 )
+              ;; next note is the note that the FOLLOW player changed segments
               (if (>= (inc follow-note) cur-change-follow-info-note)
                 (do
                   (println "ensemble.clj - play-melody - follow 2 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)

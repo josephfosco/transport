@@ -99,6 +99,10 @@
   [player]
   (:scale player))
 
+(defn get-seg-len
+  [player]
+  (:seg-len player))
+
 (defn get-seg-num
   [player]
   (:seg-num player))
