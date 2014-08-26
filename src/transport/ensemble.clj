@@ -167,7 +167,7 @@
       (update-player-with-new-segment
        (assoc player
          :melody (update-melody cur-melody next-melody-no melody-event)
-         :cur-note-beat cur-note-beat
+         :cur-note-beat 0
          :cur-note-time cur-note-time
          :prev-note-beat prev-note-beat
          :prev-note-time prev-note-time

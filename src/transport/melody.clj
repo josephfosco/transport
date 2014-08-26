@@ -26,7 +26,7 @@
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
-   [transport.rhythm :refer [compute-mm-from-dur-info get-dur-beats get-dur-info-for-beats get-dur-info-for-millis-and-mm get-dur-millis next-note-dur note-dur-to-millis]]
+   [transport.rhythm :refer [compute-mm-from-dur-info get-dur-beats get-dur-info-for-beats get-dur-info-for-mm-and-millis get-dur-millis next-note-dur note-dur-to-millis]]
    [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-in-range]]
    )
@@ -311,26 +311,41 @@
              )
     (create-melody-event
      :note nil
-     :dur-info (if (= seg-num last-seg-num)
+     (comment
+       :dur-info (if (= seg-num last-seg-num)
+                   (do
+                     (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 1")
+                     (get-dur-info-for-mm-and-millis
+                      (get-mm player)
+                      (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time)))
+                   ;; current mm for FOLLOW player is for next segment
+                   ;;  so, compute sync time based on last event
+                   (do
+                     (println "*********")
+                     (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 2")
+                     (println "*********")
+                     (get-dur-info-for-mm-and-millis
+                      (get-mm player)
+                      (- (compute-sync-time
+                          (compute-mm-from-dur-info
+                           (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
+                           (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
+                           )
+                          follow-player-beat
+                          follow-player-time
+                          )
+                         event-time)
+                      ))))
+     :dur-info (if (= (get-cur-note-beat follow-player) 0)
+                 ;; current mm for FOLLOW player is for next segment
+                 ;;  so, compute sync time based on last event
+                 (get-dur-info-for-mm-and-millis follow-player-mm (- (get-cur-note-time follow-player) event-time))
                  (do
-                   (println "melody.clj - sync-beat-follow get-dur-info-for-millis-and-mm 1")
-                   (get-dur-info-for-millis-and-mm
+                   (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 1")
+                   (get-dur-info-for-mm-and-millis
                     (get-mm player)
                     (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time)))
-                 (do
-                   (println "melody.clj - sync-beat-follow get-dur-info-for-millis-and-mm 2")
-                   (get-dur-info-for-millis-and-mm
-                    (get-mm player)
-                    (- (compute-sync-time
-                        (compute-mm-from-dur-info
-                         (get-dur-millis (get-dur-info-for-event follow-player-last-melody-event))
-                         (get-dur-beats (get-dur-info-for-event follow-player-last-melody-event))
-                         )
-                        follow-player-beat
-                        follow-player-time
-                        )
-                       event-time)
-                    )))
+                 )
      :follow-note nil
      :instrument-info (get-instrument-info player)
      :volume 0

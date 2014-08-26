@@ -135,7 +135,7 @@
   [player]
   (metronome (:mm player)))
 
-(defn get-dur-info-for-millis-and-mm
+(defn get-dur-info-for-mm-and-millis
   "Returns :dur-info map with
      :dur-note-dur = beats
      :dur-millis = beats converted to milliseconds
