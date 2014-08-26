@@ -22,4 +22,30 @@
 
 (deftest t01-note-dur-to-milllis
   (testing "t01-test-note-dur-to-millis"
-    (is (= (note-dur-to-millis 1000 60) 1))))
+    (is (= (note-dur-to-millis 60 1) 1000)
+        )))
+
+(deftest t02-note-dur-to-milllis
+  (testing "t02-test-note-dur-to-millis"
+    (is (= (note-dur-to-millis 120 1/2) 250)
+        )))
+
+(deftest t03-milllis-to-note-dur
+  (testing "t03-test-note-dur-to-millis"
+    (is (= (millis-to-note-dur 120 250) 0.5)
+        )))
+
+(deftest t04-compute-mm-from-dur-info
+  (testing "t04-compute-mm-from-dur-info"
+    (is (= (compute-mm-from-dur-info 1000 1) 60)
+        )))
+
+(deftest t05-compute-mm-from-dur-info
+  (testing "t05-compute-mm-from-dur-info"
+    (is (= (compute-mm-from-dur-info 250 1/2) 120)
+        )))
+
+(deftest t06-compute-mm-from-dur-info
+  (testing "t06-compute-mm-from-dur-info"
+    (is (= (compute-mm-from-dur-info 1915 3) 94)
+        )))
