@@ -256,7 +256,7 @@
 
 (defn set-new-contrast-info
   [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
-  (println "players - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
+  (println "players.clj - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
   (let [contrasting-player (get-player contrasting-player-id)]
     (if (= change-player-id (get-player-id (:behavior contrasting-player)))
       (do
@@ -268,7 +268,7 @@
           (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
         cur-players)
       (do
-        (println "players - set-new-contrast-info NOT SETTING CONTRAST!")
+        (println "players.clj - set-new-contrast-info NOT SETTING CONTRAST!")
         cur-players)))
   )
 
@@ -280,7 +280,7 @@
         cur-change-follow-info-note (get-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
-    (println "players - copy-follow-info to-player-id:" to-player-id)
+    (println "players.clj - copy-follow-info to-player-id:" to-player-id)
     (if (and
          (not (nil? from-player-id))
          (not (nil? cur-change-follow-info-note))
@@ -313,7 +313,7 @@
         (assoc @PLAYERS to-player-id to-player)
         )
       (do
-        (println "players - replace-similar-info NOT COPYING!")
+        (println "players.clj - replace-similar-info NOT COPYING!")
         cur-players)))
   )
 

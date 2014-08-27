@@ -140,8 +140,8 @@
   [player event-time melody-event]
   (let [prev-note-beat (get-cur-note-beat player)
         cur-note (get-note-for-event melody-event)
-        cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil ;; eventually this should be (int +2)
-                            (nil? (get-cur-note-beat player)) 0   ;; right after sync beat this will be nill so reset it
+        cur-note-beat (cond (not (nil? (get-sync-beat-player-id player))) nil
+                            (nil? (get-cur-note-beat player)) 0 ;; right after sync beat this will be nill so reset it
                             (not (nil? (get-dur-info-for-event melody-event))) (+ (get-cur-note-beat player) (get-dur-beats (get-dur-info-for-event melody-event)))
                             :else 0)
         prev-note-time event-time
