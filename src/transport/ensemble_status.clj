@@ -15,54 +15,99 @@
 
 (ns transport.ensemble-status
   (:require
-   [transport.players :refer [get-dur-info get-dur-millis get-last-melody-event get-note get-volume-for-note print-player]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
+   [transport.messages :refer :all]
+   [transport.message-processor :refer [register-listener send-message]]
+   [transport.players :refer :all]
    [transport.settings :refer :all]
    [transport.util :refer :all])
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
-(def note-volumes-len (* @NUM-PLAYERS 3))
-;; note-volumes is list of volumes for notes
-(def note-volumes (atom '()))
-(def rest-prob-len (* @NUM-PLAYERS 3))
+;; player-volumes is vector of the volume of the last not played for each player
+;;  player-id is index into vector.
+(def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+(def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 
-(defn init-ensemble-status
-  []
-  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
-  ;; initialize rest-prob
-  (reset! rest-prob '())
-  (dotimes [n rest-prob-len]
-    (if (< (rand) 0.8)
-      (reset! rest-prob (conj @rest-prob true))
-      (reset! rest-prob (conj @rest-prob false))
-      ))
-  ;; initialize note-volumes to random values
-  (reset! note-volumes '())
-  (dotimes [n note-volumes-len]
-    (reset! note-volumes (conj @note-volumes (rand)))
+(defn- players-soft?
+  "Returns true if the current volume of 90% of all players except
+   exception-player-id is less than .15"
+  [exception-player-id]
+  (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
+    (cond (> (count rslt) (* @number-of-players 0.1)) false
+          (empty? vols-to-check) true
+          (>= (first vols-to-check) 0.15) (recur (conj rslt true) (rest vols-to-check))
+          :else (recur rslt (rest vols-to-check))
+          )
+    )
+  )
+
+(defn- send-status-msgs
+  [player player-last-melody player-id note-time]
+  (if (and (> (get-volume-for-note player-last-melody) 0.85)
+           (> (get-dur-millis-for-note player-last-melody) 3000)
+           (players-soft? player-id))
+    (do
+      (println "send-status-msgs volume:" (get-volume-for-note player-last-melody))
+      (println "send-status-msgs dur-millis:" (get-dur-millis-for-note player-last-melody))
+      (println "send-status-msgs players-volumes:" @player-volumes)
+
+      (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
+      (println "ensemble-status.clj send-status-msgs - SENDING LOUD-INTERRUPT-EVENT MSG")
+      )
     )
   )
 
 (defn update-ensemble-status
-  [player]
-  (let [last-melody (get-last-melody-event player)]
+  [& {:keys [player note-time]}]
+  (let [last-melody (get-last-melody-event player)
+        player-id (get-player-id player)
+        ]
+    ;; update this player's volume in player-volumes
+    (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
+    ;; if player has new key - record it in player-keys
+    (if (not= (get-key player) (get player-keys player-id))
+      (reset! player-keys (assoc @player-keys player-id (get-key player)))
+      )
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
-    ;; else just update rest-prob (with new rest)
-    (if (not (nil? (get-note last-melody)))
+    ;; else just update rest-prob (with new rest) and note-volumes
+    (if (not (nil? (get-note-for-event last-melody)))
       (do
-        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info last-melody))))
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
+        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info-for-event last-melody))))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (do
-        (reset! note-volumes (conj (butlast @note-volumes) (get-volume-for-note last-melody)))
         (reset! rest-prob (conj (butlast @rest-prob) false))
         )
       )
+    (send-status-msgs player last-melody player-id note-time)
     )
+  )
+
+(defn init-ensemble-status
+  []
+  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
+
+  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
+  (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
+  (reset! rest-prob-len (* @number-of-players 3))
+  ;; initialize rest-prob
+  (reset! rest-prob '())
+  (dotimes [n @rest-prob-len]
+    (if (< (rand) 0.8)
+      (reset! rest-prob (conj @rest-prob true))
+      (reset! rest-prob (conj @rest-prob false))
+      ))
+  ;; update ensemble-status with each new note
+  (register-listener
+   MSG-PLAYER-NEW-NOTE
+   transport.ensemble-status/update-ensemble-status
+   {}
+   )
   )
 
 (defn reset-ensemble-status
@@ -76,9 +121,20 @@
 
 (defn get-average-volume
   []
-  (/ (reduce + @note-volumes) note-volumes-len))
+  (/ (reduce + @player-volumes) @number-of-players))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob returns fraction or float."
   []
-  (/ (count (filter #(= false %1) @rest-prob)) rest-prob-len))
+  (/ (count (filter #(= false %1) @rest-prob)) @rest-prob-len))
+
+(defn get-ensemble-key-for-player
+  "Select a kay for player from keys currently playing in ensemble"
+  [player]
+  (let [rand-index (rand-int (dec @number-of-players)) ;; select a rand index into player-keys
+        ]
+    (if (>= rand-index (get-player-id player))   ;; return a key from player-keys but
+      (get @player-keys (inc rand-index))         ;;  do not return key for player
+      (get @player-keys rand-index))
+    )
+  )

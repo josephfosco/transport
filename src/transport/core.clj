@@ -19,11 +19,12 @@
    [overtone.live :refer :all]
    [transport.ensemble :refer [init-ensemble]]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
-   [transport.message_processor :refer [restart-message-processor start-message-processor stop-message-processor]]
+   [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
+   [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
-   [transport.players :refer [init-players]]
-   [transport.schedule :refer [reset-lateness restart-scheduler start-scheduler stop-scheduler]]
-   [transport.settings :refer [NUM-PLAYERS set-num-players]]
+   [transport.players :refer [reset-players init-players]]
+   [transport.schedule :refer [clear-scheduler reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
+   [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util :refer :all]
    [transport.version :refer :all]
    ))
@@ -71,13 +72,27 @@
       :or {num-players 10}}]
   (if (false? @is-initialized?)
     (do
-      (set-num-players num-players)
+      (set-number-of-players num-players)
       (transport.pitch/load-scales)
       (init-ensemble-status)
       (init-ensemble)
+
+      (println "***")
+      (println "*** transport-init about to init-melody")
+      (println "***")
+      (init-melody)
       (reset! is-initialized? true)
-      (println "transport successfully initialized"))
-    (println "Warning - transport already initialized")))
+
+      (println "***")
+      (println "*** transport successfully initialized")
+      (println "***")
+      )
+    (do
+      (println "!!!")
+      (println "!!! Warning - transport already initialized")
+      (println "!!!")
+      )
+    ))
 
 (declare transport-restart)
 (defn transport-start
@@ -86,19 +101,41 @@
    :num-players - optional key to set the number of players
                   defaults to 10. Retains it's value once set"
   [& {:keys [num-players]
-      :or {num-players @NUM-PLAYERS}}]
+      :or {num-players @number-of-players}}]
   (println "transport-start is-playing:" @is-playing?)
+  (println "transport-start restart:" @restart?)
   (if (false? @is-playing?)
     (if (true? @restart?)
       (transport-restart :num-players num-players)  ;; already started once - restart instead
       (do
-        (println "Starting transport")
+        (println "***")
+        (println "*** Starting transport")
+        (println "***")
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
+
+        (println "***")
+        (println "*** transport-start about to start-scheduler")
+        (println "***")
         (start-scheduler)
+
+        (println "***")
+        (println "*** transport-start about to start-message-processor")
+        (println "***")
         (start-message-processor)
+
+        (println "***")
+        (println "*** transport-start init-melody-complete")
+        (println "***")
         (reset! is-playing? true)
         (reset! restart? true)
+
+        (println "***")
+        (println "*** transport-start - restart:" @restart?)
+        (println "***")
+        (println "***")
+        (println "*** transport-start - start complete")
+        (println "***")
         ))
     (println "WARNING - Can't start. Already Playing.")))
 
@@ -111,20 +148,41 @@
                   defaults to it's prior value"
   [& {:keys [num-players]
       :or {num-players nil}}]
-  (println "Restarting transport")
+  (println "***")
+  (println "*** Restarting transport")
+  (println "***")
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
         (if (not (nil? num-players))
-          (set-num-players num-players))
-        (reset-ensemble-status)
-        (reset-lateness)
+          (set-number-of-players num-players))
+        (reset-scheduler)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
+        (reset-ensemble-status)    ;; must occur after restart-message-processor
         (init-ensemble)
         (reset! is-playing? true)
+
+        (println "***")
+        (println "*** transport-restart about to start-scheduler")
+        (println "***")
         (start-scheduler)
+
+        (println "***")
+        (println "*** transport-restart about to start-message-processor")
+        (println "***")
         (start-message-processor)
+
+        (println "***")
+        (println "*** transport-restart about to reset-melody")
+        (println "***")
+        ;; if melody reset after scheduler and msg processor won't listen for
+        ;; LOUD EVENTmsgs right away
+        (reset-melody)
+
+        (println "***")
+        (println "*** transport-restart restart complete")
+        (println "***")
         )
       (transport-start))
     (println "WARNING - Can't restart. Already playing")))
@@ -146,5 +204,13 @@
   (stop-scheduler)
   (stop-message-processor)
   (reset! is-playing? false))
+
+(defn transport-clear
+  "Clears the scheduler, message-processor, and players"
+  []
+  (clear-scheduler)
+  (clear-message-processor)
+  (reset-players)
+  )
 
 (transport-help)

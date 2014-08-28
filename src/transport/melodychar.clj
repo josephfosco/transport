@@ -29,6 +29,14 @@
   [melody-char]
   (:range melody-char))
 
+(defn get-melody-char-range-lo
+  [melody-char]
+  (first (:range melody-char)))
+
+(defn get-melody-char-range-hi
+  [melody-char]
+  (second (:range melody-char)))
+
 (defn get-melody-char-smoothness
   [melody-char]
   (:smoothness melody-char))

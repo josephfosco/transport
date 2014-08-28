@@ -20,7 +20,7 @@
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
-   [transport.settings :refer [COMPLEMENT]]
+   [transport.settings :refer [SIMILAR]]
    [overtone.live :refer [metronome]]
    ))
 
@@ -66,19 +66,53 @@
   )
 
 (defn note-dur-to-millis
+  "Converts note-dur (in beats) to millis at the specified mm
+
+   mm - the mm to compute note-dur with
+   note-dur - note duration in beats"
+  [mm note-dur]
+  (int (+ 0.5 (* (* (/ 60.0 mm) note-dur)  1000)))   ;; round up or down
+  )
+
+(defn millis-to-note-dur
+  "Converts millis to beats at the specified mm
+
+   mm - the mm to compute note-dur with
+   millis - note duration in millis"
+  [mm millis]
+  (/ millis (* (/ 60.0 mm)) 1000))
+
+
+(defn note-dur-to-millis-player
   "Converts note-dur (in beats) to millis at the mm for player
 
    player - player to get mm for
    note-dur - note duration in beats"
   [player note-dur]
-  (int (* (* (/ 60.0 (:mm player)) note-dur)  1000))
+  (note-dur-to-millis (get-mm player) note-dur)
   )
 
-(defn millis-to-note-dur
+(defn millis-to-note-dur-player
   [player millis]
-  (/ millis (* (/ 60.0 (:mm player)) 1000)))
+  (millis-to-note-dur (get-mm player) millis))
 
-(defn get-beats
+(defn compute-mm-from-dur-info
+  [millis beats]
+  (println "rhythm.clj - compute-mm-from-dur-info millis:" millis "beats:" beats)
+  (let [quarter-note-millis (+ (* millis (/ (- 1 beats) beats)) millis)
+        ]
+    (int (+ 0.5 (* (/ 1000 quarter-note-millis) 60)))) ;; round up or down
+  )
+
+(defn get-dur-millis
+  "Returns the millis of this dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
+(defn get-dur-beats
   "Returns the duration in beats of this dur-info
 
    dur-info - duration info to get dur-beats from"
@@ -101,6 +135,19 @@
   [player]
   (metronome (:mm player)))
 
+(defn get-dur-info-for-mm-and-millis
+  "Returns :dur-info map with
+     :dur-note-dur = beats
+     :dur-millis = beats converted to milliseconds
+
+   mm - mm to use to determine beats
+   millis - the number of millis to use in dur-info and
+             convert to beats"
+  [mm millis]
+  {:dur-millis millis
+   :dur-note-dur (millis-to-note-dur mm millis)}
+  )
+
 (defn get-dur-info-for-beats
   "Returns :dur-info map with
      :dur-note-dur = beats
@@ -110,13 +157,12 @@
    beats - the number of beats to use in dur-info and
              convert to milliseconds"
   [player beats]
-  {:dur-millis (note-dur-to-millis player (* quarter-note beats))
+  {:dur-millis (note-dur-to-millis-player player beats)
    :dur-note-dur beats}
   )
 
 (defn adjust-note-prob
-  " Finds the index of the rhythmic value closest to ensemble average duration,
-    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
+  " Finds the index of the rhythmic value closest to ensemble average duration,    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
     is the first or last index, add 5 to the probability of the index
     either before or after the selected one.
@@ -142,8 +188,8 @@
 (defn adjust-rhythmic-probabilities
   [player]
   (let [ensemble-action (get-behavior-ensemble-action-for-player player)
-        note-durs-millis (map note-dur-to-millis (repeat player) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (if (= COMPLEMENT ensemble-action)
+        note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
+        adjusted-note-prob1 (if (= SIMILAR ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
@@ -156,14 +202,24 @@
     )
   )
 
+(defn create-note-dur
+  []
+  )
+
 (defn next-note-dur
   "Returns :dur-info map for the next note
 
    player - player map to use when determining next note :dur-info"
   [player]
-  (let [note-dur (weighted-choice ( adjust-rhythmic-probabilities player))
+  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player))
         ]
-    {:dur-millis (note-dur-to-millis player (/ (NOTE-DURS note-dur) quarter-note))
+    (if (nil? (get-mm player))
+      (do
+        (println "rhythm.clj - next-note-dur - mm is nil!!!!")
+        (print-player player)
+        )
+      )
+    {:dur-millis (note-dur-to-millis-player player (/ (NOTE-DURS note-dur) quarter-note))
      :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
     ))
 

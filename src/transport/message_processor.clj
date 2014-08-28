@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.message_processor
+(ns transport.message-processor
   (:require
    [transport.util :refer [get-max-map-key]]
    ))
@@ -36,6 +36,15 @@
 (defn- clear-listeners
   [cur-lstnrs]
   {}
+  )
+
+(defn clear-message-processor
+  "Clears messages and clears listeners"
+  []
+  (send MESSAGES clear-messages)
+  (await MESSAGES)
+  (send LISTENERS clear-listeners)
+  (await LISTENERS)
   )
 
 (declare process-messages)
@@ -88,7 +97,7 @@
               (flatten
                (list (flatten (seq msg-args)) (nth msg-lstnr 2))) ;; create one list from map msg-args and list
               )
-       (apply (first msg-lstnr) msg-args)
+       (apply (first msg-lstnr) (flatten (seq msg-args)))
        )
      )
   ([msg-lstnr]
@@ -106,7 +115,7 @@
       (let [msg-lstnr (nth msg-listeners lstnr-index)
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
-        (if (= msg-lstnr-msg-args nil)                ;; listener doesn't care about msg args
+        (if (= msg-lstnr-msg-args {})                 ;; listener doesn't care about msg args
           (if (not= args {})
             (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)

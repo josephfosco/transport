@@ -19,7 +19,7 @@
    [transport.behavior :refer :all]
    [transport.ensemble :refer [play-melody]]
    [transport.instruments.osc-instruments :refer :all]
-   [transport.message_processor :refer [restart-message-processor start-message-processor]]
+   [transport.message-processor :refer [restart-message-processor start-message-processor]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome]]
@@ -30,7 +30,7 @@
   (:import transport.behavior.Behavior)
   )
 
-(def tst-player {:key 3 :scale :hex-major6 :instrument-info {:range-hi 90 :range-lo 62} :melody [{:note 70} { :note 72} {:note 74}] :melody-char {:smoothness 0} :mm 60  :behavior (Behavior. 0.5 FOLLOW IGNORE 2)})
+(def tst-player {:key 3 :scale [0 2 4 5 7 9 11] :instrument-info {:range-hi 90 :range-lo 62} :melody [{:note 70} { :note 72} {:note 74}] :melody-char {:smoothness 0} :mm 60  :behavior (Behavior. 0.5 FOLLOW IGNORE 2)})
 
 (defn lstnr [& {:keys [old new]}] (println "lstnr: " old new))
 
@@ -75,7 +75,7 @@
           :mm 64
           :player-id 1
           :prev-note-beat 0
-          :scale :ionian
+          :scale [0 2 4 5 7 9 11]
           :seg-len 19726
           :seg-start 0
           }
@@ -93,7 +93,7 @@
           :mm 94
           :player-id 2
           :prev-note-beat 0
-          :scale :hindu
+          :scale [0 2 4 5 7 9 11]
           :seg-len 10565
           :seg-start 0
           }
@@ -111,7 +111,7 @@
           :mm 115
           :player-id 3
           :prev-note-beat 0
-          :scale :major
+          :scale [0 2 4 5 7 9 11]
           :seg-len 16310
           :seg-start 0
           }

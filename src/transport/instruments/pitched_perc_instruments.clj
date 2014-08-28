@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,14 +13,17 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.messages)
+(ns transport.instruments.pitched-perc-instruments
+  ^{:author "Joseph Fosco"
+    :doc "Pitched Percussion Instruments"}
+  (:require
+   [overtone.live :refer :all]
+   ))
 
-;; player messages
-(def MSG-PLAYER-NEW-SEGMENT 1)
-(def MSG-PLAYER-NEW-FOLLOW-INFO 2)
-(def MSG-PLAYER-NEW-SIMILAR-INFO 3)
-(def MSG-PLAYER-NEW-CONTRAST-INFO 4)
-(def MSG-PLAYER-NEW-NOTE 5)
-
-;; ensemble status messages
-(def MSG-LOUD-INTERUPT-EVENT 20)
+(definst steel-drum
+  [freq 440 amp 0.8]
+  (* (/ amp 1.5)
+     (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE)
+     (+ (sin-osc (/ freq 2)) (rlpf (saw freq) (* 1.1 freq) 0.4))
+     )
+  )

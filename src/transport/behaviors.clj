@@ -16,26 +16,26 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
-   [transport.behavior]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id get-behavior-ensemble-action]]
    [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
-   [transport.settings :refer [NUM-PLAYERS COMPLEMENT CONTRAST FOLLOW IGNORE]]
+   [transport.settings :refer [number-of-players SIMILAR CONTRAST FOLLOW IGNORE]]
    )
   (:import transport.behavior.Behavior)
   )
 (defn get-behavior-action-for-player
   [player]
-  (:action (get-behavior player))
+  (get-behavior-action (get-behavior player))
   )
 
 
 (defn get-behavior-player-id-for-player
   [player]
-  (:player-id (get-behavior player))
+  (get-behavior-player-id (get-behavior player))
   )
 
 (defn get-behavior-ensemble-action-for-player
   [player]
-  (:ensemble-action (get-behavior player)))
+  (get-behavior-ensemble-action (get-behavior player)))
 
 (defn select-behavior-action
   [player]
@@ -43,7 +43,7 @@
     (cond
      (< action-num 0.25) FOLLOW
      (< action-num 0.50) CONTRAST
-     (< action-num 0.75) COMPLEMENT
+     (< action-num 0.75) SIMILAR
      :else IGNORE
      ))  )
 
@@ -51,7 +51,7 @@
   [player]
   (let [action-num (rand)]
     (cond
-     (< action-num 0.34) COMPLEMENT
+     (< action-num 0.34) SIMILAR
      (< action-num 0.66) CONTRAST
      :else IGNORE
      ))  )
@@ -63,7 +63,7 @@
 
    player - the player to set :behavior :player-id"
   [player]
-  (if (not= (:action (get-behavior player)) IGNORE)
+  (if (not= (get-behavior-action (get-behavior player)) IGNORE)
     (let [player-id (rand-player-id-excluding-player player)]
       (set-behavior-player-id player player-id)
       )
@@ -76,9 +76,9 @@
 
    player - the player to set behavior for"
   [player]
-  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]
@@ -91,9 +91,9 @@
 
 (defn select-behavior
   [player]
-  (let [behavior-action (if (> @NUM-PLAYERS 1) (select-behavior-action player) IGNORE)
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @NUM-PLAYERS 1))
+        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
                           (select-behavior-ensemble-action player)
                           IGNORE)
         ]

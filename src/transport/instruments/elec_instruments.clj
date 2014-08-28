@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,14 +13,17 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.messages)
+(ns transport.instruments.elec-instruments
+  ^{:author "Joseph Fosco"
+    :doc "Electronic instruments"}
+  (:require
+   [overtone.live :refer :all]
+   ))
 
-;; player messages
-(def MSG-PLAYER-NEW-SEGMENT 1)
-(def MSG-PLAYER-NEW-FOLLOW-INFO 2)
-(def MSG-PLAYER-NEW-SIMILAR-INFO 3)
-(def MSG-PLAYER-NEW-CONTRAST-INFO 4)
-(def MSG-PLAYER-NEW-NOTE 5)
-
-;; ensemble status messages
-(def MSG-LOUD-INTERUPT-EVENT 20)
+(definst reedy-organ
+  [freq 440 gate-dur 0.8 vol 0.3 attack 0.01 sustain 0.3 release 0.1]
+  (let [env-gate (trig 1 gate-dur)
+        ]
+    (* (env-gen (asr attack sustain release) env-gate vol 0 1 FREE)
+       (* (+ (sin-osc freq) (saw freq) (saw (+ freq 3)) (sin-osc (* 2 freq))))))
+  )

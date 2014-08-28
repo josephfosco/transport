@@ -15,16 +15,21 @@
 
 (ns transport.pitch
   (:require
+   [overtone.live :refer [MIDI-RANGE]]
+   [transport.behavior :refer [get-behavior-ensemble-action]]
    [transport.behaviors :refer [get-behavior-action-for-player]]
+   [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range]]
-   [transport.melodychar :refer [get-melody-char-smoothness]]
+   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range-hi get-instrument-range-lo]]
+   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
-   ))
+   )
+  (:import transport.behavior.Behavior)
+  )
 
-(def SCALES {})
+(def SCALES (atom {}))
 (def DESCEND 0)
 (def ASCEND 1)
 (def REPEAT-NOTE 3)
@@ -37,7 +42,6 @@
    to a list that represents a scale as the interval from the starting note.
    Returns the new representation."
   [scale & new-scale]
-  (def SCALES {})
   (let [rtn-scale (or new-scale [0])]
     (if (= (count scale) 1)
       new-scale
@@ -46,8 +50,9 @@
 
 (defn load-scales
   []
+  (reset! SCALES {})
   (doseq [scale-key (keys SCALE)]
-    (def SCALES (assoc SCALES
+    (reset! SCALES (assoc @SCALES
                   scale-key
                   (convert-scale (scale-key SCALE))))))
 
@@ -55,25 +60,24 @@
   "Returns the number of semitones from tonic that
    scale degree is in player's scale"
   [player scale-degree]
-  (- (nth ((:scale player) SCALES) scale-degree)
+  (- (nth (:scale player) scale-degree)
   ))
 
 (defn get-scale-pitch-in-range
-  "return a pitch from player scale that is within player range
+  "return a pitch from player scale that is within player melody-char range
    if :lo-range or :hi-range are specfied use these instead of the
    values indicated by player."
   [player & {:keys [lo-range hi-range]
-             :or {lo-range (get-lo-range player)
-                  hi-range (get-hi-range player)}} ]
-  (let [lo-pitch lo-range
-        hi-pitch hi-range
-        player-key (:key player)
-        rand-pitch (random-int lo-pitch hi-pitch)
+             :or {lo-range (get-melody-char-range-lo (get-melody-char player))
+                  hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
+;;  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
+  (let [player-key (get-key player)
+        rand-pitch (random-int lo-range hi-range)
         rand-octave (int (/ rand-pitch OCTAVE)) ;; octave multiplier for rand-pitch
         semitones-above-c (mod rand-pitch OCTAVE)
         semitones-above-tonic (mod (+ semitones-above-c (- OCTAVE player-key)) OCTAVE)
         scale-degree-in-range (last
-                               (for [s ((:scale player) SCALES)
+                               (for [s (:scale player)
                                      :while (<=
                                              s
                                              semitones-above-tonic)]
@@ -82,11 +86,11 @@
         possible-rtn-pitch (+ (* rand-octave OCTAVE) scale-degree-in-range player-key)
         ]
     (cond
-     (<= lo-pitch possible-rtn-pitch hi-pitch) ;; if new-pitch within range
+     (<= lo-range possible-rtn-pitch hi-range) ;; if new-pitch within range
      possible-rtn-pitch                          ;; return it
-     (<= lo-pitch (- possible-rtn-pitch OCTAVE) hi-pitch);;  try octve lower
+     (<= lo-range (- possible-rtn-pitch OCTAVE) hi-range);;  try octve lower
      (- possible-rtn-pitch OCTAVE)
-     :else lo-pitch )))                                ;; else return lo-pitch
+     :else lo-range )))                                ;; else return lo-range
 
 (defn get-scale-degree
   "Returns the scale degree (zero-based) of pitch in player's scale and key.
@@ -96,7 +100,7 @@
    pitch - the pitch to determine the scale degree of"
   [player pitch]
   (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)]
-    (.indexOf (get SCALES (get-scale player)) semitones-above-root)
+    (.indexOf (get-scale player) semitones-above-root)
     )
     )
 
@@ -108,7 +112,7 @@
    pitch - pitch to find nearest scale degree in players key and scale"
   [player pitch]
   (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)
-        octave-scale (conj (get SCALES (get-scale player)) OCTAVE) ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        octave-scale (conj (get-scale player) OCTAVE) ;; add OCTAVE interval at end in case pitch is between last interval and octave
         ]
 
     (loop [i 0
@@ -134,12 +138,11 @@
 
 (defn get-step-up-in-scale
   "Returns the pitch 1 step up in the players scale and key
-   Will return 0 if pitch is not in scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step above"
   [player pitch]
-  (let [player-scale (get SCALES (get-scale player))
+  (let [player-scale (get-scale player)
         tst-scale-degree (get-scale-degree player pitch)
         scale-degree (if (not= tst-scale-degree -1) tst-scale-degree (get-nearest-scale-degree player pitch))
         ]
@@ -152,13 +155,14 @@
   )
 
 (defn get-step-down-in-scale
-  "Returns the pitch 1 step down in the players scale and key
-   Will return 0 if pitch is not in scale and key
+  "Returns the pitch 1 step down in the players scale and key or
+   a negative number if there are no further pitches below
+   in the players scale and key
 
    player - the player to select key and scale from
    pitch - the pitch to go 1 step below"
   [player pitch]
-  (let [player-scale (get SCALES (get-scale player))
+  (let [player-scale (get-scale player)
         tst-scale-degree (get-scale-degree player pitch)
         scale-degree (if (not= tst-scale-degree -1) tst-scale-degree (get-nearest-scale-degree player pitch))
         ]
@@ -172,46 +176,54 @@
   )
 
 (defn select-random-key
-  "Returns a randow number between 1- 11
+  "Returns a randow number between 0 - 11
    to represent a key. 0=C"
   []
-  (random-int 0 11))
+  (rand-int 12))
 
 (defn select-key
-  "returns a randow number between 1- 11
+  "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (random-int 0 11))
+  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR)  ;; if SIMILARng ensemble
+    (get-ensemble-key-for-player player)  ;; get key from ensemble else
+    (rand-int 12))) ;; return random key
 
 (defn select-direction
   [player]
   ;; if at the begining of a segment, play a random note
   ;; else pick direction for this note
-  (if (= (get-last-melody-note player) nil)
-    RANDOM-NOTE
-    (let [rand-dir (rand)]
-      (if (<= rand-dir 0.45)
-        DESCEND
-        (if ( <= rand-dir 0.9)
-          ASCEND
-          REPEAT-NOTE))
-      )))
+  (let [last-note (get-last-melody-note player)]
+    (cond (=  last-note nil) RANDOM-NOTE
+          (<= last-note (get-instrument-range-lo (get-instrument-info player))) ASCEND
+          (>= last-note (get-instrument-range-hi (get-instrument-info player))) DESCEND
+          :else
+          (let [rand-dir (rand)]
+            (if (<= rand-dir 0.45)
+              DESCEND
+              (if ( <= rand-dir 0.9)
+                ASCEND
+                REPEAT-NOTE))
+            )))
+  )
 
 (defn select-random-scale
   "returns a scale"
   []
-  ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
+  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  )
 
 (defn select-scale
   "returns a scale"
   [player]
-  ( nth (keys SCALE) (random-int 0 (- (count SCALE) 1))))
+  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  )
 
 (defn select-scale-degree
   [player]
   (random-int
    0
-   (- (count ((:scale player) SCALES)) 1)))  ; number of pitches in the instruments scale
+   (- (count (:scale player)) 1))) ; number of pitches in the instruments scale
 
 (defn choose-step-or-skip
   "Returns STEP or SKIP for next note for player
@@ -219,36 +231,99 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP))
+    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP)
+    )
+  )
+
+(defn check-note-in-range
+  "Checks if note is in the melody range of player.
+   Returns note if it is within range, else returns -1"
+  [player note]
+  (if (and (<= (first MIDI-RANGE) (get-melody-char-range-lo (get-melody-char player)) note)
+           (<= note (get-melody-char-range-hi (get-melody-char player)) (last MIDI-RANGE)))
+    note
+    -1
+    )
   )
 
 (defn dir-ascend
   [player]
-  (if (= (choose-step-or-skip player) STEP)
-    (get-step-up-in-scale player (get-last-melody-note player))
-    (let [prev-note (get-last-melody-note player)
-          lo (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)) ]
-      (get-scale-pitch-in-range player :lo-range (or (if prev-note (+ prev-note 1) nil) (get-lo-range player)))))
+  (let [rtn-note (if (= (choose-step-or-skip player) STEP)
+                   (get-step-up-in-scale player (get-last-melody-note player))
+                   (let [prev-note (get-last-melody-note player)
+                         melody-lo-range (get-melody-char-range-lo (get-melody-char player))
+                         ]
+                     (get-scale-pitch-in-range player
+                                               :lo-range
+                                               (or (if (and prev-note (>= prev-note melody-lo-range))
+                                                     (inc prev-note)
+                                                     nil)
+                                                   melody-lo-range
+                                                   )
+                                               )
+                     )
+                   )]
+    rtn-note
+    )
   )
 
 (defn dir-descend
+  "Returns a pitch in player's key, scale and melody range
+     lower than the previous pitch played.
+     If there is no pitch that meets these requirements, returns -1
+
+     player - the player to find the pitch for"
   [player]
-  (if (= (choose-step-or-skip player) STEP)
-    (get-step-down-in-scale player (get-last-melody-note player))
-    (let [prev-note (get-last-melody-note player)]
-      (get-scale-pitch-in-range player :hi-range (or (if prev-note (- prev-note 1) nil) (get-hi-range player)))))
+  (let [prev-note (get-last-melody-note player)
+        rtn-note (if (= (choose-step-or-skip player) STEP)
+                   (let [step-down (get-step-down-in-scale player (get-last-melody-note player))
+                         ]
+                     (if (>= step-down (get-melody-char-range-lo (get-melody-char player)))
+                       step-down
+                       prev-note
+                       )
+                     )
+                   (let [hi-range (or (if (and
+                                           prev-note
+                                           (<= prev-note (get-melody-char-range-hi (get-melody-char player))))
+                                        (- prev-note 1)
+                                        nil)
+                                      (get-melody-char-range-hi (get-melody-char player)))
+                         ]
+                     (if (> hi-range (get-melody-char-range-lo (get-melody-char player)))
+                            (get-scale-pitch-in-range player :hi-range hi-range)
+                            prev-note
+                            )
+                     )
+                   )
+        ]
+    rtn-note
+    )
   )
 
 (defn next-pitch-ignore
   [player]
-  (let [direction (select-direction player)]
-    (cond
-     (= direction ASCEND) (dir-ascend player)
-     (= direction DESCEND) ( dir-descend player)
-     (= direction RANDOM-NOTE) (random-int (get-lo-range player) (get-hi-range player))
-     :else (get-last-melody-note player)))  )
+  (let [direction (select-direction player)
+        last-pitch (get-last-melody-note player)
+        next-pitch (cond
+                    (nil? last-pitch) (get-scale-pitch-in-range player)
+                    (= direction ASCEND) (dir-ascend player)
+                    (= direction DESCEND) (dir-descend player)
+                    (= direction REPEAT-NOTE) (get-last-melody-note player)
+                    :else (get-scale-pitch-in-range player)
+                    )
+        ]
+    ;; if no pitch is available in direction selected, return a random pitch in melody range
+    (if (= next-pitch (check-note-in-range player next-pitch))
+      next-pitch
+      (do
+        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)) "key:" (get-key player) "scale:" (get-scale player))
+        (get-scale-pitch-in-range player)
+        )
+      )
+    )  )
 
-(defn next-pitch-complement
+(defn next-pitch-similar
   [player]
   (next-pitch-ignore player)
   )
@@ -261,9 +336,10 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (let [player-behavior-action (get-behavior-action-for-player player)]
+  (let [player-behavior-action (get-behavior-action-for-player player)
+        ]
     (cond
-     (= player-behavior-action COMPLEMENT) (next-pitch-complement player)
+     (= player-behavior-action SIMILAR) (next-pitch-similar player)
      (= player-behavior-action CONTRAST) (next-pitch-contrast player)
      (= player-behavior-action IGNORE) (next-pitch-ignore player)
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
