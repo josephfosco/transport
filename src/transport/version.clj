@@ -18,7 +18,7 @@
 (def TRANSPORT-VERSION {:major 0
                         :minor 2
                         :patch 0
-                        :development true})
+                        :development false})
 
 (def TRANSPORT-VERSION-STR
   (let [version TRANSPORT-VERSION]
