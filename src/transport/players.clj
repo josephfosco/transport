@@ -34,6 +34,15 @@
   [player-id]
   (get @PLAYERS player-id))
 
+(defn get-player-val
+  "Returns the requested value for the specified player
+
+   player - the player to return the value from
+   val - string name of the value to return"
+  [player val]
+  (get player (keyword val))
+  )
+
 (defn get-behavior
   [player]
   (:behavior player))

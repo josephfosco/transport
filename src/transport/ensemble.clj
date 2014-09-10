@@ -235,7 +235,7 @@
             )
           (update-player upd-player)
           ))
-      (sched-event 0 (get-function upd-player) player-id :time (+ event-time melody-dur-millis))
+      (sched-event 0 (get-player-val upd-player "function") player-id :time (+ event-time melody-dur-millis))
       (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
       ))
   )
@@ -276,5 +276,5 @@
   (dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players
-   (dorun (map sched-event (repeat 0) (map get-function (get-players)) (map get-player-id (get-players))))
+   (dorun (map sched-event (repeat 0) (map get-player-val (get-players) (repeat "function")) (map get-player-id (get-players))))
   )
