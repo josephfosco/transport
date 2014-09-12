@@ -28,11 +28,10 @@
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [compute-mm-from-dur-info get-dur-beats get-dur-info-for-beats get-dur-info-for-mm-and-millis get-dur-millis next-note-dur note-dur-to-millis]]
    [transport.settings :refer :all]
-   [transport.volume :refer [select-volume select-volume-in-range]]
+   [transport.volume :refer [select-volume select-volume-for-next-note]]
    )
   (:import
    transport.melodychar.MelodyChar
-   transport.melodyevent.MelodyEvent
    )
   )
 
@@ -349,20 +348,21 @@
       ;; first time or new segment, rest 3 beats
       (do
         (println "melody.clj - next-melody-follow player seg-num" (get-seg-num player) "following seg-num:" (get-seg-num-for-event (get-last-melody-event player)))
-        (MelodyEvent. nil
-                      (get-dur-info-for-beats (get-player follow-player-id) 3)
-                      (if (nil? follow-player-last-event)
+        (create-melody-event
+         :note nil
+         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
+         :follow-note (if (nil? follow-player-last-event)
                         0
                         (- follow-player-last-event 1))
-                      ;; instrument-info
-                      ;; if follow-player has not played a note yet, get follow-player instrument-info
-                      ;; otherwise get instrument-info from last follow-player-event
-                      (if (nil? follow-player-last-event)
-                        (get-instrument-info (get-player follow-player-id))
-                        (get-instrument-info-for-event (get-melody-event follow-player-id follow-player-last-event)))
-                      0  ;; 0 volume for rest
-                      player-seg-num
-                      ))
+         ;; if follow-player has not played a note yet, get follow-player instrument-info
+         ;; otherwise get instrument-info from last follow-player-event
+         :instrument-info (if (nil? follow-player-last-event)
+                            (get-instrument-info (get-player follow-player-id))
+                            (get-instrument-info-for-event
+                             (get-melody-event follow-player-id follow-player-last-event)))
+         :volume 0  ;; 0 volume for rest
+         :seg-num player-seg-num
+         ))
       :else
       ;; play FOLLOWer melody event after last-melody event
       (let [
@@ -390,60 +390,22 @@
         )))
   )
 
-(defn- next-melody-similar-ensemble
-  [player event-time]
-  (let [next-note-or-rest (if (loud-rest? player event-time)
-                            nil
-                            (if (note-or-rest-follow-ensemble player event-time) (next-pitch player) nil)
-                            )
-        average-volume (get-average-volume)
-        ]
-;;    (println "average-volume: " average-volume)
-    (MelodyEvent. next-note-or-rest
-                  (next-note-dur player)
-                  nil
-                  (get-instrument-info player)
-                  (select-volume-in-range
-                   (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
-                   (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
-                  (get-seg-num player)
-                  )
-    ))
-
-(defn- next-melody-contrast-ensemble
-  [player event-time]
-;;  (println "next-melody-contrast-ensemble")
-  (let [next-note-or-rest (if (loud-rest? player event-time)
-                            nil
-                            (if (note-or-rest-contrast-ensemble player event-time) (next-pitch player) nil))
-        average-volume (get-average-volume)
-        ]
-    ;;    (println "average-volume: " average-volume)
-    (MelodyEvent. next-note-or-rest
-                  (next-note-dur player)
-                  nil
-                  (get-instrument-info player)
-                  (select-volume-in-range
-                   (if (< average-volume 0.5) 0.7 0) ;; set range of volume eithe 0.7 - 1 or
-                   (if (< average-volume 0.5) 1 0.3)) ;; 0 - 0.3 opposite of ensemble
-                  (get-seg-num player)
-                  )
-    ))
-
 (defn- next-melody-for-player
   [player event-time]
-;;  (println "next-melody-for-player")
-  (let [next-note-or-rest (if (loud-rest? player event-time)
-                            nil
-                            (if (note-or-rest player event-time) (next-pitch player) nil))
-        ]
-    (MelodyEvent. next-note-or-rest
-                  (next-note-dur player)
-                  nil
-                  (get-instrument-info player)
-                  (if next-note-or-rest (select-volume player) 0) ;; 0 volume if rest
-                  (get-seg-num player)
-                  ))
+
+    ;;  (println "next-melody-for-player")
+    (let [next-note-or-rest (if (loud-rest? player event-time)
+                              nil
+                              (if (note-or-rest player event-time) (next-pitch player) nil))
+          ]
+    (create-melody-event
+     :note next-note-or-rest
+     :dur-info (next-note-dur player)
+     :follow-note nil
+     :instrument-info (get-instrument-info player)
+     :volume (select-volume-for-next-note player event-time next-note-or-rest)
+     :seg-num (get-seg-num player)
+     ))
   )
 
 (defn next-melody
@@ -454,8 +416,6 @@
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player event-time)
-   (= (get-behavior-ensemble-action-for-player player) SIMILAR) (next-melody-similar-ensemble player event-time)
-   (= (get-behavior-ensemble-action-for-player player) CONTRAST) (next-melody-contrast-ensemble player event-time)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
    :else (next-melody-for-player player event-time))
