@@ -334,7 +334,6 @@
 
 (defn next-melody-follow
   [player event-time]
-;;    (println "next-melody-follow")
   (let [follow-player-id (get-behavior-player-id-for-player player)
         follow-player-last-event (get-last-melody-event-num follow-player-id)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))

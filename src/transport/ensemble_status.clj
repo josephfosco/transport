@@ -74,7 +74,7 @@
       )
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
-    ;; else just update rest-prob (with new rest) and note-volumes
+    ;; else just update rest-prob (with new rest)
     (if (not (nil? (get-note-for-event last-melody)))
       (do
         (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info-for-event last-melody))))
@@ -129,7 +129,7 @@
   (/ (count (filter #(= false %1) @rest-prob)) @rest-prob-len))
 
 (defn get-ensemble-key-for-player
-  "Select a kay for player from keys currently playing in ensemble"
+  "Select a key for player from keys currently playing in ensemble"
   [player]
   (let [rand-index (rand-int (dec @number-of-players)) ;; select a rand index into player-keys
         ]

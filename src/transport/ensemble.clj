@@ -36,14 +36,13 @@
   )
 
 (defn new-contrast-info
-  [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (send PLAYERS
-        set-new-contrast-info
-        change-player-id
-        follow-player-id
-        originator-player-id
-        (get-contrasting-info-for-player (get-player follow-player-id))
-        )
+  [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
+  (new-contrast-info-for-player
+   :change-player-id change-player-id
+   :contrast-player-id contrast-player-id
+   :originator-player-id originator-player-id
+   :contrasting-info (get-contrasting-info-for-player (get-player contrast-player-id))
+   )
   )
 
 (defn- listeners-msg-new-segment
@@ -83,7 +82,7 @@
          MSG-PLAYER-NEW-CONTRAST-INFO
          transport.ensemble/new-contrast-info
          {:change-player-id (get-behavior-player-id-for-player player)}
-         :follow-player-id player-id
+         :contrast-player-id player-id
          )
         )
        )
@@ -118,7 +117,7 @@
       MSG-PLAYER-NEW-CONTRAST-INFO
       transport.ensemble/new-contrast-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
-      :follow-player-id (get-player-id player)
+      :contrast-player-id (get-player-id player)
       )
      )
     )

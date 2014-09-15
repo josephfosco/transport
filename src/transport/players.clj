@@ -281,6 +281,17 @@
         cur-players)))
   )
 
+(defn new-contrast-info-for-player
+  [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
+  (send PLAYERS
+        set-new-contrast-info
+        change-player-id
+        contrast-player-id
+        originator-player-id
+        contrasting-info
+        )
+  )
+
 (declare print-player)
 (defn copy-follow-info
   [cur-players to-player]
