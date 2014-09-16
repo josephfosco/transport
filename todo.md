@@ -17,8 +17,6 @@
 
 * no volume 0 (or a minimum volumem maybe .1)
 
-* need some type of CLI or separate window for messages
-
 * remove duplicate @SCALES
 
 * move :accuracy out of :behavior up to top level
@@ -35,11 +33,7 @@
 
 * change message processor to use type in addition to message number
 
-* make melody events records
-
 * possibly helpful to track mm changes in melody - (can get this now from dur-millis and dur-note)
-
-* Find a way to sync players to match beats not just tempo
 
 * find a way to normalise volumes across different instruments and instrument ranges
 
@@ -49,7 +43,7 @@
 
 * make certain melody range starts and ends on pitch in player scale
 
-* Allow (relatively) short lbe repeated over and over
+* Allow (relatively) short loop repeated over and over
 
 * Allow follow at ocatve and/or different intervals
 

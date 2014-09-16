@@ -15,6 +15,7 @@
 
 (ns transport.ensemble-status
   (:require
+   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
@@ -49,7 +50,8 @@
   [player player-last-melody player-id note-time]
   (if (and (> (get-volume-for-note player-last-melody) 0.85)
            (> (get-dur-millis-for-note player-last-melody) 3000)
-           (players-soft? player-id))
+           (players-soft? player-id)
+           (not= (get-behavior-action-for-player player) FOLLOW))
     (do
       (println "send-status-msgs volume:" (get-volume-for-note player-last-melody))
       (println "send-status-msgs dur-millis:" (get-dur-millis-for-note player-last-melody))

@@ -35,7 +35,7 @@
    )
   )
 
-(def CONTINUITY-PROBS [1 2 2 1 1 1 1 2 3 4])
+(def CONTINUITY-PROBS [1 2 2 3 3 7 9 10 12 17])
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
 (def loud-player-time (atom nil))   ;; start time of loud player interrupt
 
@@ -80,9 +80,9 @@
            cntrst-continuity-probs (cond
                                     (and (> cntrst-continuity 0) (< cntrst-continuity 9))
                                     (assoc CONTINUITY-PROBS
-                                      (- cntrst-continuity 1) 0
+                                      (dec cntrst-continuity ) 0
                                       cntrst-continuity 0
-                                      (+ cntrst-continuity 1) 0)
+                                      (inc cntrst-continuity) 0)
                                     (= cntrst-continuity 0)
                                     (assoc CONTINUITY-PROBS 0 0 1 0)
                                     :else
