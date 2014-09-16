@@ -27,7 +27,7 @@
 
 (defn select-volume-in-range
   "Returns a random float between lo-vol and hi-vol(exclusive).
-   precision is only to .999
+   precision is to .999
 
   lo-vol - lowest value that can be returned
   hi-vol - highest value that can be returned(exclusive)"
@@ -36,6 +36,7 @@
   )
 
 (defn- select-random-volume
+  "Returns a random volume between 0 and .999"
   []
   (float (/ (int (* (rand) 1000)) 1000))
     )
