@@ -21,6 +21,11 @@
   (reduce max 0 (keys map))
   )
 
+(defmacro if-debug
+  [& body]
+  `(when ~'DEBUG ~@body)
+  )
+
 (defmacro print-msg
   [function & msg]
   `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " - " ~function (str ~@msg))
