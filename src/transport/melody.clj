@@ -36,6 +36,7 @@
   )
 
 (def CONTINUITY-PROBS [1 2 2 3 3 7 9 10 12 17])
+(def SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
 (def loud-player-time (atom nil))   ;; start time of loud player interrupt
 
@@ -159,9 +160,9 @@
   "Returns a number from 0 to 9 to determine how smooth (stepwise)
    the melody will be (steps vs skips and changes in volume levels.
    0 - mostly steps, same voolume -> 9 - mostly skips (wide skips), large volume changes"
-  ([] (rand-int 10))
+  ([] (weighted-choice SMOOTHNESS-PROBS))
   ([player]
-     (rand-int 10)
+     (weighted-choice SMOOTHNESS-PROBS)
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-smoothness (get-melody-char-smoothness cntrst-melody-char)]

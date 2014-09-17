@@ -20,6 +20,7 @@
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
+   [transport.util :refer :all]
    )
   (:import transport.behavior.Behavior)
   )
@@ -184,7 +185,7 @@
 (defn set-behavior-player-id
   "Returns new :behavior map with :player-id set to player-id
 
-   player - the player whose :behavior is to be changed
+   player - tnhe player whose :behavior is to be changed
    player-id - the player-id to set :player-id to"
   [player player-id]
   (assoc (:behavior player)
@@ -265,7 +266,7 @@
 
 (defn set-new-contrast-info
   [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
-  (println "players.clj - set-new-contrast-info changing:" change-player-id "contrasting:" contrasting-player-id "originator:" originator-player-id)
+  (print-msg "set-new-contrast-info" "changing: " change-player-id " contrasting: " contrasting-player-id " originator: " originator-player-id)
   (let [contrasting-player (get-player contrasting-player-id)]
     (if (= change-player-id (get-player-id (:behavior contrasting-player)))
       (do

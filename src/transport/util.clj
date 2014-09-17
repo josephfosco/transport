@@ -20,3 +20,8 @@
   [map]
   (reduce max 0 (keys map))
   )
+
+(defmacro print-msg
+  [function & msg]
+  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " - " ~function (str ~@msg))
+  )

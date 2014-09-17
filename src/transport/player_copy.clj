@@ -19,6 +19,7 @@
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.players :refer :all]
+   [transport.util :refer :all]
    ))
 
 (defn adjust-melody-char-for-instrument
@@ -48,7 +49,7 @@
 
 (defn player-copy-new-similar-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (println "player_copy.clj - player-copy-new-similar-info change-player-id:" change-player-id "follow-player-id:" follow-player-id "originator-player-id:" originator-player-id)
+  (print-msg "player-copy-new-similar-info" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " originator-player-id: " originator-player-id)
   (let [to-player (get-player follow-player-id)]
     (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
       (let [similar-player-info (get-similar-info-from-player (get-player change-player-id))
@@ -64,6 +65,6 @@
          )
         )
       (do
-        (println "players-copy.clj - player-copy-new-similar-info NOT COPYING!")
+        (print-msg "player-copy-new-similar-info" " NOT COPYING!")
         )))
   )
