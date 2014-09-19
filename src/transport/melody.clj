@@ -16,7 +16,7 @@
 (ns transport.melody
   (:require
    [overtone.live :refer [MIDI-RANGE]]
-   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-ensemble-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
    [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
@@ -188,7 +188,7 @@
 
 (defn select-melody-characteristics
   [player]
-  (let [cntrst-plyr (if (= (get-behavior-action-for-player player) CONTRAST)
+  (let [cntrst-plyr (if (= (get-behavior-action-for-player player) CONTRAST-PLAYER)
                       (get-player (get-behavior-player-id-for-player player))
                       nil)
         ]
@@ -416,7 +416,7 @@
   [player event-time]
   (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
   (cond
-   (= (get-behavior-action-for-player player) FOLLOW) (next-melody-follow player event-time)
+   (= (get-behavior-action-for-player player) FOLLOW-PLAYER) (next-melody-follow player event-time)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
    :else (next-melody-for-player player event-time))

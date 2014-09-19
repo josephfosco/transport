@@ -16,9 +16,9 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
-   [transport.behavior :refer [get-behavior-action get-behavior-player-id get-behavior-ensemble-action]]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
-   [transport.settings :refer [number-of-players SIMILAR CONTRAST FOLLOW IGNORE]]
+   [transport.settings :refer :all]
    )
   (:import transport.behavior.Behavior)
   )
@@ -33,17 +33,15 @@
   (get-behavior-player-id (get-behavior player))
   )
 
-(defn get-behavior-ensemble-action-for-player
-  [player]
-  (get-behavior-ensemble-action (get-behavior player)))
-
 (defn select-behavior-action
   [player]
   (let [action-num (rand)]
     (cond
-     (< action-num 0.25) FOLLOW
-     (< action-num 0.50) CONTRAST
-     (< action-num 0.75) SIMILAR
+     (< action-num 0.17) FOLLOW-PLAYER
+     (< action-num 0.34) CONTRAST-PLAYER
+     (< action-num 0.51) SIMILAR-PLAYER
+     (< action-num 0.68) SIMILAR-ENSEMBLE
+     (< action-num 0.85) CONTRAST-ENSEMBLE
      :else IGNORE
      ))  )
 
@@ -51,8 +49,8 @@
   [player]
   (let [action-num (rand)]
     (cond
-     (< action-num 0.34) SIMILAR
-     (< action-num 0.66) CONTRAST
+     (< action-num 0.34) SIMILAR-ENSEMBLE
+     (< action-num 0.66) CONTRAST-ENSEMBLE
      :else IGNORE
      ))  )
 
@@ -78,13 +76,9 @@
   [player]
   (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
-                          (select-behavior-ensemble-action player)
-                          IGNORE)
         ]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
-               ensemble-action          ;; ensemble-action
                nil)                     ;; behavior player-id
     )
   )
@@ -93,13 +87,9 @@
   [player]
   (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
         ;; select ensemble-action behavior only if not watching another player
-        ensemble-action (if (and (= behavior-action IGNORE) (> @number-of-players 1))
-                          (select-behavior-ensemble-action player)
-                          IGNORE)
         ]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
-               ensemble-action          ;; ensemble-action
                (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil)) ;; behavior player-id
     )
   )

@@ -29,7 +29,7 @@
 
 * need to work on ending
 
-* Could FOLLOW/COMPLEMENT/CONTRAST up or down an octave or other interval
+* Could FOLLOW-PLAYER/SIMILAR-PLATER/CONTRAST-PLAYER up or down an octave or other interval
 
 * change message processor to use type in addition to message number
 

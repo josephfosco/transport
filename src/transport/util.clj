@@ -27,6 +27,12 @@
   )
 
 (defmacro print-msg
+  "Prints a message of the format:
+   *ns* - function msg
+   where *ns* is the ns the calling function is in
+
+   function: a string, generally the name of the calling function
+   msg: one or more strings which will be concatenated together in the printed message"
   [function & msg]
-  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " - " ~function (str ~@msg))
+  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " -" ~function (str ~@msg))
   )

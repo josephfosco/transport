@@ -62,7 +62,7 @@
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
        (cond
-        (= (get-behavior-action-for-player player) FOLLOW)
+        (= (get-behavior-action-for-player player) FOLLOW-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-FOLLOW-INFO
          transport.players/new-change-follow-info-note-for-player
@@ -70,14 +70,14 @@
          :follow-player-id player-id
          )
 
-        (= (get-behavior-action-for-player player) SIMILAR)
+        (= (get-behavior-action-for-player player) SIMILAR-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
          transport.player-copy/player-copy-new-similar-info
          {:change-player-id (get-behavior-player-id-for-player player)}
          :follow-player-id player-id
          )
-        (= (get-behavior-action-for-player player) CONTRAST)
+        (= (get-behavior-action-for-player player) CONTRAST-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-CONTRAST-INFO
          transport.ensemble/new-contrast-info
@@ -97,7 +97,7 @@
   (let [prev-behavior (get-behavior player) ;; behavior before new segment
         ]
     (cond
-     (= (get-behavior-action prev-behavior) FOLLOW)
+     (= (get-behavior-action prev-behavior) FOLLOW-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
       transport.players/new-change-follow-info-note-for-player
@@ -105,14 +105,14 @@
       :follow-player-id (get-player-id player)
       )
 
-     (= (get-behavior-action prev-behavior) SIMILAR)
+     (= (get-behavior-action prev-behavior) SIMILAR-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-SIMILAR-INFO
       transport.player-copy/player-copy-new-similar-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
-     (= (get-behavior-action prev-behavior) CONTRAST)
+     (= (get-behavior-action prev-behavior) CONTRAST-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-CONTRAST-INFO
       transport.ensemble/new-contrast-info
@@ -259,7 +259,7 @@
     (await PLAYERS)
     )
 
-  ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing
+  ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
   (let [final-players
         (zipmap
          (keys @PLAYERS)

@@ -52,7 +52,7 @@
         ]
     (assoc player
       :behavior new-behavior
-      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW) 0 nil)
+      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) 0 nil)
       :instrument-info new-instrument
       :key (select-random-key)
       :last-pitch nil
@@ -93,13 +93,13 @@
                      )
         ]
     (cond
-     (= behavior-action FOLLOW)
+     (= behavior-action FOLLOW-PLAYER)
      (let [following-player-id (get-behavior-player-id new-behavior)]
        (merge upd-player
               (get-following-info-from-player (get-player following-player-id))
               {:sync-beat-player-id following-player-id}))
 
-     (= behavior-action SIMILAR)
+     (= behavior-action SIMILAR-PLAYER)
      (let [similar-player-info (get-similar-info-from-player (get-player (get-behavior-player-id new-behavior)))
            similar-melody-char (:melody-char similar-player-info)
            new-instrument (select-instrument upd-player)
@@ -130,7 +130,7 @@
               new-similar-info)
        )
 
-     :else  ;;  IGNORE or CONTRAST
+     :else  ;;  IGNORE or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
      (let [new-instrument (select-instrument upd-player)]
        (assoc upd-player
          :instrument-info new-instrument

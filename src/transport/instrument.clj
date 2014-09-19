@@ -114,13 +114,13 @@
    player - the player to get instrument for"
   [player]
   (let [behavior-action (get-behavior-action-for-player player)
-        cntrst-plyr (if (= behavior-action CONTRAST)
+        cntrst-plyr (if (= behavior-action CONTRAST-PLAYER)
                       (get-player (get-behavior-player-id-for-player player))
                       nil)
         ;; select instrument info from all-insruments map
         ;; if not CONTRASTing, select a random instrument
         ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
-        inst-info (if (not= behavior-action CONTRAST)
+        inst-info (if (not= behavior-action CONTRAST-PLAYER)
                     (rand-nth all-instruments)
                     (let [instrument-index (rand-int (count all-instruments))]
                       (if (=
@@ -144,7 +144,7 @@
 (defn- check-note-out-of-range
   [player note-num]
   (if (and
-       (not= (get-behavior-action-for-player FOLLOW))
+       (not= (get-behavior-action-for-player FOLLOW-PLAYER))
        (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) )))
     (do
       (println "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")

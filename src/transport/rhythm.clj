@@ -20,7 +20,7 @@
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
-   [transport.settings :refer [SIMILAR]]
+   [transport.settings :refer [SIMILAR-ENSEMBLE]]
    [overtone.live :refer [metronome]]
    ))
 
@@ -189,7 +189,7 @@
   [player]
   (let [ensemble-action (get-behavior-ensemble-action-for-player player)
         note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (if (= SIMILAR ensemble-action)
+        adjusted-note-prob1 (if (= SIMILAR-ENSEMBLE ensemble-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]

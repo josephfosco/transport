@@ -25,6 +25,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
+   [transport.util :refer :all]
    )
   (:import transport.behavior.Behavior)
   )
@@ -185,7 +186,7 @@
   "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR)  ;; if SIMILARng ensemble
+  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR-ENSEMBLE)  ;; if SIMILARng ensemble
     (get-ensemble-key-for-player player)  ;; get key from ensemble else
     (rand-int 12))) ;; return random key
 
@@ -317,7 +318,7 @@
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
       (do
-        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)) "key:" (get-key player) "scale:" (get-scale player))
+        (print-msg "next-pitch-ignore"  "CHOOSING NEW PITCH player-id: " (get-player-id player) " pitch: " next-pitch " range: " (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)) " key: " (get-key player) " scale: " (get-scale player))
         (get-scale-pitch-in-range player)
         )
       )
@@ -339,7 +340,7 @@
   (let [player-behavior-action (get-behavior-action-for-player player)
         ]
     (cond
-     (= player-behavior-action SIMILAR) (next-pitch-similar player)
-     (= player-behavior-action CONTRAST) (next-pitch-contrast player)
+     (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)
+     (= player-behavior-action CONTRAST-PLAYER) (next-pitch-contrast player)
      (= player-behavior-action IGNORE) (next-pitch-ignore player)
      :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
