@@ -16,7 +16,7 @@
 (ns transport.pitch
   (:require
    [overtone.live :refer [MIDI-RANGE]]
-   [transport.behavior :refer [get-behavior-ensemble-action]]
+   [transport.behavior :refer [get-behavior-action]]
    [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
@@ -186,7 +186,7 @@
   "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR-ENSEMBLE)  ;; if SIMILARng ensemble
+  (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)  ;; if SIMILARng ensemble
     (get-ensemble-key-for-player player)  ;; get key from ensemble else
     (rand-int 12))) ;; return random key
 
@@ -342,5 +342,5 @@
     (cond
      (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)
      (= player-behavior-action CONTRAST-PLAYER) (next-pitch-contrast player)
-     (= player-behavior-action IGNORE) (next-pitch-ignore player)
-     :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
+     :else (next-pitch-ignore player)
+     )) )

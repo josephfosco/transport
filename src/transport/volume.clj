@@ -15,7 +15,7 @@
 
 (ns transport.volume
   (:require
-   [transport.behaviors :refer [get-behavior-ensemble-action-for-player]]
+   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-average-volume]]
    [transport.melodychar :refer [get-melody-char-smoothness]]
    [transport.melodyevent :refer [get-volume-for-event]]
@@ -56,15 +56,15 @@
 
 (defn select-volume-for-next-note
   [player event-time next-pitch]
-  (let [behavior-ensemble-action (get-behavior-ensemble-action-for-player player)]
+  (let [player-action (get-behavior-action-for-player player)]
     (cond
      (not next-pitch) 0  ;; if no pitch (rest) set volume to 0
-     (= behavior-ensemble-action SIMILAR-ENSEMBLE)
+     (= player-action SIMILAR-ENSEMBLE)
      (let [average-volume (get-average-volume)]
        (select-volume-in-range
         (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
         (if (> average-volume 0.9) 1 (+ average-volume 0.1)))) ;; + or - 0.1 of average volume
-     (= behavior-ensemble-action CONTRAST-ENSEMBLE)
+     (= player-action CONTRAST-ENSEMBLE)
      (let [average-volume (get-average-volume)]
        (select-volume-in-range
         (if (< average-volume 0.5) 0.7 0) ;; set range of volume eithe 0.7 - 1 or

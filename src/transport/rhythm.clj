@@ -15,7 +15,7 @@
 
 (ns transport.rhythm
   (:require
-   [transport.behaviors :refer [get-behavior-ensemble-action-for-player]]
+   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-average-note-dur-millis]]
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
@@ -185,11 +185,11 @@
     )
   )
 
-(defn adjust-rhythmic-probabilities
+(defn- adjust-rhythmic-probabilities
   [player]
-  (let [ensemble-action (get-behavior-ensemble-action-for-player player)
+  (let [player-action (get-behavior-action-for-player player)
         note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (if (= SIMILAR-ENSEMBLE ensemble-action)
+        adjusted-note-prob1 (if (= SIMILAR-ENSEMBLE player-action)
                              (adjust-note-prob note-durs-millis)
                              NOTE-PROBS)
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]

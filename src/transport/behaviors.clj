@@ -27,7 +27,6 @@
   (get-behavior-action (get-behavior player))
   )
 
-
 (defn get-behavior-player-id-for-player
   [player]
   (get-behavior-player-id (get-behavior player))
@@ -45,15 +44,6 @@
      :else IGNORE
      ))  )
 
-(defn select-behavior-ensemble-action
-  [player]
-  (let [action-num (rand)]
-    (cond
-     (< action-num 0.34) SIMILAR-ENSEMBLE
-     (< action-num 0.66) CONTRAST-ENSEMBLE
-     :else IGNORE
-     ))  )
-
 (defn select-and-set-behavior-player-id
   "If :behavior :action is not IGNORE
    returns a :behavior map with :player-id selected from PLAYERS
@@ -61,12 +51,16 @@
 
    player - the player to set :behavior :player-id"
   [player]
-  (if (not= (get-behavior-action (get-behavior player)) IGNORE)
-    (let [player-id (rand-player-id-excluding-player player)]
-      (set-behavior-player-id player player-id)
-      )
-    (get-behavior player)
-    ))
+  (let [player-action (get-behavior-action (get-behavior player))]
+    (if (and
+         (not= player-action SIMILAR-ENSEMBLE)
+         (not= player-action CONTRAST-ENSEMBLE)
+         (not= player-action IGNORE))
+      (let [player-id (rand-player-id-excluding-player player)]
+        (set-behavior-player-id player player-id)
+        )
+      (get-behavior player)
+      )))
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.

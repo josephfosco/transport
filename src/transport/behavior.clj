@@ -15,7 +15,7 @@
 
 (ns transport.behavior)
 
-(defrecord Behavior [accuracy action ensemble-action player-id])
+(defrecord Behavior [accuracy action player-id])
 
 (defn get-behavior-action
   [behavior]
@@ -24,7 +24,3 @@
 (defn get-behavior-player-id
   [behavior]
   (:player-id behavior))
-
-(defn get-behavior-ensemble-action
-  [behavior]
-  (:ensemble-action behavior))
