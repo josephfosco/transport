@@ -16,11 +16,12 @@
 (ns transport.rhythm
   (:require
    [transport.behaviors :refer [get-behavior-action-for-player]]
-   [transport.ensemble-status :refer [get-average-note-dur-millis]]
+   [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm-for-player]]
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :refer [SIMILAR-ENSEMBLE]]
+   [transport.util :refer :all]
    [overtone.live :refer [metronome]]
    ))
 
@@ -123,7 +124,18 @@
 (defn select-mm
   ([] (random-int min-mm max-mm))
   ([player]
-     (random-int min-mm max-mm)
+     (if (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+       (let [ensemble-mm (get-ensemble-mm-for-player player)]
+         (if (not= nil ensemble-mm)
+           (do
+             (println "!!!!!!!!!")
+             (print-msg select-mm "returning ensemble-mm: " ensemble-mm)
+             (println "!!!!!!!!")
+             ensemble-mm)
+           (random-int min-mm max-mm)
+           ) )
+       (random-int min-mm max-mm)
+       )
      )
   )
 

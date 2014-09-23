@@ -25,10 +25,13 @@
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
-;; player-volumes is vector of the volume of the last not played for each player
+;; player-keys, -mms, and -volumes are vectors of the last respective values
+;;  for each player.
 ;;  player-id is index into vector.
-(def player-volumes (atom (apply vector (repeat @number-of-players 0))))
 (def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+(def player-mms (atom (apply vector (repeat @number-of-players nil))))
+(def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+
 (def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
@@ -74,6 +77,9 @@
     (if (not= (get-key player) (get player-keys player-id))
       (reset! player-keys (assoc @player-keys player-id (get-key player)))
       )
+    (if (not= (get-mm player) (get player-mms player-id))
+      (reset! player-mms (assoc @player-mms player-id (get-mm player)))
+      )
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest)
@@ -94,8 +100,9 @@
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
-  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
+  (reset! player-mms (apply vector (repeat @number-of-players nil)))
+  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
@@ -138,5 +145,21 @@
     (if (>= rand-index (get-player-id player))   ;; return a key from player-keys but
       (get @player-keys (inc rand-index))         ;;  do not return key for player
       (get @player-keys rand-index))
+    )
+  )
+
+(defn get-ensemble-mm-for-player
+  "Select a mm for player that at least 30% of other players are using.
+   If there is no mm that used by 30% of players, return nil."
+  [player]
+  (let [;; map of mms with frequencies without mm for player and all nil mms removed
+        mm-frequencies (dissoc (frequencies (assoc @player-mms (get-player-id player) nil)) nil)
+        ;; most-used-mm is a vector containing the mm most used and the number of players using it [mm no-of-players]
+        most-used-mm (first (for [x mm-frequencies :when (= (get x 1) (apply max (vals mm-frequencies)))] x))
+        ]
+    (if (>= (get most-used-mm 1) (* @number-of-players 0.3))
+      (get most-used-mm 0)
+      nil
+      )
     )
   )
