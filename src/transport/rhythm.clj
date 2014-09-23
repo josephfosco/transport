@@ -129,7 +129,7 @@
          (if (not= nil ensemble-mm)
            (do
              (println "!!!!!!!!!")
-             (print-msg select-mm "returning ensemble-mm: " ensemble-mm)
+             (print-msg "select-mm" "returning ensemble-mm: " ensemble-mm)
              (println "!!!!!!!!")
              ensemble-mm)
            (random-int min-mm max-mm)

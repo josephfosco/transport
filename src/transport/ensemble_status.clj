@@ -152,7 +152,8 @@
   "Select a mm for player that at least 30% of other players are using.
    If there is no mm that used by 30% of players, return nil."
   [player]
-  (let [;; map of mms with frequencies without mm for player and all nil mms removed
+  (print-msg "get-ensemble-mm-for-player:" @player-mms)
+  (let [;; map of mms with frequency. mm for player and all nil mms removed
         mm-frequencies (dissoc (frequencies (assoc @player-mms (get-player-id player) nil)) nil)
         ;; most-used-mm is a vector containing the mm most used and the number of players using it [mm no-of-players]
         most-used-mm (first (for [x mm-frequencies :when (= (get x 1) (apply max (vals mm-frequencies)))] x))
