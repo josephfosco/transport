@@ -292,36 +292,34 @@
   )
 
 (defn- sync-beat-follow
-  [player follow-player-id event-time]
+  [player follow-player event-time]
   (println)
-  (println "melody.clj - sync-beat-follow player:" (get-player-id player) "follow-player:" follow-player-id)
+  (print-msg "sync-beat-follow" "player: " (get-player-id player) " follow-player: " (get-player-id follow-player))
   (println)
-  (let [follow-player (get-player follow-player-id)
-        follow-player-mm (get-mm follow-player)
+  (let [follow-player-mm (get-mm follow-player)
         follow-player-beat (get-cur-note-beat follow-player)
         follow-player-time (get-cur-note-time follow-player)
         follow-player-last-melody-event (get-last-melody-event follow-player)
-        seg-num (get-seg-num player)
         last-seg-num (get-seg-num-for-event follow-player-last-melody-event)
         new-dur-info (if (or (= follow-player-beat nil) (= follow-player-beat 0))
-                 ;; current info for FOLLOW player is for next segment
-                 ;;  which means FOLLOW player is either syncing (nil) or resting before starting segment
-                 ;;  so, sync time = cur-note-beat time + 1 beat
-                 (do
-                   (println "*********")
-                   (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 1 - new seg")
-                   (println "*********")
-                   (get-dur-info-for-mm-and-millis
-                    follow-player-mm
-                    (+ (- follow-player-time event-time) (note-dur-to-millis follow-player-mm 1)))
-                   )
-                 (do
-                   (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 2")
-                   (get-dur-info-for-mm-and-millis
-                    (get-mm player)
-                    (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time))
-                   )
-                 )
+                       ;; current info for FOLLOW player is for next segment
+                       ;;  which means FOLLOW player is either syncing (nil) or resting before starting segment
+                       ;;  so, sync time = cur-note-beat time + 1 beat
+                       (do
+                         (println "*********")
+                         (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 1 - new seg")
+                         (println "*********")
+                         (get-dur-info-for-mm-and-millis
+                          follow-player-mm
+                          (+ (- follow-player-time event-time) (note-dur-to-millis follow-player-mm 1)))
+                         )
+                       (do
+                         (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 2")
+                         (get-dur-info-for-mm-and-millis
+                          (get-mm player)
+                          (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time))
+                         )
+                       )
         ]
     (create-melody-event
      :note nil
@@ -337,21 +335,22 @@
 (defn next-melody-follow
   [player event-time]
   (let [follow-player-id (get-behavior-player-id-for-player player)
+        follow-player (get-player follow-player-id)
         follow-player-last-event (get-last-melody-event-num follow-player-id)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
     (cond
-     (not (nil? (get-sync-beat-player-id player))) (sync-beat-follow player follow-player-id event-time)
+     (not (nil? (get-sync-beat-player-id player))) (sync-beat-follow player follow-player event-time)
      (or (nil? last-follow-event-num)
-            (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
-            )
+         (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
+         )
       ;; first time or new segment, rest 3 beats
       (do
-        (println "melody.clj - next-melody-follow player seg-num" (get-seg-num player) "following seg-num:" (get-seg-num-for-event (get-last-melody-event player)))
+        (print-msg "next-melody-follow" "player: " (get-player-id player) " seg-num: " (get-seg-num player) " following seg-num: " (get-seg-num-for-event (get-last-melody-event player)) " follow-player-id: " follow-player-id)
         (create-melody-event
          :note nil
-         :dur-info (get-dur-info-for-beats (get-player follow-player-id) 3)
+         :dur-info (get-dur-info-for-beats follow-player 3)
          :follow-note (if (nil? follow-player-last-event)
                         0
                         (- follow-player-last-event 1))
@@ -394,19 +393,21 @@
 (defn- next-melody-for-player
   [player event-time]
 
-    ;;  (println "next-melody-for-player")
-    (let [next-note-or-rest (if (loud-rest? player event-time)
-                              nil
-                              (if (note-or-rest player event-time) (next-pitch player) nil))
-          ]
-    (create-melody-event
-     :note next-note-or-rest
-     :dur-info (next-note-dur player)
-     :follow-note nil
-     :instrument-info (get-instrument-info player)
-     :volume (select-volume-for-next-note player event-time next-note-or-rest)
-     :seg-num (get-seg-num player)
-     ))
+  (let [follow-player-id (get-sync-beat-player-id player)]
+    (if follow-player-id
+      (sync-beat-follow player (get-player follow-player-id) event-time)
+      (let [next-note-or-rest (if (loud-rest? player event-time)
+                                nil
+                                (if (note-or-rest player event-time) (next-pitch player) nil))
+            ]
+        (create-melody-event
+         :note next-note-or-rest
+         :dur-info (next-note-dur player)
+         :follow-note nil
+         :instrument-info (get-instrument-info player)
+         :volume (select-volume-for-next-note player event-time next-note-or-rest)
+         :seg-num (get-seg-num player)
+         ))))
   )
 
 (defn next-melody

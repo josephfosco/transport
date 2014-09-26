@@ -31,6 +31,7 @@
    [transport.schedule :refer [sched-event]]
    [transport.segment :refer [copy-following-info first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
+   [transport.util :refer :all]
    )
   (:import transport.behavior.Behavior)
   )
@@ -193,7 +194,8 @@
    player - map for the current player
    event-time - time this note event was scheduled for"
   [player-id event-time]
-;;  (println "ensemble.clj - play-melody - player-id:" player-id)
+
+  ;; (print-msg "play-melody"  "player-id: " player-id)
   (let [
         player (get-player player-id)
         melody-event (next-melody player event-time)

@@ -3,7 +3,6 @@
 * :behavior - info about interactions with other players - contains
     + :accuracy - this players accuracy
     + :action - interaction with other players (can be follow, complement, contrast, ignore)
-    + :ensemble-action - interaction with the entire ensemple (can be complement, contrast, ignore)
     + :player-id - player id of player that is being observed (optional only if :action is follow, complement or contrast)
 * :change-follow-info-note When following another player, if the player you are following changes instruments, this is the note they changed on
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
@@ -32,7 +31,7 @@
       -  instrument-info - the instrument for this event
       - :volume - the volume level of this melody event. A value between 0 and 1
 * :melody-char - a map of melody characteristics
-    + continuity - hom continuous the melody will be
+    + continuity - how continuous the melody will be
         - 0 - discontinuous (all rests)
         - 9 - continuous (few rests)
     + density - melody density

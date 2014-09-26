@@ -17,9 +17,11 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
+   [transport.ensemble-status :refer [get-player-with-mm]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
+   [transport.melodyevent :refer [get-seg-num-for-event]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
@@ -76,8 +78,18 @@
    }
   )
 
+(defn new-segment?
+  "Returns true if player is starting a new segment, else returns false
+
+   player - the player to check a new segment for"
+  [player]
+  (if (not= (get-seg-num player) (get-seg-num-for-event (get-last-melody-event player)))
+    true
+    false)
+  )
+
 (defn new-segment
-  "Returns map player wit new segment info in it
+  "Returns player map with new segment info in it
 
    player - player map to get (and return new segment info for"
   [player]
@@ -131,11 +143,18 @@
        )
 
      :else  ;;  IGNORE or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
-     (let [new-instrument (select-instrument upd-player)]
+     (let [new-instrument (select-instrument upd-player)
+           new-mm (select-mm upd-player)
+           ]
        (assoc upd-player
          :instrument-info new-instrument
          :key (select-key upd-player)
          :melody-char (select-melody-characteristics (assoc upd-player :instrument-info new-instrument))
          :metronome (select-metronome upd-player)
-         :mm (select-mm upd-player)
-         :scale (select-scale upd-player))))))
+         :mm new-mm
+         :scale (select-scale upd-player)
+         :sync-beat-player-id (if (= behavior-action SIMILAR-ENSEMBLE)
+                                (get-player-with-mm new-mm)
+                                nil
+                                )
+         )))))

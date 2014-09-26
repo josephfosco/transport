@@ -150,7 +150,7 @@
 
 (defn get-ensemble-mm-for-player
   "Select a mm for player that at least 30% of other players are using.
-   If there is no mm that used by 30% of players, return nil."
+   If there is no mm that is used by 30% of players, return nil."
   [player]
   (print-msg "get-ensemble-mm-for-player:" @player-mms)
   (let [;; map of mms with frequency. mm for player and all nil mms removed
@@ -162,5 +162,15 @@
       (get most-used-mm 0)
       nil
       )
+    ))
+
+(defn get-player-with-mm
+  "Returns a player with the specified mm or
+   nil if there are no players with the specified mm.
+
+   mm - the mm to select player by"
+  [mm]
+  (let [mm-player-id (.indexOf @player-mms mm)]
+    (if (= mm-player-id -1) nil mm-player-id)
     )
   )
