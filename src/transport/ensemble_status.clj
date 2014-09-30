@@ -58,12 +58,12 @@
            (players-soft? player-id)
            (not= (get-behavior-action-for-player player) FOLLOW-PLAYER))
     (do
-      (println "send-status-msgs volume:" (get-volume-for-note player-last-melody))
-      (println "send-status-msgs dur-millis:" (get-dur-millis-for-note player-last-melody))
-      (println "send-status-msgs players-volumes:" @player-volumes)
+      (print-msg "send-status-msgs" "volume: "(get-volume-for-note player-last-melody))
+      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis-for-note player-last-melody))
+      (print-msg "send-status-msgs players-volumes:" @player-volumes)
 
       (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
-      (println "ensemble-status.clj send-status-msgs - SENDING LOUD-INTERRUPT-EVENT MSG")
+      (print-msg "send-status-msgs" "SENDING LOUD-INTERRUPT-EVENT MSG")
       )
     )
   )
@@ -156,17 +156,14 @@
   )
 
 (defn get-ensemble-mm-for-player
-  "Select a mm for player that at least 30% of other players are using.
-   If there is no mm that is used by 30% of players, return nil."
+  "Returns the mm most used in the ensemble.
+   If all mms are unique, returns one mm from the ensemble."
   [player]
   (print-msg "get-ensemble-mm-for-player:" @player-mms)
-  (let [;; map of mms with frequency. mm for player and all nil mms removed
-        mm-frequencies (dissoc (frequencies (assoc @player-mms (get-player-id player) nil)) nil)
+  (let [;; map of mms with frequency all nil mms removed
+        mm-frequencies (dissoc (frequencies @player-mms) nil)
         ;; most-used-mm is a vector containing the mm most used and the number of players using it [mm no-of-players]
         most-used-mm (first (for [x mm-frequencies :when (= (get x 1) (apply max (vals mm-frequencies)))] x))
         ]
-    (if (>= (get most-used-mm 1) (* @number-of-players 0.3))
-      (get most-used-mm 0)
-      nil
-      )
+    (get most-used-mm 0)
     ))

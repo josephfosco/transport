@@ -222,13 +222,13 @@
             (if (nil? follow-note)
               (do
                 ;; this is the first note player is FOLLOWing
-                (println "ensemble.clj - play-melody - follow 1 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
+                (print-msg "play-melody" "follow 1 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note: " follow-note)
                 (update-player-and-follow-info upd-player)
                 )
               ;; next note is the note that the FOLLOW player changed segments
               (if (>= (inc follow-note) cur-change-follow-info-note)
                 (do
-                  (println "ensemble.clj - play-melody - follow 2 cur-change-follow-info-note:" cur-change-follow-info-note "follow-note:" follow-note)
+                  (println "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note "follow-note:" follow-note)
                   (update-player-and-follow-info upd-player)
                   )
                 (update-player upd-player)))
