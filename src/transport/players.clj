@@ -166,6 +166,23 @@
     )
   )
 
+(defn get-player-with-mm
+  "Returns player-id for the player with requested mm.
+   Does not return requesting-player id.
+   Returns nil if no other players match mm"
+  [requesting-player mm]
+  (let [requesting-player-id (get-player-id requesting-player)]
+    (loop [player-id-to-check 0]
+      (cond (= player-id-to-check @number-of-players)
+            nil
+            (and (= mm (get-mm (get-player player-id-to-check))) (not= player-id-to-check requesting-player-id))
+            player-id-to-check
+            :else (recur (inc player-id-to-check))
+        )
+      )
+    )
+  )
+
 (defn clear-players
   "used by send or send-off to clear agents"
   [cur-players]
@@ -239,7 +256,7 @@
 
 (defn set-change-follow-info-note
   [cur-players from-player-id to-player-id originator-player-id melody-no]
-  (println "players.clj - set-change-follow-info-note from:" from-player-id "to:" to-player-id "originator:" originator-player-id "melody-no:" melody-no)
+  (print-msg "set-change-follow-info-note" "from: " from-player-id " to: " to-player-id " originator: " originator-player-id " melody-no: " melody-no)
   (if (not= originator-player-id to-player-id)
     (do
       (let [to-player (get-player to-player-id)]
@@ -247,10 +264,10 @@
           (assoc @PLAYERS to-player-id
                  (assoc to-player :change-follow-info-note melody-no))
           (do
-            (println "players.clj - set-change-follow-info-note NOT COPYING!")
+            (print-msg "set-change-follow-info-note" "set-change-follow-info-note NOT COPYING!")
             cur-players))))
     (do
-      (println "players.clj - set-change-follow-info-note same originator NOT COPYING!")
+      (print-msg "set-change-follow-info-note" "same originator NOT COPYING!")
       cur-players)
 
     )

@@ -248,7 +248,7 @@
     (let [play-note? (random-int 0 10)]
       (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
         true
-        (if (not= 9 play-note?)                                ;; if play-note? not 0
+        (if (not= 9 play-note?)                                ;; if play-note? not 9
           false                                                ;; rest
           (if (and                                             ;; else
                (not= {} (get-melody player))                   ;; if melody not empty

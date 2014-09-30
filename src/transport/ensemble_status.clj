@@ -16,6 +16,7 @@
 (ns transport.ensemble-status
   (:require
    [transport.behaviors :refer [get-behavior-action-for-player]]
+   [transport.melodychar :refer :all]
    [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
@@ -31,6 +32,7 @@
 (def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
 (def player-mms (atom (apply vector (repeat @number-of-players nil))))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def player-densities (atom (apply vector (repeat @number-of-players 0))))
 
 (def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
@@ -66,6 +68,16 @@
     )
   )
 
+(defn update-ensemble-new-segment
+  [& {:keys [player note-time player-id]}]
+  (if (not= (get-key player) (get player-keys player-id))
+    (reset! player-keys (assoc @player-keys player-id (get-key player))) )
+  (if (not= (get-mm player) (get player-mms player-id))
+    (reset! player-mms (assoc @player-mms player-id (get-mm player))) )
+  (if (not= (get-melody-char-density (get-melody-char player)) (get player-densities player-id))
+    (reset! player-densities (assoc @player-densities player-id (get-melody-char-density (get-melody-char player)))))
+  )
+
 (defn update-ensemble-status
   [& {:keys [player note-time]}]
   (let [last-melody (get-last-melody-event player)
@@ -73,13 +85,8 @@
         ]
     ;; update this player's volume in player-volumes
     (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
-    ;; if player has new key - record it in player-keys
-    (if (not= (get-key player) (get player-keys player-id))
-      (reset! player-keys (assoc @player-keys player-id (get-key player)))
-      )
-    (if (not= (get-mm player) (get player-mms player-id))
-      (reset! player-mms (assoc @player-mms player-id (get-mm player)))
-      )
+    ;; Track relevent ensemble-status info when player starts a new segment
+    (update-ensemble-new-segment :player player :note-time note-time :player-id player-id)
     ;; if note (not rest) update note-values-millis with latest note rhythm value
     ;;   and rest-prob (with new note)
     ;; else just update rest-prob (with new rest)
@@ -133,7 +140,7 @@
   (/ (reduce + @player-volumes) @number-of-players))
 
 (defn get-rest-probability
-  "Compute the percent of rests in rest-prob returns fraction or float."
+  "Compute the percent of rests in rest-prob. Returns fraction or float."
   []
   (/ (count (filter #(= false %1) @rest-prob)) @rest-prob-len))
 
@@ -163,14 +170,3 @@
       nil
       )
     ))
-
-(defn get-player-with-mm
-  "Returns a player with the specified mm or
-   nil if there are no players with the specified mm.
-
-   mm - the mm to select player by"
-  [mm]
-  (let [mm-player-id (.indexOf @player-mms mm)]
-    (if (= mm-player-id -1) nil mm-player-id)
-    )
-  )

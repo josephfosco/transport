@@ -17,7 +17,6 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
-   [transport.ensemble-status :refer [get-player-with-mm]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
@@ -154,7 +153,7 @@
          :mm new-mm
          :scale (select-scale upd-player)
          :sync-beat-player-id (if (= behavior-action SIMILAR-ENSEMBLE)
-                                (get-player-with-mm new-mm)
+                                (get-player-with-mm player new-mm)
                                 nil
                                 )
          )))))
