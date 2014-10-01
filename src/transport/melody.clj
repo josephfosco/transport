@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.ensemble-status :refer [get-average-density get-ensemble-density get-rest-probability]]
+   [transport.ensemble-status :refer [get-average-continuity get-ensemble-continuity get-average-density get-ensemble-density get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -47,7 +47,7 @@
     (do
       (reset! loud-player player-id)
       (reset! loud-player-time time)
-      (println "loud-interrupt-event loud-player:" @loud-player)
+      (println "melody-loud-interrupt-event" "loud-player: " @loud-player)
       ))
   )
 
@@ -75,7 +75,13 @@
    0 - discontinuous (all rests) -> 9 - continuous (few rests)"
   ([] (weighted-choice CONTINUITY-PROBS))
   ([player]
-     (weighted-choice CONTINUITY-PROBS)
+     (cond
+      (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+      (get-ensemble-continuity)
+      (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
+      (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
+        (if (> ens-continuity 4) (- ens-continuity 5) (+ ens-continuity 5)))
+      :else (weighted-choice CONTINUITY-PROBS))
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-continuity (get-melody-char-continuity cntrst-melody-char)
@@ -219,7 +225,7 @@
         ]
     (if (<= rest-prob 0)
       (do
-        (println "LOUD EVENT DONE")
+        (print-msg "get-loud-event-prob" "LOUD EVENT DONE")
         (reset! loud-player nil)
         (reset! loud-player-time nil)
         0
@@ -289,7 +295,6 @@
    beat - the beat to be measured
    time - the time beat occured beat"
   [mm beat time]
-  (println "melody.cly - compute-sync-time mm:" mm "beat:" beat "time:" time)
   (let [fractional-beat (if (not= (int beat) beat)
                           (- 1 (- beat (int beat)))
                           0)]
@@ -299,9 +304,6 @@
 
 (defn- sync-beat-follow
   [player follow-player event-time]
-  (println)
-  (print-msg "sync-beat-follow" "player: " (get-player-id player) " follow-player: " (get-player-id follow-player))
-  (println)
   (let [follow-player-mm (get-mm follow-player)
         follow-player-beat (get-cur-note-beat follow-player)
         follow-player-time (get-cur-note-time follow-player)
@@ -312,15 +314,11 @@
                        ;;  which means FOLLOW player is either syncing (nil) or resting before starting segment
                        ;;  so, sync time = cur-note-beat time + 1 beat
                        (do
-                         (println "*********")
-                         (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 1 - new seg")
-                         (println "*********")
                          (get-dur-info-for-mm-and-millis
                           follow-player-mm
                           (+ (- follow-player-time event-time) (note-dur-to-millis follow-player-mm 1)))
                          )
                        (do
-                         (println "melody.clj - sync-beat-follow get-dur-info-for-mm-and-millis 2")
                          (get-dur-info-for-mm-and-millis
                           (get-mm player)
                           (- (compute-sync-time follow-player-mm follow-player-beat follow-player-time) event-time))
@@ -421,7 +419,7 @@
 
     player - the player map"
   [player event-time]
-  (if (nil? player) (println "melody.clj - next-melody - PLAYER IS NIL!!!!!!!!"))
+  (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action-for-player player) FOLLOW-PLAYER) (next-melody-follow player event-time)
    ;; else pick next melody note based only on players settings

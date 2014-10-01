@@ -32,6 +32,7 @@
 (def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
 (def player-mms (atom (apply vector (repeat @number-of-players nil))))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def player-continuities (atom (apply vector (repeat @number-of-players 0))))
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
 
 (def rest-prob-len (atom (* @number-of-players 3)))
@@ -76,6 +77,8 @@
     (reset! player-mms (assoc @player-mms player-id (get-mm player))) )
   (if (not= (get-melody-char-density (get-melody-char player)) (get player-densities player-id))
     (reset! player-densities (assoc @player-densities player-id (get-melody-char-density (get-melody-char player)))))
+  (if (not= (get-melody-char-continuity (get-melody-char player)) (get player-continuities player-id))
+    (reset! player-continuities (assoc @player-continuities player-id (get-melody-char-continuity (get-melody-char player)))))
   )
 
 (defn update-ensemble-status
@@ -163,9 +166,19 @@
   (get-vector-max-frequency @player-mms)
   )
 
+(defn get-ensemble-continuity
+  []
+  (print-msg "get-ensemble-continuity:" @player-continuities)
+  (get-vector-max-frequency @player-continuities)
+  )
+
+(defn get-average-continuity
+  []
+  (average @player-continuities @number-of-players))
+
 (defn get-ensemble-density
   []
-  (print-msg "get-ensemble-density:" @player-densities)
+  (print-msg "get-ensemble-density:   " @player-densities)
   (get-vector-max-frequency @player-densities)
   )
 
