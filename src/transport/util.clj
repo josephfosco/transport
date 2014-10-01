@@ -15,11 +15,28 @@
 
 (ns transport.util)
 
+(defn average
+ "Returns the average of a set of numbers"
+ [nmbrs list-length]
+ (/ (apply + nmbrs) list-length))
+
 (defn get-max-map-key
   "For hash-maps with numeric keys, returns the highest key"
   [map]
   (reduce max 0 (keys map))
   )
+
+(defn get-vector-max-frequency
+  "Returns the non-nil value that occurs most often in the vector.
+   If all values are unique, returns one of the values."
+  [vec]
+  (let [;; map of vector value and frequency with all nils removed
+        vec-frequencies (dissoc (frequencies vec) nil)
+        ;; most-used-val is a vector containing the value most used and the number of times it occurs
+        most-used-val (first (for [x vec-frequencies :when (= (get x 1) (apply max (vals vec-frequencies)))] x))
+        ]
+    (get most-used-val 0)
+    ))
 
 (defmacro if-debug
   [& body]

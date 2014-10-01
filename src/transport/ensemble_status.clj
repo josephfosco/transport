@@ -137,7 +137,7 @@
 
 (defn get-average-volume
   []
-  (/ (reduce + @player-volumes) @number-of-players))
+  (average @player-volumes @number-of-players))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob. Returns fraction or float."
@@ -155,15 +155,20 @@
     )
   )
 
-(defn get-ensemble-mm-for-player
+(defn get-ensemble-mm
   "Returns the mm most used in the ensemble.
    If all mms are unique, returns one mm from the ensemble."
-  [player]
+  []
   (print-msg "get-ensemble-mm-for-player:" @player-mms)
-  (let [;; map of mms with frequency all nil mms removed
-        mm-frequencies (dissoc (frequencies @player-mms) nil)
-        ;; most-used-mm is a vector containing the mm most used and the number of players using it [mm no-of-players]
-        most-used-mm (first (for [x mm-frequencies :when (= (get x 1) (apply max (vals mm-frequencies)))] x))
-        ]
-    (get most-used-mm 0)
-    ))
+  (get-vector-max-frequency @player-mms)
+  )
+
+(defn get-ensemble-density
+  []
+  (print-msg "get-ensemble-density:" @player-densities)
+  (get-vector-max-frequency @player-densities)
+  )
+
+(defn get-average-density
+  []
+  (average @player-densities @number-of-players))

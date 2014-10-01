@@ -16,7 +16,7 @@
 (ns transport.rhythm
   (:require
    [transport.behaviors :refer [get-behavior-action-for-player]]
-   [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm-for-player]]
+   [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm]]
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
@@ -125,7 +125,7 @@
   ([] (random-int min-mm max-mm))
   ([player]
      (if (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-       (let [ensemble-mm (get-ensemble-mm-for-player player)]
+       (let [ensemble-mm (get-ensemble-mm)]
          (do
            (println "!!!!!!!!!")
            (print-msg "select-mm" "returning ensemble-mm: " ensemble-mm)

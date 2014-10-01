@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.ensemble-status :refer [get-average-volume get-rest-probability]]
+   [transport.ensemble-status :refer [get-average-density get-ensemble-density get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -101,7 +101,13 @@
    0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
   ([] (rand-int 10))
   ([player]
-     (rand-int 10)
+     (cond
+      (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+      (get-ensemble-density)
+      (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
+      (let [ens-density (int (+ (get-average-density) 0.5))]
+        (if (> ens-density 4) (- ens-density 5) (+ ens-density 5)))
+      :else (rand-int 10))
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-density (get-melody-char-density cntrst-melody-char)]
