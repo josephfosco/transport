@@ -51,5 +51,5 @@
    function: a string, generally the name of the calling function
    msg: one or more strings which will be concatenated together in the printed message"
   [function & msg]
-  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " -" ~function (str ~@msg))
+  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " -" ~function "  " (str ~@msg))
   )

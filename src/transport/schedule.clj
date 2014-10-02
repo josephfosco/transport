@@ -16,6 +16,7 @@
 (ns transport.schedule
   (:require
    [transport.debug :refer [debug-transport debug-run1]]
+   [transport.util :refer :all]
    ))
 
 (import '(java.util Date TimerTask Timer))
@@ -41,7 +42,7 @@
   (if (> new-val @max-lateness)
     (do
       (reset! max-lateness new-val)
-      (println "schedule.clj - new max-lateness: " @max-lateness)))
+      (println "set-lateness" "****** new max-lateness: " @max-lateness)))
   new-val
   )
 
