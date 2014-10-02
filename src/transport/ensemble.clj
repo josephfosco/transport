@@ -205,8 +205,8 @@
              (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
                  (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
       (do
-        (println "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
-        (println "ensemble.clj - play-melody melody-event:" melody-event)
+        (print-msg "play-melody" "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
+        (print-msg "play-melody" "melody-event: " melody-event)
         (print-player-num player-id)
         (throw (Throwable. "NOTE OUT OF RANGE"))
         )
@@ -214,7 +214,7 @@
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
-      (println "ensemble.clj - play-melody MELODY EVENT :DUR IS NILL !!!!"))
+      (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
       (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
         (if cur-change-follow-info-note
@@ -228,7 +228,7 @@
               ;; next note is the note that the FOLLOW player changed segments
               (if (>= (inc follow-note) cur-change-follow-info-note)
                 (do
-                  (println "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note "follow-note:" follow-note)
+                  (print-msg "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note:" follow-note)
                   (update-player-and-follow-info upd-player)
                   )
                 (update-player upd-player)))

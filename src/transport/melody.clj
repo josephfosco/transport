@@ -47,7 +47,7 @@
     (do
       (reset! loud-player player-id)
       (reset! loud-player-time time)
-      (println "melody-loud-interrupt-event" "loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
       ))
   )
 
@@ -80,7 +80,7 @@
       (get-ensemble-continuity)
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
-        (if (> ens-continuity 4) (- ens-continuity 5) (+ ens-continuity 5)))
+        (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
       :else (weighted-choice CONTINUITY-PROBS))
      )
   ([player cntrst-plyr cntrst-melody-char]
@@ -112,7 +112,7 @@
       (get-ensemble-density)
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-density (int (+ (get-average-density) 0.5))]
-        (if (> ens-density 4) (- ens-density 5) (+ ens-density 5)))
+        (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))
       :else (rand-int 10))
      )
   ([player cntrst-plyr cntrst-melody-char]
@@ -249,31 +249,6 @@
    )
   )
 
-(defn note-or-rest
-  "Determines whether to play a note or rest.
-   Returne true for note, false for rest
-
-   player - the player to determine note or rest for"
-  [player note-time]
-  (if (loud-rest? player note-time)
-    false     ;; rest because of loud interruption
-    (let [play-note? (random-int 0 10)]
-      (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
-        true
-        (if (not= 9 play-note?)                                ;; if play-note? not 9
-          false                                                ;; rest
-          (if (and                                             ;; else
-               (not= {} (get-melody player))                   ;; if melody not empty
-               (= 0                                            ;; and last pitch is root
-                  (get-scale-degree
-                   player
-                   (or (get-last-melody-note player) 0)))      ;; or rest
-               (< (rand) 0.8))                                 ;; possibly rest
-            false
-            true)))
-      )
-    ))
-
 (defn note-or-rest-follow-ensemble
   [player note-time]
   (if (< 0.5 (get-rest-probability)) nil true))
@@ -281,6 +256,34 @@
 (defn note-or-rest-contrast-ensemble
   [player note-time]
   (if (< 0.5 (get-rest-probability)) true nil))
+
+(defn note-or-rest
+  "Determines whether to play a note or rest.
+   Returne true for note, false for rest
+
+   player - the player to determine note or rest for"
+  [player note-time]
+  (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
+        (= ( get-melody-char-continuity get-melody-char) SIMILAR-ENSEMBLE)
+        (note-or-rest-follow-ensemble player note-time)
+        (= ( get-melody-char-continuity get-melody-char) CONTRAST-ENSEMBLE)
+        (note-or-rest-contrast-ensemble player note-time)
+        :else (let [play-note? (random-int 0 10)]
+                (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
+                  true
+                  (if (not= 9 play-note?)                                ;; if play-note? not 9
+                    false                                                ;; rest
+                    (if (and                                             ;; else
+                         (not= {} (get-melody player))                   ;; if melody not empty
+                         (= 0                                            ;; and last pitch is root
+                            (get-scale-degree
+                             player
+                             (or (get-last-melody-note player) 0)))      ;; or rest
+                         (< (rand) 0.8))                                 ;; possibly rest
+                      false
+                      true)))
+                )
+        ))
 
 (defn get-melody-event
   [player-id melody-event-no]

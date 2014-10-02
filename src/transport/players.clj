@@ -15,7 +15,7 @@
 
 (ns transport.players
   (:require
-   [transport.behavior :refer [get-behavior-player-id]]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
@@ -292,10 +292,10 @@
             (send-new-player-info-msgs contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
             (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
-          (println "players.clj - set-new-contrast-info - NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
+          (print-msg "set-new-contrast-info" "NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
         cur-players)
       (do
-        (println "players.clj - set-new-contrast-info NOT SETTING CONTRAST!")
+        (print-msg "set-new-contrast-info" "NOT SETTING CONTRAST!")
         cur-players)))
   )
 
@@ -318,7 +318,7 @@
         cur-change-follow-info-note (get-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
-    (println "players.clj - copy-follow-info to-player-id:" to-player-id)
+    (print-msg "copy-follow-info" "to-player-id: " to-player-id)
     (if (and
          (not (nil? from-player-id))
          (not (nil? cur-change-follow-info-note))
@@ -331,7 +331,7 @@
                       (get-following-info-from-player (get-player from-player-id))
                       )))
       (do
-        (println "players.clj - copy-follow-info NOT COPYING FOLLOW INFO from-player-id:" from-player-id "to-player-id:" to-player-id "cur-change-follow-info-note:" cur-change-follow-info-note "last-follow-note:" last-follow-note)
+        (print-msg "copy-follow-info"  "NOT COPYING FOLLOW INFO from-player-id: " from-player-id " to-player-id: " to-player-id " cur-change-follow-info-note: " cur-change-follow-info-note " last-follow-note: " last-follow-note)
         (print-player to-player)
         (assoc @PLAYERS to-player-id to-player)
         )
@@ -342,16 +342,16 @@
 (defn replace-similar-info
   [cur-players from-player-id to-player originator-player-id]
   (let [to-player-id (get-player-id to-player)]
-    (println "players.clj - replace-similar-info from:" from-player-id "to:" to-player-id "originator:" originator-player-id)
+    (print-msg "replace-similar-info" "from: " from-player-id " to: " to-player-id " originator: " originator-player-id)
     (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
-          (println "players.clj - replace-similar-info - NOT SENDING MESSAGES"))
+          (print-msg "replace-similar-info" "NOT SENDING MESSAGES"))
         (assoc @PLAYERS to-player-id to-player)
         )
       (do
-        (println "players.clj - replace-similar-info NOT COPYING!")
+        (print-msg "replace-similar-info" "NOT COPYING!")
         cur-players)))
   )
 
@@ -433,3 +433,17 @@
   []
   (dorun (map print-player (get-players)))
 )
+(defn print-all-actions
+  []
+  (dorun
+   (map #(let [plyr-action (get-behavior-action (get-behavior %1))]
+           (cond (= plyr-action IGNORE) (println "IGNORE")
+                 (= plyr-action CONTRAST-PLAYER) (println "CONTRAST-PLAYER")
+                 (= plyr-action SIMILAR-PLAYER) (println "SIMILAR-PLAYER")
+                 (= plyr-action FOLLOW-PLAYER) (println "FOLLOW-PLAYER")
+                 (= plyr-action SIMILAR-ENSEMBLE) (println "SIMILAR-ENSEMBLE")
+                 (= plyr-action CONTRAST-ENSEMBLE) (println "CONTRAST-ENSEMBLE")
+                 )
+           )
+        (vals @PLAYERS)
+        )))
