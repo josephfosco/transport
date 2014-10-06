@@ -23,6 +23,7 @@
    [transport.players :refer :all]
    [transport.settings :refer :all]
    [transport.util :refer :all])
+  (:import (java.util Date TimerTask Timer))
    )
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
@@ -38,6 +39,8 @@
 (def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
+(def note-times-len (atom (* @number-of-players 3)))
+(def note-times (atom '()))
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
@@ -95,7 +98,9 @@
     ;; else just update rest-prob (with new rest)
     (if (not (nil? (get-note-for-event last-melody)))
       (do
-        (reset! note-values-millis (conj (butlast @note-values-millis) (get-dur-millis (get-dur-info-for-event last-melody))))
+        (let [dur-millis (get-dur-millis (get-dur-info-for-event last-melody))]
+          (reset! note-values-millis (conj (butlast @note-values-millis) dur-millis))
+          (reset! note-times (conj (butlast @note-times) (list note-time dur-millis))))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (do
@@ -121,6 +126,7 @@
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
+  (reset! note-times (repeat @note-times-len nil))
   ;; update ensemble-status with each new note
   (register-listener
    MSG-PLAYER-NEW-NOTE
@@ -136,7 +142,7 @@
 
 (defn get-average-note-dur-millis
   []
-  (/ (reduce + @note-values-millis) (count @note-values-millis)))
+  (average @note-values-millis @number-of-players))
 
 (defn get-average-volume
   []
@@ -176,7 +182,7 @@
   []
   (average @player-continuities @number-of-players))
 
-(defn get-ensemble-density
+(defn get-ensemble-most-common-density
   []
   (print-msg "get-ensemble-density:   " @player-densities)
   (get-vector-max-frequency @player-densities)
@@ -185,3 +191,30 @@
 (defn get-average-density
   []
   (average @player-densities @number-of-players))
+
+(defn get-note-dur-list
+  [cur-note-times to-time]
+  (for [note-info cur-note-times
+        :let [note-time (first note-info)
+              note-dur (second note-info)
+              dur (if (> (+ note-time note-dur) to-time) (- to-time note-time) note-dur)]]
+    dur)
+
+  )
+
+(defn get-ensemble-density
+  []
+  (let [cur-time (System/currentTimeMillis)
+        cur-note-times @note-times
+        first-note-time (first (last cur-note-times))
+        total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
+        ]
+    (print-msg "get-ensemble-density" "cur-time: " cur-time)
+    (print-msg "get-ensemble-density" "cur-note-times: " cur-note-times)
+    (print-msg "get-ensemble-density" "first-note-time: " first-note-time)
+    (print-msg "get-ensemble-density" "total-note-time: " total-note-time)
+    (print-msg "get-ensemble-density" "dur-list: " (apply + (get-note-dur-list cur-note-times cur-time)))
+    (print-msg "get-ensemble-density" "rtn: " (int (+ 0.5 (* 10 (/ total-note-time (* (- cur-time first-note-time) @number-of-players))))))
+    (int (+ 0.5 (* 10 (/ total-note-time (* (- cur-time first-note-time) @number-of-players)))))
+    )
+ )

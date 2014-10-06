@@ -42,7 +42,7 @@
   (if (> new-val @max-lateness)
     (do
       (reset! max-lateness new-val)
-      (println "set-lateness" "****** new max-lateness: " @max-lateness)))
+      (print-msg "set-lateness" "****** new max-lateness: " @max-lateness)))
   new-val
   )
 

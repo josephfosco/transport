@@ -228,7 +228,7 @@
               ;; next note is the note that the FOLLOW player changed segments
               (if (>= (inc follow-note) cur-change-follow-info-note)
                 (do
-                  (print-msg "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note:" follow-note)
+                  (print-msg "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note: " follow-note)
                   (update-player-and-follow-info upd-player)
                   )
                 (update-player upd-player)))
