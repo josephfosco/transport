@@ -21,6 +21,7 @@
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
+   [transport.random :refer [random-int]]
    [transport.settings :refer :all]
    [transport.util :refer :all])
   (:import (java.util Date TimerTask Timer))
@@ -126,7 +127,8 @@
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
-  (reset! note-times (repeat @note-times-len nil))
+  ;; Initialize note-times to random values with current time
+  (reset! note-times (for [x (repeat @note-times-len nil)] (list (System/currentTimeMillis) (random-int 100 2000))))
   ;; update ensemble-status with each new note
   (register-listener
    MSG-PLAYER-NEW-NOTE
@@ -199,7 +201,6 @@
               note-dur (second note-info)
               dur (if (> (+ note-time note-dur) to-time) (- to-time note-time) note-dur)]]
     dur)
-
   )
 
 (defn get-ensemble-density
