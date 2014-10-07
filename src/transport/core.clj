@@ -77,21 +77,13 @@
       (init-ensemble-status)
       (init-ensemble)
 
-      (println "***")
-      (println "*** transport-init about to init-melody")
-      (println "***")
+      (print-banner "transport-init about to init-melody")
       (init-melody)
       (reset! is-initialized? true)
 
-      (println "***")
-      (println "*** transport successfully initialized")
-      (println "***")
+      (print-banner "transport successfully initialized")
       )
-    (do
-      (println "!!!")
-      (println "!!! Warning - transport already initialized")
-      (println "!!!")
-      )
+    (print-banner "Warning - transport already initialized" :prefix "!!!")
     ))
 
 (declare transport-restart)
@@ -102,42 +94,30 @@
                   defaults to 10. Retains it's value once set"
   [& {:keys [num-players]
       :or {num-players @number-of-players}}]
-  (println "transport-start is-playing:" @is-playing?)
-  (println "transport-start restart:" @restart?)
+  (print-msg "transport-start" "is-playing: " @is-playing?)
+  (print-msg "transport-start" "restart: " @restart?)
   (if (false? @is-playing?)
     (if (true? @restart?)
       (transport-restart :num-players num-players)  ;; already started once - restart instead
       (do
-        (println "***")
-        (println "*** Starting transport")
-        (println "***")
+        (print-banner "Starting transport")
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
 
-        (println "***")
-        (println "*** transport-start about to start-scheduler")
-        (println "***")
+        (print-banner "transport-start about to start-scheduler")
         (start-scheduler)
 
-        (println "***")
-        (println "*** transport-start about to start-message-processor")
-        (println "***")
+        (print-banner "transport-start about to start-message-processor")
         (start-message-processor)
 
-        (println "***")
-        (println "*** transport-start init-melody-complete")
-        (println "***")
+        (print-banner "transport-start init-melody-complete")
         (reset! is-playing? true)
         (reset! restart? true)
 
-        (println "***")
-        (println "*** transport-start - restart:" @restart?)
-        (println "***")
-        (println "***")
-        (println "*** transport-start - start complete")
-        (println "***")
+        (print-banner (str "transport-start - restart:" @restart?))
+        (print-banner "transport-start - start complete")
         ))
-    (println "WARNING - Can't start. Already Playing.")))
+    (print-banner "transport-start - WARNING - Can't start. Already Playing." :prefix "!!!")))
 
 (defn transport-restart
   "Start transport after pausing.
@@ -148,9 +128,7 @@
                   defaults to it's prior value"
   [& {:keys [num-players]
       :or {num-players nil}}]
-  (println "***")
-  (println "*** Restarting transport")
-  (println "***")
+  (print-banner "Restarting transport")
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
@@ -163,29 +141,21 @@
         (init-ensemble)
         (reset! is-playing? true)
 
-        (println "***")
-        (println "*** transport-restart about to start-scheduler")
-        (println "***")
+        (print-banner "transport-restart about to start-scheduler")
         (start-scheduler)
 
-        (println "***")
-        (println "*** transport-restart about to start-message-processor")
-        (println "***")
+        (print-banner "transport-restart about to start-message-processor")
         (start-message-processor)
 
-        (println "***")
-        (println "*** transport-restart about to reset-melody")
-        (println "***")
+        (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
         (reset-melody)
 
-        (println "***")
-        (println "*** transport-restart restart complete")
-        (println "***")
+        (print-banner "transport-restart restart complete")
         )
       (transport-start))
-    (println "WARNING - Can't restart. Already playing")))
+    (print-banner "transport-restart WARNING - Can't restart. Already playing" :prefix "!!!")))
 
 (defn transport-quit
   "Quit Transport and exit Clojure"

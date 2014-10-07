@@ -53,3 +53,16 @@
   [function & msg]
   `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " -" ~function "  " (str ~@msg))
   )
+
+(defn print-banner
+  "Prints a message with whatever is specified by the key :prefix around the message.
+   If nothing is specified in :prefix '***' is used
+
+   msg: the message to print"
+  [msg & {:keys [prefix] :or {prefix "***"}}]
+  (println " ")
+  (println prefix)
+  (println prefix msg)
+  (println prefix)
+  (println " ")
+  )
