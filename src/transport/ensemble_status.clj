@@ -209,12 +209,6 @@
         first-note-time (first (last cur-note-times))
         total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
         ]
-    (print-msg "get-ensemble-density" "cur-time: " cur-time)
-    (print-msg "get-ensemble-density" "cur-note-times: " cur-note-times)
-    (print-msg "get-ensemble-density" "first-note-time: " first-note-time)
-    (print-msg "get-ensemble-density" "total-note-time: " total-note-time)
-    (print-msg "get-ensemble-density" "dur-list: " (apply + (get-note-dur-list cur-note-times cur-time)))
-    (print-msg "get-ensemble-density" "rtn: " (int (+ 0.5 (* 10 (/ total-note-time (* (- cur-time first-note-time) @number-of-players))))))
     (int (+ 0.5 (* 10 (/ total-note-time (* (- cur-time first-note-time) @number-of-players)))))
     )
  )

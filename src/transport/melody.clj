@@ -111,7 +111,7 @@
       (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
       (get-ensemble-density)
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
-      (let [ens-density (int (+ (get-average-density) 0.5))]
+      (let [ens-density (round-number (get-average-density))]
         (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))
       :else (rand-int 10))
      )

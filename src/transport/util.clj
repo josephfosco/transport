@@ -20,6 +20,11 @@
  [nmbrs list-length]
  (/ (apply + nmbrs) list-length))
 
+(defmacro round-number
+  [nmbr]
+  `(int (+ ~nmbr 0.5))
+  )
+
 (defn get-max-map-key
   "For hash-maps with numeric keys, returns the highest key"
   [map]
