@@ -30,7 +30,7 @@
   (:import transport.behavior.Behavior)
   )
 
-(def SCALES (atom {}))
+(def SCALES (atom '()))
 (def DESCEND 0)
 (def ASCEND 1)
 (def REPEAT-NOTE 3)
@@ -51,11 +51,12 @@
 
 (defn load-scales
   []
-  (reset! SCALES {})
+  (reset! SCALES '())
   (doseq [scale-key (keys SCALE)]
-    (reset! SCALES (assoc @SCALES
-                  scale-key
-                  (convert-scale (scale-key SCALE))))))
+    (reset! SCALES (conj @SCALES
+                         (convert-scale (scale-key SCALE)))))
+  (reset! SCALES (distinct @SCALES))
+  )
 
 (defn get-scale-degree-semitones
   "Returns the number of semitones from tonic that
@@ -211,13 +212,13 @@
 (defn select-random-scale
   "returns a scale"
   []
-  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  (nth @SCALES (rand-int (count @SCALES)))
   )
 
 (defn select-scale
   "returns a scale"
   [player]
-  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  (nth @SCALES (rand-int (count @SCALES)))
   )
 
 (defn select-scale-degree

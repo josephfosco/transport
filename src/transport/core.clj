@@ -74,7 +74,9 @@
     (do
       (set-number-of-players num-players)
       (transport.pitch/load-scales)
+      (print-banner "transport-init about to init-ensemble-status")
       (init-ensemble-status)
+      (print-banner "transport-init about to init-ensemble")
       (init-ensemble)
 
       (print-banner "transport-init about to init-melody")

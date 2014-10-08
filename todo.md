@@ -17,8 +17,6 @@
 
 * no volume 0 (or a minimum volumem maybe .1)
 
-* remove duplicate @SCALES
-
 * move :accuracy out of :behavior up to top level
 
 * possibly move next note out of ensemble into player (each player knows when to play next)
