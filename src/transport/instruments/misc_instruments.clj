@@ -19,7 +19,7 @@
 
 
 (definst bass-m1
-  [freq 440  dur 1 vol 0.4]
+  [freq 440  dur 1000 vol 0.4]
   (-> (saw freq)
       (rlpf (line:kr 2000 (/ dur 1000.0) freq) 0.5)
       (* ( env-gen (perc 0.1 (/ (max (- dur 0.1) 0.05) 1000.0)) :action FREE))
@@ -28,7 +28,7 @@
   )
 
 (definst organ-m1
-  [freq 440 dur 1 vol 0.4 land 0.9]
+  [freq 440 dur 1000 vol 0.4 land 0.9]
   (-> (square freq)
       (+ (sin-osc (* 3 freq) (sin-osc 6)))
       (+ (sin-osc (* 1/2 freq) (sin-osc 3)))
@@ -47,5 +47,18 @@
       (+ (sin-osc (/ freq 2) (sin-osc 1)))
       (* (env-gen (perc 0.01 0.1) :action FREE))
       (* (/ vol 1.5))
+      )
+  )
+
+(definst plink-m1
+  [freq 440 vol 0.4]
+  (-> (sin-osc freq)
+      (+ (* 1/3 (sin-osc (* freq 3))))
+      (+ (* 1/5 (sin-osc (* freq 5.1))))
+      (+ (* 1/6 (sin-osc (* freq 6.1))))
+      (+ (* 1/8 (sin-osc (* freq 7.1))))
+      (+ (* 1/8 (sin-osc (* freq 8))))
+      (* (env-gen (perc 0.01 0.3) :action FREE))
+      (* (/ vol 4.0))
       )
   )

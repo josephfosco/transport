@@ -40,7 +40,7 @@
 (def rest-prob-len (atom (* @number-of-players 3)))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
-(def note-times-len (atom (* @number-of-players 3)))
+(def note-times-len (atom (* @number-of-players 5)))
 (def note-times (atom '()))
 
 (defn- players-soft?
@@ -119,7 +119,6 @@
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
   (reset! player-mms (apply vector (repeat @number-of-players nil)))
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
-  (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
   (dotimes [n @rest-prob-len]

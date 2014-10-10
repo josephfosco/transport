@@ -47,6 +47,10 @@
                        :envelope-type "NE"
                        :range-lo (first MIDI-RANGE)
                        :range-hi (last MIDI-RANGE)}
+                      {:instrument plink-m1
+                       :envelope-type "AD"
+                       :range-lo (first MIDI-RANGE)
+                       :range-hi (last MIDI-RANGE)}
                       {:instrument reedy-organ
                        :envelope-type "ASR"
                        :range-lo (first MIDI-RANGE)
