@@ -24,6 +24,9 @@
   [freq 110 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
   (let [env-gate (trig 1 gate-dur)
         ]
-    (* (env-gen (asr attack sustain release) env-gate (* vol 4) 0 1 FREE)
-       (bpf (saw freq) (* 2 freq) 2.0)))
-  )
+    (-> (saw freq)
+        (bpf (* 2 freq) 2.0)
+        (* (env-gen (asr attack sustain release) :gate env-gate :action FREE))
+        (* vol 4)
+     )
+    ))

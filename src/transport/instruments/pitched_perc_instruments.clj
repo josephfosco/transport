@@ -22,8 +22,9 @@
 
 (definst steel-drum
   [freq 440 amp 0.8]
-  (* (/ amp 1.5)
-     (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE)
-     (+ (sin-osc (/ freq 2)) (rlpf (saw freq) (* 1.1 freq) 0.4))
-     )
+  (-> (sin-osc (/ freq 2))
+      (+ (rlpf (saw freq) (* 1.1 freq) 0.4))
+      (* (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE))
+      (* (/ amp 1.5))
+   )
   )

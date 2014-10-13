@@ -217,11 +217,5 @@
 
 (defn get-ensemble-density
   []
-  (let [cur-time (System/currentTimeMillis)
-        cur-note-times @note-times
-        first-note-time (first (last cur-note-times))
-        total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
-        ]
-    (int (+ 0.5 (* 10 (get-ensemble-density-ratio))))
-    )
+  (int (+ 0.5 (* 10 (get-ensemble-density-ratio))))
  )
