@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.ensemble-status :refer [get-average-continuity get-ensemble-continuity get-average-density get-ensemble-density get-rest-probability]]
+   [transport.ensemble-status :refer [get-average-continuity get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio get-rest-probability]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -249,13 +249,13 @@
    )
   )
 
-(defn note-or-rest-follow-ensemble
+(defn note-or-rest-similar-ensemble
   [player note-time]
-  (if (< 0.5 (get-rest-probability)) nil true))
+  (if (< 0.5 (get-ensemble-density-ratio)) nil true))
 
 (defn note-or-rest-contrast-ensemble
   [player note-time]
-  (if (< 0.5 (get-rest-probability)) true nil))
+  (if (< 0.5 (get-ensemble-density-ratio)) true nil))
 
 (defn note-or-rest
   "Determines whether to play a note or rest.
@@ -265,7 +265,7 @@
   [player note-time]
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
         (= ( get-melody-char-continuity get-melody-char) SIMILAR-ENSEMBLE)
-        (note-or-rest-follow-ensemble player note-time)
+        (note-or-rest-similar-ensemble player note-time)
         (= ( get-melody-char-continuity get-melody-char) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
         :else (let [play-note? (random-int 0 10)]

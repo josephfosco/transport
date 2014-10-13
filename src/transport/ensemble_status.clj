@@ -202,6 +202,19 @@
     dur)
   )
 
+(defn get-ensemble-density-ratio
+  "Returns ratio of time sound is present to total time, in a
+   arbitrary amount of recent time"
+  []
+  (let [cur-time (System/currentTimeMillis)
+        cur-note-times @note-times
+        first-note-time (first (last cur-note-times))
+        total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
+        ]
+    (/ total-note-time (* (- cur-time first-note-time) @number-of-players))
+    )
+ )
+
 (defn get-ensemble-density
   []
   (let [cur-time (System/currentTimeMillis)
@@ -209,6 +222,6 @@
         first-note-time (first (last cur-note-times))
         total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
         ]
-    (int (+ 0.5 (* 10 (/ total-note-time (* (- cur-time first-note-time) @number-of-players)))))
+    (int (+ 0.5 (* 10 (get-ensemble-density-ratio))))
     )
  )
