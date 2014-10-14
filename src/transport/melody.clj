@@ -104,7 +104,7 @@
 (defn- select-melody-density
   "Returns a number from 0 to 9 to determine how dense
    the melody will be.
-   0 - sparse  (few notes of long duration) -> 9 - dense (many notes of short duration"
+   0 - sparse  (few notes, all long duration) -> 9 - dense (many notes of short duration"
   ([] (rand-int 10))
   ([player]
      (cond
