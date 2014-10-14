@@ -54,15 +54,16 @@
 (def DENSITY-PROBS
   ;;  32   16   16.  8    8.   q    q.   h    h.   w    ww
   ;; [2    8    5    15   10   15   10   15   10   5    5   ]
-  {0 [-999 -999 -999 -999 -999 -999 -999 0    25   40   40  ]
-   1 [-999 -999 -999 -999 -999 0    0    10   20   40   10  ]
-   2 [-999 -999 -999 0    0    15   0    20   20   20   0   ]
-   3 [-999 0    -999 10   0    10   10   10   0    0    0   ]
+  {
+   0 [25   40   25   35   0    0    0    -999 -999 -999 -999]
+   1 [10   35   10   35   5    0    0    -10  -999 -999 -999]
+   2 [0    10   0    15   10   0    0    -5   -5   -999 -999]
+   3 [0    10   0    15   0    10   0    0    0    -5   -999]
    4 [0    0    0    5    0    10   5    0    0    0    0   ]
-   6 [0    10   0    15   0    10   0    0    0    -5   -999]
-   7 [0    10   0    15   10   0    0    -5   -5   -999 -999]
-   8 [10   35   10   35   5    0    0    -10  -999 -999 -999]
-   9 [25   40   25   35   0    0    0    -999 -999 -999 -999]
+   6 [-999 0    -999 10   0    10   10   10   0    0    0   ]
+   7 [-999 -999 -999 0    0    15   0    20   20   20   0   ]
+   8 [-999 -999 -999 -999 -999 0    0    10   20   40   10  ]
+   9 [-999 -999 -999 -999 -999 -999 -999 0    25   40   40  ]
    }
   )
 
@@ -172,7 +173,8 @@
   )
 
 (defn adjust-note-prob
-  " Finds the index of the rhythmic value closest to ensemble average duration,    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
+  " Finds the index of the rhythmic value closest to ensemble average duration,
+    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
     is the first or last index, add 5 to the probability of the index
     either before or after the selected one.

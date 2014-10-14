@@ -201,11 +201,9 @@
           (>= last-note (get-instrument-range-hi (get-instrument-info player))) DESCEND
           :else
           (let [rand-dir (rand)]
-            (if (<= rand-dir 0.45)
-              DESCEND
-              (if ( <= rand-dir 0.9)
-                ASCEND
-                REPEAT-NOTE))
+            (cond (<= rand-dir 0.45) DESCEND
+                  (<= rand-dir 0.9) ASCEND
+                  :else REPEAT-NOTE)
             )))
   )
 
