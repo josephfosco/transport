@@ -30,3 +30,15 @@
         (* vol 4)
      )
     ))
+
+(definst clarinet
+  [freq 440 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
+  (let [env-gate (trig 1 gate-dur)
+        ]
+    (-> (square [freq (* freq 1.01) (* freq 0.99)])
+        (lpf (line:kr (* freq 8) (* freq 2) gate-dur))
+        (* (env-gen (asr attack sustain release) :gate env-gate :action FREE))
+        (* vol 1.5)
+     )
+    )
+  )

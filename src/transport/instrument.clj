@@ -36,10 +36,13 @@
 ;                      {:instrument triangle-wave :envelope-type "AD"}
                       {:instrument bass-m1
                        :envelope-type "NE"
-                       :range-lo 0 :range-hi 60}
+                       :range-lo (first MIDI-RANGE) :range-hi 60}
                       {:instrument bassoon
                        :envelope-type "ASR"
-                       :range-lo 0 :range-hi 84}
+                       :range-lo (first MIDI-RANGE) :range-hi 84}
+                      {:instrument clarinet
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE) :range-hi 100}
                       {:instrument drum-m1
                        :envelope-type "AD"
                        :range-lo (first MIDI-RANGE) :range-hi 90}

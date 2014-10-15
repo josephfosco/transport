@@ -118,7 +118,7 @@
 
    dur-info - duration info to get dur-beats from"
   [dur-info]
-  (:dur-note-dur dur-info)
+  (:dur-beats dur-info)
   )
 
 (defn select-mm
@@ -147,7 +147,7 @@
 
 (defn get-dur-info-for-mm-and-millis
   "Returns :dur-info map with
-     :dur-note-dur = beats
+     :dur-beats = beats
      :dur-millis = beats converted to milliseconds
 
    mm - mm to use to determine beats
@@ -155,12 +155,12 @@
              convert to beats"
   [mm millis]
   {:dur-millis millis
-   :dur-note-dur (millis-to-note-dur mm millis)}
+   :dur-beats (millis-to-note-dur mm millis)}
   )
 
 (defn get-dur-info-for-beats
   "Returns :dur-info map with
-     :dur-note-dur = beats
+     :dur-beats = beats
      :dur-millis = beats converted to milliseconds
 
    player - player map to use to convert beats to milliseconds
@@ -168,11 +168,12 @@
              convert to milliseconds"
   [player beats]
   {:dur-millis (note-dur-to-millis-player player beats)
-   :dur-note-dur beats}
+   :dur-beats beats}
   )
 
 (defn adjust-note-prob
-  " Finds the index of the rhythmic value closest to ensemble average duration,
+  " If player-action is SIMILAR-ENSEMBLE, returns note-dur-millis unchanged. Else,
+    finds the index of the rhythmic value closest to ensemble average duration,
     then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
     is the first or last index, add 5 to the probability of the index
@@ -180,29 +181,28 @@
     Returns the new NOTE-PROBS probability map.
 
     note-dur-millis - the dur (in millis) to match "
-  [note-durs-millis]
-  (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
-    (cond
-     (or (= index-closest-to-average 0) (nil? index-closest-to-average))  ;; first index
-     (add-probabilities NOTE-PROBS {0 10 1 5})
-     (= index-closest-to-average (- (count note-durs-millis) 1))          ;; last index
-     (add-probabilities NOTE-PROBS
-                        {(- (count note-durs-millis) 1) 10
-                         (- (count note-durs-millis) 2) 5})
-     :else (add-probabilities NOTE-PROBS
-                              {index-closest-to-average 10
-                               (- index-closest-to-average 1) 5
-                               (+ index-closest-to-average 1) 5}))
-    )
+  [player note-durs-millis]
+  (if (not= SIMILAR-ENSEMBLE (get-behavior-action-for-player player))
+    NOTE-PROBS
+    (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
+      (cond
+       (or (= index-closest-to-average 0) (nil? index-closest-to-average))  ;; first index
+       (add-probabilities NOTE-PROBS {0 10 1 5})
+       (= index-closest-to-average (- (count note-durs-millis) 1))          ;; last index
+       (add-probabilities NOTE-PROBS
+                          {(- (count note-durs-millis) 1) 10
+                           (- (count note-durs-millis) 2) 5})
+       :else (add-probabilities NOTE-PROBS
+                                {index-closest-to-average 10
+                                 (- index-closest-to-average 1) 5
+                                 (+ index-closest-to-average 1) 5}))
+      ))
   )
 
 (defn- adjust-rhythmic-probabilities
   [player]
-  (let [player-action (get-behavior-action-for-player player)
-        note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (if (= SIMILAR-ENSEMBLE player-action)
-                             (adjust-note-prob note-durs-millis)
-                             NOTE-PROBS)
+  (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
+        adjusted-note-prob1 (adjust-note-prob player note-durs-millis)
         adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
                               (mapv + adjusted-note-prob1 prob-adjust)
                               adjusted-note-prob1)
@@ -211,10 +211,6 @@
         ]
     final-adjusted-note-prob
     )
-  )
-
-(defn create-note-dur
-  []
   )
 
 (defn next-note-dur
@@ -231,7 +227,7 @@
         )
       )
     {:dur-millis (note-dur-to-millis-player player (/ (NOTE-DURS note-dur) quarter-note))
-     :dur-note-dur (/ (NOTE-DURS note-dur) quarter-note)}
+     :dur-beats (/ (NOTE-DURS note-dur) quarter-note)}
     ))
 
 ;; (+ (tempm1 0) (beat-ms 1.5 (metro-bpm tempm1)))

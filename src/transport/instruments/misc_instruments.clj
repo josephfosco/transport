@@ -59,6 +59,6 @@
       (+ (* 1/8 (sin-osc (* freq 7.1))))
       (+ (* 1/8 (sin-osc (* freq 8))))
       (* (env-gen (perc 0.01 0.3) :action FREE))
-      (* (/ vol 5.4))
+      (* (/ vol 8))
       )
   )
