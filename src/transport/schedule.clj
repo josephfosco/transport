@@ -214,7 +214,7 @@
     []
     (debug-run1 (println "1 check-events - current time: " (System/currentTimeMillis)))
     (debug-run1 (println "2 check-events - count: " (count @event-queue)))
-    (debug-run1 (println "3 check-events - event-wueue: " @event-queue))
+    (debug-run1 (println "3 check-events - event-queue: " @event-queue))
 
     (while  (and (not= (count @event-queue) 0)
                  (<= (get-next-sched-event-time) (System/currentTimeMillis)))

@@ -17,7 +17,7 @@
   (:require
    [overtone.live]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player select-and-set-behavior-player-id]]
+   [transport.behaviors :refer [get-behavior-player-id-for-player select-and-set-behavior-player-id]]
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.melody :refer [next-melody]]

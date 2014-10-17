@@ -15,7 +15,6 @@
 
 (ns transport.rhythm
   (:require
-   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm]]
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.players :refer :all]
@@ -172,7 +171,7 @@
   )
 
 (defn adjust-note-prob
-  " If player-action is SIMILAR-ENSEMBLE, returns note-dur-millis unchanged. Else,
+  " If player-action is SIMILAR-ENSEMBLE, returns NOTE-PROBS unchanged. Else,
     finds the index of the rhythmic value closest to ensemble average duration,
     then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this

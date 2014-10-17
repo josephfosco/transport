@@ -22,11 +22,6 @@
    )
   (:import transport.behavior.Behavior)
   )
-(defn get-behavior-action-for-player
-  [player]
-  (get-behavior-action (get-behavior player))
-  )
-
 (defn get-behavior-player-id-for-player
   [player]
   (get-behavior-player-id (get-behavior player))

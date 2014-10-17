@@ -15,13 +15,13 @@
 
 (ns transport.ensemble-status
   (:require
-   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.melodychar :refer :all]
    [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
+   [transport.schedule :refer [sched-event]]
    [transport.settings :refer :all]
    [transport.util :refer :all])
   (:import (java.util Date TimerTask Timer))
@@ -42,6 +42,9 @@
 (def rest-prob (atom '()))
 (def note-times-len (atom (* @number-of-players 5)))
 (def note-times (atom '()))
+
+(def prev-ensemble-density (atom 0))
+(def density-trend (atom INCREASING))
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
@@ -110,35 +113,6 @@
       )
     (send-status-msgs player last-melody player-id note-time)
     )
-  )
-
-(defn init-ensemble-status
-  []
-  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
-
-  (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
-  (reset! player-mms (apply vector (repeat @number-of-players nil)))
-  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
-  ;; initialize rest-prob
-  (reset! rest-prob '())
-  (dotimes [n @rest-prob-len]
-    (if (< (rand) 0.8)
-      (reset! rest-prob (conj @rest-prob true))
-      (reset! rest-prob (conj @rest-prob false))
-      ))
-  ;; Initialize note-times to random values with current time
-  (reset! note-times (for [x (repeat @note-times-len nil)] (list (System/currentTimeMillis) (random-int 100 2000))))
-  ;; update ensemble-status with each new note
-  (register-listener
-   MSG-PLAYER-NEW-NOTE
-   transport.ensemble-status/update-ensemble-status
-   {}
-   )
-  )
-
-(defn reset-ensemble-status
-  []
-  (init-ensemble-status)
   )
 
 (defn get-average-note-dur-millis
@@ -219,3 +193,60 @@
   []
   (int (+ 0.5 (* 10 (get-ensemble-density-ratio))))
  )
+
+(defn get-density-trend
+  []
+  @density-trend)
+
+(defn check-activity
+  [& args]
+  (let [cur-ensemble-density (get-ensemble-density-ratio)]
+
+    (reset! density-trend (cond
+                           (>= (- cur-ensemble-density @prev-ensemble-density) 0.05) INCREASING
+                           (<= (- cur-ensemble-density @prev-ensemble-density) -0.05) DECREASING
+                           :else STEADY
+                           )
+            )
+    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " density-trend: " @density-trend)
+
+    (reset! prev-ensemble-density cur-ensemble-density)
+
+    )
+
+  (sched-event 5000 transport.ensemble-status/check-activity nil)
+  )
+
+(defn init-ensemble-status
+  []
+  (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
+
+  (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
+  (reset! player-mms (apply vector (repeat @number-of-players nil)))
+  (reset! player-volumes (apply vector (repeat @number-of-players 0)))
+  ;; initialize rest-prob
+  (reset! rest-prob '())
+  (dotimes [n @rest-prob-len]
+    (if (< (rand) 0.8)
+      (reset! rest-prob (conj @rest-prob true))
+      (reset! rest-prob (conj @rest-prob false))
+      ))
+  ;; Initialize note-times to random values with
+  ;; current time - 5 (to avoid a possible divide by 0 error in get-ensemble-density-ratio
+  (reset! note-times (for [x (repeat @note-times-len nil)] (list (- (System/currentTimeMillis) 5) (random-int 100 2000))))
+  (reset! prev-ensemble-density 0)
+  (reset! density-trend INCREASING)
+
+  ;; update ensemble-status with each new note
+  (register-listener
+   MSG-PLAYER-NEW-NOTE
+   transport.ensemble-status/update-ensemble-status
+   {}
+   )
+  (sched-event 5000 transport.ensemble-status/check-activity nil)
+  )
+
+(defn reset-ensemble-status
+  []
+  (init-ensemble-status)
+  )

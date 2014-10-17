@@ -48,6 +48,11 @@
   [player]
   (:behavior player))
 
+(defn get-behavior-action-for-player
+  [player]
+  (get-behavior-action (get-behavior player))
+  )
+
 (defn get-change-follow-info-note
   [player]
   (:change-follow-info-note player))

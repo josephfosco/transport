@@ -16,9 +16,9 @@
 (ns transport.melody
   (:require
    [overtone.live :refer [MIDI-RANGE]]
-   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :refer [get-behavior-player-id-for-player]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.ensemble-status :refer [get-average-continuity get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio get-rest-probability]]
+   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -77,7 +77,10 @@
   ([player]
      (cond
       (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-      (get-ensemble-continuity)
+      (cond (= get-density-trend INCREASING) (random-int (inc (get-ensemble-continuity)) 9)
+            (= get-density-trend DECREASING) (rand-int (dec (get-ensemble-continuity)))
+            :else (get-ensemble-density)
+        )
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
@@ -251,11 +254,18 @@
 
 (defn note-or-rest-similar-ensemble
   [player note-time]
-  (if (< 0.5 (get-ensemble-density-ratio)) nil true))
+  (let [play-note-prob (rand)]
+    (cond (= get-density-trend INCREASING)
+          (if (< play-note-prob (+ (get-ensemble-density-ratio) 0.2)) true nil)
+          (= get-density-trend DECREASING)
+          (if (< play-note-prob (- (get-ensemble-density-ratio) 0.2)) true nil)
+          :else (if (< play-note-prob (get-ensemble-density-ratio)) true nil)
+          )
+    ))
 
 (defn note-or-rest-contrast-ensemble
   [player note-time]
-  (if (< 0.5 (get-ensemble-density-ratio)) true nil))
+  (not (note-or-rest-similar-ensemble player note-time)))
 
 (defn note-or-rest
   "Determines whether to play a note or rest.
@@ -264,9 +274,9 @@
    player - the player to determine note or rest for"
   [player note-time]
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
-        (= ( get-melody-char-continuity get-melody-char) SIMILAR-ENSEMBLE)
+        (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
         (note-or-rest-similar-ensemble player note-time)
-        (= ( get-melody-char-continuity get-melody-char) CONTRAST-ENSEMBLE)
+        (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
         :else (let [play-note? (random-int 0 10)]
                 (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)

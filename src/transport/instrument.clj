@@ -16,13 +16,13 @@
 (ns transport.instrument
   (:require
    [overtone.live :refer :all]
-   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behaviors :refer [get-behavior-player-id-for-player]]
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.misc-instruments :refer :all]
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
-   [transport.players :refer [get-instrument-info get-player get-player-id print-player]]
+   [transport.players :refer [get-behavior-action-for-player get-instrument-info get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    [transport.util :refer :all]

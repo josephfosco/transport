@@ -15,7 +15,6 @@
 
 (ns transport.volume
   (:require
-   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-average-volume]]
    [transport.melodychar :refer [get-melody-char-continuity]]
    [transport.melodyevent :refer [get-volume-for-event]]
