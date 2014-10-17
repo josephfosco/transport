@@ -202,15 +202,23 @@
   [& args]
   (let [cur-ensemble-density (get-ensemble-density-ratio)]
 
+    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density))
+
     (reset! density-trend (cond
-                           (>= (- cur-ensemble-density @prev-ensemble-density) 0.05) INCREASING
-                           (<= (- cur-ensemble-density @prev-ensemble-density) -0.05) DECREASING
+                           (>= (- cur-ensemble-density @prev-ensemble-density) 0.05)
+                           (do
+                             (reset! prev-ensemble-density cur-ensemble-density)
+                             INCREASING
+                             )
+                           (<= (- cur-ensemble-density @prev-ensemble-density) -0.05)
+                           (do
+                             (reset! prev-ensemble-density cur-ensemble-density)
+                             DECREASING
+                             )
                            :else STEADY
                            )
             )
-    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " density-trend: " @density-trend)
-
-    (reset! prev-ensemble-density cur-ensemble-density)
+    (print-msg "check-activity" " density-trend: " @density-trend)
 
     )
 

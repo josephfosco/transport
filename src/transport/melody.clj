@@ -293,7 +293,8 @@
                       false
                       true)))
                 )
-        ))
+        )
+  )
 
 (defn get-melody-event
   [player-id melody-event-no]
