@@ -37,14 +37,19 @@
 (def player-continuities (atom (apply vector (repeat @number-of-players 0))))
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
 
-(def rest-prob-len (atom (* @number-of-players 3)))
+(def rest-prob-len (atom 0))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
-(def note-times-len (atom (* @number-of-players 5)))
-(def note-times (atom '()))
+(def note-times-len (atom 0))
+(def note-times (agent '()))
 
 (def prev-ensemble-density (atom 0))
 (def density-trend (atom INCREASING))
+
+(defn update-note-times
+  [cur-note-times new-value]
+  (conj (butlast cur-note-times) new-value)
+  )
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
@@ -104,7 +109,7 @@
       (do
         (let [dur-millis (get-dur-millis (get-dur-info-for-event last-melody))]
           (reset! note-values-millis (conj (butlast @note-values-millis) dur-millis))
-          (reset! note-times (conj (butlast @note-times) (list note-time dur-millis))))
+          (send-off note-times (list note-time dur-millis)))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (do
@@ -225,6 +230,11 @@
   (sched-event 5000 transport.ensemble-status/check-activity nil)
   )
 
+(defn init-note-times
+  [cur-note-times]
+  (for [x (repeat @note-times-len nil)] (list (- (System/currentTimeMillis) 5) (random-int 100 2000)))
+  )
+
 (defn init-ensemble-status
   []
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
@@ -232,6 +242,7 @@
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
   (reset! player-mms (apply vector (repeat @number-of-players nil)))
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
+  (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
   (dotimes [n @rest-prob-len]
@@ -239,9 +250,15 @@
       (reset! rest-prob (conj @rest-prob true))
       (reset! rest-prob (conj @rest-prob false))
       ))
+
+  (reset! player-continuities (apply vector (repeat @number-of-players 0)))
+  (reset! player-densities (apply vector (repeat @number-of-players 0)))
+
   ;; Initialize note-times to random values with
   ;; current time - 5 (to avoid a possible divide by 0 error in get-ensemble-density-ratio
-  (reset! note-times (for [x (repeat @note-times-len nil)] (list (- (System/currentTimeMillis) 5) (random-int 100 2000))))
+  (reset! note-times-len (* @number-of-players 5))
+  (send-off note-times init-note-times)
+  (await note-times)
   (reset! prev-ensemble-density 0)
   (reset! density-trend INCREASING)
 
