@@ -37,7 +37,7 @@
      (< action-num 0.68) SIMILAR-ENSEMBLE
      (< action-num 0.85) CONTRAST-ENSEMBLE
      :else IGNORE
-     ))  )
+     )) )
 
 (defn select-and-set-behavior-player-id
   "If :behavior :action is not IGNORE

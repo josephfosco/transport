@@ -124,13 +124,7 @@
   ([] (random-int min-mm max-mm))
   ([player]
      (if (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-       (let [ensemble-mm (get-ensemble-mm)]
-         (do
-           (println "!!!!!!!!!")
-           (print-msg "select-mm" "returning ensemble-mm: " ensemble-mm)
-           (println "!!!!!!!!")
-           ensemble-mm)
-         )
+       (get-ensemble-mm)
        (random-int min-mm max-mm)
        )
      )

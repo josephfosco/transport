@@ -40,7 +40,6 @@
 (def rest-prob-len (atom 0))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
-(def note-times-len (atom 0))
 (def note-times (agent '()))
 
 (def prev-ensemble-density (atom 0))
@@ -48,7 +47,7 @@
 
 (defn update-note-times
   [cur-note-times new-value]
-  (conj (butlast cur-note-times) new-value)
+  (conj cur-note-times new-value)
   )
 
 (defn- players-soft?
@@ -109,7 +108,7 @@
       (do
         (let [dur-millis (get-dur-millis (get-dur-info-for-event last-melody))]
           (reset! note-values-millis (conj (butlast @note-values-millis) dur-millis))
-          (send-off note-times (list note-time dur-millis)))
+          (send-off note-times update-note-times (list note-time dur-millis)))
         (reset! rest-prob (conj (butlast @rest-prob) true))
         )
       (do
@@ -139,7 +138,7 @@
   (let [rand-index (rand-int (dec @number-of-players)) ;; select a rand index into player-keys
         ]
     (if (>= rand-index (get-player-id player))   ;; return a key from player-keys but
-      (get @player-keys (inc rand-index))         ;;  do not return key for player
+      (get @player-keys (inc rand-index))        ;;  do not return key for player
       (get @player-keys rand-index))
     )
   )
@@ -184,13 +183,18 @@
 (defn get-ensemble-density-ratio
   "Returns ratio of time sound is present to total time, in a
    arbitrary amount of recent time"
-  []
+  [& {:keys [cur-note-times]
+      :or {cur-note-times @note-times}}]
+
   (let [cur-time (System/currentTimeMillis)
-        cur-note-times @note-times
         first-note-time (first (last cur-note-times))
         total-note-time (apply + (get-note-dur-list cur-note-times cur-time))
         ]
-    (/ total-note-time (* (- cur-time first-note-time) @number-of-players))
+    ;; first-note time will be nil if note-times is empty
+    ;; this can happen after a loud-event-msg
+    (if first-note-time
+      (/ total-note-time (* (- cur-time first-note-time) @number-of-players))
+      0)
     )
  )
 
@@ -203,11 +207,30 @@
   []
   @density-trend)
 
-(defn check-activity
-  [& args]
-  (let [cur-ensemble-density (get-ensemble-density-ratio)]
+(defn remove-expired-times
+  [cur-note-times]
+  (let [earliest-time (- (System/currentTimeMillis) 2000)]
+    ;; remove all entries in note-times that have ended more than 2 secs ago
+    (for [note-time cur-note-times
+          :let [end-time (+ (first note-time) (second note-time))
+                rtn-entry (cond (and (< (first note-time) earliest-time) (> end-time earliest-time))
+                                (list earliest-time (- end-time earliest-time))
+                                (< end-time earliest-time)
+                                nil
+                                :else note-time
+                                )
+                ]
 
-    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density))
+          :when (not (nil? rtn-entry))] rtn-entry))
+  )
+
+(defn check-activity
+  []
+;;  (print-msg "check-activity" "current-time: " (System/currentTimeMillis))
+;;  (print-msg "check-activity" "note-times: " @note-times)
+  (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)]
+
+    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
 
     (reset! density-trend (cond
                            (>= (- cur-ensemble-density @prev-ensemble-density) 0.05)
@@ -226,13 +249,13 @@
     (print-msg "check-activity" " density-trend: " @density-trend)
 
     )
-
-  (sched-event 5000 transport.ensemble-status/check-activity nil)
   )
 
-(defn init-note-times
-  [cur-note-times]
-  (for [x (repeat @note-times-len nil)] (list (- (System/currentTimeMillis) 5) (random-int 100 2000)))
+(defn upd-density-trend
+  [& args]
+  (check-activity)
+  (send-off note-times remove-expired-times)
+  (sched-event 5000 transport.ensemble-status/upd-density-trend nil)
   )
 
 (defn init-ensemble-status
@@ -254,11 +277,6 @@
   (reset! player-continuities (apply vector (repeat @number-of-players 0)))
   (reset! player-densities (apply vector (repeat @number-of-players 0)))
 
-  ;; Initialize note-times to random values with
-  ;; current time - 5 (to avoid a possible divide by 0 error in get-ensemble-density-ratio
-  (reset! note-times-len (* @number-of-players 5))
-  (send-off note-times init-note-times)
-  (await note-times)
   (reset! prev-ensemble-density 0)
   (reset! density-trend INCREASING)
 
@@ -268,7 +286,7 @@
    transport.ensemble-status/update-ensemble-status
    {}
    )
-  (sched-event 5000 transport.ensemble-status/check-activity nil)
+  (sched-event 5000 transport.ensemble-status/upd-density-trend nil)
   )
 
 (defn reset-ensemble-status

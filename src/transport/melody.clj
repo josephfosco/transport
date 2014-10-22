@@ -26,7 +26,7 @@
    [transport.message-processor :refer [register-listener]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
-   [transport.rhythm :refer [compute-mm-from-dur-info get-dur-beats get-dur-info-for-beats get-dur-info-for-mm-and-millis get-dur-millis next-note-dur note-dur-to-millis]]
+   [transport.rhythm :refer [get-dur-beats get-dur-info-for-beats get-dur-info-for-mm-and-millis get-dur-millis next-note-dur note-dur-to-millis]]
    [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
    [transport.util :refer :all]

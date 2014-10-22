@@ -49,7 +49,6 @@
 
 (defn player-copy-new-similar-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (print-msg "player-copy-new-similar-info" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " originator-player-id: " originator-player-id)
   (let [to-player (get-player follow-player-id)]
     (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
       (let [similar-player-info (get-similar-info-from-player (get-player change-player-id))
@@ -64,7 +63,5 @@
          :originator-player-id originator-player-id
          )
         )
-      (do
-        (print-msg "player-copy-new-similar-info" " NOT COPYING!")
-        )))
+      ))
   )
