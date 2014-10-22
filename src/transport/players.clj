@@ -269,10 +269,8 @@
           (assoc @PLAYERS to-player-id
                  (assoc to-player :change-follow-info-note melody-no))
           (do
-            (print-msg "set-change-follow-info-note" "set-change-follow-info-note NOT COPYING!")
             cur-players))))
     (do
-      (print-msg "set-change-follow-info-note" "same originator NOT COPYING!")
       cur-players)
 
     )
@@ -297,10 +295,9 @@
             (send-new-player-info-msgs contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
             (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
-          (print-msg "set-new-contrast-info" "NOT SENDING MESSAGES OR SETTING FOR CONTRAST"))
+          )
         cur-players)
       (do
-        (print-msg "set-new-contrast-info" "NOT SETTING CONTRAST!")
         cur-players)))
   )
 
@@ -352,11 +349,10 @@
       (do
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
-          (print-msg "replace-similar-info" "NOT SENDING MESSAGES"))
+          )
         (assoc @PLAYERS to-player-id to-player)
         )
       (do
-        (print-msg "replace-similar-info" "NOT COPYING!")
         cur-players)))
   )
 

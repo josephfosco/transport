@@ -192,15 +192,21 @@
       ))
   )
 
+(defn- adjust-prob-based-on-density
+  [note-probs player]
+  (let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
+    (if prob-adjust
+      (mapv + note-probs prob-adjust)
+      note-probs))
+  )
+
 (defn- adjust-rhythmic-probabilities
   [player]
   (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (adjust-note-prob player note-durs-millis)
-        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
-                              (mapv + adjusted-note-prob1 prob-adjust)
-                              adjusted-note-prob1)
+        adjusted-note-prob (-> (adjust-note-prob player note-durs-millis)
+                               (adjust-prob-based-on-density player))
         ;; make all probs < 0 be 0
-        final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
+        final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob)
         ]
     final-adjusted-note-prob
     )
