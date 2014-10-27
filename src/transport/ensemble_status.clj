@@ -15,8 +15,9 @@
 
 (ns transport.ensemble-status
   (:require
+   [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
-   [transport.melodyevent :refer [get-dur-info-for-event get-dur-millis get-note-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]

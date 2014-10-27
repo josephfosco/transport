@@ -171,6 +171,13 @@
     )
   )
 
+(defn get-melody-event-for-key
+  "Returns the players melody event for the key (a number).
+   Returns nil if the key does not exist for the player."
+  [player melody-event-key]
+  (get (get-melody player) melody-event-key)
+  )
+
 (defn get-player-with-mm
   "Returns player-id for the player with requested mm.
    Does not return requesting-player id.
@@ -286,7 +293,6 @@
 
 (defn set-new-contrast-info
   [cur-players change-player-id contrasting-player-id originator-player-id new-contrasting-info-map]
-  (print-msg "set-new-contrast-info" "changing: " change-player-id " contrasting: " contrasting-player-id " originator: " originator-player-id)
   (let [contrasting-player (get-player contrasting-player-id)]
     (if (= change-player-id (get-player-id (:behavior contrasting-player)))
       (do
@@ -320,7 +326,6 @@
         cur-change-follow-info-note (get-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
-    (print-msg "copy-follow-info" "to-player-id: " to-player-id)
     (if (and
          (not (nil? from-player-id))
          (not (nil? cur-change-follow-info-note))
@@ -333,7 +338,6 @@
                       (get-following-info-from-player (get-player from-player-id))
                       )))
       (do
-        (print-msg "copy-follow-info"  "NOT COPYING FOLLOW INFO from-player-id: " from-player-id " to-player-id: " to-player-id " cur-change-follow-info-note: " cur-change-follow-info-note " last-follow-note: " last-follow-note)
         (print-player to-player)
         (assoc @PLAYERS to-player-id to-player)
         )
@@ -344,7 +348,6 @@
 (defn replace-similar-info
   [cur-players from-player-id to-player originator-player-id]
   (let [to-player-id (get-player-id to-player)]
-    (print-msg "replace-similar-info" "from: " from-player-id " to: " to-player-id " originator: " originator-player-id)
     (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
