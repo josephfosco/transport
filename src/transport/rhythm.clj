@@ -198,7 +198,7 @@
               note-probs
               (not= 0 (rem cur-note-beat 1/4))
               (do
-                (mapv + note-probs [999 0 499 0 0 0 0 0 0 0 0])
+                (mapv + note-probs [999 0 300 0 0 0 0 0 0 0 0])
                 )
               ;; 2 1/32 in sequence increases chance of another 1/32
               (and (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player last-melody-event-num))))
@@ -207,7 +207,7 @@
                    )
               (do
                 (print-msg "adjust-prob-based-on-rhythm" "playing multiple 32nd note player: " (get-player-id player))
-                (mapv + note-probs [200 0 0 0 0 0 0 0 0 0 0])
+                (mapv + note-probs [300 0 0 0 0 0 0 0 0 0 0])
                 )
               :else
               note-probs

@@ -229,7 +229,7 @@
         ]
     (if (<= rest-prob 0)
       (do
-        (print-msg "get-loud-event-prob" "LOUD EVENT DONE")
+        (print-msg "get-loud-event-prob" "***** LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE *****")
         (reset! loud-player nil)
         (reset! loud-player-time nil)
         0
@@ -246,9 +246,11 @@
    player - player checking if it should rest
    note-time - the time (in millis) that the player is supposed to play"
   [player note-time]
-  (let [loud-event-prob (if (or (nil? @loud-player) (= loud-player (get-player-id player)))
-                           0
-                           (get-loud-event-prob note-time))]
+  (let [loud-event-prob (if (or (nil? @loud-player) (= @loud-player (get-player-id player)))
+                          0
+                          (get-loud-event-prob note-time))]
+    (if (and (not (nil? @loud-player)) (= loud-event-prob 0))
+      (print-msg "loud-rest?" "prob = 0 player:" (get-player-id player)))
     (if (> loud-event-prob (rand)) true false)
    )
   )

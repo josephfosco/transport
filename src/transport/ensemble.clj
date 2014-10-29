@@ -220,17 +220,11 @@
         (if cur-change-follow-info-note
           (let [follow-note (get-follow-note-for-event (get-last-melody-event upd-player))]
             (if (nil? follow-note)
-              (do
-                ;; this is the first note player is FOLLOWing
-                (print-msg "play-melody" "follow 1 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note: " follow-note)
-                (update-player-and-follow-info upd-player)
-                )
+              ;; this is the first note player is FOLLOWing
+              (update-player-and-follow-info upd-player)
               ;; next note is the note that the FOLLOW player changed segments
               (if (>= (inc follow-note) cur-change-follow-info-note)
-                (do
-                  (print-msg "play-melody" "follow 2 cur-change-follow-info-note: " cur-change-follow-info-note " follow-note: " follow-note)
-                  (update-player-and-follow-info upd-player)
-                  )
+                (update-player-and-follow-info upd-player)
                 (update-player upd-player)))
             )
           (update-player upd-player)

@@ -268,7 +268,6 @@
 
 (defn set-change-follow-info-note
   [cur-players from-player-id to-player-id originator-player-id melody-no]
-  (print-msg "set-change-follow-info-note" "from: " from-player-id " to: " to-player-id " originator: " originator-player-id " melody-no: " melody-no)
   (if (not= originator-player-id to-player-id)
     (do
       (let [to-player (get-player to-player-id)]
