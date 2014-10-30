@@ -1,0 +1,26 @@
+* ensemble/play-melody
+
+** melody/next-melody
+
+*** if FOLLOW-PLAYER
+****   melody/next-melody-follow-player
+***** if first time following
+*** else
+****   melody-next-melody-for-player
+
+** instruments/play-instrument
+
+** ensemble/update-player-info
+
+** if change-follow-info-note and follow-note is nil
+    next note will be the first note following player
+*** players/update-player-and-follow-info
+** else if next note is the note following
+    next note is the following players new segment
+*** players/update-player-and-follow-info
+** all other cases
+    players/update-player
+
+** scheduler/sched-event
+
+** message-processor/send-message(new-note)

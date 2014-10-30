@@ -216,6 +216,9 @@
     (if (nil? melody-dur-millis)
       (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
     (let [upd-player (update-player-info player event-time melody-event)]
+      ;; check if player is following another player and player following changed segments
+      ;; if it did update this player with the new segment info from the player it is following
+      ;; if this player is on the note where the following player changed segments
       (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
         (if cur-change-follow-info-note
           (let [follow-note (get-follow-note-for-event (get-last-melody-event upd-player))]

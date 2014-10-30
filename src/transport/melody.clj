@@ -368,7 +368,6 @@
          )
       ;; first time or new segment, rest 3 beats
       (do
-        (print-msg "next-melody-follow" "player: " (get-player-id player) " seg-num: " (get-seg-num player) " following seg-num: " (get-seg-num-for-event (get-last-melody-event player)) " follow-player-id: " follow-player-id)
         (create-melody-event
          :note nil
          :dur-info (get-dur-info-for-beats follow-player 3)
