@@ -3,14 +3,103 @@
 ** melody/next-melody
 
 *** if FOLLOW-PLAYER
-****   melody/next-melody-follow-player
+**** melody/next-melody-follow
 ***** if first time following
+         sync to following player
+***** else if first note (after sync)
+         rest 3 beats
+         get instrument-info for player
+***** else
+         play melody event from following player
 *** else
-****   melody-next-melody-for-player
+**** melody-next-melody-for-player
+***** if sync-beat
+         rest to sync with indicated player
+***** else
+          create melody event
+****** if melody/note-or-rest = false
+          rest
+******* if melody/loud-rest?
+            return false
+******* if SIMILIAR-ENSEMBLE
+********    melody/note-or-rest-similiar-ensemble
+              return true or false based on ensemble-status/get-ensemble-density-ratio
+******* if CONTRAST-ENSEMBLE
+********    melody/note-or-rest-contrast-ensemble
+              return opposite of note-or-rest-similar-ensemble
+******* else
+            return true or false based on player's melody-char contmuity
+****** else pitch/next-pitch
+******* pitch/next-pitch-ignore-player
+            select a direction  pretty much randomly
+            pick an interval based on player's smoothness
+            select a pitch of intervl and direction in player's scale and range
+****** rhythm/next-note-dur
+******* adjust rhythm/adjust-rhythmic-probabilities
+            If SIMILIAR-ENSEMBLE increase prob of rhythmis values closest to ensemble average
+            Adjust probs based on player's density setting
+            Adjust rpobs based on rhythm (32nd notes)
+            Select rhythmis value based on adjusted probs
 
+****** volume/select-volume-for-next-note
+         If pitch is nil (resting) return 0
+         If SIMILAR-ENSEMBLE select vulume + or - 0.1 of average ensemble volume
+         If CONTRAST-ENSEMBLE select high or low volume opposite of ensemble volume
+         else volume/select-volume
+******* if last note was rest, select random volume
+******* else select volume based on prev volume and player's smoothness setting
 ** instruments/play-instrument
 
 ** ensemble/update-player-info
+     update player map based on last note played
+*** if this is NOT the last note of the current segment
+      update the following player fields
+             cur-note-beat
+****           if this is a sync beat set to nil
+****           if right after sync beat, set to 0
+****           else set to cur note beat (in this segment)
+             cur-note-time
+             last-pitch
+             melody
+             prev-note-beat
+             prev-note-time
+             seg-start (in case this is the very first note played)
+             sync-beat-player to nil (this is only possibly not nil on the first note of a segment)
+*** if this IS the last note of the segment
+**** ensemble/update-player-with-new-segment
+***** unregister listeners
+***** segment/new-segment
+****** behavior/select-behavior
+         select player's behavior (IGNORE, FOLLOW-PLAYER stc...) and is necessary sets behavior-player-id
+****** update the following player fields
+         behavior
+         change-follow-info-note - nil
+         last-pitch nil (i don't think this is currently being used)
+         seg-len - set randomly between 10 and 30 secs
+         seg-num
+         seg-start - 0
+****** if FOLLOW-PLAYER
+         update the following player fields
+           sync-beat-player-id - following player-id (to sync beat on next note)
+         get info from following player
+*******   players/get-follow-info-from-player
+            update the following player fields from the following player
+              key
+              melody-char
+              metronome
+              mm
+              scale
+              instrument-info
+              change-follow-info-note - nil
+****** if SIMILAR-PLAYER
+         get info from similar player
+*******   players/get-similar-info-from-player
+            update the following player fields from the following player
+              key
+              melody-char
+              metronome
+              mm
+              scale
 
 ** if change-follow-info-note and follow-note is nil
     next note will be the first note following player

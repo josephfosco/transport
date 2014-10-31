@@ -151,7 +151,7 @@
   )
 
 (defn adjust-note-prob
-  " If player-action is SIMILAR-ENSEMBLE, returns NOTE-PROBS unchanged. Else,
+  " If player-action is not SIMILAR-ENSEMBLE, returns NOTE-PROBS unchanged. Else,
     finds the index of the rhythmic value closest to ensemble average duration,
     then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this

@@ -259,10 +259,10 @@
   [player note-time]
   (let [play-note-prob (rand)]
     (cond (= get-density-trend INCREASING)
-          (if (< play-note-prob (+ (get-ensemble-density-ratio) 0.2)) true nil)
+          (if (< play-note-prob (+ (get-ensemble-density-ratio) 0.2)) true false)
           (= get-density-trend DECREASING)
-          (if (< play-note-prob (- (get-ensemble-density-ratio) 0.2)) true nil)
-          :else (if (< play-note-prob (get-ensemble-density-ratio)) true nil)
+          (if (< play-note-prob (- (get-ensemble-density-ratio) 0.2)) true false)
+          :else (if (< play-note-prob (get-ensemble-density-ratio)) true false)
           )
     ))
 
@@ -416,10 +416,7 @@
   (let [follow-player-id (get-sync-beat-player-id player)]
     (if follow-player-id
       (sync-beat-follow player (get-player follow-player-id) event-time)
-      (let [next-note-or-rest (if (loud-rest? player event-time)
-                                nil
-                                (if (note-or-rest player event-time) (next-pitch player) nil))
-            ]
+      (let [next-note-or-rest (if (note-or-rest player event-time) (next-pitch player) nil)]
         (create-melody-event
          :note next-note-or-rest
          :dur-info (next-note-dur player)
