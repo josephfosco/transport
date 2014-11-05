@@ -145,9 +145,7 @@
                       (if (=
                            (:name (:instrument (get-instrument-info cntrst-plyr)))
                            (:name (:instrument (nth all-instruments instrument-index))))
-                        (nth all-instruments (mod
-                                              (+ instrument-index (rand-int (dec (count all-instruments))))
-                                              (dec(count all-instruments))))
+                        (nth all-instruments (mod (inc instrument-index) (count all-instruments)))
                         (nth all-instruments instrument-index)
                         )
                       )

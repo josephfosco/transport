@@ -28,18 +28,18 @@
 ********    melody/note-or-rest-contrast-ensemble
               return opposite of note-or-rest-similar-ensemble
 ******* else
-            return true or false based on player's melody-char contmuity
+            return true or false based on player's melody-char continuity
 ****** else pitch/next-pitch
 ******* pitch/next-pitch-ignore-player
             select a direction  pretty much randomly
             pick an interval based on player's smoothness
-            select a pitch of intervl and direction in player's scale and range
+            select a pitch of interval and direction in player's scale and range
 ****** rhythm/next-note-dur
 ******* adjust rhythm/adjust-rhythmic-probabilities
             If SIMILIAR-ENSEMBLE increase prob of rhythmis values closest to ensemble average
             Adjust probs based on player's density setting
             Adjust rpobs based on rhythm (32nd notes)
-            Select rhythmis value based on adjusted probs
+            Select rhythmic value based on adjusted probs
 
 ****** volume/select-volume-for-next-note
          If pitch is nil (resting) return 0
@@ -48,6 +48,7 @@
          else volume/select-volume
 ******* if last note was rest, select random volume
 ******* else select volume based on prev volume and player's smoothness setting
+
 ** instruments/play-instrument
 
 ** ensemble/update-player-info
@@ -70,7 +71,7 @@
 ***** unregister listeners
 ***** segment/new-segment
 ****** behavior/select-behavior
-         select player's behavior (IGNORE, FOLLOW-PLAYER stc...) and is necessary sets behavior-player-id
+         select player's behavior (IGNORE, FOLLOW-PLAYER stc...) and if necessary set behavior-player-id
 ****** update the following player fields
          behavior
          change-follow-info-note - nil
@@ -94,21 +95,72 @@
 ****** if SIMILAR-PLAYER
          get info from similar player
 *******   players/get-similar-info-from-player
+            select random new instrument for player and update instrument-info with it
             update the following player fields from the following player
               key
-              melody-char
+              melody-char (but make certain melody-range is in the range of player's instrument)
               metronome
               mm
               scale
+****** else
+        update the following player fields
+******* instrument-info - instrument/select-instrument
+          if player's behavior is not CONTRAST-PLAYER
+            select a random instrument
+          else
+            select a random instrument other than the instrument the contrasting player is using
+******* key - pitch/select-key
+          if SIMILAR-ENSEMBLE
+                  pick most common key in ensemble
+                else
+                  random key
+******* melody-characteristics - melody/select-melody-characteristics
+******** melody/select-melody-continuity
+           if SIMILAR-ENSEMBLE
+             return continuity based on ensemble density-trend
+           if CONTRAST-ENSEMBLE
+             return continuity opposite of ensemble continuity
+           if CONTRAST-PLAYER
+             return contrast continuity selected by weighting against contrasting player continuity
+           else
+             return contrast continuity selected using continuity weights
+******** melody/select-melody-density
+           if SIMILAR-ENSEMBLE
+             return ensemble-density (based on last ~2 seconds)
+           if CONTRAST-ENSEMBLE
+             return ensemble-density opposity of average densities
+           if CONTRAST-PLATER
+             return density opposite of contrasting player density
+           else
+             return random density
+******** melody/select-melody-range
+           if CONTRAST-PLAYER
+             return a range opposite in pitch and width of contrasting player (within range of player's instrument)
+           else
+             return player's instrument range
+******** melody/select-melody-smoothness
+           if CONTRAST-PLAYER
+             return smoothness opposite of contrasting-player's smoothness
+           else
+             return smoothnesss based on smoothness weights
 
-** if change-follow-info-note and follow-note is nil
-    next note will be the first note following player
-*** players/update-player-and-follow-info
-** else if next note is the note following
-    next note is the following players new segment
-*** players/update-player-and-follow-info
-** all other cases
-    players/update-player
+** update the player
+*** if change-follow-info-note and follow-note >= change-followinfo-note
+    next note will be the first note after following player changed segments
+**** players/update-player-and-follow-info
+***** send and await players/copy-follow-info
+****** players/send-new-player-info-msgs
+****** update player with info from players/get-following-info-from-player
+       key
+       melody-char
+       metronome
+       mm
+       scale
+       instrument-info nil
+       change-follow-info-note nil
+*** else players/update-player
+***** send and await players/update-player-callback
+      updates player
 
 ** scheduler/sched-event
 

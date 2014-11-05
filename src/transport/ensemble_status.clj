@@ -148,7 +148,7 @@
   "Returns the mm most used in the ensemble.
    If all mms are unique, returns one mm from the ensemble."
   []
-  (print-msg "get-ensemble-mm-for-player:" @player-mms)
+  (print-msg "get-ensemble-mm:" @player-mms)
   (get-vector-max-frequency @player-mms)
   )
 
@@ -164,7 +164,7 @@
 
 (defn get-ensemble-most-common-density
   []
-  (print-msg "get-ensemble-density:   " @player-densities)
+  (print-msg "get-ensemble-most-common-density:   " @player-densities)
   (get-vector-max-frequency @player-densities)
   )
 

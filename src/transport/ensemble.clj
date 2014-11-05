@@ -201,6 +201,7 @@
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
+    ;; Throw exception if note is out of instrument's range
     (if (and (not (nil? (:note melody-event)))
              (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
                  (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
@@ -211,25 +212,23 @@
         (throw (Throwable. "NOTE OUT OF RANGE"))
         )
       )
+
     (if (not (nil? (:note melody-event)))
       (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
     (if (nil? melody-dur-millis)
       (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
+
     (let [upd-player (update-player-info player event-time melody-event)]
-      ;; check if player is following another player and player following changed segments
-      ;; if it did update this player with the new segment info from the player it is
-      ;; following if this player is on the note where the following player changed segments
+      ;; check if player is following another player and following player changed segments
+      ;; if it did, update this player with the new segment info from the following player
+      ;; if this player is on the note where the following player changed segments
       (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
-        (if cur-change-follow-info-note
-          (let [follow-note (get-follow-note-for-event (get-last-melody-event upd-player))]
-            (if (nil? follow-note)
-              ;; this is the first note player is FOLLOWing
-              (update-player-and-follow-info upd-player)
-              ;; next note is the note that the FOLLOW player changed segments
-              (if (>= (inc follow-note) cur-change-follow-info-note)
-                (update-player-and-follow-info upd-player)
-                (update-player upd-player)))
-            )
+        (if (and
+             cur-change-follow-info-note
+             (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player))) cur-change-follow-info-note)
+             )
+          ;; next note is the note that the FOLLOW player changed segments
+          (update-player-and-follow-info upd-player)
           (update-player upd-player)
           ))
       (sched-event 0 (get-player-val upd-player "function") player-id :time (+ event-time melody-dur-millis))
