@@ -78,8 +78,15 @@
   ([player]
      (cond
       (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-      (cond (= get-density-trend INCREASING) (random-int (inc (get-ensemble-continuity)) 9)
-            (= get-density-trend DECREASING) (rand-int (dec (get-ensemble-continuity)))
+      (cond (= get-density-trend INCREASING)
+            (if (< 0.44 (get-ensemble-density 0.55))
+              (random-int 8 9)
+              (random-int (inc (get-ensemble-continuity)) 9)
+              )
+            (= get-density-trend DECREASING)
+            (if (< 0.44 (get-ensemble-density) 0.55)
+              (rand-int 0 2)
+              (rand-int (dec (get-ensemble-continuity))))
             :else (get-ensemble-density)
         )
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
@@ -249,8 +256,6 @@
   (let [loud-event-prob (if (or (nil? @loud-player) (= @loud-player (get-player-id player)))
                           0
                           (get-loud-event-prob note-time))]
-    (if (and (not (nil? @loud-player)) (= loud-event-prob 0))
-      (print-msg "loud-rest?" "prob = 0 player:" (get-player-id player)))
     (if (> loud-event-prob (rand)) true false)
    )
   )
@@ -419,7 +424,7 @@
       (let [next-note-or-rest (if (note-or-rest player event-time) (next-pitch player) nil)]
         (create-melody-event
          :note next-note-or-rest
-         :dur-info (next-note-dur player)
+         :dur-info (next-note-dur player next-note-or-rest)
          :follow-note nil
          :instrument-info (get-instrument-info player)
          :volume (select-volume-for-next-note player event-time next-note-or-rest)

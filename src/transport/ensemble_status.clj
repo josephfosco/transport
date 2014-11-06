@@ -201,7 +201,7 @@
 
 (defn get-ensemble-density
   []
-  (int (+ 0.5 (* 10 (get-ensemble-density-ratio))))
+  (round-number (* 10 (get-ensemble-density-ratio)))
  )
 
 (defn get-density-trend

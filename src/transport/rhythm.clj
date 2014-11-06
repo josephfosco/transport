@@ -188,7 +188,7 @@
 
 (defn- adjust-prob-based-on-rhythm
   "Adjust note-probs nased on the value and placement of previous notes"
-  [note-probs player]
+  [note-probs player next-note-or-rest]
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)]
     (if (nil? last-melody-event-num)
       note-probs
@@ -200,10 +200,12 @@
               (do
                 (mapv + note-probs [999 0 300 0 0 0 0 0 0 0 0])
                 )
-              ;; 2 1/32 in sequence increases chance of another 1/32
-              (and (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player last-melody-event-num))))
-                   (> last-melody-event-num 1)
-                   (= (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player (dec last-melody-event-num)))) 1/8)
+              ;; 2 1/32 in sequence increases chance of another 1/32 - only for notes not rests
+              (and
+               next-note-or-rest
+               (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player last-melody-event-num))))
+               (> last-melody-event-num 1)
+               (= (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player (dec last-melody-event-num)))) 1/8)
                    )
               (do
                 (print-msg "adjust-prob-based-on-rhythm" "playing multiple 32nd note player: " (get-player-id player))
@@ -215,11 +217,11 @@
   )
 
 (defn- adjust-rhythmic-probabilities
-  [player]
+  [player next-note-or-rest]
   (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
         adjusted-note-prob (-> (adjust-note-prob player note-durs-millis)
                                (adjust-prob-based-on-density player)
-                               (adjust-prob-based-on-rhythm player)
+                               (adjust-prob-based-on-rhythm player next-note-or-rest)
                                )
         ;; make all probs < 0 be 0
         final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob)
@@ -232,8 +234,8 @@
   "Returns :dur-info map for the next note
 
    player - player map to use when determining next note :dur-info"
-  [player]
-  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player))
+  [player next-note-or-rest]
+  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player next-note-or-rest))
         ]
     (if (nil? (get-mm player))
       (do

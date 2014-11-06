@@ -36,14 +36,14 @@
             select a pitch of interval and direction in player's scale and range
 ****** rhythm/next-note-dur
 ******* adjust rhythm/adjust-rhythmic-probabilities
-            If SIMILIAR-ENSEMBLE increase prob of rhythmis values closest to ensemble average
+            If SIMILIAR-ENSEMBLE increase prob of rhythmic values closest to ensemble average
             Adjust probs based on player's density setting
-            Adjust rpobs based on rhythm (32nd notes)
+            Adjust pobs based on rhythm (32nd notes)
             Select rhythmic value based on adjusted probs
 
 ****** volume/select-volume-for-next-note
          If pitch is nil (resting) return 0
-         If SIMILAR-ENSEMBLE select vulume + or - 0.1 of average ensemble volume
+         If SIMILAR-ENSEMBLE select volume + or - 0.1 of average ensemble volume
          If CONTRAST-ENSEMBLE select high or low volume opposite of ensemble volume
          else volume/select-volume
 ******* if last note was rest, select random volume
@@ -128,7 +128,7 @@
            if SIMILAR-ENSEMBLE
              return ensemble-density (based on last ~2 seconds)
            if CONTRAST-ENSEMBLE
-             return ensemble-density opposity of average densities
+             return ensemble-density opposite of average densities
            if CONTRAST-PLATER
              return density opposite of contrasting player density
            else
