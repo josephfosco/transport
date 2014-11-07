@@ -83,6 +83,9 @@
       (init-melody)
       (reset! is-initialized? true)
 
+      (print-banner "transport-init about to add output reverb")
+      (def out-rvrb (fx-freeverb :wet-dry 0.3 :room-size 0.3 :dampening 0.4))
+
       (print-banner "transport successfully initialized")
       )
     (print-banner "Warning - transport already initialized" :prefix "!!!")
