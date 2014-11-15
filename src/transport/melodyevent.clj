@@ -15,14 +15,16 @@
 
 (ns transport.melodyevent)
 
-(defrecord MelodyEvent [note dur-info follow-note instrument-info volume seg-num])
+(defrecord MelodyEvent [note dur-info follow-note instrument-info sc-instrument-id volume seg-num])
 
 (defn create-melody-event
+  "Used to create a MelodyEvent before the supercollider instrument id is known"
   [& {:keys [note dur-info follow-note instrument-info volume seg-num]}]
   (MelodyEvent. note
                 dur-info
                 follow-note
                 instrument-info
+                nil
                 volume
                 seg-num
                 )
@@ -48,6 +50,14 @@
   [melody-event]
   (:seg-num melody-event))
 
+(defn get-sc-instrument-id
+  [melody-event]
+  (:sc-instrument-id melody-event))
+
 (defn get-volume-for-event
   [melody-event]
   (:volume melody-event))
+
+(defn set-sc-instrument-id
+  [melody-event sc-instrument-id]
+  (assoc melody-event :sc-instrument-id sc-instrument-id))

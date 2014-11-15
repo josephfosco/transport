@@ -15,14 +15,14 @@
 
 (ns transport.ensemble
   (:require
-   [overtone.live]
+   [overtone.live :refer [apply-at]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-and-set-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [update-ensemble-status]]
-   [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo]]
+   [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo stop-last-note]]
    [transport.melody :refer [next-melody]]
-   [transport.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event set-sc-instrument-id]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.player-copy :refer [player-copy-new-similar-info]]
@@ -195,45 +195,52 @@
   [player-id event-time]
 
   ;; (print-msg "play-melody"  "player-id: " player-id)
-  (let [
-        player (get-player player-id)
-        melody-event (next-melody player event-time)
-        melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
-        ]
+  (let [player (get-player player-id)]
+    (stop-last-note player)
+    (let [
+          melody-event (next-melody player event-time)
+          melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
+          ]
 
-    ;; Throw exception if note is out of instrument's range
-    (if (and (not (nil? (:note melody-event)))
-             (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
-                 (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
-      (do
-        (print-msg "play-melody" "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
-        (print-msg "play-melody" "melody-event: " melody-event)
-        (print-player-num player-id)
-        (throw (Throwable. "NOTE OUT OF RANGE"))
+      ;; Throw exception if note is out of instrument's range
+      (if (and (not (nil? (:note melody-event)))
+               (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
+                   (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
+        (do
+          (print-msg "play-melody" "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
+          (print-msg "play-melody" "melody-event: " melody-event)
+          (print-player-num player-id)
+          (throw (Throwable. "NOTE OUT OF RANGE"))
+          )
         )
-      )
 
-    (if (not (nil? (:note melody-event)))
-      (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
-    (if (nil? melody-dur-millis)
-      (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
+      (let [sc-instrument-id
+            (if (not (nil? (:note melody-event)))
+              ;; play instrument after adding final release time - for now always 0.1 secs (100 millis)
+              (apply-at (+ event-time 100)
+               (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
+              nil
+              )
+            ]
+        (if (nil? melody-dur-millis)
+          (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
 
-    (let [upd-player (update-player-info player event-time melody-event)]
-      ;; check if player is following another player and following player changed segments
-      ;; if it did, update this player with the new segment info from the following player
-      ;; if this player is on the note where the following player changed segments
-      (let [cur-change-follow-info-note (get-change-follow-info-note upd-player)]
-        (if (and
-             cur-change-follow-info-note
-             (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player))) cur-change-follow-info-note)
-             )
-          ;; next note is the note that the FOLLOW player changed segments
-          (update-player-and-follow-info upd-player)
-          (update-player upd-player)
-          ))
-      (sched-event 0 (get-player-val upd-player "function") player-id :time (+ event-time melody-dur-millis))
-      (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
-      ))
+        (let [upd-player (update-player-info player event-time (set-sc-instrument-id melody-event sc-instrument-id))
+              cur-change-follow-info-note (get-change-follow-info-note upd-player)              ]
+          ;; check if player is following another player and following player changed segments
+          ;; if it did, update this player with the new segment info from the following player
+          ;; if this player is on the note where the following player changed segments
+          (if (and
+               cur-change-follow-info-note
+               (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player))) cur-change-follow-info-note)
+               )
+            ;; next note is the note that the FOLLOW player changed segments
+            (update-player-and-follow-info upd-player)
+            (update-player upd-player)
+            )
+          (sched-event 0 (get-player-val upd-player "function") player-id :time (+ event-time melody-dur-millis))
+          (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
+          ))))
   )
 
 (defn create-player

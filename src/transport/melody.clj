@@ -92,7 +92,8 @@
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
-      :else (weighted-choice CONTINUITY-PROBS))
+      :else (weighted-choice CONTINUITY-PROBS)
+      )
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-continuity (get-melody-char-continuity cntrst-melody-char)
