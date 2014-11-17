@@ -19,6 +19,7 @@
    [transport.melodychar :refer [get-melody-char-continuity]]
    [transport.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
+   [transport.random :refer [random-int]]
    [transport.settings :refer :all]
    ))
 
@@ -37,7 +38,8 @@
 (defn- select-random-volume
   "Returns a random volume between 0 and .999"
   []
-  (float (/ (int (* (rand) 1000)) 1000))
+  ;;(float (/ (int (* (rand) 1000)) 1000))
+  (float (/ (random-int 200 999) 1000))
     )
 
 (defn select-volume

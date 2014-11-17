@@ -8,7 +8,7 @@
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :cur-note-time - the time the next note to be played will be played (starts at 0)
 * :function - function to call when event is triggered
-* :instrument-info - a map containing
+* :instrument-info - nil if FOLLOWING else a map containing
     + :envelope-type - the type of envelope this instrument uses current vlaues
       - ASR  - attack sustein release
       - AD   - attack decay

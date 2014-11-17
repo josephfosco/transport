@@ -15,12 +15,13 @@
 
 (ns transport.ensemble
   (:require
-   [overtone.live :refer [apply-at]]
+   [overtone.live :refer [apply-at midi->hz]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [get-behavior-player-id-for-player select-and-set-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [update-ensemble-status]]
    [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo stop-last-note]]
+   [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-note-for-event get-volume-for-event set-sc-instrument-id]]
    [transport.messages :refer :all]
@@ -184,6 +185,28 @@
       ))
   )
 
+(defn check-note-out-of-range
+  [player-id melody-event]
+  ;; Throw exception if note is out of instrument's range
+  (if (or (> (:note melody-event) (get-range-hi-for-inst-info (get-instrument-info-for-event melody-event)))
+          (< (:note melody-event) (get-range-lo-for-inst-info (get-instrument-info-for-event melody-event))))
+    (do
+      (print-msg "check-note-out-of-range" "ERROR ERROR ERROR  NOTE OUT OF INSTRUMENT RANGE!!!!  ERROR ERROR ERROR")
+      (print-msg "check-note-out-of-range" "melody-event: " melody-event)
+      (print-player-num player-id)
+      (throw (Throwable. "NOTE OUT OF RANGE"))
+      )
+    )
+  )
+
+(defn get-actual-release-dur-millis
+  [inst-info dur-millis]
+  (let [release-dur (get-release-millis-for-inst-info inst-info)]
+    (if (< release-dur dur-millis)
+      release-dur
+      0))
+  )
+
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
    Checks if the current segment is done, and if so
@@ -197,31 +220,33 @@
   ;; (print-msg "play-melody"  "player-id: " player-id)
   (let [player (get-player player-id)]
     (stop-last-note player)
-    (let [
-          melody-event (next-melody player event-time)
+    (let [melody-event (next-melody player event-time)
           melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
+          last-melody-event (get-last-melody-event player)
           ]
 
-      ;; Throw exception if note is out of instrument's range
-      (if (and (not (nil? (:note melody-event)))
-               (or (> (:note melody-event) (get-instrument-range-hi (get-instrument-info-for-event melody-event)))
-                   (< (:note melody-event) (get-instrument-range-lo (get-instrument-info-for-event melody-event)))))
-        (do
-          (print-msg "play-melody" "ERROR ERROR ERROR ERROR NOTE OUT OF INSTRUMENT RANGE!!!! ERROR ERROR ERROR ERROR")
-          (print-msg "play-melody" "melody-event: " melody-event)
-          (print-player-num player-id)
-          (throw (Throwable. "NOTE OUT OF RANGE"))
-          )
+      (if (not (nil? (:note melody-event)))
+        (check-note-out-of-range player-id melody-event)
         )
 
-      (let [sc-instrument-id
-            (if (not (nil? (:note melody-event)))
-              ;; play instrument after adding final release time - for now always 0.1 secs (100 millis)
-              (apply-at (+ event-time 100)
-               (play-instrument player (:note melody-event) melody-dur-millis (get-volume-for-event melody-event)))
-              nil
-              )
+      (let [sc-instrument-id (if (not (nil? (:note melody-event)))
+                               ((get-instrument player)
+                                (midi->hz (get-note-for-event melody-event))
+                                melody-dur-millis
+                                (get-volume-for-event melody-event)
+                                (get-release-dur-for-inst-info (get-instrument-info player)))
+                               nil
+                               )
+            next-note-time (if (nil? last-melody-event)
+                             event-time
+                             (+ event-time (get-actual-release-dur-millis
+                                            (get-instrument-info-for-event last-melody-event)
+                                            (get-dur-millis (get-dur-info-for-event last-melody-event))
+                                            )))
             ]
+        (if sc-instrument-id
+          (apply-at next-note-time play-instrument [sc-instrument-id])
+          )
         (if (nil? melody-dur-millis)
           (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
 
@@ -238,10 +263,10 @@
             (update-player-and-follow-info upd-player)
             (update-player upd-player)
             )
-          (sched-event 0 (get-player-val upd-player "function") player-id :time (+ event-time melody-dur-millis))
+          (sched-event 0 (get-player-val upd-player "function") player-id :time (- (+ next-note-time melody-dur-millis) (get-actual-release-dur-millis (get-instrument-info player) melody-dur-millis) ))
           (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
-          ))))
-  )
+          )))
+  ))
 
 (defn create-player
   [player-no]

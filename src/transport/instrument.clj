@@ -38,7 +38,8 @@
                         {:instrument reedy-organ
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)}
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
                         ])
 
 
@@ -134,11 +135,11 @@
   (let [inst-info (rand-nth all-instruments)
         ]
     (create-instrument-info
-     :instrument (:instrument inst-info)
-     :envelope-type (:envelope-type inst-info)
-     :release-dur 0
-     :range-hi (:range-hi inst-info)
-     :range-lo (:range-lo inst-info))
+     :instrument (get-instrument-for-inst-info inst-info)
+     :envelope-type (get-envelope-type-for-inst-info inst-info)
+     :release-dur (get-release-dur-for-inst-info inst-info)
+     :range-hi (get-range-hi-for-inst-info inst-info)
+     :range-lo (get-range-lo-for-inst-info inst-info))
     ))
 
 (defn select-instrument
@@ -170,11 +171,11 @@
         ]
 
     (create-instrument-info
-     :instrument (:instrument inst-info)
-     :envelope-type (:envelope-type inst-info)
-     :release-dur 0
-     :range-hi (:range-hi inst-info)
-     :range-lo (:range-lo inst-info)
+     :instrument (get-instrument-for-inst-info inst-info)
+     :envelope-type (get-envelope-type-for-inst-info inst-info)
+     :release-dur (get-release-dur-for-inst-info inst-info)
+     :range-hi (get-range-hi-for-inst-info inst-info)
+     :range-lo (get-range-lo-for-inst-info inst-info)
      )
     )
   )
@@ -194,11 +195,6 @@
       ))
   )
 
-(defn get-instrument-for-note
-  [player]
-  (get-instrument player)
-  )
-
 (defn has-gate?
   [inst-info]
   (if (= "ASR" (:envelope-type inst-info))
@@ -208,11 +204,17 @@
 
 (defn stop-last-note
   [player]
+  "If player was not resting on last note, stops the note and returns true
+   else returns false"
   (let [last-melody-event (get-last-melody-event player)
         sc-instrument-id (get-sc-instrument-id last-melody-event)
         ]
     (if (and sc-instrument-id  (has-gate? (get-instrument-info last-melody-event)))
-      (ctl sc-instrument-id :gate 0))
+      (ctl sc-instrument-id :gate 0)
+      )
+    (if sc-instrument-id
+      true
+      false)
     )
   )
 
@@ -221,47 +223,33 @@
    note-num - midi note number
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [instrument (get-instrument-for-note player)]
-
-    (check-note-out-of-range player note-num)
-    (instrument (midi->hz note-num) note-duration volume)
-    ))
+  [instrument note-num note-duration volume]
+  (instrument :gate 1)
+  )
 
 (defn play-instrument-ar
   "player - player map
    note-num - midi note number
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [instrument (get-instrument-for-note player)]
-
-    (check-note-out-of-range player note-num)
-    (instrument (midi->hz note-num) volume)
-    ))
+  [instrument note-num note-duration volume]
+  (instrument :gate 1)
+  )
 
 (defn play-instrument-asr
   "player - player map
    note-num - midi note number
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [gate-duration (get-gate-dur player note-duration)
-        instrument (get-instrument player)
-        ]
-    (check-note-out-of-range player note-num)
-    (instrument (midi->hz note-num) gate-duration volume)
-    ))
+  [instrument note-num note-duration volume]
+  (instrument :gate 1)
+  )
 
 (defn play-instrument
   "player - player map
    note-num - midi note number
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [ env-type (get-envelope-type player)]
-    (cond
-     (.equals env-type "AD") (play-instrument-ar player note-num note-duration volume)
-     (.equals env-type "ASR") (play-instrument-asr player note-num note-duration volume)
-     (.equals env-type "NE") (play-instrument-no-env player note-num note-duration volume)
-     :else ((get-instrument player) (midi->hz note-num)))))
+  [instrument]
+  (ctl instrument :gate 1 :action FREE)
+  )

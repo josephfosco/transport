@@ -28,22 +28,31 @@
                    )
   )
 
-(defn get-instrument-for-inst
+(defn get-instrument-for-inst-info
   [inst-info]
   (:instrument inst-info))
 
-(defn get-envelope-type-for-inst
+(defn get-envelope-type-for-inst-info
   [inst-info]
   (:envelope-type inst-info))
 
-(defn get-release-dur-for-inst
+(defn get-release-dur-for-inst-info
   [inst-info]
   (:release-dur inst-info))
 
-(defn get-range-hi-for-inst
+(defn get-release-millis-for-inst-info
+  [inst-info]
+  (let [release-dur (:release-dur inst-info)]
+    (if release-dur
+      (int (* (:release-dur inst-info) 1000))
+      0
+      ))
+  )
+
+(defn get-range-hi-for-inst-info
   [inst-info]
   (:range-hi inst-info))
 
-(defn get-range-lo-for-inst
+(defn get-range-lo-for-inst-info
   [inst-info]
   (:range-lo inst-info))
