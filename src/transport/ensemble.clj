@@ -263,7 +263,13 @@
             (update-player-and-follow-info upd-player)
             (update-player upd-player)
             )
-          (sched-event 0 (get-player-val upd-player "function") player-id :time (- (+ next-note-time melody-dur-millis) (get-actual-release-dur-millis (get-instrument-info player) melody-dur-millis) ))
+          (sched-event 0
+                       (get-player-val upd-player "function") player-id
+                       :time (-
+                              (+ next-note-time melody-dur-millis)
+                              (if (nil? (:note melody-event))
+                                0
+                                (get-actual-release-dur-millis (get-instrument-info player) melody-dur-millis)) ))
           (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
           )))
   ))
