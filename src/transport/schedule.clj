@@ -270,7 +270,9 @@
           ;; else sched-timer-fl is set to false
           sched-timer-fl (if (and (> (count @event-queue) 0)
                                   (not= new-event-time 0)
-                                  (< new-event-time (get-next-sched-event-time)))
+                                  (< new-event-time (get-next-sched-event-time))
+                                  (> new-event-time (System/currentTimeMillis))
+                                  )
                            (do
                              (cancel-timerTask)
                              true )
@@ -278,12 +280,18 @@
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
       (if @scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
-        (do
-          (send event-queue conj new-event )
-          (await event-queue)
-          (debug-run1 (println "4 Sent Event"))
-          (if sched-timer-fl
-            (sched-timer new-event))
-          true)    ; return true if event was scheduled
+        (if (and (> new-event-time 0) (< new-event-time (System/currentTimeMillis)))
+            (do
+              (event-func event-data new-event-time)
+              (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
+              (println "execute immediately - not scheduled")
+              )
+            (do
+              (send event-queue conj new-event )
+              (await event-queue)
+              (debug-run1 (println "4 Sent Event"))
+              (if sched-timer-fl
+                (sched-timer new-event))
+              true))    ; return true if event was scheduled
         false)))   ; return false if event was not scheduled
 )

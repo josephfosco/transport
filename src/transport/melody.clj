@@ -71,7 +71,7 @@
   )
 
 (defn- select-melody-continuity
-  "Returns a number from 0 to 10 to determine how continuous
+  "Returns a number from 0 to 9 to determine how continuous
    the melody will be.
    0 - discontinuous (all rests) -> 9 - continuous (few rests)"
   ([] (weighted-choice CONTINUITY-PROBS))

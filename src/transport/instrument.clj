@@ -24,7 +24,7 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodyevent :refer [get-sc-instrument-id]]
-   [transport.players :refer [get-behavior-action-for-player get-instrument-info get-last-melody-event get-player get-player-id print-player]]
+   [transport.players :refer [get-behavior-action-for-player get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    [transport.util :refer :all]
@@ -210,7 +210,10 @@
         sc-instrument-id (get-sc-instrument-id last-melody-event)
         ]
     (if (and sc-instrument-id  (has-gate? (get-instrument-info last-melody-event)))
-      (ctl sc-instrument-id :gate 0)
+      (do
+        (print-msg "stop-last-note" "     stopping note: " (get-last-melody-event-num-for-player player))
+        (ctl sc-instrument-id :gate 0)
+        )
       )
     (if sc-instrument-id
       true
