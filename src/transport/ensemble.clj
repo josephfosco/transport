@@ -208,9 +208,10 @@
   )
 
 (defn play-next-note
-  [sc-instrument-id event-time]
-  (print-msg "play-next-note")
+  [sc-instrument-id player-id event-time]
+  (print-msg "play-next-note" "player-id: " player-id " current time: " (System/currentTimeMillis))
   (play-instrument sc-instrument-id)
+  (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
   )
 
 (defn- articulate-next-note?
@@ -239,7 +240,7 @@
    event-time - time this note event was scheduled for"
   [player-id event-time]
 
-  (print-msg "play-melody"  "player-id: " player-id)
+  (print-msg "play-melody"  "player-id: " player-id " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         last-melody-event (get-last-melody-event player)
         articulate? (if last-melody-event (articulate-next-note? last-melody-event event-time) false)
@@ -275,12 +276,12 @@
                                             )))
             ]
         (if sc-instrument-id
-          (sched-event 0 play-next-note [sc-instrument-id] :time next-note-time )
+          (sched-event 0 play-next-note (list sc-instrument-id player-id) :time next-note-time )
           )
         (if (nil? melody-dur-millis)
           (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
 
-        (let [note-play-time (System/currentTimeMillis)
+        (let [note-play-time (max (System/currentTimeMillis) next-note-time)
               upd-player (update-player-info player event-time (set-sc-instrument-id-and-note-play-time
                                                                 melody-event
                                                                 sc-instrument-id
@@ -308,7 +309,6 @@
                        :time release-time)
           (print-msg "play-melody" "current-time " (System/currentTimeMillis) " next-note-time: " next-note-time " melody-dur-millis " melody-dur-millis " release-time " release-time)
           (print-msg "play-melody" "last-melody-event-num: " (get-last-melody-event-num-for-player upd-player))
-          (send-message MSG-PLAYER-NEW-NOTE :player upd-player :note-time event-time)
           )))
   ))
 

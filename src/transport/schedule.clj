@@ -220,9 +220,17 @@
                  (<= (get-next-sched-event-time) (System/currentTimeMillis)))
       (do
         ;; first execute the scheduled function
-        ((get-next-event-func)
-         (get-next-event-data)
-         (get-next-sched-event-time))
+        (if (coll? (get-next-event-data))
+          (let [fnc (get-next-event-func)
+                data (get-next-event-data)
+                time (get-next-sched-event-time)
+                ]
+            (apply fnc `(~@data ~time))
+            )
+          ((get-next-event-func)
+           (get-next-event-data)
+           (get-next-sched-event-time))
+          )
         ;; save lateness
         (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
         (send event-queue remove-first)
@@ -281,17 +289,19 @@
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
       (if @scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
         (if (and (> new-event-time 0) (< new-event-time (System/currentTimeMillis)))
-            (do
-              (event-func event-data new-event-time)
-              (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
-              (println "execute immediately - not scheduled")
-              )
-            (do
-              (send event-queue conj new-event )
-              (await event-queue)
-              (debug-run1 (println "4 Sent Event"))
-              (if sched-timer-fl
-                (sched-timer new-event))
-              true))    ; return true if event was scheduled
+          (do
+            (if (coll? event-data)
+              (apply event-func `(~@event-data ~new-event-time))
+              (event-func event-data new-event-time))
+            (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
+            (print-msg "sched-event" "execute immediately - not scheduled")
+            )
+          (do
+            (send event-queue conj new-event )
+            (await event-queue)
+            (debug-run1 (println "4 Sent Event"))
+            (if sched-timer-fl
+              (sched-timer new-event))
+            true))    ; return true if event was scheduled
         false)))   ; return false if event was not scheduled
 )
