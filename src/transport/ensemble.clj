@@ -222,7 +222,8 @@
                      dur-millis
                      )
         ]
-    (if (and (> (- dur-millis release-dur) 20)
+    (if (and (> release-dur 0)
+             (> (- dur-millis release-dur) 20)
              (> (- event-time (get-note-play-time-for-event melody-event)) 20)
              )
       true
@@ -240,6 +241,7 @@
    event-time - time this note event was scheduled for"
   [player-id event-time]
 
+  (println)
   (print-msg "play-melody"  "player-id: " player-id " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         last-melody-event (get-last-melody-event player)

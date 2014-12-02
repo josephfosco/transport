@@ -225,7 +225,7 @@
   "update the value of a player in agent PLAYERS
    this is called from send-off"
   [cur-players new-player]
-  (assoc @PLAYERS (get-player-id new-player) new-player)
+  (assoc cur-players (get-player-id new-player) new-player)
   )
 
 (defn update-player
@@ -272,7 +272,7 @@
     (do
       (let [to-player (get-player to-player-id)]
         (if (= from-player-id (get-player-id (:behavior to-player)))
-          (assoc @PLAYERS to-player-id
+          (assoc cur-players to-player-id
                  (assoc to-player :change-follow-info-note melody-no))
           (do
             cur-players))))
@@ -298,7 +298,7 @@
         (if (not= originator-player-id contrasting-player-id)
           (do
             (send-new-player-info-msgs contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
-            (assoc @PLAYERS contrasting-player-id (merge contrasting-player new-contrasting-info-map))
+            (assoc cur-players contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
           )
         cur-players)
@@ -332,13 +332,13 @@
          (>= (inc last-follow-note) cur-change-follow-info-note))
       (do
         (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
-        (assoc @PLAYERS to-player-id
+        (assoc cur-players to-player-id
                (merge to-player
                       (get-following-info-from-player (get-player from-player-id))
                       )))
       (do
         (print-player to-player)
-        (assoc @PLAYERS to-player-id to-player)
+        (assoc cur-players to-player-id to-player)
         )
       )
     )
@@ -352,7 +352,7 @@
         (if (not= originator-player-id to-player-id)
           (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
           )
-        (assoc @PLAYERS to-player-id to-player)
+        (assoc cur-players to-player-id to-player)
         )
       (do
         cur-players)))
@@ -400,7 +400,7 @@
   [player & {:keys [prnt-full-inst-info]
              :or {prnt-full-inst-info false}}]
   (let [sorted-keys (sort (keys player))]
-    (println "player:")
+    (println "player: " (get-player-id player) "current time: " (System/currentTimeMillis))
     (doseq [player-key sorted-keys]
       (cond
        (and (= player-key :instrument-info) (= prnt-full-inst-info false))
@@ -415,6 +415,7 @@
        :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
+    (println "end player: " (get-player-id player) "current time: " (System/currentTimeMillis))
     (prn)
     )
   )
