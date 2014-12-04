@@ -199,19 +199,19 @@
     )
   )
 
+(defn play-next-note
+  [sc-instrument-id player-id event-time]
+  (print-msg "play-next-note" "player-id: " player-id " current time: " (System/currentTimeMillis))
+  (play-instrument sc-instrument-id)
+  (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
+  )
+
 (defn get-actual-release-dur-millis
   [inst-info dur-millis]
   (let [release-dur (get-release-millis-for-inst-info inst-info)]
     (if (< (+ release-dur 20) dur-millis)
       release-dur
       0))
-  )
-
-(defn play-next-note
-  [sc-instrument-id player-id event-time]
-  (print-msg "play-next-note" "player-id: " player-id " current time: " (System/currentTimeMillis))
-  (play-instrument sc-instrument-id)
-  (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
   )
 
 (defn- articulate-next-note?
@@ -255,7 +255,9 @@
           ]
 
       (if (not (nil? (:note melody-event)))
+        ;; if about to play a note, check range
         (check-note-out-of-range player-id melody-event)
+        ;; else if about to rest, stop previous note
         (if (not articulate?) (apply-at (+ event-time 20) stop-last-note [player]))
         )
 
@@ -330,8 +332,7 @@
   []
   (let [all-players (map create-player (range @number-of-players))]
     (reset-players)
-    (send PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
-    (await PLAYERS)
+    (swap! PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
     )
 
   ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
@@ -341,8 +342,7 @@
          (map assoc (vals @PLAYERS) (repeat :behavior) (map select-and-set-behavior-player-id (vals @PLAYERS))))
         ]
     (reset-players)
-    (send PLAYERS conj final-players)
-    (await PLAYERS)
+    (swap! PLAYERS conj final-players)
     )
 
   (init-players)

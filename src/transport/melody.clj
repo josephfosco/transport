@@ -79,15 +79,15 @@
      (cond
       (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
       (cond (= get-density-trend INCREASING)
-            (if (< 0.44 (get-ensemble-density 0.55))
+            (if (< 0.44 (get-ensemble-density) 0.55)
               (random-int 8 9)
-              (random-int (inc (get-ensemble-continuity)) 9)
+              (random-int (min (inc (get-ensemble-continuity)) 9) 9)
               )
             (= get-density-trend DECREASING)
             (if (< 0.44 (get-ensemble-density) 0.55)
               (rand-int 0 2)
-              (rand-int (dec (get-ensemble-continuity))))
-            :else (get-ensemble-density)
+              (rand-int (max (dec (get-ensemble-continuity)) 0)))
+            :else (get-ensemble-continuity)
         )
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
@@ -121,7 +121,7 @@
   ([player]
      (cond
       (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-      (get-ensemble-density)
+      (round-number (* (get-ensemble-density) 0.9))   ;; scale from 0 - 10 to 0 - 9
       (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
       (let [ens-density (round-number (get-average-density))]
         (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))

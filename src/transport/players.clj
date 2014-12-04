@@ -25,7 +25,7 @@
   (:import transport.behavior.Behavior)
   )
 
-(def PLAYERS (agent {}))
+(def PLAYERS (atom {}))
 
 (defn get-players
   []
@@ -203,8 +203,8 @@
 
 (defn reset-players
   []
-  (send PLAYERS clear-players)
-  (await PLAYERS))
+  (swap! PLAYERS clear-players)
+  )
 
 (defn set-behavior
   [player behavior]
@@ -230,8 +230,7 @@
 
 (defn update-player
   [player]
-  (send PLAYERS update-player-callback player)
-  (await PLAYERS)
+  (swap! PLAYERS update-player-callback player)
   )
 
 (defn rand-player-id-excluding-player
@@ -308,7 +307,7 @@
 
 (defn new-contrast-info-for-player
   [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
-  (send PLAYERS
+  (swap! PLAYERS
         set-new-contrast-info
         change-player-id
         contrast-player-id
@@ -360,18 +359,17 @@
 
 (defn player-new-similar-info-replace
   [& {:keys [change-player-id follow-player originator-player-id]}]
-  (send PLAYERS replace-similar-info change-player-id follow-player originator-player-id)
+  (swap! PLAYERS replace-similar-info change-player-id follow-player originator-player-id)
   )
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (send PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
+  (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
 (defn update-player-and-follow-info
   [player]
-  (send PLAYERS copy-follow-info player)
-  (await PLAYERS)
+  (swap! PLAYERS copy-follow-info player)
   )
 
 (defn init-players
@@ -380,18 +378,28 @@
   )
 
 (defn print-player-melody
-  [melody]
+  [melody & {:keys [prnt-full-inst-info]
+             :or {prnt-full-inst-info false}}]
   (let [sorted-keys (sort (keys melody))]
     (println (format "%-20s" "  :melody "))
     (doseq [melody-key sorted-keys]
       (println (format "%-29s" (str "  " melody-key "-" (dissoc (get melody melody-key) :instrument-info))))
-      (println (format
-                "%-29s"
-                (str "  " melody-key
-                     ":instrument-name:" (:name (:instrument (:instrument-info (get melody melody-key))))
-                     " range-lo: " (:range-lo (:instrument-info (get melody melody-key)))
-                     " range-hi: " (:range-hi (:instrument-info (get melody melody-key))) )))
-      )))
+      (if prnt-full-inst-info
+        (println (format
+                  "%-29s"
+                  (str "  " melody-key
+                       ":instrument-info:" (:instrument-info (get melody melody-key))
+                       )
+                  ))
+        (println (format
+                  "%-29s"
+                  (str "  " melody-key
+                       ":instrument-name:" (:name (:instrument (:instrument-info (get melody melody-key))))
+                       " range-lo: " (:range-lo (:instrument-info (get melody melody-key)))
+                       " range-hi: " (:range-hi (:instrument-info (get melody melody-key))) ))))
+      )
+    )
+  )
 
 (defn print-player
   "Pretty Print a player map
@@ -410,7 +418,7 @@
          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
 
         (= player-key :melody)
-        (print-player-melody (:melody player))
+        (print-player-melody (:melody player) :print-full-inst-info prnt-full-inst-info)
 
        :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
