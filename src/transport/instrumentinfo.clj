@@ -56,3 +56,12 @@
 (defn get-range-lo-for-inst-info
   [inst-info]
   (:range-lo inst-info))
+
+(defn get-all-instrument-info
+  [inst-info]
+  {:envelope-type (:envelope-type inst-info)
+   :release-dur (:release-dur inst-info)
+   :range-hi (:range-hi inst-info)
+   :range-lo (:range-lo inst-info)
+   :instrument (:instrument inst-info)}
+  )

@@ -16,6 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.instrumentinfo :refer [get-all-instrument-info]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
@@ -380,20 +381,23 @@
 (defn print-player-melody
   [melody & {:keys [prnt-full-inst-info]
              :or {prnt-full-inst-info false}}]
+  (println "full-inst-info: " prnt-full-inst-info)
   (let [sorted-keys (sort (keys melody))]
     (println (format "%-20s" "  :melody "))
     (doseq [melody-key sorted-keys]
       (println (format "%-29s" (str "  " melody-key "-" (dissoc (get melody melody-key) :instrument-info))))
       (if prnt-full-inst-info
+        (do
+          (println (format
+                    "%-29s"
+                    (str "  " melody-key "-"
+                         ":instrument-info:" (get-all-instrument-info (get (get melody melody-key) :instrument-info))
+                         )
+                    ))
+          )
         (println (format
                   "%-29s"
-                  (str "  " melody-key
-                       ":instrument-info:" (:instrument-info (get melody melody-key))
-                       )
-                  ))
-        (println (format
-                  "%-29s"
-                  (str "  " melody-key
+                  (str "  " melody-key "-"
                        ":instrument-name:" (:name (:instrument (:instrument-info (get melody melody-key))))
                        " range-lo: " (:range-lo (:instrument-info (get melody melody-key)))
                        " range-hi: " (:range-hi (:instrument-info (get melody melody-key))) ))))
@@ -418,7 +422,7 @@
          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
 
         (= player-key :melody)
-        (print-player-melody (:melody player) :print-full-inst-info prnt-full-inst-info)
+        (print-player-melody (:melody player) :prnt-full-inst-info prnt-full-inst-info)
 
        :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))

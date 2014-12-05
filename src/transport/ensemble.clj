@@ -248,7 +248,7 @@
         articulate? (if last-melody-event (articulate-next-note? last-melody-event event-time) false)
         ]
     (print-msg "play-melody" "articulate?: " articulate?)
-    (if (and last-melody-event articulate?)
+    (if (and articulate? last-melody-event)
       (stop-last-note player))
     (let [melody-event (next-melody player event-time)
           melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
