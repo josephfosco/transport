@@ -335,7 +335,7 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (let [player-behavior-action (get-behavior-action-for-player player)
+  (let [player-behavior-action (get-behavior-action (get-behavior player))
         ]
     (cond
      (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)

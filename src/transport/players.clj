@@ -17,7 +17,7 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
@@ -48,11 +48,6 @@
 (defn get-behavior
   [player]
   (:behavior player))
-
-(defn get-behavior-action-for-player
-  [player]
-  (get-behavior-action (get-behavior player))
-  )
 
 (defn get-change-follow-info-note
   [player]

@@ -17,10 +17,10 @@
   (:require
    [overtone.live :refer [apply-at midi->hz]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :refer [get-behavior-player-id-for-player select-and-set-behavior-player-id]]
+   [transport.behaviors :refer [select-and-set-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [update-ensemble-status]]
-   [transport.instrument :refer [get-instrument play-instrument get-instrument-range-hi get-instrument-range-lo stop-last-note]]
+   [transport.instrument :refer [get-instrument has-gate? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer :all]
@@ -29,7 +29,8 @@
    [transport.player-copy :refer [player-copy-new-similar-info]]
    [transport.players :refer :all]
    [transport.schedule :refer [sched-event]]
-   [transport.segment :refer [copy-following-info first-segment new-segment get-contrasting-info-for-player]]
+   [transport.sc-instrument :refer [stop-instrument]]
+   [transport.segment :refer [copy-following-info first-segment new-segment new-segment? get-contrasting-info-for-player]]
    [transport.settings :refer :all]
    [transport.util :refer :all]
    )
@@ -63,26 +64,26 @@
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
        (cond
-        (= (get-behavior-action-for-player player) FOLLOW-PLAYER)
+        (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-FOLLOW-INFO
          transport.players/new-change-follow-info-note-for-player
-         {:change-player-id (get-behavior-player-id-for-player player)}
+         {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
 
-        (= (get-behavior-action-for-player player) SIMILAR-PLAYER)
+        (= (get-behavior-action (get-behavior player)) SIMILAR-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
          transport.player-copy/player-copy-new-similar-info
-         {:change-player-id (get-behavior-player-id-for-player player)}
+         {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
-        (= (get-behavior-action-for-player player) CONTRAST-PLAYER)
+        (= (get-behavior-action (get-behavior player)) CONTRAST-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-CONTRAST-INFO
          transport.ensemble/new-contrast-info
-         {:change-player-id (get-behavior-player-id-for-player player)}
+         {:change-player-id (get-behavior-player-id (get-behavior player))}
          :contrast-player-id player-id
          )
         )
@@ -199,6 +200,24 @@
     )
   )
 
+(defn stop-melody-note
+  [melody-event]
+  "If player was not resting on last note, stops the note and returns true
+   else returns false"
+  (let [sc-instrument-id (get-sc-instrument-id melody-event)
+        ]
+    (if (and sc-instrument-id  (has-gate? (get-instrument-info melody-event)))
+      (do
+        (print-msg "stop-last-note" "     stopping note: " melody-event)
+        (stop-instrument sc-instrument-id)
+        )
+      )
+    (if sc-instrument-id
+      true
+      false)
+    )
+  )
+
 (defn play-next-note
   [sc-instrument-id player-id event-time]
   (print-msg "play-next-note" "player-id: " player-id " current time: " (System/currentTimeMillis))
@@ -248,8 +267,13 @@
         articulate? (if last-melody-event (articulate-next-note? last-melody-event event-time) false)
         ]
     (print-msg "play-melody" "articulate?: " articulate?)
-    (if (and articulate? last-melody-event)
-      (stop-last-note player))
+    (cond (and articulate? last-melody-event)
+          (stop-melody-note last-melody-event)
+          (and (new-segment? player) (not articulate?) (not (nil? (:note last-melody-event))) (> (get-dur-millis (get-dur-info-for-event last-melody-event)) 20))
+          (stop-melody-note last-melody-event)
+          (and (new-segment? player) (not articulate?) (not (nil? (:note last-melody-event))))
+          (apply-at (+ event-time 20) stop-melody-note [last-melody-event])
+          )
     (let [melody-event (next-melody player event-time)
           melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
           ]
@@ -258,7 +282,7 @@
         ;; if about to play a note, check range
         (check-note-out-of-range player-id melody-event)
         ;; else if about to rest, stop previous note
-        (if (not articulate?) (apply-at (+ event-time 20) stop-last-note [player]))
+        (if (not articulate?) (apply-at (+ event-time 20) stop-melody-note [last-melody-event]))
         )
 
       (let [sc-instrument-id (if (not (nil? (:note melody-event)))

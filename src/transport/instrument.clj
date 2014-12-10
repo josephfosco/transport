@@ -16,7 +16,7 @@
 (ns transport.instrument
   (:require
    [overtone.live :refer :all]
-   [transport.behaviors :refer [get-behavior-player-id-for-player]]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.instrumentinfo :refer :all]
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.misc-instruments :refer :all]
@@ -24,7 +24,7 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodyevent :refer [get-sc-instrument-id]]
-   [transport.players :refer [get-behavior-action-for-player get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
+   [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    [transport.util :refer :all]
@@ -150,9 +150,9 @@
 
    player - the player to get instrument for"
   [player]
-  (let [behavior-action (get-behavior-action-for-player player)
+  (let [behavior-action (get-behavior-action (get-behavior player))
         cntrst-plyr (if (= behavior-action CONTRAST-PLAYER)
-                      (get-player (get-behavior-player-id-for-player player))
+                      (get-player (get-behavior-player-id (get-behavior player)))
                       nil)
         ;; select instrument info from all-insruments map
         ;; if not CONTRASTing, select a random instrument
@@ -183,14 +183,14 @@
 (defn- check-note-out-of-range
   [player note-num]
   (if (and
-       (not= (get-behavior-action-for-player FOLLOW-PLAYER))
+       (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
        (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) )))
     (do
       (print-banner "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
       (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:")
       (print-player player)
       (println "FOLLOWING PLAYER")
-      (print-player (get-player (get-behavior-player-id-for-player player)))
+      (print-player (get-player (get-behavior-player-id (get-behavior player))))
       (print-banner "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
       ))
   )
@@ -200,25 +200,6 @@
   (if (= "ASR" (:envelope-type inst-info))
     true
     false)
-  )
-
-(defn stop-last-note
-  [player]
-  "If player was not resting on last note, stops the note and returns true
-   else returns false"
-  (let [last-melody-event (get-last-melody-event player)
-        sc-instrument-id (get-sc-instrument-id last-melody-event)
-        ]
-    (if (and sc-instrument-id  (has-gate? (get-instrument-info last-melody-event)))
-      (do
-        (print-msg "stop-last-note" "     stopping note: " (get-last-melody-event-num-for-player player))
-        (ctl sc-instrument-id :gate 0)
-        )
-      )
-    (if sc-instrument-id
-      true
-      false)
-    )
   )
 
 (defn play-instrument-no-env

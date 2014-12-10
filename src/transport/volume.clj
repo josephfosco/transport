@@ -15,6 +15,7 @@
 
 (ns transport.volume
   (:require
+   [transport.behavior :refer [get-behavior-action]]
    [transport.ensemble-status :refer [get-average-volume]]
    [transport.melodychar :refer [get-melody-char-continuity]]
    [transport.melodyevent :refer [get-volume-for-event]]
@@ -57,7 +58,7 @@
 
 (defn select-volume-for-next-note
   [player event-time next-pitch]
-  (let [player-action (get-behavior-action-for-player player)]
+  (let [player-action (get-behavior-action (get-behavior player))]
     (cond
      (not next-pitch) 0  ;; if no pitch (rest) set volume to 0
      (= player-action SIMILAR-ENSEMBLE)

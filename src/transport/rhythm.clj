@@ -15,6 +15,7 @@
 
 (ns transport.rhythm
   (:require
+   [transport.behavior :refer [get-behavior-action]]
    [transport.dur-info :refer [get-dur-beats]]
    [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm]]
    [transport.melodychar :refer [get-melody-char-density]]
@@ -109,7 +110,7 @@
 (defn select-mm
   ([] (random-int min-mm max-mm))
   ([player]
-     (if (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+     (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
        (get-ensemble-mm)
        (random-int min-mm max-mm)
        )
@@ -161,7 +162,7 @@
 
     note-dur-millis - the dur (in millis) to match "
   [player note-durs-millis]
-  (if (not= SIMILAR-ENSEMBLE (get-behavior-action-for-player player))
+  (if (not= SIMILAR-ENSEMBLE (get-behavior-action (get-behavior player)))
     NOTE-PROBS
     (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
       (cond

@@ -16,7 +16,7 @@
 (ns transport.melody
   (:require
    [overtone.live :refer [MIDI-RANGE]]
-   [transport.behaviors :refer [get-behavior-player-id-for-player]]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
@@ -77,7 +77,7 @@
   ([] (weighted-choice CONTINUITY-PROBS))
   ([player]
      (cond
-      (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
       (cond (= get-density-trend INCREASING)
             (if (< 0.44 (get-ensemble-density) 0.55)
               (random-int 8 9)
@@ -89,7 +89,7 @@
               (rand-int (max (dec (get-ensemble-continuity)) 0)))
             :else (get-ensemble-continuity)
         )
-      (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
+      (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
       :else (weighted-choice CONTINUITY-PROBS)
@@ -120,9 +120,9 @@
   ([] (rand-int 10))
   ([player]
      (cond
-      (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
       (round-number (* (get-ensemble-density) 0.9))   ;; scale from 0 - 10 to 0 - 9
-      (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
+      (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-density (round-number (get-average-density))]
         (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))
       :else (rand-int 10))
@@ -212,8 +212,8 @@
 
 (defn select-melody-characteristics
   [player]
-  (let [cntrst-plyr (if (= (get-behavior-action-for-player player) CONTRAST-PLAYER)
-                      (get-player (get-behavior-player-id-for-player player))
+  (let [cntrst-plyr (if (= (get-behavior-action (get-behavior player)) CONTRAST-PLAYER)
+                      (get-player (get-behavior-player-id (get-behavior player)))
                       nil)
         ]
     (if (= cntrst-plyr nil)
@@ -283,9 +283,9 @@
    player - the player to determine note or rest for"
   [player note-time]
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
-        (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
+        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
         (note-or-rest-similar-ensemble player note-time)
-        (= (get-behavior-action-for-player player) CONTRAST-ENSEMBLE)
+        (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
         :else (let [play-note? (random-int 0 10)]
                 (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
@@ -361,7 +361,7 @@
 
 (defn next-melody-follow
   [player event-time]
-  (let [follow-player-id (get-behavior-player-id-for-player player)
+  (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player follow-player-id)
         follow-player-last-event (get-last-melody-event-num follow-player-id)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
@@ -410,7 +410,8 @@
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (assoc (get-last-melody-event player) :seg-num player-seg-num)
+            (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
+            ;; (assoc (get-last-melody-event player) :seg-num player-seg-num)
             )
           (assoc next-melody-event :follow-note event-num-to-play :seg-num player-seg-num))
         )))
@@ -440,7 +441,7 @@
   [player event-time]
   (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
   (cond
-   (= (get-behavior-action-for-player player) FOLLOW-PLAYER) (next-melody-follow player event-time)
+   (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
    :else (next-melody-for-player player event-time))
