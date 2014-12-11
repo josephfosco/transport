@@ -17,6 +17,7 @@
   (:require
    [transport.debug :refer [debug-transport debug-run1]]
    [transport.util :refer :all]
+   [transport.util.count-vector :refer [count-vector]]
    ))
 
 (import '(java.util Date TimerTask Timer))
@@ -24,13 +25,17 @@
 
 (def lateness (agent 0))      ; num of milliseconds most recent event was late
 (def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
+(def lateness-vector (count-vector)) ; vector to count lateness by amount
 (def scheduler-running? (atom true)) ; If false, scheduler is paused and will not watch event-queue when it is empty
 (def zero-time (atom nil))
 
 (defn print-lateness
   []
   (println "schedule.clj - lateness: " @lateness)
-  (println "schedule.clj - max-lateness: " @max-lateness))
+  (println "schedule.clj - max-lateness: " @max-lateness)
+  ((lateness-vector :print))
+  )
+
 
 (defn set-lateness
   "Used to set the lateness agent to new-val
@@ -43,7 +48,22 @@
     (do
       (reset! max-lateness new-val)
       (print-msg "set-lateness" "****** new max-lateness: " @max-lateness)))
+  ((lateness-vector :print))
+  ((lateness-vector :inc) new-val)
   new-val
+  )
+
+(defn init-lateness
+  []
+  ((lateness-vector :init) [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ((lateness-vector :set-eval) (fn [num]
+                                 (cond
+                                  (< num 100) (int (/ num 10))
+                                  (< num 1000) (+ (dec (int (/ num 100))) 10)
+                                  (< num 2000) 19
+                                  (< num 3000) 20
+                                  (< num 4000) 21
+                                  :else 22) ))
   )
 
 (defn reset-lateness
@@ -51,6 +71,7 @@
   (send-off lateness set-lateness 0)
   (await lateness)
   (reset! max-lateness 0)
+  ((lateness-vector :init) [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
   )
 
 (defn reset-scheduler
@@ -287,21 +308,33 @@
                            false)]
       (debug-run1 (println "2-EVENT-TIME: " new-event-time))
       (debug-run1 (println "3 sched-timer-fl: " sched-timer-fl))
+      (comment
+        (if @scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
+          (if (and (> new-event-time 0) (< new-event-time (System/currentTimeMillis)))
+            (do
+              (if (coll? event-data)
+                (apply event-func `(~@event-data ~new-event-time))
+                (event-func event-data new-event-time))
+              (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
+              (print-msg "sched-event" "execute immediately - not scheduled")
+              )
+            (do
+              (send event-queue conj new-event )
+              (await event-queue)
+              (debug-run1 (println "4 Sent Event"))
+              (if sched-timer-fl
+                (sched-timer new-event))
+              true))    ; return true if event was scheduled
+          false)
+        ) ; return false if event was not scheduled
       (if @scheduler-running? ; only sched event if scheduler not paused (placed here for clarity)
-        (if (and (> new-event-time 0) (< new-event-time (System/currentTimeMillis)))
-          (do
-            (if (coll? event-data)
-              (apply event-func `(~@event-data ~new-event-time))
-              (event-func event-data new-event-time))
-            (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
-            (print-msg "sched-event" "execute immediately - not scheduled")
-            )
-          (do
-            (send event-queue conj new-event )
-            (await event-queue)
-            (debug-run1 (println "4 Sent Event"))
-            (if sched-timer-fl
-              (sched-timer new-event))
-            true))    ; return true if event was scheduled
-        false)))   ; return false if event was not scheduled
+        (do
+          (send event-queue conj new-event )
+          (await event-queue)
+          (debug-run1 (println "4 Sent Event"))
+          (if sched-timer-fl
+            (sched-timer new-event))
+          true)    ; return true if event was scheduled
+      false) ; return false if event was not scheduled
+      ))
 )

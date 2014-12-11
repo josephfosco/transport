@@ -23,7 +23,7 @@
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
    [transport.players :refer [reset-players init-players]]
-   [transport.schedule :refer [clear-scheduler reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
+   [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util :refer :all]
    [transport.version :refer :all]
@@ -74,6 +74,9 @@
     (do
       (set-number-of-players num-players)
       (transport.pitch/load-scales)
+      (print-banner "transport-init about to init-lateness in schedule")
+      (init-lateness)
+
       (print-banner "transport-init about to init-ensemble-status")
       (init-ensemble-status)
       (print-banner "transport-init about to init-ensemble")

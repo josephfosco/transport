@@ -35,6 +35,11 @@
 (def HI-RANGE (last MIDI-RANGE))
 
 (def all-instruments [
+                        {:instrument bassoon
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 84
+                         :release-dur 0.1}
                         {:instrument reedy-organ
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
@@ -86,6 +91,35 @@
                         {:instrument tri-wave-sus
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
+
+                        {:instrument clarinet
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 100
+                         :release-dur 0.1}
+                        {:instrument reedy-organ
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument saw-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument sine-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument tri-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+
+
+
                         ]))
 
 (defn note->hz
@@ -235,5 +269,5 @@
    note-duration - note duration in milliseconds
    volume - the volume to play this note"
   [instrument]
-  (ctl instrument :gate 1 :action FREE)
+  (ctl instrument :gate 1)
   )
