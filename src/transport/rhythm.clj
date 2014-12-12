@@ -209,7 +209,6 @@
                (= (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player (dec last-melody-event-num)))) 1/8)
                    )
               (do
-                (print-msg "adjust-prob-based-on-rhythm" "playing multiple 32nd note player: " (get-player-id player))
                 (mapv + note-probs [300 0 0 0 0 0 0 0 0 0 0])
                 )
               :else
