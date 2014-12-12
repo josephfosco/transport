@@ -27,7 +27,7 @@
    [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    ))
 
 (def LO-RANGE 47)
@@ -41,6 +41,21 @@
                          :range-hi 84
                          :release-dur 0.1}
                         {:instrument reedy-organ
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument saw-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument sine-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument tri-wave-sus
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
                          :range-hi (last MIDI-RANGE)
@@ -98,21 +113,6 @@
                          :range-hi 100
                          :release-dur 0.1}
                         {:instrument reedy-organ
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument saw-wave-sus
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument sine-wave-sus
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument tri-wave-sus
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
                          :range-hi (last MIDI-RANGE)

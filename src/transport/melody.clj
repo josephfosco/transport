@@ -30,7 +30,7 @@
    [transport.rhythm :refer [get-dur-info-for-beats get-dur-info-for-mm-and-millis next-note-dur note-dur-to-millis]]
    [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    )
   (:import
    transport.melodychar.MelodyChar

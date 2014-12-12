@@ -16,8 +16,8 @@
 (ns transport.schedule
   (:require
    [transport.debug :refer [debug-transport debug-run1]]
-   [transport.util :refer :all]
    [transport.util.count-vector :refer [count-vector]]
+   [transport.util.utils :refer :all]
    ))
 
 (import '(java.util Date TimerTask Timer))

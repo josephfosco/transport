@@ -24,7 +24,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)
   )

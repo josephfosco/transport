@@ -23,7 +23,7 @@
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :refer [SIMILAR-ENSEMBLE]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    [overtone.live :refer [metronome]]
    ))
 

@@ -25,7 +25,7 @@
    [transport.players :refer [reset-players init-players]]
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    [transport.version :refer :all]
    ))
 

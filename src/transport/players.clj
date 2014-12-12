@@ -21,7 +21,7 @@
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)
   )

@@ -32,7 +32,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.segment :refer [copy-following-info first-segment new-segment new-segment? get-contrasting-info-for-player]]
    [transport.settings :refer :all]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)
   )

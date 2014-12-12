@@ -25,7 +25,7 @@
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
    [transport.settings :refer :all]
-   [transport.util :refer :all])
+   [transport.util.utils :refer :all])
   (:import (java.util Date TimerTask Timer))
    )
 

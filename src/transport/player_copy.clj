@@ -19,7 +19,7 @@
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.players :refer :all]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    ))
 
 (defn adjust-melody-char-for-instrument
