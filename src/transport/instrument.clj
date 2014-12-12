@@ -35,6 +35,11 @@
 (def HI-RANGE (last MIDI-RANGE))
 
 (def all-instruments [
+                        {:instrument clarinet
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 100
+                         :release-dur 0.1}
                         {:instrument bassoon
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
@@ -106,17 +111,6 @@
                         {:instrument tri-wave-sus
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
-
-                        {:instrument clarinet
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi 100
-                         :release-dur 0.1}
-                        {:instrument reedy-organ
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
 
 
 
