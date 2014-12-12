@@ -36,13 +36,17 @@
         print (fn []
                 (println "count-vector:" @cnt-vctr))
 
+        get (fn []
+              @cnt-vctr)
+
         ]
 
     (fn [m]
       (cond
+       (= m :inc) inc
+       (= m :get) get
        (= m :init) init
        (= m :set-eval) set-eval
-       (= m :inc) inc
        (= m :print) print
        )
       )

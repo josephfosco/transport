@@ -33,7 +33,7 @@
   []
   (println "schedule.clj - lateness: " @lateness)
   (println "schedule.clj - max-lateness: " @max-lateness)
-  ((lateness-vector :print))
+  (println "schedule.clj - lateness-vector: " ((lateness-vector :get)))
   )
 
 

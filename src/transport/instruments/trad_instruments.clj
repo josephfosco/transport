@@ -34,6 +34,6 @@
   (-> (square [freq (* freq 1.01) (* freq 0.99)])
       (lpf (line:kr (* freq 8) (* freq 2) 0.5))
       (* (env-gen (asr attack sustain release) gate vol 0 1 FREE))
-      (* vol 1.5)
+      (* vol 1.2)
       )
   )
