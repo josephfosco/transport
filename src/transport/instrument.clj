@@ -35,16 +35,28 @@
 (def HI-RANGE (last MIDI-RANGE))
 
 (def all-instruments [
-                        {:instrument clarinet
-                         :envelope-type "ASR"
+                        {:instrument bass-m1
+                         :envelope-type "NE"
                          :range-lo (first MIDI-RANGE)
-                         :range-hi 100
-                         :release-dur 0.1}
+                         :range-hi 60}
                         {:instrument bassoon
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
                          :range-hi 84
                          :release-dur 0.1}
+                        {:instrument clarinet
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 100
+                         :release-dur 0.1}
+                        {:instrument drum-m1
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 90}
+                        {:instrument plink-m1
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)}
                         {:instrument reedy-organ
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
@@ -60,6 +72,10 @@
                          :range-lo (first MIDI-RANGE)
                          :range-hi (last MIDI-RANGE)
                          :release-dur 0.1}
+                        {:instrument steel-drum
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)}
                         {:instrument tri-wave-sus
                          :envelope-type "ASR"
                          :range-lo (first MIDI-RANGE)
@@ -223,7 +239,7 @@
       ))
   )
 
-(defn has-gate?
+(defn has-release?
   [inst-info]
   (if (= "ASR" (:envelope-type inst-info))
     true
@@ -258,10 +274,7 @@
   )
 
 (defn play-instrument
-  "player - player map
-   note-num - midi note number
-   note-duration - note duration in milliseconds
-   volume - the volume to play this note"
+  ""
   [instrument]
-  (ctl instrument :gate 1)
+  (ctl instrument :gate 1 :action FREE)
   )

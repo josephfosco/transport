@@ -21,41 +21,41 @@
    ))
 
 (definst triangle-wave
-  [freq 440 vol 0.4 attack 0.001 sustain 0.1 release 0.4]
-  (* (env-gen (lin attack sustain release) 1 1 0 1 FREE)
+  [freq 440 vol 0.4 attack 0.001 sustain 0.1 release 0.4 action FREE]
+  (* (env-gen (lin attack sustain release) 1 1 0 1 action)
      (lf-tri freq)
      vol))
 
 (definst tri-wave-sus
-  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0]
+  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
   (-> (lf-tri freq)
-      (* (env-gen (asr attack sustain release) gate vol 0 1 FREE) )
+      (* (env-gen (asr attack sustain release) gate vol 0 1 action) )
       (* vol)
       )
   )
 
 (definst saw-wave-sus
-  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0]
+  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
   (-> (lf-saw freq)
-      (* (env-gen (asr attack sustain release) gate vol 0 1 FREE) )
+      (* (env-gen (asr attack sustain release) gate vol 0 1 action) )
       (* vol)
       )
   )
 
 (definst sine-wave-sus
-  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0]
+  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
   (-> (sin-osc freq)
-      (* (env-gen (asr attack sustain release) gate vol 0 1 FREE) )
+      (* (env-gen (asr attack sustain release) gate vol 0 1 action) )
       (* vol)
       )
   )
 
 (definst saw-wave-timed
-  [freq 440 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
+  [freq 440 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1 action FREE]
   (let [env-gate (trig 1 gate-dur)
         ]
     (-> (lf-saw freq)
-        (* (env-gen (asr attack sustain release) :gate env-gate :action FREE) )
+        (* (env-gen (asr attack sustain release) :gate env-gate :action action) )
         (* vol)
         )
     ))

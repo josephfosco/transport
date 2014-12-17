@@ -50,3 +50,5 @@
 * Eventually move throw (exception) for note-out-of-range in ensemble.clj
 
 * Crescendo and decrescendo notes or phrases
+
+* Create a drum set type instrument

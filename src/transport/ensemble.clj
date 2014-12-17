@@ -20,7 +20,7 @@
    [transport.behaviors :refer [select-and-set-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [update-ensemble-status]]
-   [transport.instrument :refer [get-instrument has-gate? play-instrument get-instrument-range-hi get-instrument-range-lo]]
+   [transport.instrument :refer [get-instrument has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer :all]
@@ -206,7 +206,7 @@
    else returns false"
   (let [sc-instrument-id (get-sc-instrument-id melody-event)
         ]
-    (if (and sc-instrument-id  (has-gate? (get-instrument-info melody-event)))
+    (if sc-instrument-id
       (do
 ;;*        (print-msg "stop-last-note" "     stopping note: " melody-event)
         (stop-instrument sc-instrument-id)
@@ -264,13 +264,21 @@
 ;;*  (print-msg "play-melody"  "player-id: " player-id " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         last-melody-event (get-last-melody-event player)
-        articulate? (if last-melody-event (articulate-next-note? last-melody-event event-time) false)
+        inst-has-release? (has-release? (get-instrument-info last-melody-event))
+        ;; all notes without release (AD or NE) are articulated (articulate true?)
+        articulate? (if last-melody-event
+                      (if inst-has-release?
+                        (articulate-next-note? last-melody-event event-time)
+                        true
+                        )
+                      false)
         new-seg? (new-segment? player)
         ]
 ;;*    (print-msg "play-melody" "articulate?: " articulate?)
-    (cond (and articulate? last-melody-event)
+    (cond (and articulate? last-melody-event inst-has-release?)
           (stop-melody-note last-melody-event)
           ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
+          ;; all notes without release (AD or NE) are articulated (articulate true?)
           (and new-seg? (not articulate?) (not (nil? (:note last-melody-event))))
           (if (> (get-dur-millis (get-dur-info-for-event last-melody-event)) 20)
             (stop-melody-note last-melody-event)
@@ -284,17 +292,22 @@
         ;; if about to play a note, check range
         (check-note-out-of-range player-id melody-event)
         ;; else if about to rest, stop previous note
-        (if (not articulate?) (apply-at (+ event-time 20) stop-melody-note [last-melody-event]))
+        (if (and (not articulate?) inst-has-release?) (apply-at (+ event-time 20) stop-melody-note [last-melody-event]))
         )
 
       (let [sc-instrument-id (if (not (nil? (:note melody-event)))
                                (if (or (and last-melody-event articulate?)
                                        new-seg?)
-                                 ((get-instrument player)
-                                  (midi->hz (get-note-for-event melody-event))
-                                  (get-volume-for-event melody-event)
-                                  (get-release-dur-for-inst-info (get-instrument-info player))
-                                  )
+                                 (if-let [release-dur (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event))]
+                                   ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
+                                    (midi->hz (get-note-for-event melody-event))
+                                    (get-volume-for-event melody-event)
+                                    release-dur
+                                    )
+                                   ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
+                                    (midi->hz (get-note-for-event melody-event))
+                                    (get-volume-for-event melody-event)
+                                    ))
                                  (get-sc-instrument-id last-melody-event)
                                  )
                                nil

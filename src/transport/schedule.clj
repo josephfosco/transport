@@ -31,6 +31,7 @@
 
 (defn print-lateness
   []
+  (println "schedule.clj - time: " (System/currentTimeMillis))
   (println "schedule.clj - lateness: " @lateness)
   (println "schedule.clj - max-lateness: " @max-lateness)
   (println "schedule.clj - lateness-vector: " ((lateness-vector :get)))

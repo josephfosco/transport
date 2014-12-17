@@ -21,11 +21,10 @@
    ))
 
 (definst steel-drum
-  [freq 440 amp 0.8]
+  [freq 440 amp 0.8 gate 0 action NO-ACTION]
   (-> (sin-osc (/ freq 2))
       (+ (rlpf (saw freq) (* 1.1 freq) 0.4))
-      (* (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE))
-      (* (/ amp 1.5))
+      (* (env-gen (perc 0.01 0.5) gate (* amp 0.666) 0 1 action))
    )
   )
 
