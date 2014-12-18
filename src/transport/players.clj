@@ -217,6 +217,11 @@
     :player-id player-id)
   )
 
+(defn set-function
+  [player function]
+  (assoc player :function function)
+  )
+
 (defn update-player-callback
   "update the value of a player in agent PLAYERS
    this is called from send-off"

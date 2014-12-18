@@ -49,7 +49,6 @@
     (do
       (reset! max-lateness new-val)
       (print-msg "set-lateness" "****** new max-lateness: " @max-lateness)))
-  ((lateness-vector :print))
   ((lateness-vector :inc) new-val)
   new-val
   )

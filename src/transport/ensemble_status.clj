@@ -155,7 +155,6 @@
 
 (defn get-ensemble-continuity
   []
-  (print-msg "get-ensemble-continuity:" @player-continuities)
   (get-vector-max-frequency @player-continuities)
   )
 

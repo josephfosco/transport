@@ -52,3 +52,5 @@
 * Crescendo and decrescendo notes or phrases
 
 * Create a drum set type instrument
+
+* Have one player play a snippet of melody from another player
