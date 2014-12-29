@@ -63,6 +63,10 @@
   [melody-event]
   (:volume melody-event))
 
+(defn set-note-play-time-for-event
+  [melody-event note-play-time]
+  (assoc melody-event :note-play-time note-play-time))
+
 (defn set-sc-instrument-id-and-note-play-time
   [melody-event sc-instrument-id note-play-time]
   (assoc melody-event :sc-instrument-id sc-instrument-id

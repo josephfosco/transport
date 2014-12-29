@@ -18,6 +18,8 @@
    It should not :require :use :refer or :import any
    other namespaces")
 
+(def SC-RESP-MILLIS 20)
+
 (def number-of-players (atom 10))
 (def SAVED-MELODY-LEN 64)
 (def OCTAVE 12)

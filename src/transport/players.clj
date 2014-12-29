@@ -17,7 +17,7 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id set-note-play-time-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
@@ -136,14 +136,14 @@
 
 (defn get-last-melody-event-num
   [player-id]
-  (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
+  (let [last-melody-key (:last-melody-event-no (get-player player-id))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
 
 (defn get-last-melody-event-num-for-player
   [player]
-  (let [last-melody-key (reduce max 0 (keys (get-melody player)))]
+  (let [last-melody-key (:last-melody-event-no player)]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
@@ -157,13 +157,13 @@
   (let [cur-melody (get-melody player)]
     (if (= cur-melody {})
       nil
-      (:note (get cur-melody (reduce max (keys cur-melody))))))
+      (:note (get cur-melody (:last-melody-event-no player)))))
   )
 
 (defn get-last-melody-event
   [player]
   (let [player-melody (get-melody player)]
-    (if (= player-melody {}) nil (get player-melody (reduce max 0 (keys player-melody))))
+    (if (= player-melody {}) nil (get player-melody (:last-melody-event-no player)))
     )
   )
 
@@ -220,6 +220,35 @@
 (defn set-function
   [player function]
   (assoc player :function function)
+  )
+
+(defn update-melody-event-note-time-callback
+  [cur-players player-id melody-event-num note-play-time]
+
+  (let [player (get-player player-id)
+        melody (get-melody player)
+        ]
+       (assoc cur-players
+              player-id
+              (assoc player
+                :melody
+                (assoc
+                  melody
+                  melody-event-num
+                  (set-note-play-time-for-event (get-melody-event-for-key player melody-event-num) note-play-time)
+                  )
+                )
+         ))
+  )
+
+(defn set-last-note-play-time
+  [player-id note-play-time]
+  (swap! PLAYERS
+         update-melody-event-note-time-callback
+         player-id
+         (get-last-melody-event-num player-id)
+         note-play-time
+         )
   )
 
 (defn update-player-callback
