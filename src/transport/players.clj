@@ -136,14 +136,14 @@
 
 (defn get-last-melody-event-num
   [player-id]
-  (let [last-melody-key (:last-melody-event-no (get-player player-id))]
+  (let [last-melody-key (reduce max 0 (keys (get-melody (get-player player-id))))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
 
 (defn get-last-melody-event-num-for-player
   [player]
-  (let [last-melody-key (:last-melody-event-no player)]
+  (let [last-melody-key (reduce max 0 (keys (get-melody player)))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
@@ -157,13 +157,13 @@
   (let [cur-melody (get-melody player)]
     (if (= cur-melody {})
       nil
-      (:note (get cur-melody (:last-melody-event-no player)))))
+      (:note (get cur-melody (get-last-melody-event-num-for-player player)))))
   )
 
 (defn get-last-melody-event
   [player]
   (let [player-melody (get-melody player)]
-    (if (= player-melody {}) nil (get player-melody (:last-melody-event-no player)))
+    (if (= player-melody {}) nil (get player-melody (get-last-melody-event-num-for-player player)))
     )
   )
 

@@ -170,14 +170,12 @@
          :melody (update-melody cur-melody next-melody-no melody-event)
          :cur-note-beat 0
          :cur-note-time cur-note-time
-         :last-melody-event-no next-melody-no
          :prev-note-beat prev-note-beat
          :prev-note-time prev-note-time
          ))
       (assoc player
         :cur-note-beat cur-note-beat
         :cur-note-time cur-note-time
-        :last-melody-event-no next-melody-no
         :last-pitch (if (not (nil? cur-note)) cur-note (get-last-pitch player))
         :melody (update-melody cur-melody next-melody-no melody-event)
         :prev-note-beat prev-note-beat
@@ -210,7 +208,7 @@
         ]
     (if sc-instrument-id
       (do
-        (print-msg "stop-last-note" "     stopping note inst: " (get-sc-instrument-id melody-event) " player-id: " player-id)
+;;*        (print-msg "stop-last-note" "     stopping note inst: " (get-sc-instrument-id melody-event) " player-id: " player-id)
         (stop-instrument sc-instrument-id)
         true
         )
@@ -221,7 +219,7 @@
 
 (defn play-next-note
   [sc-instrument-id player-id event-time]
-  (print-msg "play-next-note" "player-id: " player-id " last event " (:last-melody-event-no (get-player player-id)) " current time: " (System/currentTimeMillis))
+;;*  (print-msg "play-next-note" "player-id: " player-id " last event " (get-last-melody-event-num player-id) " current time: " (System/currentTimeMillis))
   (play-instrument sc-instrument-id)
   (set-last-note-play-time player-id (System/currentTimeMillis))
   (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
@@ -254,11 +252,11 @@
 
 (defn- check-live-synth
   [player]
-  (let [prior-melody-event (get-melody-event-for-key player (- (:last-melody-event-no player) 20))]
-    (if (and (> (:last-melody-event-no player) 20)
+  (let [prior-melody-event (get-melody-event-for-key player (- (get-last-melody-event-num-for-player player) 20))]
+    (if (and (> (get-last-melody-event-num-for-player player) 20)
              (node-live? (get-sc-instrument-id prior-melody-event))
              (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-last-melody-event player)))
-             (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-melody-event-for-key player (- (:last-melody-event-no player) 1))))
+             (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-melody-event-for-key player (- (get-last-melody-event-num-for-player player) 1))))
              )
       (do
         (print-msg "update-player" "SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE " )
@@ -280,8 +278,8 @@
    event-time - time this note event was scheduled for"
   [player-id event-time]
 
-  (println)
-  (print-msg "play-melody"  "player-id: " player-id " current time: " (System/currentTimeMillis))
+;;*  (println)
+;;*  (print-msg "play-melody"  "player-id: " player-id " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         last-melody-event (get-last-melody-event player)
         last-melody-event-note (get-note-for-event last-melody-event)
@@ -293,7 +291,7 @@
                       )
         new-seg? (new-segment? player)
         ]
-    (print-msg "play-melody" "articulate?: " articulate?)
+;;*    (print-msg "play-melody" "articulate?: " articulate?)
     (cond (and articulate? inst-has-release?)
           (stop-melody-note last-melody-event player-id)
           ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
@@ -315,7 +313,7 @@
         (if (and (not articulate?) inst-has-release?)
           (do
             (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
-            (print-msg "play-melody" "SCHEDULED STOP   SCHEDULED STOP   SCHEDULED STOP" " event: "(:last-melody-event-no player) " articulate: " articulate? " has-release " inst-has-release?)
+;;*            (print-msg "play-melody" "SCHEDULED STOP   SCHEDULED STOP   SCHEDULED STOP" " event: "(get-last-melody-event-num-for-player player) " articulate: " articulate? " has-release " inst-has-release?)
             )
           )
         )
@@ -394,8 +392,8 @@
           (sched-event 0
                        (get-player-val upd-player "function") player-id
                        :time release-time)
-          (print-msg "play-melody" "current-time " (System/currentTimeMillis) " next-note-time: " next-note-time " melody-dur-millis " melody-dur-millis " release-time " release-time)
-          (print-msg "play-melody" "last-melody-event-num: " (get-last-melody-event-num-for-player upd-player))
+;;*          (print-msg "play-melody" "current-time " (System/currentTimeMillis) " next-note-time: " next-note-time " melody-dur-millis " melody-dur-millis " release-time " release-time)
+;;*          (print-msg "play-melody" "last-melody-event-num: " (get-last-melody-event-num-for-player upd-player))
           )))
   ))
 
@@ -472,7 +470,6 @@
   (first-segment {:cur-note-beat 0
                   :cur-note-time 0
                   :function transport.ensemble/play-first-melody-note
-                  :last-melody-event-no 0
                   :melody {}
                   :player-id player-no
                   :prev-note-beat 0
