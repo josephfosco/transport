@@ -17,7 +17,6 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
-   [transport.behaviors :refer [get-behavior-action-for-player]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range-hi get-instrument-range-lo]]
@@ -25,7 +24,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.settings :refer :all]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)
   )
@@ -317,7 +316,7 @@
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
       (do
-        (print-msg "next-pitch-ignore"  "CHOOSING NEW PITCH player-id: " (get-player-id player) " pitch: " next-pitch " range: " (get-melody-char-range-lo (get-melody-char player)) " " (get-melody-char-range-hi (get-melody-char player)) " key: " (get-key player) " scale: " (get-scale player))
+;;        (print-msg "next-pitch-ignore"  "CHOOSING NEW PITCH player-id: " (get-player-id player) " pitch: " next-pitch " range: " (get-melody-char-range-lo (get-melody-char player)) " " (get-melody-char-range-hi (get-melody-char player)) " key: " (get-key player) " scale: " (get-scale player))
         (get-scale-pitch-in-range player)
         )
       )
@@ -336,7 +335,7 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (let [player-behavior-action (get-behavior-action-for-player player)
+  (let [player-behavior-action (get-behavior-action (get-behavior player))
         ]
     (cond
      (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)

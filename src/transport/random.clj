@@ -36,7 +36,7 @@
    weight-vector - vector of the form [x1 x2 x3 x4 ....]
                    where each entry is the relative weight of that entry"
   [weight-vector]
-  (loop [i 0 rnd-num (* (rand) (reduce + weight-vector)) w-vec weight-vector]
+  (loop [i 0 rnd-num (inc (rand-int (reduce + weight-vector))) w-vec weight-vector]
     (let [rnd-total (- rnd-num (first w-vec))]
       (if (<= rnd-total 0)
         i

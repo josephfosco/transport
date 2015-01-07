@@ -8,7 +8,7 @@
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :cur-note-time - the time the next note to be played will be played (starts at 0)
 * :function - function to call when event is triggered
-* :instrument-info - a map containing
+* :instrument-info - nil if FOLLOWING else a map containing
     + :envelope-type - the type of envelope this instrument uses current vlaues
       - ASR  - attack sustein release
       - AD   - attack decay
@@ -17,6 +17,7 @@
     + :range-lo - the lowest note (midi note number)this instrument will play
     + :range-hi - the highest note (midi note number)this instrument will play
 * :key - the key this player is playing in. A number between 0 and 11, 0 = C.
+* :last-melody-event-no: the number of the last melody event (melody-event-key)
 * :last-pitch - the last pitch the player played. Reset to nil on new-segment.
 * :melody - the melody played by this instrument. The number of items in this map
             is set in SAVED-MELODY-LEN in settings.clj. This is a map containing 0

@@ -30,6 +30,7 @@
    [transport.melodychar :refer :all]
    [transport.players :refer :all]
    [transport.schedule :refer [clear-scheduler]]
+   [transport.settings :refer :all]
    )
   (:import
    transport.melodychar.MelodyChar
@@ -49,7 +50,7 @@
           {
            0
            {
-            :behavior (Behavior. 0.2966165302092916, 3, 0, 1)
+            :behavior (Behavior. 0.2966165302092916, FOLLOW-PLAYER, 1)
             :change-follow-info-note 0
             :cur-note-beat 0
             :function  transport.ensemble/play-melody
@@ -63,11 +64,12 @@
             :prev-note-beat 0
             :scale :ionian
             :seg-len 19726
+            :seg-num 1
             :seg-start 0
             }
            1
            {
-            :behavior (Behavior. 0.4798252752058973, 0, 0, nil)
+            :behavior (Behavior. 0.4798252752058973, IGNORE, nil)
             :change-follow-info-note nil
             :cur-note-beat 0
             :function transport.ensemble/play-melody
@@ -81,6 +83,7 @@
             :prev-note-beat 0
             :scale :hindu
             :seg-len 10565
+            :seg-num 1
             :seg-start 0
             }
            }

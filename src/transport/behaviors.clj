@@ -22,15 +22,6 @@
    )
   (:import transport.behavior.Behavior)
   )
-(defn get-behavior-action-for-player
-  [player]
-  (get-behavior-action (get-behavior player))
-  )
-
-(defn get-behavior-player-id-for-player
-  [player]
-  (get-behavior-player-id (get-behavior player))
-  )
 
 (defn select-behavior-action
   [player]
@@ -42,10 +33,10 @@
      (< action-num 0.68) SIMILAR-ENSEMBLE
      (< action-num 0.85) CONTRAST-ENSEMBLE
      :else IGNORE
-     ))  )
+     )) )
 
 (defn select-and-set-behavior-player-id
-  "If :behavior :action is not IGNORE
+  "If :behavior :action is not IGNORE, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
    returns a :behavior map with :player-id selected from PLAYERS
    if :behavior is IGNORE returns the current :behavior map
 

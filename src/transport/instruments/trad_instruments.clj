@@ -21,24 +21,19 @@
    ))
 
 (definst bassoon
-  [freq 110 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
-  (let [env-gate (trig 1 gate-dur)
-        ]
-    (-> (saw freq)
-        (bpf (* 2 freq) 2.0)
-        (* (env-gen (asr attack sustain release) :gate env-gate :action FREE))
-        (* vol 4)
-     )
-    ))
+  [freq 110 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
+  (-> (saw freq)
+      (bpf (* 2 freq) 2.0)
+      (* (env-gen (asr attack sustain release) gate amp 0 1 action))
+      (* amp 4)
+      )
+  )
 
 (definst clarinet
-  [freq 440 gate-dur 0.8 vol 1.0 attack 0.01 sustain 0.3 release 0.1]
-  (let [env-gate (trig 1 gate-dur)
-        ]
-    (-> (square [freq (* freq 1.01) (* freq 0.99)])
-        (lpf (line:kr (* freq 8) (* freq 2) gate-dur))
-        (* (env-gen (asr attack sustain release) :gate env-gate :action FREE))
-        (* vol 1.5)
-     )
-    )
+  [freq 440 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
+  (-> (square [freq (* freq 1.01) (* freq 0.99)])
+      (lpf (line:kr (* freq 8) (* freq 2) 0.5))
+      (* (env-gen (asr attack sustain release) gate amp 0 1 action))
+      (* amp 1.2)
+      )
   )

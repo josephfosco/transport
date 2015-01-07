@@ -16,16 +16,18 @@
 (ns transport.instrument
   (:require
    [overtone.live :refer :all]
-   [transport.behaviors :refer [get-behavior-action-for-player get-behavior-player-id-for-player]]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.instrumentinfo :refer :all]
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.misc-instruments :refer :all]
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
-   [transport.players :refer [get-instrument-info get-player get-player-id print-player]]
+   [transport.melodyevent :refer [get-sc-instrument-id]]
+   [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    ))
 
 (def LO-RANGE 47)
@@ -33,44 +35,58 @@
 (def HI-RANGE (last MIDI-RANGE))
 
 (def all-instruments [
-;                      {:instrument triangle-wave :envelope-type "AD"}
-                      {:instrument bass-m1
-                       :envelope-type "NE"
-                       :range-lo (first MIDI-RANGE) :range-hi 60}
-                      {:instrument bassoon
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE) :range-hi 84}
-                      {:instrument clarinet
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE) :range-hi 100}
-                      {:instrument drum-m1
-                       :envelope-type "AD"
-                       :range-lo (first MIDI-RANGE) :range-hi 90}
-                      {:instrument organ-m1
-                       :envelope-type "NE"
-                       :range-lo (first MIDI-RANGE)
-                       :range-hi (last MIDI-RANGE)}
-                      {:instrument plink-m1
-                       :envelope-type "AD"
-                       :range-lo (first MIDI-RANGE)
-                       :range-hi (last MIDI-RANGE)}
-                      {:instrument reedy-organ
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE)
-                       :range-hi (last MIDI-RANGE)}
-                      {:instrument saw-wave-sus
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
-                      {:instrument sine-wave-sus
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
-                      {:instrument steel-drum
-                       :envelope-type "AD"
-                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
-                      {:instrument tri-wave-sus
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE) :range-hi (last MIDI-RANGE)}
-                      ])
+                        {:instrument bass-m1
+                         :envelope-type "NE"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 60}
+                        {:instrument bassoon
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 84
+                         :release-dur 0.1}
+                        {:instrument clarinet
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 100
+                         :release-dur 0.1}
+                        {:instrument drum-m1
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi 90}
+                        {:instrument organ-m1
+                         :envelope-type "ADSR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.3}
+                        {:instrument plink-m1
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)}
+                        {:instrument reedy-organ
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument saw-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument sine-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        {:instrument steel-drum
+                         :envelope-type "AD"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)}
+                        {:instrument tri-wave-sus
+                         :envelope-type "ASR"
+                         :range-lo (first MIDI-RANGE)
+                         :range-hi (last MIDI-RANGE)
+                         :release-dur 0.1}
+                        ])
 
 (defn note->hz
   [music-note]
@@ -118,23 +134,25 @@
   []
   (let [inst-info (rand-nth all-instruments)
         ]
-    {:instrument (:instrument inst-info)
-     :envelope-type (:envelope-type inst-info)
-     :range-hi (:range-hi inst-info)
-     :range-lo (:range-lo inst-info)}
+    (create-instrument-info
+     :instrument (get-instrument-for-inst-info inst-info)
+     :envelope-type (get-envelope-type-for-inst-info inst-info)
+     :release-dur (get-release-dur-for-inst-info inst-info)
+     :range-hi (get-range-hi-for-inst-info inst-info)
+     :range-lo (get-range-lo-for-inst-info inst-info))
     ))
 
 (defn select-instrument
-  "Selects a random instrument-info for player.
+  "Selects instrument-info for player.
    Generally this should not be used if player is FOLLOWing
    another player -in that case the instrument-info should be copied
    from the player that is being FOLLOWed
 
    player - the player to get instrument for"
   [player]
-  (let [behavior-action (get-behavior-action-for-player player)
+  (let [behavior-action (get-behavior-action (get-behavior player))
         cntrst-plyr (if (= behavior-action CONTRAST-PLAYER)
-                      (get-player (get-behavior-player-id-for-player player))
+                      (get-player (get-behavior-player-id (get-behavior player)))
                       nil)
         ;; select instrument info from all-insruments map
         ;; if not CONTRASTing, select a random instrument
@@ -145,87 +163,34 @@
                       (if (=
                            (:name (:instrument (get-instrument-info cntrst-plyr)))
                            (:name (:instrument (nth all-instruments instrument-index))))
-                        (nth all-instruments (mod
-                                              (+ instrument-index (rand-int (dec (count all-instruments))))
-                                              (dec(count all-instruments))))
+                        (nth all-instruments (mod (inc instrument-index) (count all-instruments)))
                         (nth all-instruments instrument-index)
                         )
                       )
                     )
         ]
-    {:instrument (:instrument inst-info)
-     :envelope-type (:envelope-type inst-info)
-     :range-hi (:range-hi inst-info)
-     :range-lo (:range-lo inst-info)}
+
+    (create-instrument-info
+     :instrument (get-instrument-for-inst-info inst-info)
+     :envelope-type (get-envelope-type-for-inst-info inst-info)
+     :release-dur (get-release-dur-for-inst-info inst-info)
+     :range-hi (get-range-hi-for-inst-info inst-info)
+     :range-lo (get-range-lo-for-inst-info inst-info)
+     )
     )
   )
 
-(defn- check-note-out-of-range
-  [player note-num]
-  (if (and
-       (not= (get-behavior-action-for-player FOLLOW-PLAYER))
-       (or (< note-num (:range-lo (get-instrument-info player))) (> note-num (:range-hi (get-instrument-info player)) )))
-    (do
-      (print-banner "instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUMENT RANGE")
-      (println "player instrument:" (:name (:instrument (:instrument-info player))) "note-num:")
-      (print-player player)
-      (println "FOLLOWING PLAYER")
-      (print-player (get-player (get-behavior-player-id-for-player player)))
-      (print-banner "end instrument.clj - play-instrument-asr - NOTE OUT OF INSTRUENT RANGE end")
-      ))
+(defn has-release?
+  [inst-info]
+  (if (or (= "ASR" (:envelope-type inst-info))
+          (= "ADSR" (:envelope-type inst-info))
+          )
+    true
+    false)
   )
-
-(defn get-instrument-for-note
-  [player]
-  (get-instrument player)
-  )
-
-(defn play-instrument-no-env
-  "player - player map
-   note-num - midi note number
-   note-duration - note duration in milliseconds
-   volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [instrument (get-instrument-for-note player)]
-
-    (instrument (midi->hz note-num) note-duration volume)
-    (check-note-out-of-range player note-num)
-    ))
-
-(defn play-instrument-ar
-  "player - player map
-   note-num - midi note number
-   note-duration - note duration in milliseconds
-   volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [instrument (get-instrument-for-note player)]
-
-    (instrument (midi->hz note-num) volume)
-    (check-note-out-of-range player note-num)
-    ))
-
-(defn play-instrument-asr
-  "player - player map
-   note-num - midi note number
-   note-duration - note duration in milliseconds
-   volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [gate-duration (get-gate-dur player note-duration)
-        instrument (get-instrument player)
-        ]
-    (instrument (midi->hz note-num) gate-duration volume)
-    (check-note-out-of-range player note-num)
-    ))
 
 (defn play-instrument
-  "player - player map
-   note-num - midi note number
-   note-duration - note duration in milliseconds
-   volume - the volume to play this note"
-  [player note-num note-duration volume]
-  (let [ env-type (get-envelope-type player)]
-    (cond
-     (.equals env-type "AD") (play-instrument-ar player note-num note-duration volume)
-     (.equals env-type "ASR") (play-instrument-asr player note-num note-duration volume)
-     (.equals env-type "NE") (play-instrument-no-env player note-num note-duration volume)
-     :else ((get-instrument player) (midi->hz note-num)))))
+  ""
+  [instrument]
+  (ctl instrument :gate 1 :action FREE)
+  )

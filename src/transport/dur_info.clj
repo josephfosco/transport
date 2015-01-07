@@ -13,18 +13,21 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.instruments.elec-instruments
-  ^{:author "Joseph Fosco"
-    :doc "Electronic instruments"}
-  (:require
-   [overtone.live :refer :all]
-   ))
+(ns transport.dur-info
+  )
 
-(definst reedy-organ
-  [freq 440 vol 0.3 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
-  (-> (sin-osc freq)
-      (+ (saw freq) (saw (+ freq 3)) (sin-osc (* 2 freq)))
-      (* (env-gen (asr attack sustain release) gate vol 0 1 action))
-      (* vol)
-      )
+(defn get-dur-millis
+  "Returns the duration in millis of dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
+(defn get-dur-beats
+  "Returns the duration in beats of dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-beats dur-info)
   )

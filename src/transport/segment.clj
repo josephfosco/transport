@@ -16,7 +16,7 @@
 (ns transport.segment
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
+   [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
@@ -38,7 +38,7 @@
 
 (defn copy-following-info
   [player]
-  (merge player (get-following-info-from-player (get-player (get-behavior-player-id-for-player player))))
+  (merge player (get-following-info-from-player (get-player (get-behavior-player-id (get-behavior player)))))
   )
 
 (defn first-segment

@@ -15,13 +15,15 @@
 
 (ns transport.rhythm
   (:require
-   [transport.behaviors :refer [get-behavior-action-for-player]]
+   [transport.behavior :refer [get-behavior-action]]
+   [transport.dur-info :refer [get-dur-beats]]
    [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm]]
    [transport.melodychar :refer [get-melody-char-density]]
+   [transport.melodyevent :refer :all]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :refer [SIMILAR-ENSEMBLE]]
-   [transport.util :refer :all]
+   [transport.util.utils :refer :all]
    [overtone.live :refer [metronome]]
    ))
 
@@ -105,33 +107,11 @@
     (int (+ 0.5 (* (/ 1000 quarter-note-millis) 60)))) ;; round up or down
   )
 
-(defn get-dur-millis
-  "Returns the millis of this dur-info
-
-   dur-info - duration info to get dur-beats from"
-  [dur-info]
-  (:dur-millis dur-info)
-  )
-
-(defn get-dur-beats
-  "Returns the duration in beats of this dur-info
-
-   dur-info - duration info to get dur-beats from"
-  [dur-info]
-  (:dur-beats dur-info)
-  )
-
 (defn select-mm
   ([] (random-int min-mm max-mm))
   ([player]
-     (if (= (get-behavior-action-for-player player) SIMILAR-ENSEMBLE)
-       (let [ensemble-mm (get-ensemble-mm)]
-         (do
-           (println "!!!!!!!!!")
-           (print-msg "select-mm" "returning ensemble-mm: " ensemble-mm)
-           (println "!!!!!!!!")
-           ensemble-mm)
-         )
+     (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+       (get-ensemble-mm)
        (random-int min-mm max-mm)
        )
      )
@@ -172,7 +152,7 @@
   )
 
 (defn adjust-note-prob
-  " If player-action is SIMILAR-ENSEMBLE, returns note-dur-millis unchanged. Else,
+  " If player-action is not SIMILAR-ENSEMBLE, returns NOTE-PROBS unchanged. Else,
     finds the index of the rhythmic value closest to ensemble average duration,
     then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
     probabilities of the values on either side of the index. If this
@@ -182,7 +162,7 @@
 
     note-dur-millis - the dur (in millis) to match "
   [player note-durs-millis]
-  (if (not= SIMILAR-ENSEMBLE (get-behavior-action-for-player player))
+  (if (not= SIMILAR-ENSEMBLE (get-behavior-action (get-behavior player)))
     NOTE-PROBS
     (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
       (cond
@@ -199,15 +179,52 @@
       ))
   )
 
+(defn- adjust-prob-based-on-density
+  [note-probs player]
+  (let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
+    (if prob-adjust
+      (mapv + note-probs prob-adjust)
+      note-probs))
+  )
+
+(defn- adjust-prob-based-on-rhythm
+  "Adjust note-probs nased on the value and placement of previous notes"
+  [note-probs player next-note-or-rest]
+  (let [last-melody-event-num (get-last-melody-event-num-for-player player)]
+    (if (nil? last-melody-event-num)
+      note-probs
+      (let [cur-note-beat (get-cur-note-beat player)]
+        ;; current note needs another 1/32 to get back on beat
+        (cond (nil? cur-note-beat)
+              note-probs
+              (not= 0 (rem cur-note-beat 1/4))
+              (do
+                (mapv + note-probs [999 0 300 0 0 0 0 0 0 0 0])
+                )
+              ;; 2 1/32 in sequence increases chance of another 1/32 - only for notes not rests
+              (and
+               next-note-or-rest
+               (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player last-melody-event-num))))
+               (> last-melody-event-num 1)
+               (= (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player (dec last-melody-event-num)))) 1/8)
+                   )
+              (do
+                (mapv + note-probs [300 0 0 0 0 0 0 0 0 0 0])
+                )
+              :else
+              note-probs
+              ))))
+  )
+
 (defn- adjust-rhythmic-probabilities
-  [player]
+  [player next-note-or-rest]
   (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
-        adjusted-note-prob1 (adjust-note-prob player note-durs-millis)
-        adjusted-note-prob2 (if-let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
-                              (mapv + adjusted-note-prob1 prob-adjust)
-                              adjusted-note-prob1)
+        adjusted-note-prob (-> (adjust-note-prob player note-durs-millis)
+                               (adjust-prob-based-on-density player)
+                               (adjust-prob-based-on-rhythm player next-note-or-rest)
+                               )
         ;; make all probs < 0 be 0
-        final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob2)
+        final-adjusted-note-prob (map #(if (< %1 0) 0 %1) adjusted-note-prob)
         ]
     final-adjusted-note-prob
     )
@@ -217,8 +234,8 @@
   "Returns :dur-info map for the next note
 
    player - player map to use when determining next note :dur-info"
-  [player]
-  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player))
+  [player next-note-or-rest]
+  (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player next-note-or-rest))
         ]
     (if (nil? (get-mm player))
       (do
