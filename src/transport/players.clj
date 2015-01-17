@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -167,11 +167,11 @@
     )
   )
 
-(defn get-melody-event-for-key
-  "Returns the players melody event for the key (a number).
+(defn get-melody-event-num
+  "Returns the players melody event for melody-event-num (a number).
    Returns nil if the key does not exist for the player."
-  [player melody-event-key]
-  (get (get-melody player) melody-event-key)
+  [player melody-event-num]
+  (get (get-melody player) melody-event-num)
   )
 
 (defn get-player-with-mm
@@ -235,20 +235,10 @@
                 (assoc
                   melody
                   melody-event-num
-                  (set-note-play-time-for-event (get-melody-event-for-key player melody-event-num) note-play-time)
+                  (set-note-play-time-for-event (get-melody-event-num player melody-event-num) note-play-time)
                   )
                 )
          ))
-  )
-
-(defn set-last-note-play-time
-  [player-id note-play-time]
-  (swap! PLAYERS
-         update-melody-event-note-time-callback
-         player-id
-         (get-last-melody-event-num player-id)
-         note-play-time
-         )
   )
 
 (defn update-player-callback
@@ -261,6 +251,7 @@
 (defn update-player
   [player]
   (swap! PLAYERS update-player-callback player)
+  player
   )
 
 (defn rand-player-id-excluding-player
@@ -346,33 +337,6 @@
         )
   )
 
-(declare print-player)
-(defn copy-follow-info
-  [cur-players to-player]
-  (let [to-player-id (get-player-id to-player)
-        from-player-id (get-behavior-player-id (get-behavior to-player))
-        cur-change-follow-info-note (get-change-follow-info-note to-player)
-        last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
-        ]
-    (if (and
-         (not (nil? from-player-id))
-         (not (nil? cur-change-follow-info-note))
-         (not (nil? last-follow-note))
-         (>= (inc last-follow-note) cur-change-follow-info-note))
-      (do
-        (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
-        (assoc cur-players to-player-id
-               (merge to-player
-                      (get-following-info-from-player (get-player from-player-id))
-                      )))
-      (do
-        (print-player to-player)
-        (assoc cur-players to-player-id to-player)
-        )
-      )
-    )
-  )
-
 (defn replace-similar-info
   [cur-players from-player-id to-player originator-player-id]
   (let [to-player-id (get-player-id to-player)]
@@ -397,9 +361,31 @@
   (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
+(declare print-player)
 (defn update-player-and-follow-info
-  [player]
-  (swap! PLAYERS copy-follow-info player)
+  [to-player]
+  (let [to-player-id (get-player-id to-player)
+        from-player-id (get-behavior-player-id (get-behavior to-player))
+        cur-change-follow-info-note (get-change-follow-info-note to-player)
+        last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
+        ]
+    (if (and
+         (not (nil? from-player-id))
+         (not (nil? cur-change-follow-info-note))
+         (not (nil? last-follow-note))
+         (>= (inc last-follow-note) cur-change-follow-info-note))
+      (let [updated-player (merge to-player
+                                  (get-following-info-from-player (get-player from-player-id))
+                                  )]
+
+        (swap! PLAYERS update-player-callback updated-player)
+        (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
+        updated-player)
+      (do
+        (print-player to-player)
+        (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
+        )
+      ))
   )
 
 (defn init-players

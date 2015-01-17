@@ -42,6 +42,6 @@ If num-players is not set it will default to 10.
 
 ## License
 
-Copyright © 2013-2014 Joseph Fosco
+Copyright © 2013-2015 Joseph Fosco
 
 Distributed under the GNU General Public License

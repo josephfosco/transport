@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -221,14 +221,13 @@
   [sc-instrument-id player-id event-time]
 ;;*  (print-msg "play-next-note" "player-id: " player-id " last event " (get-last-melody-event-num player-id) " current time: " (System/currentTimeMillis))
   (play-instrument sc-instrument-id)
-  (set-last-note-play-time player-id (System/currentTimeMillis))
   (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
   )
 
 (defn get-actual-release-dur-millis
   [inst-info dur-millis]
   (let [release-dur (get-release-millis-for-inst-info inst-info)]
-    (if (< (+ release-dur SC-RESP-MILLIS) dur-millis)
+    (if (> dur-millis (+ release-dur SC-RESP-MILLIS))
       release-dur
       0))
   )
@@ -250,13 +249,30 @@
     )
   )
 
+(defn- articulate-this-note?
+  [melody-event event-time]
+  (let [dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
+        release-dur (get-actual-release-dur-millis
+                     (get-instrument-info-for-event melody-event)
+                     dur-millis
+                     )
+        ]
+    (if (and (> release-dur 0)
+             (> (- dur-millis release-dur) SC-RESP-MILLIS)
+             (> (- (+ event-time dur-millis) (System/currentTimeMillis)) SC-RESP-MILLIS)
+             )
+      true
+      false)
+    )
+  )
+
 (defn- check-live-synth
   [player]
-  (let [prior-melody-event (get-melody-event-for-key player (- (get-last-melody-event-num-for-player player) 20))]
+  (let [prior-melody-event (get-melody-event-num player (- (get-last-melody-event-num-for-player player) 20))]
     (if (and (> (get-last-melody-event-num-for-player player) 20)
              (node-live? (get-sc-instrument-id prior-melody-event))
              (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-last-melody-event player)))
-             (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-melody-event-for-key player (- (get-last-melody-event-num-for-player player) 1))))
+             (not= (get-sc-instrument-id prior-melody-event) (get-sc-instrument-id (get-melody-event-num player (- (get-last-melody-event-num-for-player player) 1))))
              )
       (do
         (print-msg "update-player" "SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE " )
@@ -267,6 +283,37 @@
       )
     )
   )
+
+(defn- check-note-off
+  "
+   player - map for the current player"
+  [player event-time]
+
+  (let [cur-melody-event-num (get-last-melody-event-num-for-player player)
+        cur-melody-event (get-melody-event-num player cur-melody-event-num)
+        inst-has-release? (has-release? (get-instrument-info cur-melody-event))
+        ;; all notes without release (AD or NE) are not articulated (stopped)
+        articulate? (if inst-has-release?
+                      (articulate-this-note? cur-melody-event event-time)
+                      false
+                      )
+        ]
+
+;;    (print-msg "check-note-off" "num: " cur-melody-event-num  " articulate: " articulate? " inst-has-release: " inst-has-release?)
+    (cond articulate?
+          (apply-at (+ event-time
+                       (- (get-dur-millis (get-dur-info-for-event cur-melody-event))
+                          (get-actual-release-dur-millis (get-instrument-info-for-event cur-melody-event)
+                                                         (get-dur-millis (get-dur-info-for-event cur-melody-event)))
+                          ))
+                    stop-melody-note
+                    [cur-melody-event (get-player-id player)])
+          ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
+          ;; all notes without release (AD or NE) are articulated (articulate true?)
+          (and inst-has-release? (new-segment? player))
+          (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [cur-melody-event (get-player-id player)])
+          )
+  ))
 
 (defn play-melody
   "Gets the note to play now and plays it (if it is not a rest)
@@ -283,119 +330,87 @@
   (let [player (get-player player-id)
         last-melody-event (get-last-melody-event player)
         last-melody-event-note (get-note-for-event last-melody-event)
-        inst-has-release? (if (nil? last-melody-event-note) false (has-release? (get-instrument-info last-melody-event)))
+        inst-has-release? (if (nil? last-melody-event-note)
+                            false
+                            (has-release? (get-instrument-info last-melody-event)))
         ;; all notes without release (AD or NE) are articulated (articulate true?)
-        articulate? (if inst-has-release?
-                      (articulate-next-note? last-melody-event event-time)
-                      true
+        articulate? (cond
+                     (not last-melody-event-note) true
+                     inst-has-release? (articulate-next-note? last-melody-event event-time)
+                     :else true
                       )
-        new-seg? (new-segment? player)
+        melody-event (next-melody player event-time)
+        melody-event-note (get-note-for-event melody-event)
+        melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
-;;*    (print-msg "play-melody" "articulate?: " articulate?)
-    (cond (and articulate? inst-has-release?)
-          (stop-melody-note last-melody-event player-id)
-          ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
-          ;; all notes without release (AD or NE) are articulated (articulate true?)
-          (and new-seg? (not articulate?) (not (nil? last-melody-event-note)))
-          (if (> (get-dur-millis (get-dur-info-for-event last-melody-event)) SC-RESP-MILLIS)
-            (stop-melody-note last-melody-event player-id)
-            (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id]))
-          )
-    (let [melody-event (next-melody player event-time)
-          melody-event-note (get-note-for-event melody-event)
-          melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
-          ]
-
-      (if (not (nil? melody-event-note))
-        ;; if about to play a note, check range
-        (check-note-out-of-range player-id melody-event)
-        ;; else if about to rest, stop previous note
-        (if (and (not articulate?) inst-has-release?)
-          (do
-            (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
-;;*            (print-msg "play-melody" "SCHEDULED STOP   SCHEDULED STOP   SCHEDULED STOP" " event: "(get-last-melody-event-num-for-player player) " articulate: " articulate? " has-release " inst-has-release?)
-            )
-          )
+    (if (not (nil? melody-event-note))
+      ;; if about to play a note, check range
+      (check-note-out-of-range player-id melody-event)
+      ;; if about to rest, make sure prior note is off
+      (if (and (not articulate?) inst-has-release?)
+        (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
         )
+      )
 
-      (let [sc-instrument-id (if (not (nil? melody-event-note))
-                               (if (or articulate?  new-seg?)
-                                 (if-let [release-dur (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event))]
+    (let [sc-instrument-id (if (not (nil? melody-event-note))
+                             (if (or articulate? (new-segment? player))
+                               (do
+                                 (print-msg "play-melody" "player-id: " player-id " instrument: " (:name (:instrument (:instrument-info melody-event))))
+                                 (if (and
+                                      last-melody-event-note
+                                      (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event)))
                                    ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
                                     (midi->hz (get-note-for-event melody-event))
                                     (get-volume-for-event melody-event)
-                                    release-dur
+                                    (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event))
                                     )
                                    ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
                                     (midi->hz (get-note-for-event melody-event))
                                     (get-volume-for-event melody-event)
-                                    ))
-                                 (get-sc-instrument-id last-melody-event)
-                                 )
-                               nil
+                                    )))
+                               (get-sc-instrument-id last-melody-event)
                                )
-            next-note-time (+ event-time (get-actual-release-dur-millis
-                                          (get-instrument-info-for-event last-melody-event)
-                                          (get-dur-millis (get-dur-info-for-event last-melody-event))
-                                          ))
-            ]
-        (if sc-instrument-id
-          (if (> (System/currentTimeMillis) next-note-time)
-            (play-next-note sc-instrument-id player-id next-note-time)
-            (sched-event 0 play-next-note (list sc-instrument-id player-id) :time next-note-time ))
-          )
-        ;; if FOLLOWING player changed instruments, stop prior note if it hasn't been stopped
-        (if  (and inst-has-release?
-                  (not articulate?)
-                  (not new-seg?)
-                  (not= (get-instrument (get-instrument-info melody-event))
-                        (get-instrument (get-instrument-info last-melody-event)))
-                  )
-          (do
-            (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
-            (print-msg "play-melody" "***** FOLLOWING PLAYER CHANGED INSTRUMENT *****")
-            (print-msg "play-melody" "***** FOLLOWING PLAYER CHANGED INSTRUMENT *****")
-            (print-msg "play-melody" "***** FOLLOWING PLAYER CHANGED INSTRUMENT *****")
-            (print-msg "play-melody" "***** FOLLOWING PLAYER CHANGED INSTRUMENT *****")
-            (print-msg "play-melody" "***** FOLLOWING PLAYER CHANGED INSTRUMENT *****")
-            )
-          )
+                             nil
+                             )
+          next-note-time (+ event-time (get-actual-release-dur-millis
+                                        (get-instrument-info-for-event last-melody-event)
+                                        (get-dur-millis (get-dur-info-for-event last-melody-event))
+                                        ))
+          ]
+      (if sc-instrument-id
+           (play-next-note sc-instrument-id player-id next-note-time)
+           )
         (if (nil? melody-dur-millis)
           (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
 
-        (let [note-play-time (max (System/currentTimeMillis) next-note-time)
+        (let [note-play-time (max (System/currentTimeMillis) event-time)
               upd-player (update-player-info player event-time (set-sc-instrument-id-and-note-play-time
                                                                 melody-event
                                                                 sc-instrument-id
                                                                 note-play-time))
               cur-change-follow-info-note (get-change-follow-info-note upd-player)
-              release-time (-
-                            (+ next-note-time melody-dur-millis)
-                            (if (nil? melody-event-note)
-                              0
-                              (get-actual-release-dur-millis (get-instrument-info upd-player) melody-dur-millis)) )
+
+              ;; check if player is following another player and following player changed segments
+              ;; if it did, update this player with the new segment info from the following player
+              ;; if this player is on the note where the following player changed segments
+              new-player (if (and
+                              cur-change-follow-info-note
+                              (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player)))
+                                  cur-change-follow-info-note)
+                              )
+                           ;; next note is the note that the FOLLOW player changed segments
+                           (update-player-and-follow-info upd-player)
+                           (update-player upd-player)
+                           )
               ]
-          ;; check if player is following another player and following player changed segments
-          ;; if it did, update this player with the new segment info from the following player
-          ;; if this player is on the note where the following player changed segments
-          (if (and
-               cur-change-follow-info-note
-               (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player))) cur-change-follow-info-note)
-               )
-            ;; next note is the note that the FOLLOW player changed segments
-            (update-player-and-follow-info upd-player)
-            (update-player upd-player)
-            )
 
-          ;; (check-live-synth upd-player)
-
+          (if melody-event-note
+            (check-note-off new-player event-time))
           (sched-event 0
                        (get-player-val upd-player "function") player-id
-                       :time release-time)
-;;*          (print-msg "play-melody" "current-time " (System/currentTimeMillis) " next-note-time: " next-note-time " melody-dur-millis " melody-dur-millis " release-time " release-time)
-;;*          (print-msg "play-melody" "last-melody-event-num: " (get-last-melody-event-num-for-player upd-player))
-          )))
-  ))
+                       :time (+ event-time melody-dur-millis))
+          ))
+    ))
 
 (defn play-first-melody-note
   "Gets the first note to play and plays it (if it is not a rest)
@@ -450,15 +465,17 @@
                             (if (nil? (:note melody-event))
                               0
                               (get-actual-release-dur-millis (get-instrument-info upd-player) melody-dur-millis)) )
-              ]
           ;; check if player is following another player and following player changed segments
           ;; if it did, update this player with the new segment info from the following player
           ;; if this player is on the note where the following player changed segments
-          (if cur-change-follow-info-note
-            ;; next note is the note that the FOLLOW player changed segments
-            (update-player-and-follow-info upd-player)
-            (update-player upd-player)
-            )
+          new-player (if cur-change-follow-info-note
+                       ;; next note is the note that the FOLLOW player changed segments
+                       (update-player-and-follow-info upd-player)
+                       (update-player upd-player)
+                       )
+              ]
+          (if (get-note-for-event melody-event)
+            (check-note-off new-player event-time))
           (sched-event 0
                        (get-player-val upd-player "function") player-id
                        :time release-time)

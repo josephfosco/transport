@@ -204,9 +204,9 @@
               ;; 2 1/32 in sequence increases chance of another 1/32 - only for notes not rests
               (and
                next-note-or-rest
-               (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player last-melody-event-num))))
+               (= 1/8 (get-dur-beats (get-dur-info-for-event (get-melody-event-num player last-melody-event-num))))
                (> last-melody-event-num 1)
-               (= (get-dur-beats (get-dur-info-for-event (get-melody-event-for-key player (dec last-melody-event-num)))) 1/8)
+               (= (get-dur-beats (get-dur-info-for-event (get-melody-event-num player (dec last-melody-event-num)))) 1/8)
                    )
               (do
                 (mapv + note-probs [300 0 0 0 0 0 0 0 0 0 0])
