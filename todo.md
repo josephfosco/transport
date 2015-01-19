@@ -54,3 +54,7 @@
 * Create a drum set type instrument
 
 * Have one player play a snippet of melody from another player
+
+* On loud interupt, set a max volume level for any other instrument besides loud instrument
+
+* Why is there reverb on only 1 channel?

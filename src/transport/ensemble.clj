@@ -355,7 +355,7 @@
     (let [sc-instrument-id (if (not (nil? melody-event-note))
                              (if (or articulate? (new-segment? player))
                                (do
-                                 (print-msg "play-melody" "player-id: " player-id " instrument: " (:name (:instrument (:instrument-info melody-event))))
+;;                                 (print-msg "play-melody" "player-id: " player-id " instrument: " (:name (:instrument (:instrument-info melody-event))))
                                  (if (and
                                       last-melody-event-note
                                       (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event)))
