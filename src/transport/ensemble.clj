@@ -15,7 +15,7 @@
 
 (ns transport.ensemble
   (:require
-   [overtone.live :refer [apply-at midi->hz node-live?]]
+   [overtone.live :refer [apply-at ctl midi->hz node-live?]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [select-and-set-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
@@ -208,7 +208,6 @@
         ]
     (if sc-instrument-id
       (do
-;;*        (print-msg "stop-last-note" "     stopping note inst: " (get-sc-instrument-id melody-event) " player-id: " player-id)
         (stop-instrument sc-instrument-id)
         true
         )
@@ -219,7 +218,6 @@
 
 (defn play-next-note
   [sc-instrument-id player-id event-time]
-;;*  (print-msg "play-next-note" "player-id: " player-id " last event " (get-last-melody-event-num player-id) " current time: " (System/currentTimeMillis))
   (play-instrument sc-instrument-id)
   (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
   )
@@ -368,7 +366,10 @@
                                     (midi->hz (get-note-for-event melody-event))
                                     (get-volume-for-event melody-event)
                                     )))
-                               (get-sc-instrument-id last-melody-event)
+                               (let [inst-id (get-sc-instrument-id last-melody-event)]
+                                 (ctl inst-id :freq (midi->hz (get-note-for-event melody-event)))
+                                 inst-id
+                                 )
                                )
                              nil
                              )
@@ -378,7 +379,8 @@
                                         ))
           ]
       (if sc-instrument-id
-           (play-next-note sc-instrument-id player-id next-note-time)
+        (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
+;;           (play-next-note sc-instrument-id player-id next-note-time)
            )
         (if (nil? melody-dur-millis)
           (print-msg "play-melody" "MELODY EVENT :DUR IS NILL !!!!"))
@@ -406,6 +408,9 @@
 
           (if melody-event-note
             (check-note-off new-player event-time))
+
+          (check-live-synth new-player)
+
           (sched-event 0
                        (get-player-val upd-player "function") player-id
                        :time (+ event-time melody-dur-millis))

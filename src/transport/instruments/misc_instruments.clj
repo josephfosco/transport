@@ -19,7 +19,7 @@
 
 
 (definst bass-m1
-  [freq 440 amp 0.4 gate 0 action FREE]
+  [freq 440 amp 0.4 gate 1.0 action FREE]
   (-> (saw freq)
       (rlpf (line:kr 2000 freq 0.5) 0.5)
       (* (env-gen (perc 0.1 0.5) gate amp 0 1 action))
@@ -28,7 +28,7 @@
   )
 
 (definst organ-m1
-  [freq 440 dur 1000 amp 0.4 gate 0 action FREE land 0.9]
+  [freq 440 dur 1000 amp 0.4 gate 1.0 action FREE land 0.9]
   (-> (square freq)
       (+ (sin-osc (* 3 freq) (sin-osc 6)))
       (+ (sin-osc (* 1/2 freq) (sin-osc 3)))
@@ -40,7 +40,7 @@
   )
 
 (definst drum-m1
-  [freq 440 amp 0.4 gate 0 action FREE]
+  [freq 440 amp 0.4 gate 1.0 action FREE]
   (-> (line:kr freq (* freq 1/2) 0.5)
       sin-osc
       (+ (sin-osc freq))
@@ -50,7 +50,7 @@
   )
 
 (definst plink-m1
-  [freq 440 amp 0.4 gate 0 action FREE]
+  [freq 440 amp 0.4 gate 1.0 action FREE]
   (-> (sin-osc freq)
       (+ (* 1/3 (sin-osc (* freq 3))))
       (+ (* 1/5 (sin-osc (* freq 5.1))))

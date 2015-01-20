@@ -21,7 +21,7 @@
    ))
 
 (definst bassoon
-  [freq 110 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
+  [freq 110 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
   (-> (saw freq)
       (bpf (* 2 freq) 2.0)
       (* (env-gen (asr attack sustain release) gate amp 0 1 action))
@@ -30,7 +30,7 @@
   )
 
 (definst clarinet
-  [freq 440 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
+  [freq 440 amp 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
   (-> (square [freq (* freq 1.01) (* freq 0.99)])
       (lpf (line:kr (* freq 8) (* freq 2) 0.5))
       (* (env-gen (asr attack sustain release) gate amp 0 1 action))

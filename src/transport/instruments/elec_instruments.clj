@@ -21,7 +21,7 @@
    ))
 
 (definst reedy-organ
-  [freq 440 vol 0.3 release 0.1 attack 0.01 sustain 0.3 gate 0.0 action FREE]
+  [freq 440 vol 0.3 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
   (-> (sin-osc freq)
       (+ (saw freq) (saw (+ freq 3)) (sin-osc (* 2 freq)))
       (* (env-gen (asr attack sustain release) gate vol 0 1 action))
