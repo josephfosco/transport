@@ -65,6 +65,10 @@
   [player]
   (:cur-note-time player))
 
+(defn get-prev-note-time
+  [player]
+  (:prev-note-time player))
+
 (declare get-last-melody-event)
 (defn get-instrument-info
   "Returns instrument info if it is not nil else
