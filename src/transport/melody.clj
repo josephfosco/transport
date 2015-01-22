@@ -353,8 +353,9 @@
      :dur-info new-dur-info
      :follow-note nil
      :instrument-info (get-instrument-info player)
-     :volume 0
+     :note-event-time event-time
      :seg-num (get-seg-num player)
+     :volume 0
      )
     )
   )
@@ -386,8 +387,9 @@
                             (get-instrument-info (get-player follow-player-id))
                             (get-instrument-info-for-event
                              (get-melody-event follow-player-id follow-player-last-event)))
-         :volume 0  ;; 0 volume for rest
+         :note-event-time event-time
          :seg-num player-seg-num
+         :volume 0  ;; 0 volume for rest
          ))
       :else
       ;; play FOLLOWer melody event after last-melody event
@@ -411,9 +413,8 @@
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
             (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
-            ;; (assoc (get-last-melody-event player) :seg-num player-seg-num)
             )
-          (assoc next-melody-event :follow-note event-num-to-play :seg-num player-seg-num))
+          (assoc next-melody-event :follow-note event-num-to-play :note-event-time event-time :seg-num player-seg-num))
         )))
   )
 
@@ -429,8 +430,9 @@
          :dur-info (next-note-dur player next-note-or-rest)
          :follow-note nil
          :instrument-info (get-instrument-info player)
-         :volume (select-volume-for-next-note player event-time next-note-or-rest)
+         :note-event-time event-time
          :seg-num (get-seg-num player)
+         :volume (select-volume-for-next-note player event-time next-note-or-rest)
          ))))
   )
 

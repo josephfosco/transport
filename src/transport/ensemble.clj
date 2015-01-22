@@ -216,12 +216,6 @@
     )
   )
 
-(defn play-next-note
-  [sc-instrument-id player-id event-time]
-  (play-instrument sc-instrument-id)
-  (send-message MSG-PLAYER-NEW-NOTE :player (get-player player-id) :note-time event-time)
-  )
-
 (defn get-actual-release-dur-millis
   [inst-info dur-millis]
   (let [release-dur (get-release-millis-for-inst-info inst-info)]
@@ -294,10 +288,15 @@
           ;; schedule stop for this note
           (and
            (get-change-follow-info-note player)
-           (>= (inc (get-follow-note-for-event (get-last-melody-event player)))
-               (get-change-follow-info-note player))
+           (>= (inc (get-follow-note-for-event cur-melody-event)) (get-change-follow-info-note player))
+           inst-has-release?
            )
-          (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [cur-melody-event (get-player-id player)])
+          (apply-at (max (+ (System/currentTimeMillis) SC-RESP-MILLIS)
+                         (+ event-time (get-release-millis-for-inst-info (get-instrument-info cur-melody-event)))
+                         )
+                    stop-melody-note
+                    [cur-melody-event (get-player-id player)]
+                    )
           )
   ))
 
@@ -319,7 +318,7 @@
         inst-has-release? (if (nil? last-melody-event-note)
                             false
                             (has-release? (get-instrument-info last-melody-event)))
-        ;; all notes without release (AD or NE) are articulated (articulate true?)
+        ;; all notes without release and notes following rests are articulated (articulate true?)
         articulate? (cond
                      (not last-melody-event-note) true
                      inst-has-release? (articulate-note? last-melody-event (get-prev-note-time player))
@@ -332,8 +331,14 @@
     (if (not (nil? melody-event-note))
       ;; if about to play a note, check range
       (check-note-out-of-range player-id melody-event)
-      ;; if about to rest, make sure prior note is off
-      (if (and (not articulate?) inst-has-release?)
+      ;; if about to rest, and
+      ;; this rest is not a new seg for FOLLOWING PLAYER (this is handled in check-note-off)
+      ;; make sure prior note is off
+      (if (and (not articulate?)
+               inst-has-release?
+               (or (not (get-change-follow-info-note player))
+                   (not (>= (inc (get-follow-note-for-event last-melody-event)) (get-change-follow-info-note player))))
+           )
         (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
         )
       )

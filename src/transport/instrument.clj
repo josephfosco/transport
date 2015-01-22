@@ -57,7 +57,8 @@
                          :envelope-type "ADSR"
                          :range-lo (first MIDI-RANGE)
                          :range-hi (last MIDI-RANGE)
-                         :release-dur 0.3}
+;;                         :release-dur 0.3}
+                         :release-dur 0.1}
                         {:instrument plink-m1
                          :envelope-type "AD"
                          :range-lo (first MIDI-RANGE)
