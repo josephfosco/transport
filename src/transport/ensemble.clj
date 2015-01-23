@@ -258,6 +258,22 @@
     )
   )
 
+
+(defn- new-segment-for-following-player?
+  "Returns true if the next event after melody event will be a
+   new segment in the following player
+
+   player - map for the player to check
+   melody event - emlody event to check or player's last melody event if omitted"
+  [player & {:keys [melody-event]
+            :or {melody-event (get-last-melody-event player)}}]
+
+  (and (get-change-follow-info-note player)
+       (>= (inc (get-follow-note-for-event melody-event)) (get-change-follow-info-note player)))
+  )
+
+
+
 (defn- check-note-off
   "
    player - map for the current player"
@@ -287,8 +303,7 @@
           ;; if next note will be a new segment for following player,
           ;; schedule stop for this note
           (and
-           (get-change-follow-info-note player)
-           (>= (inc (get-follow-note-for-event cur-melody-event)) (get-change-follow-info-note player))
+           (new-segment-for-following-player? player :melody-event cur-melody-event)
            inst-has-release?
            )
           (apply-at (max (+ (System/currentTimeMillis) SC-RESP-MILLIS)
@@ -336,15 +351,17 @@
       ;; make sure prior note is off
       (if (and (not articulate?)
                inst-has-release?
-               (or (not (get-change-follow-info-note player))
-                   (not (>= (inc (get-follow-note-for-event last-melody-event)) (get-change-follow-info-note player))))
+               (not (new-segment-for-following-player? player :melody-event last-melody-event))
            )
         (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
         )
       )
 
     (let [sc-instrument-id (if (not (nil? melody-event-note))
-                             (if (or articulate? (new-segment? player))
+                             (if (or articulate?
+                                     (new-segment? player)
+                                     (new-segment-for-following-player? player :melody-event last-melody-event)
+                                     )
                                (do
                                  (if (and
                                       last-melody-event-note
