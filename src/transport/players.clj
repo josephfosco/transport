@@ -286,7 +286,6 @@
   [follow-player]
   (assoc (get-similar-info-from-player follow-player)
     :instrument-info nil
-    :change-follow-info-note nil
     )
   )
 
@@ -375,8 +374,8 @@
         ]
     (if (and
          (not (nil? from-player-id))
-         (not (nil? cur-change-follow-info-note))
          (not (nil? last-follow-note))
+         (not (nil? cur-change-follow-info-note))
          (>= (inc last-follow-note) cur-change-follow-info-note))
       (let [updated-player (merge to-player
                                   (get-following-info-from-player (get-player from-player-id))
@@ -386,7 +385,11 @@
         (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
         updated-player)
       (do
+        (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
         (print-player to-player)
+        (print-msg "update-player-and-follow-info" "from-player-id:   " from-player-id)
+        (print-msg "update-player-and-follow-info" "last-follow-note: " last-follow-note)
+        (print-msg "update-player-and-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )
       ))

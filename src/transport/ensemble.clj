@@ -260,16 +260,17 @@
 
 
 (defn- new-segment-for-following-player?
-  "Returns true if the next event after melody event will be a
+  "Returns true if this event is a
    new segment in the following player
 
    player - map for the player to check
    melody event - emlody event to check or player's last melody event if omitted"
-  [player & {:keys [melody-event]
-            :or {melody-event (get-last-melody-event player)}}]
+  [player & {:keys [melody-event increment]
+             :or {melody-event (get-last-melody-event player)
+                  increment 0}}]
 
   (and (get-change-follow-info-note player)
-       (>= (inc (get-follow-note-for-event melody-event)) (get-change-follow-info-note player)))
+       (= (+ (get-follow-note-for-event melody-event) increment) (get-change-follow-info-note player)))
   )
 
 
@@ -279,8 +280,7 @@
    player - map for the current player"
   [player event-time]
 
-  (let [cur-melody-event-num (get-last-melody-event-num-for-player player)
-        cur-melody-event (get-melody-event-num player cur-melody-event-num)
+  (let [cur-melody-event (get-last-melody-event player)
         inst-has-release? (has-release? (get-instrument-info cur-melody-event))
         ;; all notes without release (AD or NE) are not articulated (stopped)
         articulate? (if inst-has-release?
@@ -303,11 +303,11 @@
           ;; if next note will be a new segment for following player,
           ;; schedule stop for this note
           (and
-           (new-segment-for-following-player? player :melody-event cur-melody-event)
+           (new-segment-for-following-player? player :melody-event cur-melody-event :increment 1)
            inst-has-release?
            )
           (apply-at (max (+ (System/currentTimeMillis) SC-RESP-MILLIS)
-                         (+ event-time (get-release-millis-for-inst-info (get-instrument-info cur-melody-event)))
+                         (+ event-time (get-dur-millis (get-dur-info-for-event cur-melody-event)))
                          )
                     stop-melody-note
                     [cur-melody-event (get-player-id player)]
@@ -351,7 +351,7 @@
       ;; make sure prior note is off
       (if (and (not articulate?)
                inst-has-release?
-               (not (new-segment-for-following-player? player :melody-event last-melody-event))
+               (not (new-segment-for-following-player? player :melody-event melody-event))
            )
         (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
         )
@@ -360,12 +360,10 @@
     (let [sc-instrument-id (if (not (nil? melody-event-note))
                              (if (or articulate?
                                      (new-segment? player)
-                                     (new-segment-for-following-player? player :melody-event last-melody-event)
+                                     (new-segment-for-following-player? player :melody-event melody-event)
                                      )
                                (do
-                                 (if (and
-                                      last-melody-event-note
-                                      (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event)))
+                                 (if (get-release-dur-for-inst-info (get-instrument-info-for-event melody-event))
                                    ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
                                     (midi->hz (get-note-for-event melody-event))
                                     (get-volume-for-event melody-event)
@@ -399,14 +397,17 @@
             ;; check if player is following another player and following player changed segments
             ;; if it did, update this player with the new segment info from the following player
             ;; if this player is on the note where the following player changed segments
-            new-player (if (and
-                            cur-change-follow-info-note
-                            (>= (inc (get-follow-note-for-event (get-last-melody-event upd-player)))
-                                cur-change-follow-info-note)
-                            )
-                         ;; next note is the note that the FOLLOW player changed segments
-                         (update-player-and-follow-info upd-player)
-                         (update-player upd-player)
+            new-player (cond (new-segment-for-following-player? upd-player
+                                                                :melody-event (get-last-melody-event upd-player)
+                                                                :increment 1)
+                             ;; next note is the note that the FOLLOWing player changed segments
+                             (update-player-and-follow-info upd-player)
+                             ;; this note is the note that the FOLLOWing player changed segments
+                             (new-segment-for-following-player? upd-player
+                                                                :melody-event (get-last-melody-event upd-player))
+                             (update-player (assoc upd-player :change-follow-info-note nil))
+                             :else
+                             (update-player upd-player)
                          )
             ]
 
