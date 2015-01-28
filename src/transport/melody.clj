@@ -351,6 +351,7 @@
     (create-melody-event
      :note nil
      :dur-info new-dur-info
+     :change-follow-info-note nil
      :follow-note nil
      :instrument-info (get-instrument-info player)
      :note-event-time event-time
@@ -364,7 +365,7 @@
   [player event-time]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player follow-player-id)
-        follow-player-last-event (get-last-melody-event-num follow-player-id)
+        follow-player-last-event-num (get-last-melody-event-num follow-player-id)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
@@ -378,15 +379,16 @@
         (create-melody-event
          :note nil
          :dur-info (get-dur-info-for-beats follow-player 3)
-         :follow-note (if (nil? follow-player-last-event)
+         :follow-note (if (nil? follow-player-last-event-num)
                         0
-                        (- follow-player-last-event 1))
+                        (- follow-player-last-event-num 1))
+         :change-follow-info-note (get-change-follow-info-note player)
          ;; if follow-player has not played a note yet, get follow-player instrument-info
          ;; otherwise get instrument-info from last follow-player-event
-         :instrument-info (if (nil? follow-player-last-event)
+         :instrument-info (if (nil? follow-player-last-event-num)
                             (get-instrument-info (get-player follow-player-id))
                             (get-instrument-info-for-event
-                             (get-melody-event follow-player-id follow-player-last-event)))
+                             (get-melody-event follow-player-id follow-player-last-event-num)))
          :note-event-time event-time
          :seg-num player-seg-num
          :volume 0  ;; 0 volume for rest
@@ -414,7 +416,11 @@
             (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
             (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
             )
-          (assoc next-melody-event :follow-note event-num-to-play :note-event-time event-time :seg-num player-seg-num))
+          (assoc next-melody-event
+            :follow-note event-num-to-play
+            :change-follow-info-note (get-change-follow-info-note player)
+            :note-event-time event-time
+            :seg-num player-seg-num))
         )))
   )
 
@@ -429,6 +435,7 @@
          :note next-note-or-rest
          :dur-info (next-note-dur player next-note-or-rest)
          :follow-note nil
+         :change-follow-info-note nil
          :instrument-info (get-instrument-info player)
          :note-event-time event-time
          :seg-num (get-seg-num player)

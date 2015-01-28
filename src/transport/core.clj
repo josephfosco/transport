@@ -123,6 +123,9 @@
         (reset! restart? true)
 
         (print-banner (str "transport-start - restart:" @restart?))
+
+        (transport.schedule/reset-lateness)
+
         (print-banner "transport-start - start complete")
         ))
     (print-banner "transport-start - WARNING - Can't start. Already Playing." :prefix "!!!")))
@@ -159,6 +162,8 @@
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
         (reset-melody)
+
+        (transport.schedule/reset-lateness)
 
         (print-banner "transport-restart restart complete")
         )

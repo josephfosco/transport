@@ -28,14 +28,14 @@
   )
 
 (definst organ-m1
-  [freq 440 dur 1000 amp 0.4 gate 1.0 action FREE land 0.9]
+  [freq 440 vol 0.4 release 0.4 gate 1.0 action FREE land 0.9]
   (-> (square freq)
       (+ (sin-osc (* 3 freq) (sin-osc 6)))
       (+ (sin-osc (* 1/2 freq) (sin-osc 3)))
-      (* (env-gen (adsr 0.03 0.3 0.4 0.4) gate :action action))
+      (* (env-gen (adsr 0.03 0.3 0.4 release) gate :action action))
       (* (sin-osc (* 2 freq)))
       (clip2 (line:kr 1 land 16))
-      (* (/ amp 1.5))
+      (* (/ vol 1.5))
       )
   )
 
