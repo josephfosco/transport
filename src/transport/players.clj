@@ -86,10 +86,6 @@
   [player]
   (:key player))
 
-(defn get-last-pitch
-  [player]
-  (:last-pitch player))
-
 (defn get-melody
   [player]
   (:melody player))
@@ -292,15 +288,12 @@
 (defn set-change-follow-info-note
   [cur-players from-player-id to-player-id originator-player-id melody-no]
   (if (not= originator-player-id to-player-id)
-    (do
-      (let [to-player (get-player to-player-id)]
-        (if (= from-player-id (get-player-id (:behavior to-player)))
-          (assoc cur-players to-player-id
-                 (assoc to-player :change-follow-info-note melody-no))
-          (do
-            cur-players))))
-    (do
-      cur-players)
+    (let [to-player (get-player to-player-id)]
+      (if (= from-player-id (get-player-id (:behavior to-player)))
+        (assoc cur-players to-player-id
+               (assoc to-player :change-follow-info-note melody-no))
+        cur-players))
+    cur-players
 
     )
   )

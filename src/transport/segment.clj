@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [select-first-behavior select-behavior]]
+   [transport.dur-info :refer [get-dur-millis]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
-   [transport.melodyevent :refer [get-seg-num-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-note-event-time-for-event get-seg-num-for-event]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
@@ -56,7 +57,6 @@
       :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) 0 nil)
       :instrument-info new-instrument
       :key (select-random-key)
-      :last-pitch nil
       :melody-char (select-random-melody-characteristics (get-instrument-range-lo new-instrument) (get-instrument-range-hi new-instrument))
       :metronome (select-metronome-mm rnd-mm)
       :mm rnd-mm
@@ -82,9 +82,11 @@
 
    player - the player to check a new segment for"
   [player]
-  (if (not= (get-seg-num player) (get-seg-num-for-event (get-last-melody-event player)))
-    true
-    false)
+  (let [melody-event (get-last-melody-event player)]
+    (if (>= (+ (get-note-event-time-for-event melody-event) (get-dur-millis (get-dur-info-for-event melody-event)))
+            (+ (get-seg-start player) (get-seg-len player)))
+      true
+      false))
   )
 
 (defn new-segment
@@ -97,10 +99,10 @@
         upd-player (assoc player
                      :behavior new-behavior
                      :change-follow-info-note nil
-                     :last-pitch nil
                      :seg-len (select-segment-length)
                      :seg-num (inc (get-seg-num player))
                      :seg-start 0
+                     :cur-note-beat 0
                      )
         ]
     (cond
