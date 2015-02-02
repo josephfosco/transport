@@ -54,7 +54,7 @@
         ]
     (assoc player
       :behavior new-behavior
-      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) 0 nil)
+      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) 1 nil)
       :instrument-info new-instrument
       :key (select-random-key)
       :melody-char (select-random-melody-characteristics (get-instrument-range-lo new-instrument) (get-instrument-range-hi new-instrument))

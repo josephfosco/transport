@@ -352,7 +352,7 @@
      :note nil
      :dur-info new-dur-info
      :change-follow-info-note nil
-     :follow-note nil
+     :follow-note 0
      :instrument-info (get-instrument-info player)
      :note-event-time event-time
      :seg-num (get-seg-num player)
@@ -370,8 +370,9 @@
         player-seg-num (get-seg-num player)
         ]
     (cond
-     (not (nil? (get-sync-beat-player-id player))) (sync-beat-follow player follow-player event-time)
-     (or (nil? last-follow-event-num)
+     (not (nil? (get-sync-beat-player-id player)))
+     (sync-beat-follow player follow-player event-time)
+     (or (= 0 last-follow-event-num)
          (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
          )
       ;; first time or new segment, rest 3 beats
@@ -382,7 +383,6 @@
          :follow-note (if (nil? follow-player-last-event-num)
                         0
                         (- follow-player-last-event-num 1))
-         :change-follow-info-note (get-change-follow-info-note player)
          ;; if follow-player has not played a note yet, get follow-player instrument-info
          ;; otherwise get instrument-info from last follow-player-event
          :instrument-info (if (nil? follow-player-last-event-num)
@@ -404,16 +404,18 @@
           ;; FOLLOWer ahead of FOLLOWed
           ;; then repeat whatever melody-event just played
           (do
-            (println "*************** FOLLOWER AHEAD OF FOLLOWED ***************")
-            (print-player player)
-            (print-player-num follow-player-id)
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-            (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+            (binding [*out* *err*]
+                     (println "*************** FOLLOWER AHEAD OF FOLLOWED ***************")
+                     (print-player player)
+                     (print-player-num follow-player-id)
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     )
             (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
             )
           (assoc next-melody-event

@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -43,10 +43,9 @@
    player - the player to set :behavior :player-id"
   [player]
   (let [player-action (get-behavior-action (get-behavior player))]
-    (if (and
-         (not= player-action SIMILAR-ENSEMBLE)
-         (not= player-action CONTRAST-ENSEMBLE)
-         (not= player-action IGNORE))
+    (if (and (not= player-action SIMILAR-ENSEMBLE)
+             (not= player-action CONTRAST-ENSEMBLE)
+             (not= player-action IGNORE))
       (let [player-id (rand-player-id-excluding-player player)]
         (set-behavior-player-id player player-id)
         )
@@ -59,9 +58,7 @@
 
    player - the player to set behavior for"
   [player]
-  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
-        ;; select ensemble-action behavior only if not watching another player
-        ]
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
                nil)                     ;; behavior player-id
@@ -75,6 +72,10 @@
         ]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
-               (if (not= behavior-action IGNORE) (rand-player-id-excluding-player player) nil)) ;; behavior player-id
+               (if (and (not= behavior-action IGNORE)
+                        (not= behavior-action SIMILAR-ENSEMBLE)
+                        (not= behavior-action CONTRAST-ENSEMBLE)
+                       )
+                 (rand-player-id-excluding-player player) nil)) ;; behavior player-id
     )
   )

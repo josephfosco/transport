@@ -294,16 +294,21 @@
                (assoc to-player :change-follow-info-note melody-no))
         cur-players))
     cur-players
-
     )
   )
 
 (defn- send-new-player-info-msgs
   [change-player-id originator-player-id melody-no]
-  (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id change-player-id :originator-player-id  originator-player-id :melody-no melody-no)
-  (send-message MSG-PLAYER-NEW-SIMILAR-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
-  (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id change-player-id :originator-player-id  originator-player-id)
-
+  (send-message MSG-PLAYER-NEW-FOLLOW-INFO
+                :change-player-id change-player-id
+                :originator-player-id  originator-player-id
+                :melody-no melody-no)
+  (send-message MSG-PLAYER-NEW-SIMILAR-INFO
+                :change-player-id change-player-id
+                :originator-player-id  originator-player-id)
+  (send-message MSG-PLAYER-NEW-CONTRAST-INFO
+                :change-player-id change-player-id
+                :originator-player-id  originator-player-id)
   )
 
 (defn set-new-contrast-info
@@ -354,12 +359,13 @@
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
+  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id)
   (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
 (declare print-player)
-(defn update-player-and-follow-info
-  [to-player]
+(defn update-player-follow-info
+  [to-player melody-event-num]
   (let [to-player-id (get-player-id to-player)
         from-player-id (get-behavior-player-id (get-behavior to-player))
         cur-change-follow-info-note (get-change-follow-info-note to-player)
@@ -369,20 +375,22 @@
          (not (nil? from-player-id))
          (not (nil? last-follow-note))
          (not (nil? cur-change-follow-info-note))
-         (>= (inc last-follow-note) cur-change-follow-info-note))
+         (= (inc last-follow-note) cur-change-follow-info-note))
       (let [updated-player (merge to-player
                                   (get-following-info-from-player (get-player from-player-id))
                                   )]
 
-        (swap! PLAYERS update-player-callback updated-player)
-        (send-new-player-info-msgs to-player-id to-player-id (get-last-melody-event-num-for-player to-player))
+        (send-new-player-info-msgs to-player-id to-player-id melody-event-num)
         updated-player)
       (do
-        (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
-        (print-player to-player)
-        (print-msg "update-player-and-follow-info" "from-player-id:   " from-player-id)
-        (print-msg "update-player-and-follow-info" "last-follow-note: " last-follow-note)
-        (print-msg "update-player-and-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
+        (binding [*out* *err*]
+                 (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
+                 (print-player to-player)
+                 (print-msg "update-player-and-follow-info" "from-player-id:   " from-player-id)
+                 (print-msg "update-player-and-follow-info" "to-player-id:     " to-player-id)
+                 (print-msg "update-player-and-follow-info" "last-follow-note: " last-follow-note)
+                 (print-msg "update-player-and-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
+                 )
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )
       ))
@@ -396,7 +404,6 @@
 (defn print-player-melody
   [melody & {:keys [prnt-full-inst-info]
              :or {prnt-full-inst-info false}}]
-  (println "full-inst-info: " prnt-full-inst-info)
   (let [sorted-keys (sort (keys melody))]
     (println (format "%-20s" "  :melody "))
     (doseq [melody-key sorted-keys]
