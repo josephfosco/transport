@@ -281,7 +281,7 @@
   "follow-player - the player to get the following info from"
   [follow-player]
   (assoc (get-similar-info-from-player follow-player)
-    :instrument-info nil
+    :instrument-info (get-instrument-info follow-player)
     )
   )
 
@@ -297,7 +297,7 @@
     )
   )
 
-(defn- send-new-player-info-msgs
+(defn- send-msg-new-player-info
   [change-player-id originator-player-id melody-no]
   (send-message MSG-PLAYER-NEW-FOLLOW-INFO
                 :change-player-id change-player-id
@@ -318,7 +318,7 @@
       (do
         (if (not= originator-player-id contrasting-player-id)
           (do
-            (send-new-player-info-msgs contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
+            (send-msg-new-player-info contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
             (assoc cur-players contrasting-player-id (merge contrasting-player new-contrasting-info-map))
             )
           )
@@ -344,7 +344,7 @@
     (if (= from-player-id (get-player-id (:behavior to-player)))
       (do
         (if (not= originator-player-id to-player-id)
-          (send-new-player-info-msgs to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
+          (send-msg-new-player-info to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
           )
         (assoc cur-players to-player-id to-player)
         )
@@ -359,7 +359,7 @@
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id)
+  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id)
   (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
@@ -380,7 +380,7 @@
                                   (get-following-info-from-player (get-player from-player-id))
                                   )]
 
-        (send-new-player-info-msgs to-player-id to-player-id melody-event-num)
+        (send-msg-new-player-info to-player-id to-player-id melody-event-num)
         updated-player)
       (do
         (binding [*out* *err*]

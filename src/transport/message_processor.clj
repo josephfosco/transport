@@ -15,7 +15,8 @@
 
 (ns transport.message-processor
   (:require
-   [transport.util.utils :refer [get-max-map-key]]
+   [transport.messages :refer :all]
+   [transport.util.utils :refer [get-max-map-key print-msg]]
    ))
 
 (def MESSAGES (agent {}))
@@ -110,6 +111,8 @@
 
 (defn- dispatch-message
   [msg-num args]
+  (if (= msg-num MSG-PLAYER-NEW-FOLLOW-INFO)
+    (print-msg "dispatch-msg" "NEW-FOLLOW-INFO args: " args))
   (let [msg-listeners (get @LISTENERS msg-num)]  ;; list of all listeners for msg-num
     (dotimes [lstnr-index (count msg-listeners)]
       (let [msg-lstnr (nth msg-listeners lstnr-index)

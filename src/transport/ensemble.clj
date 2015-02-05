@@ -346,8 +346,7 @@
                              (new-segment-for-following-player? player
                                                                 :melody-event last-melody-event
                                                                 :increment 1)
-                             (assoc (update-player-follow-info player (inc last-melody-event-num))
-                               :change-follow-info-note nil)
+                             (update-player-follow-info player (inc last-melody-event-num))
                              :else
                              player
                              )
@@ -401,19 +400,21 @@
                                                               melody-event
                                                               sc-instrument-id
                                                               note-play-time))
-            new-player (update-player upd-player)
+            new-player (if (new-segment-for-following-player? upd-seg-player :melody-event melody-event)
+                         (update-player (assoc upd-player :change-follow-info-note nil))
+                         (update-player upd-player)
+                         )
             ]
 
         (if melody-event-note
-          (do
-            (check-note-off new-player event-time)
-            (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time))
+          (check-note-off new-player event-time)
           )
 
+        (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
         (check-live-synth new-player)
 
         (sched-event 0
-                     (get-player-val upd-player "function") player-id
+                     (get-player-val new-player "function") player-id
                      :time (+ event-time melody-dur-millis))
         ))
     ))

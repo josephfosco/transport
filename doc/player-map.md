@@ -17,7 +17,6 @@
     + :range-lo - the lowest note (midi note number)this instrument will play
     + :range-hi - the highest note (midi note number)this instrument will play
 * :key - the key this player is playing in. A number between 0 and 11, 0 = C.
-* :last-melody-event-no: the number of the last melody event (melody-event-key)
 * :melody - the melody played by this instrument. The number of items in this map
             is set in SAVED-MELODY-LEN in settings.clj. This is a map containing 0
             or more of the following key-value pairs
