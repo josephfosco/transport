@@ -49,9 +49,13 @@
   [player]
   (:behavior player))
 
-(defn get-change-follow-info-note
+(defn get-change-follow-info-notes
   [player]
-  (:change-follow-info-note player))
+  (:change-follow-info-notes player))
+
+(defn get-next-change-follow-info-note
+  [player]
+  (first (:change-follow-info-notes player)))
 
 (defn get-function
   [player]
@@ -291,7 +295,7 @@
     (let [to-player (get-player to-player-id)]
       (if (= from-player-id (get-player-id (:behavior to-player)))
         (assoc cur-players to-player-id
-               (assoc to-player :change-follow-info-note melody-no))
+               (assoc to-player :change-follow-info-notes (conj (get-change-follow-info-notes to-player) melody-no)))
         cur-players))
     cur-players
     )
@@ -368,7 +372,7 @@
   [to-player melody-event-num]
   (let [to-player-id (get-player-id to-player)
         from-player-id (get-behavior-player-id (get-behavior to-player))
-        cur-change-follow-info-note (get-change-follow-info-note to-player)
+        cur-change-follow-info-note (get-next-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
     (if (and

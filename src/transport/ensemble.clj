@@ -269,8 +269,8 @@
              :or {melody-event (get-last-melody-event player)
                   increment 0}}]
 
-  (and (get-change-follow-info-note player)
-       (= (+ (get-follow-note-for-event melody-event) increment) (get-change-follow-info-note player)))
+  (and (get-next-change-follow-info-note player)
+       (= (+ (get-follow-note-for-event melody-event) increment) (get-next-change-follow-info-note player)))
   )
 
 (defn- check-note-off
@@ -401,7 +401,7 @@
                                                               sc-instrument-id
                                                               note-play-time))
             new-player (if (new-segment-for-following-player? upd-seg-player :melody-event melody-event)
-                         (update-player (assoc upd-player :change-follow-info-note nil))
+                         (update-player (assoc upd-player :change-follow-info-notes (subvec (get-change-follow-info-notes upd-player) 1)))
                          (update-player upd-player)
                          )
             ]

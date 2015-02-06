@@ -420,7 +420,7 @@
             )
           (assoc next-melody-event
             :follow-note event-num-to-play
-            :change-follow-info-note (get-change-follow-info-note player)
+            :change-follow-info-note (get-next-change-follow-info-note player)
             :note-event-time event-time
             :seg-num player-seg-num))
         )))

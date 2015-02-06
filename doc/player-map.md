@@ -4,7 +4,7 @@
     + :accuracy - this players accuracy
     + :action - interaction with other players (can be follow, complement, contrast, ignore)
     + :player-id - player id of player that is being observed (optional, only if :action is follow, complement or contrast)
-* :change-follow-info-note When following another player, if the player you are following changes instruments, this is the note they changed on
+* :change-follow-info-notes a vector used when following another player. If the player you are following changes instruments, this is the note or notes they changed instrument on
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :cur-note-time - the time the next note to be played is scheduled to be played (starts at 0)
 * :function - function to call when event is triggered

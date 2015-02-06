@@ -54,7 +54,7 @@
         ]
     (assoc player
       :behavior new-behavior
-      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) 1 nil)
+      :change-follow-info-notes (if (= (get-behavior-action new-behavior) FOLLOW-PLAYER) [1] [])
       :instrument-info new-instrument
       :key (select-random-key)
       :melody-char (select-random-melody-characteristics (get-instrument-range-lo new-instrument) (get-instrument-range-hi new-instrument))
@@ -98,7 +98,7 @@
         behavior-action (get-behavior-action new-behavior)
         upd-player (assoc player
                      :behavior new-behavior
-                     :change-follow-info-note nil
+                     :change-follow-info-notes []
                      :seg-len (select-segment-length)
                      :seg-num (inc (get-seg-num player))
                      :seg-start 0
