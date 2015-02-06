@@ -289,8 +289,7 @@
     (cond articulate?
           (apply-at (+ event-time
                        (- (get-dur-millis (get-dur-info-for-event cur-melody-event))
-                          (get-actual-release-dur-millis (get-instrument-info-for-event cur-melody-event)
-                                                         (get-dur-millis (get-dur-info-for-event cur-melody-event)))
+                          (get-release-millis-for-inst-info (get-instrument-info-for-event cur-melody-event))
                           ))
                       stop-melody-note
                       [cur-melody-event (get-player-id player)])
@@ -492,16 +491,15 @@
 
 (defn init-ensemble
   []
-  (let [all-players (map create-player (range @number-of-players))]
-    (reset-players)
-    (swap! PLAYERS conj (zipmap (map get all-players (repeat :player-id)) all-players))
-    )
-
-  ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
-  (let [final-players
-        (zipmap
-         (keys @PLAYERS)
-         (map assoc (vals @PLAYERS) (repeat :behavior) (map select-and-set-behavior-player-id (vals @PLAYERS))))
+  (let [all-players (map create-player (range @number-of-players))
+        all-players-map (zipmap (map get all-players (repeat :player-id)) all-players)
+        ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
+        final-players (zipmap
+                       (keys all-players-map)
+                       (map assoc
+                            (vals all-players-map)
+                            (repeat :behavior)
+                            (map select-and-set-behavior-player-id (vals all-players-map))))
         ]
     (reset-players)
     (swap! PLAYERS conj final-players)

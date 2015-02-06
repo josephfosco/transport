@@ -293,7 +293,9 @@
   [cur-players from-player-id to-player-id originator-player-id melody-no]
   (if (not= originator-player-id to-player-id)
     (let [to-player (get-player to-player-id)]
-      (if (= from-player-id (get-player-id (:behavior to-player)))
+      (if (and (= from-player-id (get-player-id (:behavior to-player)))
+               (not (some #{melody-no} (get-change-follow-info-notes to-player)))
+               )
         (assoc cur-players to-player-id
                (assoc to-player :change-follow-info-notes (conj (get-change-follow-info-notes to-player) melody-no)))
         cur-players))
