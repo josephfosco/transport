@@ -499,7 +499,11 @@
                        (map assoc
                             (vals all-players-map)
                             (repeat :behavior)
-                            (map select-and-set-behavior-player-id (vals all-players-map))))
+                            (map select-and-set-behavior-player-id
+                                 (vals all-players-map)
+                                 (repeat :player-map)
+                                 (repeat all-players-map))
+                            ))
         ]
     (reset-players)
     (swap! PLAYERS conj final-players)

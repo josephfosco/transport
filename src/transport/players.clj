@@ -263,9 +263,10 @@
    player-id of player
 
    player - player to exclude from possible player-ids"
-  [player]
-  (if (> (count @PLAYERS) 0)
-    (rand-nth (keys (dissoc @PLAYERS (:player-id player))))
+  [player & {:keys [player-map]
+      :or {player-map @PLAYERS}}]
+  (if (> (count player-map) 0)
+    (rand-nth (keys (dissoc player-map (:player-id player))))
     nil
     ))
 
