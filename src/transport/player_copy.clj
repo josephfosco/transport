@@ -56,7 +56,8 @@
                                     (:melody-char similar-player-info)
                                     (get-instrument-info to-player))
            new-similar-info (assoc similar-player-info :melody-char similar-melody-char)
-           ]
+            ]
+        (print-msg "player-copy-new-similar-info" "follow-player-id: " follow-player-id)
         (player-new-similar-info-replace
          :change-player-id change-player-id
          :follow-player (merge to-player new-similar-info)

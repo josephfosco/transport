@@ -228,7 +228,8 @@
                      )
         ]
     (if (and (> release-dur 0)
-             (> (- dur-millis (- (get-note-play-time-for-event melody-event) event-time ) release-dur) SC-RESP-MILLIS)
+             (> (- dur-millis (- (get-note-play-time-for-event melody-event) event-time ) release-dur)
+                SC-RESP-MILLIS)
              )
       true
       false)
@@ -274,7 +275,9 @@
   )
 
 (defn- check-note-off
-  "
+  "Schedule a note off for the last note played
+    by player if necessary and/or possible
+
    player - map for the current player"
   [player event-time]
 
@@ -287,12 +290,14 @@
                       )
         ]
     (cond articulate?
-          (apply-at (+ event-time
-                       (- (get-dur-millis (get-dur-info-for-event cur-melody-event))
-                          (get-release-millis-for-inst-info (get-instrument-info-for-event cur-melody-event))
-                          ))
+          (do
+            (print-msg "check-note-off" "player-id: " (get-player-id player) " note: " (get-note-for-event cur-melody-event))
+            (apply-at (+ event-time
+                         (- (get-dur-millis (get-dur-info-for-event cur-melody-event))
+                            (get-release-millis-for-inst-info (get-instrument-info-for-event cur-melody-event))
+                            ))
                       stop-melody-note
-                      [cur-melody-event (get-player-id player)])
+                      [cur-melody-event (get-player-id player)]))
           ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
           ;; with a release
           (and inst-has-release? (new-segment? player))
@@ -338,7 +343,7 @@
                      inst-has-release? (articulate-note? last-melody-event (get-prev-note-time player))
                      :else true
                      )
-        ;; does this new note start a new segment?
+        ;; will the new melody event start a new segment?
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
         upd-seg-player (cond new-seg?
                              (update-player-with-new-segment player)
@@ -367,10 +372,7 @@
                inst-has-release?
                (not (new-segment-for-following-player? upd-seg-player :melody-event melody-event))
                )
-        (do
-;;          (print-msg "play-melody" "STOP FOR REST - " " player-id: " player-id " melody num: " (get-last-melody-event-num-for-player player))
-          (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
-          )
+        (apply-at (+ (System/currentTimeMillis) SC-RESP-MILLIS) stop-melody-note [last-melody-event player-id])
         )
       )
 
@@ -431,7 +433,6 @@
    event-time - time this note event was scheduled for"
   [player-id event-time]
 
-  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         melody-event (next-melody player event-time)
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
@@ -509,10 +510,11 @@
     (swap! PLAYERS conj final-players)
     )
 
-  (init-players)
-
   (dorun (map print-player (get-players)))
 
   ;; Schedule first event for all players
-   (dorun (map sched-event (repeat 0) (map get-player-val (get-players) (repeat "function")) (map get-player-id (get-players))))
+  (dorun (map sched-event
+              (repeat 0)
+              (map get-player-val (get-players) (repeat "function"))
+              (map get-player-id (get-players))))
   )

@@ -336,6 +336,7 @@
 
 (defn new-contrast-info-for-player
   [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
+  (print-msg "new-contrast-info-for-player" "contrast-player-id: " contrast-player-id)
   (swap! PLAYERS
         set-new-contrast-info
         change-player-id
@@ -401,11 +402,6 @@
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )
       ))
-  )
-
-(defn init-players
-  []
-;;  (register-listener MSG-PLAYER-NEW-SEGMENT player-new-segment nil)
   )
 
 (defn print-player-melody

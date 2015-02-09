@@ -22,7 +22,7 @@
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
-   [transport.players :refer [reset-players init-players]]
+   [transport.players :refer [reset-players]]
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util.utils :refer :all]
