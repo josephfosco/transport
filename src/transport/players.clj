@@ -367,7 +367,7 @@
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id)
+  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " melody-no: " melody-no)
   (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
@@ -394,10 +394,10 @@
         (binding [*out* *err*]
                  (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
                  (print-player to-player)
-                 (print-msg "update-player-and-follow-info" "from-player-id:   " from-player-id)
-                 (print-msg "update-player-and-follow-info" "to-player-id:     " to-player-id)
-                 (print-msg "update-player-and-follow-info" "last-follow-note: " last-follow-note)
-                 (print-msg "update-player-and-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
+                 (print-msg "update-player-follow-info" "from-player-id:   " from-player-id)
+                 (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
+                 (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)
+                 (print-msg "update-player-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
                  )
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )

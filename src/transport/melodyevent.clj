@@ -41,6 +41,10 @@
   [melody-event]
   (:follow-note melody-event))
 
+(defn get-change-follow-info-note-for-event
+  [melody-event]
+  (:follow-note melody-event))
+
 (defn get-instrument-info-for-event
   [melody-event]
   (:instrument-info melody-event))
