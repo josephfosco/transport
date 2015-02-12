@@ -505,17 +505,16 @@
 (defn init-ensemble
   []
   (let [all-players (map create-player (range @number-of-players))
-        all-players-map (zipmap (map get all-players (repeat :player-id)) all-players)
         ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
         final-players (zipmap
-                       (keys all-players-map)
+                       (map get all-players (repeat :player-id))
                        (map assoc
-                            (vals all-players-map)
+                            all-players
                             (repeat :behavior)
                             (map select-and-set-behavior-player-id
-                                 (vals all-players-map)
-                                 (repeat :player-map)
-                                 (repeat all-players-map))
+                                 all-players
+                                 (repeat :all-players)
+                                 (repeat all-players))
                             ))
         ]
     (reset-players)

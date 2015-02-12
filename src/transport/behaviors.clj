@@ -41,12 +41,12 @@
    if :behavior is IGNORE returns the current :behavior map
 
    player - the player to set :behavior :player-id"
-  [player & {:keys [player-map]}]
+  [player & {:keys [all-players]}]
   (let [player-action (get-behavior-action (get-behavior player))]
     (if (and (not= player-action SIMILAR-ENSEMBLE)
              (not= player-action CONTRAST-ENSEMBLE)
              (not= player-action IGNORE))
-      (let [player-id (rand-player-id-excluding-player player :player-map player-map)]
+      (let [player-id (rand-player-id-excluding-player player :all-players all-players)]
         (set-behavior-player-id player player-id)
         )
       (get-behavior player)
