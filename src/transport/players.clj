@@ -30,11 +30,11 @@
 
 (defn get-players
   []
-  (vals @PLAYERS))
+  (map deref (vals @PLAYERS)))
 
 (defn get-player
   [player-id]
-  (get @PLAYERS player-id))
+  (deref (get @PLAYERS player-id)))
 
 (defn get-player-val
   "Returns the requested value for the specified player
@@ -234,14 +234,14 @@
         ]
        (assoc cur-players
               player-id
-              (assoc player
-                :melody
-                (assoc
-                  melody
-                  melody-event-num
-                  (set-note-play-time-for-event (get-melody-event-num player melody-event-num) note-play-time)
-                  )
-                )
+              (atom (assoc player
+                      :melody
+                      (assoc
+                          melody
+                        melody-event-num
+                        (set-note-play-time-for-event (get-melody-event-num player melody-event-num) note-play-time)
+                        )
+                      ))
          ))
   )
 
@@ -249,7 +249,7 @@
   "update the value of a player in agent PLAYERS
    this is called from send-off"
   [cur-players new-player]
-  (assoc cur-players (get-player-id new-player) new-player)
+  (assoc cur-players (get-player-id new-player) (atom new-player))
   )
 
 (defn update-player
@@ -264,7 +264,7 @@
 
    player - player to exclude from possible player-ids"
   [player & {:keys [all-players]
-             :or {all-players (vals @PLAYERS)}}]
+             :or {all-players (map deref (vals @PLAYERS))}}]
   (if (> (count all-players) 1)
     (get-player-id (rand-nth (remove #(= % player) all-players)))
     nil
@@ -298,7 +298,7 @@
                (not (some #{melody-no} (get-change-follow-info-notes to-player)))
                )
         (assoc cur-players to-player-id
-               (assoc to-player :change-follow-info-notes (conj (get-change-follow-info-notes to-player) melody-no)))
+               (atom (assoc to-player :change-follow-info-notes (conj (get-change-follow-info-notes to-player) melody-no))))
         cur-players))
     cur-players
     )
@@ -326,7 +326,7 @@
         (if (not= originator-player-id contrasting-player-id)
           (do
             (send-msg-new-player-info contrasting-player-id originator-player-id (get-last-melody-event-num-for-player contrasting-player))
-            (assoc cur-players contrasting-player-id (merge contrasting-player new-contrasting-info-map))
+            (assoc cur-players contrasting-player-id (atom (merge contrasting-player new-contrasting-info-map)))
             )
           )
         cur-players)
@@ -354,7 +354,7 @@
         (if (not= originator-player-id to-player-id)
           (send-msg-new-player-info to-player-id originator-player-id (get-last-melody-event-num-for-player to-player))
           )
-        (assoc cur-players to-player-id to-player)
+        (assoc cur-players to-player-id (atom to-player))
         )
       (do
         cur-players)))

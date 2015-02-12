@@ -202,7 +202,7 @@
   (let [sc-instrument-id (get-sc-instrument-id melody-event)]
     (if sc-instrument-id
       (do
-        (print-msg "stop-melody-note+" "player-id: " player-id " note: " (get-note-for-event melody-event) " event-time: " (get-note-event-time-for-event melody-event))
+        (print-msg "stop-melody-note" "player-id: " player-id " note: " (get-note-for-event melody-event) " event-time: " (get-note-event-time-for-event melody-event))
         (stop-instrument sc-instrument-id)
         )
       )
@@ -329,8 +329,8 @@
    event-time - time this note event was scheduled for"
   [player-id event-time]
 
-;;  (println)
-;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+  ;; (println)
+  ;; (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [player (get-player player-id)
         last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-last-melody-event player)
@@ -508,14 +508,15 @@
         ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
         final-players (zipmap
                        (map get all-players (repeat :player-id))
-                       (map assoc
-                            all-players
-                            (repeat :behavior)
-                            (map select-and-set-behavior-player-id
+                       (map atom
+                            (map assoc
                                  all-players
-                                 (repeat :all-players)
-                                 (repeat all-players))
-                            ))
+                                 (repeat :behavior)
+                                 (map select-and-set-behavior-player-id
+                                      all-players
+                                      (repeat :all-players)
+                                      (repeat all-players))
+                                 )))
         ]
     (reset-players)
     (swap! PLAYERS conj final-players)
