@@ -37,7 +37,8 @@
 
 (defn select-and-set-behavior-player-id
   "If :behavior :action is not IGNORE, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
-   returns a :behavior map with :player-id selected from PLAYERS
+   returns a :behavior map with :player-id selected from map of players
+   passed in as all-players.
    if :behavior is IGNORE returns the current :behavior map
 
    player - the player to set :behavior :player-id"

@@ -417,7 +417,7 @@
 
 (defn next-note
   [player-id event-time]
-  (let [new-player (swap! (get @PLAYERS player-id) play-melody player-id event-time)
+  (let [new-player (swap! (get @ensemble player-id) play-melody player-id event-time)
         melody-event (get-last-melody-event new-player)
         melody-event-note (get-note-for-event melody-event)
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
@@ -478,7 +478,7 @@
 
 (defn first-note
   [player-id event-time]
-  (let [new-player (swap! (get @PLAYERS player-id) play-first-melody-note player-id event-time)
+  (let [new-player (swap! (get @ensemble player-id) play-first-melody-note player-id event-time)
         melody-event (get-last-melody-event new-player)
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         release-time (-
@@ -527,7 +527,7 @@
                                  )))
         ]
     (reset-players)
-    (swap! PLAYERS conj final-players)
+    (swap! ensemble conj final-players)
     )
 
   (dorun (map print-player (get-players)))

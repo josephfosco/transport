@@ -26,15 +26,15 @@
   (:import transport.behavior.Behavior)
   )
 
-(def PLAYERS (atom {}))
+(def ensemble (atom {}))
 
 (defn get-players
   []
-  (map deref (vals @PLAYERS)))
+  (map deref (vals @ensemble)))
 
 (defn get-player
   [player-id]
-  (deref (get @PLAYERS player-id)))
+  (deref (get @ensemble player-id)))
 
 (defn get-player-val
   "Returns the requested value for the specified player
@@ -195,7 +195,7 @@
     )
   )
 
-(defn clear-players
+(defn clear-ensemble
   "used by send or send-off to clear agents"
   [cur-players]
   {}
@@ -203,7 +203,7 @@
 
 (defn reset-players
   []
-  (swap! PLAYERS clear-players)
+  (swap! ensemble clear-ensemble)
   )
 
 (defn set-behavior
@@ -246,7 +246,7 @@
   )
 
 (defn update-player-callback
-  "update the value of a player in agent PLAYERS
+  "update the value of a player in atom ensemble
    this is called from send-off"
   [cur-players new-player]
   (assoc cur-players (get-player-id new-player) (atom new-player))
@@ -254,7 +254,7 @@
 
 (defn update-player
   [player]
-  (swap! PLAYERS update-player-callback player)
+  (swap! ensemble update-player-callback player)
   player
   )
 
@@ -264,7 +264,7 @@
 
    player - player to exclude from possible player-ids"
   [player & {:keys [all-players]
-             :or {all-players (map deref (vals @PLAYERS))}}]
+             :or {all-players (map deref (vals @ensemble))}}]
   (if (> (count all-players) 1)
     (get-player-id (rand-nth (remove #(= % player) all-players)))
     nil
@@ -337,7 +337,7 @@
 (defn new-contrast-info-for-player
   [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
   (print-msg "new-contrast-info-for-player" "contrast-player-id: " contrast-player-id)
-  (swap! PLAYERS
+  (swap! ensemble
         set-new-contrast-info
         change-player-id
         contrast-player-id
@@ -362,13 +362,13 @@
 
 (defn player-new-similar-info-replace
   [& {:keys [change-player-id follow-player originator-player-id]}]
-  (swap! PLAYERS replace-similar-info change-player-id follow-player originator-player-id)
+  (swap! ensemble replace-similar-info change-player-id follow-player originator-player-id)
   )
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
   (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " melody-no: " melody-no)
-  (swap! PLAYERS set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
+  (swap! ensemble set-change-follow-info-note change-player-id follow-player-id originator-player-id melody-no)
   )
 
 (declare print-player)
@@ -486,5 +486,5 @@
                  (= plyr-action CONTRAST-ENSEMBLE) (println "CONTRAST-ENSEMBLE")
                  )
            )
-        (vals @PLAYERS)
+        (vals @ensemble)
         )))
