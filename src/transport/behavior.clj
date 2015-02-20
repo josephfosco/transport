@@ -24,3 +24,12 @@
 (defn get-behavior-player-id
   [behavior]
   (:player-id behavior))
+
+(defn set-behavior-player-id
+  "Returns new Behavior record with :player-id set to player-id
+
+   behavior - the current Behavior record whose :player-id is to be changed
+   player-id - the player-id to set :player-id to"
+  [behavior player-id]
+  (assoc behavior :player-id player-id)
+  )

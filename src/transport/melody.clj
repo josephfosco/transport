@@ -18,6 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
+   [transport.ensemble :refer :all]
    [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-hi-range get-lo-range]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
@@ -213,7 +214,7 @@
 (defn select-melody-characteristics
   [player]
   (let [cntrst-plyr (if (= (get-behavior-action (get-behavior player)) CONTRAST-PLAYER)
-                      (get-player (get-behavior-player-id (get-behavior player)))
+                      (get-player-map (get-behavior-player-id (get-behavior player)))
                       nil)
         ]
     (if (= cntrst-plyr nil)
@@ -307,7 +308,7 @@
 
 (defn get-melody-event
   [player-id melody-event-no]
-  (get (get-melody (get-player player-id)) melody-event-no))
+  (get (get-melody (get-player-map player-id)) melody-event-no))
 
 (defn- compute-sync-time
   "Returns the time of a downbeat. The time returned completes any fractional
@@ -364,8 +365,8 @@
 (defn next-melody-follow
   [player event-time]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
-        follow-player (get-player follow-player-id)
-        follow-player-last-event-num (get-last-melody-event-num follow-player-id)
+        follow-player (get-player-map follow-player-id)
+        follow-player-last-event-num (get-last-melody-event-num (get-player-map follow-player-id))
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
@@ -386,7 +387,7 @@
          ;; if follow-player has not played a note yet, get follow-player instrument-info
          ;; otherwise get instrument-info from last follow-player-event
          :instrument-info (if (nil? follow-player-last-event-num)
-                            (get-instrument-info (get-player follow-player-id))
+                            (get-instrument-info (get-player-map follow-player-id))
                             (get-instrument-info-for-event
                              (get-melody-event follow-player-id follow-player-last-event-num)))
          :note-event-time event-time
@@ -431,7 +432,7 @@
 
   (let [follow-player-id (get-sync-beat-player-id player)]
     (if follow-player-id
-      (sync-beat-follow player (get-player follow-player-id) event-time)
+      (sync-beat-follow player (get-player-map follow-player-id) event-time)
       (let [next-note-or-rest (if (note-or-rest player event-time) (next-pitch player) nil)]
         (create-melody-event
          :note next-note-or-rest

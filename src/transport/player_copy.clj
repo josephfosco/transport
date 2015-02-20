@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 (ns transport.player-copy
   (:require
    [transport.behavior :refer [get-behavior-player-id]]
+   [transport.ensemble :refer :all]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.players :refer :all]
@@ -49,19 +50,20 @@
 
 (defn player-copy-new-similar-info
   [& {:keys [change-player-id follow-player-id originator-player-id]}]
-  (let [to-player (get-player follow-player-id)]
+  (let [to-player (get-player-map follow-player-id)]
     (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
-      (let [similar-player-info (get-similar-info-from-player (get-player change-player-id))
+      (let [similar-player-info (get-similar-info-from-player (get-player-map change-player-id))
             similar-melody-char (adjust-melody-char-for-instrument
-                                    (:melody-char similar-player-info)
+                                    (get-melody-char similar-player-info)
                                     (get-instrument-info to-player))
            new-similar-info (assoc similar-player-info :melody-char similar-melody-char)
             ]
         (print-msg "player-copy-new-similar-info" "follow-player-id: " follow-player-id)
         (player-new-similar-info-replace
          :change-player-id change-player-id
-         :follow-player (merge to-player new-similar-info)
+         :follow-player-id follow-player-id
          :originator-player-id originator-player-id
+         :similar-info new-similar-info
          )
         )
       ))

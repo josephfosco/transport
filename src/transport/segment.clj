@@ -18,6 +18,7 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.dur-info :refer [get-dur-millis]]
+   [transport.ensemble :refer :all]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
@@ -39,7 +40,7 @@
 
 (defn copy-following-info
   [player]
-  (merge player (get-following-info-from-player (get-player (get-behavior-player-id (get-behavior player)))))
+  (merge player (get-following-info-from-player (get-player-map (get-behavior-player-id (get-behavior player)))))
   )
 
 (defn first-segment
@@ -72,7 +73,7 @@
    player - player to get info for"
   [player]
   {
-   :instrument-info (select-instrument player)
+   :instrument-info (select-instrument player :cntrst-plyr )
    :melody-char (select-melody-characteristics player)
    }
   )
@@ -109,11 +110,11 @@
      (= behavior-action FOLLOW-PLAYER)
      (let [following-player-id (get-behavior-player-id new-behavior)]
        (merge upd-player
-              (get-following-info-from-player (get-player following-player-id))
+              (get-following-info-from-player (get-player-map following-player-id))
               {:sync-beat-player-id following-player-id}))
 
      (= behavior-action SIMILAR-PLAYER)
-     (let [similar-player-info (get-similar-info-from-player (get-player (get-behavior-player-id new-behavior)))
+     (let [similar-player-info (get-similar-info-from-player (get-player-map (get-behavior-player-id new-behavior)))
            similar-melody-char (:melody-char similar-player-info)
            new-instrument (select-instrument upd-player)
            new-melody-lo (if (<=

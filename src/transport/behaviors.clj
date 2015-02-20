@@ -16,8 +16,7 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
-   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.players :refer [get-behavior rand-player-id-excluding-player set-behavior-player-id]]
+   [transport.ensemble :refer [rand-player-id-excluding-player]]
    [transport.settings :refer :all]
    )
   (:import transport.behavior.Behavior)
@@ -34,24 +33,6 @@
      (< action-num 0.85) CONTRAST-ENSEMBLE
      :else IGNORE
      )) )
-
-(defn select-and-set-behavior-player-id
-  "If :behavior :action is not IGNORE, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
-   returns a :behavior map with :player-id selected from map of players
-   passed in as all-players.
-   if :behavior is IGNORE returns the current :behavior map
-
-   player - the player to set :behavior :player-id"
-  [player & {:keys [all-players]}]
-  (let [player-action (get-behavior-action (get-behavior player))]
-    (if (and (not= player-action SIMILAR-ENSEMBLE)
-             (not= player-action CONTRAST-ENSEMBLE)
-             (not= player-action IGNORE))
-      (let [player-id (rand-player-id-excluding-player player :all-players all-players)]
-        (set-behavior-player-id player player-id)
-        )
-      (get-behavior player)
-      )))
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.

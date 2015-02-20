@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -17,12 +17,11 @@
   (:gen-class)
   (:require
    [overtone.live :refer :all]
-   [transport.ensemble :refer [init-ensemble]]
+   [transport.ensemble :refer [init-ensemble reset-ensemble]]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
-   [transport.players :refer [reset-players]]
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
    [transport.util.utils :refer :all]
@@ -193,7 +192,7 @@
   []
   (clear-scheduler)
   (clear-message-processor)
-  (reset-players)
+  (reset-ensemble)
   )
 
 (transport-help)

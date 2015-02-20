@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodyevent :refer [get-sc-instrument-id]]
-   [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player get-player-id print-player]]
+   [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.utils :refer :all]
@@ -150,11 +150,8 @@
    from the player that is being FOLLOWed
 
    player - the player to get instrument for"
-  [player]
+  [player & {:keys [cntrst-plyr]}]
   (let [behavior-action (get-behavior-action (get-behavior player))
-        cntrst-plyr (if (= behavior-action CONTRAST-PLAYER)
-                      (get-player (get-behavior-player-id (get-behavior player)))
-                      nil)
         ;; select instrument info from all-insruments map
         ;; if not CONTRASTing, select a random instrument
         ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
