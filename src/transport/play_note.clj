@@ -68,21 +68,21 @@
         (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-FOLLOW-INFO
-         transport.ensemble/new-change-follow-info-note-for-player
+         transport.players/new-change-follow-info-note-for-player
          {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
         (= (get-behavior-action (get-behavior player)) SIMILAR-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
-         transport.player-copy/player-copy-new-similar-info
+         transport.players/player-copy-new-similar-info
          {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
         (= (get-behavior-action (get-behavior player)) CONTRAST-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-CONTRAST-INFO
-         transport.ensemble/new-contrast-info
+         transport.play-note/new-contrast-info
          {:change-player-id (get-behavior-player-id (get-behavior player))}
          :contrast-player-id player-id
          )
@@ -102,7 +102,7 @@
      (= (get-behavior-action prev-behavior) FOLLOW-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
-      transport.ensemble/new-change-follow-info-note-for-player
+      transport.players/new-change-follow-info-note-for-player
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
@@ -117,7 +117,7 @@
      (= (get-behavior-action prev-behavior) CONTRAST-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-CONTRAST-INFO
-      transport.ensemble/new-contrast-info
+      transport.play-note/new-contrast-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :contrast-player-id (get-player-id player)
       )
@@ -466,7 +466,7 @@
                              nil
                              )
         note-play-time (max (System/currentTimeMillis) event-time)
-        upd-player (first-segment (update-player-info (set-function player transport.ensemble/next-note)
+        upd-player (first-segment (update-player-info (set-function player transport.play-note/next-note)
                                                       event-time
                                                       (set-sc-instrument-id-and-note-play-time melody-event
                                                                                                sc-instrument-id
@@ -502,6 +502,11 @@
     )
   )
 
+(defn reset-ensemble
+  []
+  (swap! ensemble clear-ensemble)
+  )
+
 (defn create-player
   [player-no]
   {:cur-note-beat 0
@@ -531,7 +536,7 @@
                                       (repeat all-players))
                                  )))
         ]
-    (reset-players)
+    (reset-ensemble)
     (swap! ensemble conj final-players)
     )
 

@@ -460,11 +460,6 @@
   {}
   )
 
-(defn reset-ensemble
-  []
-  (swap! ensemble clear-ensemble)
-  )
-
 (defn print-player-num
   [player-id]
   (print-player (get-player-map player-id))
@@ -521,7 +516,7 @@
            new-similar-info (assoc similar-player-info :melody-char similar-melody-char)
             ]
         (print-msg "player-copy-new-similar-info" "follow-player-id: " follow-player-id)
-        (player-new-similar-info-replace
+        (new-similar-info-for-player
          :change-player-id change-player-id
          :follow-player-id follow-player-id
          :originator-player-id originator-player-id

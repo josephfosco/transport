@@ -19,6 +19,7 @@
    [overtone.live :refer :all]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
+   [transport.play-note :refer [init-ensemble]]
    [transport.pitch :refer [load-scales]]
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]

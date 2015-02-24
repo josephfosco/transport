@@ -18,7 +18,7 @@
    [transport.behavior :refer [get-behavior-action]]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
-   [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
@@ -68,12 +68,12 @@
 (defn- send-status-msgs
   [player player-last-melody player-id note-time]
   (if (and (> (get-volume-for-event player-last-melody) 0.85)
-           (> (get-dur-millis-for-event player-last-melody) 3000)
+           (> (get-dur-millis (get-dur-info-for-event player-last-melody)) 3000)
            (players-soft? player-id)
            (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER))
     (do
       (print-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody))
-      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis-for-event player-last-melody))
+      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody)))
       (print-msg "send-status-msgs players-volumes:" @player-volumes)
 
       (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)

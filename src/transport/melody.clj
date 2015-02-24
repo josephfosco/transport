@@ -374,7 +374,7 @@
   [player event-time]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player-map follow-player-id)
-        follow-player-last-event-num (get-last-melody-event-num (get-player-map follow-player-id))
+        follow-player-last-event-num (get-last-melody-event-num-for-player (get-player-map follow-player-id))
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
