@@ -17,8 +17,6 @@
   (:gen-class)
   (:require
    [overtone.live :refer :all]
-   [transport.ensemble :refer [init-ensemble reset-ensemble]]
-   [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.pitch :refer [load-scales]]
@@ -76,8 +74,6 @@
       (print-banner "transport-init about to init-lateness in schedule")
       (init-lateness)
 
-      (print-banner "transport-init about to init-ensemble-status")
-      (init-ensemble-status)
       (print-banner "transport-init about to init-ensemble")
       (init-ensemble)
 
@@ -147,7 +143,6 @@
         (reset-scheduler)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
-        (reset-ensemble-status)    ;; must occur after restart-message-processor
         (init-ensemble)
         (reset! is-playing? true)
 
@@ -160,7 +155,7 @@
         (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
-        (reset-melody)
+        (reset-melody)     ;; must occur after restart-message-processor for init-ensemble-status
 
         (transport.schedule/reset-lateness)
 

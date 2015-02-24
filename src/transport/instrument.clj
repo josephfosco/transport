@@ -16,7 +16,6 @@
 (ns transport.instrument
   (:require
    [overtone.live :refer :all]
-   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.instrumentinfo :refer :all]
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.misc-instruments :refer :all]
@@ -24,7 +23,6 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodyevent :refer [get-sc-instrument-id]]
-   [transport.players :refer [get-behavior get-instrument-info get-last-melody-event get-last-melody-event-num-for-player get-player-id print-player]]
    [transport.settings :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.utils :refer :all]
@@ -93,10 +91,6 @@
   [music-note]
   (midi->hz music-note))
 
-(defn get-instrument
-  [player]
-  (:instrument (get-instrument-info player)))
-
 (defn get-instrument-range-hi
   [instrument-info]
   (:range-hi instrument-info))
@@ -105,21 +99,19 @@
   [instrument-info]
   (:range-lo instrument-info))
 
-(defn get-hi-range
-  [player]
-  (:range-hi (get-instrument-info player)))
+(comment
+  ***************************
+  (defn get-instrument-range-for-player
+    [player]
+    (list (get-lo-range player) (get-hi-range player)))
+  )
 
-(defn get-lo-range
-  [player]
-  (:range-lo (get-instrument-info player)))
-
-(defn get-instrument-range-for-player
-  [player]
-  (list (get-lo-range player) (get-hi-range player)))
-
-(defn get-envelope-type
-  [player]
-  (:envelope-type (get-instrument-info player)))
+(comment
+  **************************************
+  (defn get-envelope-type
+    [player]
+    (:envelope-type (get-instrument-info player)))
+  )
 
 (defn get-gate-dur
   "player - player map
@@ -150,16 +142,15 @@
    from the player that is being FOLLOWed
 
    player - the player to get instrument for"
-  [player & {:keys [cntrst-plyr]}]
-  (let [behavior-action (get-behavior-action (get-behavior player))
-        ;; select instrument info from all-insruments map
-        ;; if not CONTRASTing, select a random instrument
-        ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
-        inst-info (if (not= behavior-action CONTRAST-PLAYER)
+  [player & {:keys [cntrst-plyr-inst-info]}]
+  ;; select instrument info from all-insruments map
+  ;; if not CONTRASTing, select a random instrument
+  ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
+  (let [inst-info (if (= cntrst-plyr-inst-info nil)
                     (rand-nth all-instruments)
                     (let [instrument-index (rand-int (count all-instruments))]
                       (if (=
-                           (:name (:instrument (get-instrument-info cntrst-plyr)))
+                           (:name (:instrument cntrst-plyr-inst-info))
                            (:name (:instrument (nth all-instruments instrument-index))))
                         (nth all-instruments (mod (inc instrument-index) (count all-instruments)))
                         (nth all-instruments instrument-index)

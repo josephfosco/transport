@@ -18,9 +18,8 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble :refer :all]
-   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
-   [transport.instrument :refer [get-hi-range get-lo-range]]
+   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio init-ensemble-status reset-ensemble-status]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
@@ -56,6 +55,10 @@
 (defn init-melody
   "Set loud player vars to nil and register listener for MSG-LOUD-INTERUPT-EVENT"
   []
+
+  (print-banner "init-melody about to init-ensemble-status")
+  (init-ensemble-status)
+
   (reset! loud-player nil)
   (reset! loud-player-time nil)
   (register-listener
@@ -68,6 +71,8 @@
 
 (defn reset-melody
   []
+  (reset-ensemble-status)
+
   (init-melody)
   )
 
@@ -148,7 +153,9 @@
      (let [range-lo (random-int lo-range hi-range)]
        (list range-lo (random-int range-lo hi-range))))
   ([player]
-     (list (get-lo-range player) (get-hi-range player))
+     (list (get-instrument-range-lo (get-instrument-info player))
+           (get-instrument-range-hi (get-instrument-info player))
+           )
      )
   ([player cntrst-plyr cntrst-melody-char]
      ;; if CONTRASTing player has narrow range
@@ -159,10 +166,11 @@
            cntrst-lo (first cntrst-range)
            ]
        (if (< (- cntrst-hi cntrst-lo) 13)
-         (do
-           (list (get-lo-range player) (get-hi-range player)))
-         (let [player-lo (get-lo-range player)
-               player-hi (get-hi-range player)
+         (list (get-instrument-range-lo (get-instrument-info player))
+               (get-instrument-range-hi (get-instrument-info player))
+               )
+         (let [player-lo (get-instrument-range-lo (get-instrument-info player))
+               player-hi (get-instrument-range-hi (get-instrument-info player))
                range-in-semitones (rand-int 13)
                melody-range-lo (cond
                                 (or (> player-lo cntrst-hi) (< player-hi cntrst-lo))

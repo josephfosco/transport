@@ -17,6 +17,7 @@
   (:require
    [transport.behavior :refer :all]
    [transport.players :refer :all]
+   [transport.play_note :refer [first-note]]
    [transport.settings :refer :all]
    [transport.util.utils :refer :all]
    )
@@ -149,6 +150,19 @@
   []
   (dorun (map print-player (get-ensemble)))
 )
+
+(defn create-player
+  [player-no]
+  {:cur-note-beat 0
+   :cur-note-time 0
+   :function transport.play-note/first-note
+   :melody {}
+   :player-id player-no
+   :prev-note-beat 0
+   :prev-note-time 0
+   :sync-beat-player-id nil
+   }
+  )
 
 (defn init-ensemble
   []

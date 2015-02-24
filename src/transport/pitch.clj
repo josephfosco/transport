@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
    [transport.behavior :refer [get-behavior-action]]
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range-hi get-instrument-range-lo]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]

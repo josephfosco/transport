@@ -16,7 +16,6 @@
 (ns transport.player-copy
   (:require
    [transport.behavior :refer [get-behavior-player-id]]
-   [transport.ensemble :refer :all]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.players :refer :all]

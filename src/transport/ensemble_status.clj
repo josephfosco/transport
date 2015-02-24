@@ -67,13 +67,13 @@
 
 (defn- send-status-msgs
   [player player-last-melody player-id note-time]
-  (if (and (> (get-volume-for-note player-last-melody) 0.85)
-           (> (get-dur-millis-for-note player-last-melody) 3000)
+  (if (and (> (get-volume-for-event player-last-melody) 0.85)
+           (> (get-dur-millis-for-event player-last-melody) 3000)
            (players-soft? player-id)
            (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER))
     (do
-      (print-msg "send-status-msgs" "volume: "(get-volume-for-note player-last-melody))
-      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis-for-note player-last-melody))
+      (print-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody))
+      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis-for-event player-last-melody))
       (print-msg "send-status-msgs players-volumes:" @player-volumes)
 
       (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
@@ -100,7 +100,7 @@
         player-id (get-player-id player)
         ]
     ;; update this player's volume in player-volumes
-    (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-note last-melody)))
+    (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-event last-melody)))
     ;; Track relevent ensemble-status info when player starts a new segment
     (update-ensemble-new-segment :player player :note-time note-time :player-id player-id)
     ;; if note (not rest) update note-values-millis with latest note rhythm value

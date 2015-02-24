@@ -16,7 +16,7 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
-   [transport.ensemble :refer [rand-player-id-excluding-player]]
+   [transport.players :refer [rand-player-id-excluding-player]]
    [transport.settings :refer :all]
    )
   (:import transport.behavior.Behavior)

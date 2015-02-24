@@ -18,7 +18,6 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.dur-info :refer [get-dur-millis]]
-   [transport.ensemble :refer :all]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
    [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
@@ -73,7 +72,13 @@
    player - player to get info for"
   [player]
   {
-   :instrument-info (select-instrument player :cntrst-plyr )
+   :instrument-info (select-instrument player
+                                       :cntrst-plyr-inst-info (-> (get-behavior player)
+                                                                  (get-behavior-player-id)
+                                                                  (get-player-map)
+                                                                  (get-instrument-info)
+                                                                  )
+                                       )
    :melody-char (select-melody-characteristics player)
    }
   )
@@ -145,7 +150,9 @@
        )
 
      :else  ;;  IGNORE or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
-     (let [new-instrument (select-instrument upd-player)
+     (let [new-instrument (if (= behavior-action CONTRAST-PLAYER)
+                            (select-instrument upd-player :cntrst-plyr (get-behavior-player-id new-player))
+                            (select-instrument upd-player))
            new-mm (select-mm upd-player)
            ]
        (assoc upd-player

@@ -18,17 +18,20 @@
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
-   [transport.instrument :refer [get-instrument has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
+   [transport.instrument :refer [has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
+;;    transport.melody PROBLEM
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer :all]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
-   [transport.player-copy :refer [player-copy-new-similar-info]]
+;;    transport.player-copy ??? PROBLEM
+;;   [transport.player-copy :refer [player-copy-new-similar-info]]
    [transport.players :refer :all]
    [transport.schedule :refer [sched-event]]
    [transport.sc-instrument :refer [stop-instrument]]
-   [transport.segment :refer [copy-following-info first-segment new-segment new-segment? get-contrasting-info-for-player]]
+;;    transport.segment ??? PROBLEM
+   [transport.segment :refer [first-segment new-segment new-segment? get-contrasting-info-for-player]]
    [transport.settings :refer :all]
    [transport.util.utils :refer :all]
    )
@@ -107,7 +110,7 @@
      (= (get-behavior-action prev-behavior) SIMILAR-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-SIMILAR-INFO
-      transport.player-copy/player-copy-new-similar-info
+      transport.players/player-copy-new-similar-info
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
@@ -497,4 +500,46 @@
                  (get-player-val new-player "function") player-id
                  :time release-time)
     )
+  )
+
+(defn create-player
+  [player-no]
+  {:cur-note-beat 0
+   :cur-note-time 0
+   :function transport.play-note/first-note
+   :melody {}
+   :player-id player-no
+   :prev-note-beat 0
+   :prev-note-time 0
+   :sync-beat-player-id nil
+   }
+  )
+
+(defn init-ensemble
+  []
+  (let [all-players (map create-player (range @number-of-players))
+        ;; set the :behavior :player-id for all players that are FOLLOWing, SIMILARing or CONTRASTing other players
+        final-players (zipmap
+                       (map get all-players (repeat :player-id))
+                       (map atom
+                            (map assoc
+                                 all-players
+                                 (repeat :behavior)
+                                 (map select-and-set-behavior-player-id
+                                      all-players
+                                      (repeat :all-players)
+                                      (repeat all-players))
+                                 )))
+        ]
+    (reset-players)
+    (swap! ensemble conj final-players)
+    )
+
+  (print-all-players)
+
+  ;; Schedule first event for all players
+  (dorun (map sched-event
+              (repeat 0)
+              (map get-player-val (get-ensemble) (repeat "function"))
+              (map get-player-id (get-ensemble))))
   )

@@ -15,13 +15,13 @@
 
 (ns transport.players
   (:require
-   [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-;;   [transport.ensemble :refer :all]
+   [transport.behavior :refer [get-behavior-action get-behavior-player-id set-behavior-player-id]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
+   [transport.melodychar :refer [get-melody-char-range-hi get-melody-char-range-lo]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
-   [transport.play-note :refer [first-note]]
    [transport.settings :refer :all]
    [transport.util.utils :refer :all]
    )
@@ -121,14 +121,6 @@
 (defn get-sync-beat-player-id
   [player]
   (:sync-beat-player-id player))
-
-(defn get-volume-for-note
-  [melody-event]
-  (:volume melody-event))
-
-(defn get-dur-millis-for-note
-  [melody-event]
-  (:dur-millis (:dur-info melody-event)))
 
 (defn get-last-melody-event-num-for-player
   [player]
@@ -284,19 +276,6 @@
       ))
   )
 
-(defn create-player
-  [player-no]
-  {:cur-note-beat 0
-   :cur-note-time 0
-   :function transport.play-note/first-note
-   :melody {}
-   :player-id player-no
-   :prev-note-beat 0
-   :prev-note-time 0
-   :sync-beat-player-id nil
-   }
-  )
-
 (defn print-player-melody
   [melody & {:keys [prnt-full-inst-info]
              :or {prnt-full-inst-info false}}]
@@ -369,4 +348,185 @@
           (= plyr-action CONTRAST-ENSEMBLE) (println "CONTRAST-ENSEMBLE")
           )
     )
+  )
+
+
+;; --------------------------------------------------------------------------------------
+
+(def ensemble (atom {}))
+
+(defn get-ensemble
+  []
+  (map deref (vals @ensemble)))
+
+(defn get-player
+  [player-id]
+  (get @ensemble player-id))
+
+(defn get-player-map
+  [player-id]
+  (deref (get @ensemble player-id)))
+
+(defn get-player-with-mm
+  "Returns player-id for the player with requested mm.
+   Does not return requesting-player id.
+   Returns nil if no other players match mm"
+  [requesting-player mm]
+  (let [requesting-player-id (get-player-id requesting-player)]
+    (loop [player-id-to-check 0]
+      (cond (= player-id-to-check @number-of-players)
+            nil
+            (and (= mm (get-mm (get-player-map player-id-to-check))) (not= player-id-to-check requesting-player-id))
+            player-id-to-check
+            :else (recur (inc player-id-to-check))
+        )
+      )
+    )
+  )
+
+(defn rand-player-id-excluding-player
+  "Select a random player-id not including the
+   player-id of player
+
+   player - player to exclude from possible player-ids"
+  [player & {:keys [all-players]
+             :or {all-players (map deref (vals @ensemble))}}]
+  (if (> (count all-players) 1)
+    (get-player-id (rand-nth (remove #(= % player) all-players)))
+    nil
+    ))
+
+(defn select-and-set-behavior-player-id
+  "If :behavior :action is not IGNORE, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
+   returns a :behavior map with :player-id selected from map of players
+   passed in as all-players.
+   if :behavior is IGNORE returns the current :behavior map
+
+   player - the player to set :behavior :player-id"
+  [player & {:keys [all-players]}]
+  (let [player-action (get-behavior-action (get-behavior player))]
+    (if (and (not= player-action SIMILAR-ENSEMBLE)
+             (not= player-action CONTRAST-ENSEMBLE)
+             (not= player-action IGNORE))
+      (let [player-id (rand-player-id-excluding-player player :all-players all-players)]
+        (set-behavior-player-id (get-behavior player) player-id)
+        )
+      (get-behavior player)
+      )))
+
+(defn update-player-callback
+  "update the value of a player in atom ensemble
+   this is called from send-off"
+  [cur-players new-player]
+  (assoc cur-players (get-player-id new-player) (atom new-player))
+  )
+
+(defn update-player
+  [player]
+  (swap! ensemble update-player-callback player)
+  player
+  )
+
+(defn new-change-follow-info-note-for-player
+  [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
+  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " melody-no: " melody-no)
+  (swap! (get-player follow-player-id) set-change-follow-info-note change-player-id originator-player-id melody-no)
+  )
+
+(defn new-contrast-info-for-player
+  [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
+  (print-msg "new-contrast-info-for-player" "contrast-player-id: " contrast-player-id)
+  (swap! (get-player contrast-player-id)
+        set-new-contrast-info
+        change-player-id
+        originator-player-id
+        contrasting-info
+        )
+  )
+
+(defn new-similar-info-for-player
+  [& {:keys [change-player-id follow-player-id originator-player-id similar-info]}]
+  (swap! (get-player follow-player-id)
+         replace-similar-info
+         change-player-id
+         originator-player-id
+         similar-info
+         )
+  )
+
+(defn clear-ensemble
+  "used by send or send-off to clear agents"
+  [cur-players]
+  {}
+  )
+
+(defn reset-ensemble
+  []
+  (swap! ensemble clear-ensemble)
+  )
+
+(defn print-player-num
+  [player-id]
+  (print-player (get-player-map player-id))
+  )
+
+(defn print-all-actions
+  []
+  (dorun
+   (map print-player-action (vals @ensemble)))
+  )
+
+(defn print-all-players
+  []
+  (dorun (map print-player (get-ensemble)))
+)
+
+
+;;---------------------------- old player_copt.clj ----------------------------------------------------------
+
+
+(defn adjust-melody-char-for-instrument
+  [new-melody-char instrument-info]
+  (let [new-melody-lo (if (<=
+                           (get-instrument-range-lo instrument-info)
+                           (get-melody-char-range-lo new-melody-char)
+                           (get-instrument-range-hi instrument-info)
+                           )
+                        (get-melody-char-range-lo new-melody-char)
+                        (get-instrument-range-lo instrument-info)
+                        )
+        new-melody-hi (if (> (get-instrument-range-hi instrument-info)
+                             (get-melody-char-range-hi new-melody-char)
+                             new-melody-lo
+                             )
+                        (get-melody-char-range-hi new-melody-char)
+                        (get-instrument-range-hi instrument-info)
+                        )
+
+        new-melody-char (assoc new-melody-char
+                          :range (list new-melody-lo new-melody-hi))
+        ]
+    new-melody-char
+    )
+     )
+
+(defn player-copy-new-similar-info
+  [& {:keys [change-player-id follow-player-id originator-player-id]}]
+  (let [to-player (get-player-map follow-player-id)]
+    (if (= change-player-id (get-behavior-player-id (get-behavior to-player)))
+      (let [similar-player-info (get-similar-info-from-player (get-player-map change-player-id))
+            similar-melody-char (adjust-melody-char-for-instrument
+                                    (get-melody-char similar-player-info)
+                                    (get-instrument-info to-player))
+           new-similar-info (assoc similar-player-info :melody-char similar-melody-char)
+            ]
+        (print-msg "player-copy-new-similar-info" "follow-player-id: " follow-player-id)
+        (player-new-similar-info-replace
+         :change-player-id change-player-id
+         :follow-player-id follow-player-id
+         :originator-player-id originator-player-id
+         :similar-info new-similar-info
+         )
+        )
+      ))
   )
