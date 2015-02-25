@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio init-ensemble-status reset-ensemble-status]]
+   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -55,10 +55,6 @@
 (defn init-melody
   "Set loud player vars to nil and register listener for MSG-LOUD-INTERUPT-EVENT"
   []
-
-  (print-banner "init-melody about to init-ensemble-status")
-  (init-ensemble-status)
-
   (reset! loud-player nil)
   (reset! loud-player-time nil)
   (register-listener
@@ -71,8 +67,6 @@
 
 (defn reset-melody
   []
-  (reset-ensemble-status)
-
   (init-melody)
   )
 
@@ -291,6 +285,7 @@
 
    player - the player to determine note or rest for"
   [player note-time]
+  (print-msg "note-or-rest" "behavior-action: " (get-behavior-action (get-behavior player)))
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
         (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
         (note-or-rest-similar-ensemble player note-time)
@@ -438,6 +433,8 @@
 (defn- next-melody-for-player
   [player event-time]
 
+  (print-msg "next-melody-for-player" "event-time: " event-time)
+
   (let [follow-player-id (get-sync-beat-player-id player)]
     (if follow-player-id
       (sync-beat-follow player (get-player-map follow-player-id) event-time)
@@ -459,6 +456,7 @@
 
     player - the player map"
   [player event-time]
+  (print-msg "next-melody" "event-time: " event-time)
   (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time)

@@ -235,6 +235,7 @@
 
    player - player map to use when determining next note :dur-info"
   [player next-note-or-rest]
+  (print-msg "next-note-dur" "next-note-or-rest: " next-note-or-rest)
   (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player next-note-or-rest))
         ]
     (if (nil? (get-mm player))

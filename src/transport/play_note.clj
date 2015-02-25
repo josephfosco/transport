@@ -457,6 +457,8 @@
    event-time - time this note event was scheduled for"
   [player player-id event-time]
 
+  (print-msg "play-first-melody-note" "player-id: " player-id)
+
   (let [melody-event (next-melody player event-time)
         sc-instrument-id (if (not (nil? (:note melody-event)))
                              ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
@@ -473,24 +475,30 @@
                                                                                                note-play-time)))
         ]
 
+    (print-msg "play-first-melody-note" "note-play-time: " note-play-time)
+
     (if (not (nil? (:note melody-event)))
       ;; if about to play a note, check range
       (check-note-out-of-range player-id melody-event))
     upd-player
-    )
-  )
+    ))
 
 (defn first-note
   [player-id event-time]
+  (print-msg "first-note" "event-time: " event-time)
+
   (let [new-player (swap! (get @ensemble player-id) play-first-melody-note player-id event-time)
         melody-event (get-last-melody-event new-player)
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
+        jnkvar (print-msg "first-note" "melody-dur-millis: " melody-dur-millis)
         release-time (-
                       (+ event-time melody-dur-millis)
                       (if (nil? (:note melody-event))
                         0
                         (get-actual-release-dur-millis (get-instrument-info new-player) melody-dur-millis)) )
         ]
+
+    (print-msg "first-note" "about to send msg")
 
     (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
     (if (get-note-for-event melody-event)

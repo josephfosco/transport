@@ -17,9 +17,10 @@
   (:gen-class)
   (:require
    [overtone.live :refer :all]
+   [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
-   [transport.play-note :refer [init-ensemble]]
+   [transport.play-note :refer [init-ensemble reset-ensemble]]
    [transport.pitch :refer [load-scales]]
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [number-of-players set-number-of-players]]
@@ -37,9 +38,7 @@
 
 (defn transport-help
   []
-  (print
-   "
-   ")
+  (println)
   (println "TRANSPORT version" TRANSPORT-VERSION-STR)
   (print
    "
@@ -77,6 +76,9 @@
 
       (print-banner "transport-init about to init-ensemble")
       (init-ensemble)
+
+      (print-banner "transport-init about to init-ensemble-status")
+      (init-ensemble-status)
 
       (print-banner "transport-init about to init-melody")
       (init-melody)
@@ -153,10 +155,14 @@
         (print-banner "transport-restart about to start-message-processor")
         (start-message-processor)
 
+        ;; init-ensemble-status must occur after restart-message-processor
+        (print-banner "transport-restart about to reset-ensemble-status")
+        (reset-ensemble-status)
+
         (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENTmsgs right away
-        (reset-melody)     ;; must occur after restart-message-processor for init-ensemble-status
+        (reset-melody)
 
         (transport.schedule/reset-lateness)
 
