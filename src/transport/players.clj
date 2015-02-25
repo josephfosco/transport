@@ -266,6 +266,7 @@
         (binding [*out* *err*]
                  (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
                  (print-player to-player)
+                 (print-player from-player)
                  (print-msg "update-player-follow-info" "from-player-id:   " (get-player-id from-player))
                  (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
                  (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)

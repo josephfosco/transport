@@ -20,7 +20,6 @@
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.instrument :refer [has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
-;;    transport.melody PROBLEM
    [transport.melody :refer [next-melody]]
    [transport.melodyevent :refer :all]
    [transport.messages :refer :all]
@@ -30,7 +29,6 @@
    [transport.players :refer :all]
    [transport.schedule :refer [sched-event]]
    [transport.sc-instrument :refer [stop-instrument]]
-;;    transport.segment ??? PROBLEM
    [transport.segment :refer [first-segment new-segment new-segment? get-contrasting-info-for-player]]
    [transport.settings :refer :all]
    [transport.util.utils :refer :all]
@@ -331,8 +329,8 @@
    event-time - time this note event was scheduled for"
   [player player-id event-time]
 
-  ;; (println)
-  ;; (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+  (println)
+  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-last-melody-event player)
         last-melody-event-note (get-note-for-event last-melody-event)
@@ -353,8 +351,8 @@
                                                                 :melody-event last-melody-event
                                                                 :increment 1)
                              (update-player-follow-info player
-                                                        (inc last-melody-event-num)
                                                         (get-player-map (get-behavior-player-id (get-behavior player)))
+                                                        (inc last-melody-event-num)
                                                         )
                              :else
                              player
@@ -517,15 +515,15 @@
 
 (defn create-player
   [player-no]
-  {:cur-note-beat 0
-   :cur-note-time 0
-   :function transport.play-note/first-note
-   :melody {}
-   :player-id player-no
-   :prev-note-beat 0
-   :prev-note-time 0
-   :sync-beat-player-id nil
-   }
+  (first-segment {:cur-note-beat 0
+                  :cur-note-time 0
+                  :function transport.play-note/first-note
+                  :melody {}
+                  :player-id player-no
+                  :prev-note-beat 0
+                  :prev-note-time 0
+                  :sync-beat-player-id nil
+                  })
   )
 
 (defn init-ensemble
