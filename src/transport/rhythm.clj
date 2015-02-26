@@ -74,7 +74,6 @@
    mm - the mm to compute note-dur with
    note-dur - note duration in beats"
   [mm note-dur]
-  (print-msg "note-dur-to-millis" "note-dur: " note-dur)
   (int (+ 0.5 (* (* (/ 60.0 mm) note-dur)  1000)))   ;; round up or down
   )
 
@@ -191,7 +190,6 @@
 (defn- adjust-prob-based-on-rhythm
   "Adjust note-probs nased on the value and placement of previous notes"
   [note-probs player next-note-or-rest]
-  (print-msg "adjust-prob-based-on-rhythm")
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)]
     (if (nil? last-melody-event-num)
       note-probs
@@ -220,7 +218,6 @@
 
 (defn- adjust-rhythmic-probabilities
   [player next-note-or-rest]
-  (print-msg "adjust-rhythmic-probabilities")
   (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
         adjusted-note-prob (-> (adjust-note-prob player note-durs-millis)
                                (adjust-prob-based-on-density player)
@@ -238,7 +235,6 @@
 
    player - player map to use when determining next note :dur-info"
   [player next-note-or-rest]
-  (print-msg "next-note-dur" "next-note-or-rest: " next-note-or-rest)
   (let [note-dur (weighted-choice (adjust-rhythmic-probabilities player next-note-or-rest))
         ]
     (if (nil? (get-mm player))

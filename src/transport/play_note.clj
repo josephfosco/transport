@@ -466,11 +466,11 @@
                              nil
                              )
         note-play-time (max (System/currentTimeMillis) event-time)
-        upd-player (first-segment (update-player-info (set-function player transport.play-note/next-note)
-                                                      event-time
-                                                      (set-sc-instrument-id-and-note-play-time melody-event
-                                                                                               sc-instrument-id
-                                                                                               note-play-time)))
+        upd-player (update-player-info (set-function player transport.play-note/next-note)
+                                       event-time
+                                       (set-sc-instrument-id-and-note-play-time melody-event
+                                                                                sc-instrument-id
+                                                                                note-play-time))
         ]
 
     (print-msg "play-first-melody-note" "note-play-time: " note-play-time)
@@ -495,8 +495,6 @@
                         0
                         (get-actual-release-dur-millis (get-instrument-info new-player) melody-dur-millis)) )
         ]
-
-    (print-msg "first-note" "about to send msg")
 
     (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
     (if (get-note-for-event melody-event)

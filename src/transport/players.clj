@@ -255,7 +255,7 @@
          (not (nil? last-follow-note))
          (not (nil? cur-change-follow-info-note))
          (= from-player-id (get-player-id from-player))
-         (= (inc last-follow-note) cur-change-follow-info-note))
+         (>= (inc last-follow-note) cur-change-follow-info-note))
       (let [updated-player (merge to-player
                                   (get-following-info-from-player from-player)
                                   )]
