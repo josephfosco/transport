@@ -415,19 +415,6 @@
       (get-behavior player)
       )))
 
-(defn update-player-callback
-  "update the value of a player in atom ensemble
-   this is called from send-off"
-  [cur-players new-player]
-  (assoc cur-players (get-player-id new-player) (atom new-player))
-  )
-
-(defn update-player
-  [player]
-  (swap! ensemble update-player-callback player)
-  player
-  )
-
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
   (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " melody-no: " melody-no)

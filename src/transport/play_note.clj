@@ -312,9 +312,11 @@
           ;; stop prev note when it is short (not articulate?) and starting a new segment with a note
           ;; with a release
           (and inst-has-release? (new-segment? player))
-          (apply-at (+ event-time (get-dur-millis (get-dur-info-for-event cur-melody-event)))
-                    stop-melody-note
-                    [cur-melody-event (get-player-id player)])
+          (comment
+            (apply-at (+ event-time (get-dur-millis (get-dur-info-for-event cur-melody-event)))
+                      stop-melody-note
+                      [cur-melody-event (get-player-id player)])
+            )
           )
   ))
 
@@ -400,7 +402,15 @@
         ]
     (if (not (nil? melody-event-note))
       ;; if about to play a note, check range
-      (check-note-out-of-range player-id melody-event)
+      (do
+        (check-note-out-of-range player-id melody-event)
+        (if (and new-seg?
+                 (not articulate?)
+                 inst-has-release?
+                 )
+          (stop-melody-note last-melody-event player-id)
+          )
+        )
       ;; if about to rest, and
       ;; this rest is not a new seg for FOLLOWING PLAYER (this is handled in check-note-off)
       ;; make sure prior note is off
