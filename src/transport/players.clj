@@ -423,7 +423,6 @@
 
 (defn new-contrast-info-for-player
   [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]
-  (print-msg "new-contrast-info-for-player" "contrast-player-id: " contrast-player-id)
   (swap! (get-player contrast-player-id)
         set-new-contrast-info
         change-player-id

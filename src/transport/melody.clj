@@ -285,7 +285,6 @@
 
    player - the player to determine note or rest for"
   [player note-time]
-  (print-msg "note-or-rest" "behavior-action: " (get-behavior-action (get-behavior player)))
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
         (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
         (note-or-rest-similar-ensemble player note-time)
@@ -433,8 +432,6 @@
 (defn- next-melody-for-player
   [player event-time]
 
-  (print-msg "next-melody-for-player" "event-time: " event-time)
-
   (let [follow-player-id (get-sync-beat-player-id player)]
     (if follow-player-id
       (sync-beat-follow player (get-player-map follow-player-id) event-time)
@@ -456,7 +453,6 @@
 
     player - the player map"
   [player event-time]
-  (print-msg "next-melody" "event-time: " event-time)
   (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time)
