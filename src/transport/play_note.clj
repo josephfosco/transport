@@ -201,8 +201,6 @@
   (let [sc-instrument-id (get-sc-instrument-id melody-event)]
     (if sc-instrument-id
       (do
-        (print-msg "stop-melody-note" "player-id: " player-id " note: " (get-note-for-event melody-event) " event-time: " (get-note-event-time-for-event melody-event))
-        (print-msg "stop-melody-note" "player-id: " player-id " current-time: " (System/currentTimeMillis))
         (stop-instrument sc-instrument-id)
         )
       )
@@ -313,7 +311,7 @@
   [player player-id event-time]
 
 ;;  (println)
-  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-last-melody-event player)
         last-melody-event-note (get-note-for-event last-melody-event)

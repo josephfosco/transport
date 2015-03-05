@@ -398,8 +398,10 @@
          ))
       :else
       ;; play FOLLOWer melody event after last-melody event
+      ;; if FOLLOWing player has exceeded the length of it's melody buffer,
+      ;; just play the oldest melody event that exists
       (let [
-            event-num-to-play (inc last-follow-event-num)
+            event-num-to-play (max (inc last-follow-event-num) (inc (- follow-player-last-event-num SAVED-MELODY-LEN)))
             next-melody-event (get-melody-event follow-player-id event-num-to-play)
             ]
         (if (nil? next-melody-event)

@@ -417,7 +417,6 @@
 
 (defn new-change-follow-info-note-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (print-msg "new-change-follow-info-note-for-player" "change-player-id: " change-player-id " follow-player-id: " follow-player-id " melody-no: " melody-no)
   (swap! (get-player follow-player-id) set-change-follow-info-note change-player-id originator-player-id melody-no)
   )
 
@@ -502,7 +501,6 @@
                                     (get-instrument-info to-player))
            new-similar-info (assoc similar-player-info :melody-char similar-melody-char)
             ]
-        (print-msg "player-copy-new-similar-info" "follow-player-id: " follow-player-id)
         (new-similar-info-for-player
          :change-player-id change-player-id
          :follow-player-id follow-player-id
