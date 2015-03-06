@@ -41,14 +41,6 @@
   [player]
   (:behavior player))
 
-(defn get-change-follow-info-notes
-  [player]
-  (:change-follow-info-notes player))
-
-(defn get-next-change-follow-info-note
-  [player]
-  (first (:change-follow-info-notes player)))
-
 (defn get-function
   [player]
   (:function player))
@@ -230,32 +222,18 @@
       cur-to-player))
   )
 
-(defn set-change-follow-info-note
-  [cur-to-player from-player-id originator-player-id melody-no]
-  (if (not= originator-player-id (get-player-id cur-to-player))
-    (if (and (= from-player-id (get-player-id (:behavior cur-to-player)))
-             (not (some #{melody-no} (get-change-follow-info-notes cur-to-player)))
-             )
-      (assoc cur-to-player :change-follow-info-notes (conj (get-change-follow-info-notes cur-to-player) melody-no))
-      cur-to-player)
-    cur-to-player
-    )
-  )
-
 (declare print-player)
 (defn update-player-follow-info
   [to-player from-player melody-event-num]
   (let [to-player-id (get-player-id to-player)
         from-player-id (get-behavior-player-id (get-behavior to-player))
-        cur-change-follow-info-note (get-next-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
     (if (and
          (not (nil? from-player-id))
          (not (nil? last-follow-note))
-         (not (nil? cur-change-follow-info-note))
          (= from-player-id (get-player-id from-player))
-         (>= (inc last-follow-note) cur-change-follow-info-note))
+         )
       (let [updated-player (merge to-player
                                   (get-following-info-from-player from-player)
                                   )]
@@ -270,7 +248,6 @@
                  (print-msg "update-player-follow-info" "from-player-id:   " (get-player-id from-player))
                  (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
                  (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)
-                 (print-msg "update-player-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
                  )
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )
@@ -414,11 +391,6 @@
         )
       (get-behavior player)
       )))
-
-(defn new-change-follow-info-note-for-player
-  [& {:keys [change-player-id follow-player-id originator-player-id melody-no]}]
-  (swap! (get-player follow-player-id) set-change-follow-info-note change-player-id originator-player-id melody-no)
-  )
 
 (defn new-contrast-info-for-player
   [& {:keys [change-player-id contrast-player-id originator-player-id contrasting-info]}]

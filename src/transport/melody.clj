@@ -354,7 +354,6 @@
     (create-melody-event
      :note nil
      :dur-info new-dur-info
-     :change-follow-info-note nil
      :follow-note 0
      :instrument-info (get-instrument-info player)
      :note-event-time event-time
@@ -385,7 +384,7 @@
          :dur-info (get-dur-info-for-beats follow-player 3)
          :follow-note (if (nil? follow-player-last-event-num)
                         0
-                        (- follow-player-last-event-num 1))
+                        (dec follow-player-last-event-num))
          ;; if follow-player has not played a note yet, get follow-player instrument-info
          ;; otherwise get instrument-info from last follow-player-event
          :instrument-info (if (nil? follow-player-last-event-num)
@@ -425,7 +424,6 @@
             )
           (assoc next-melody-event
             :follow-note event-num-to-play
-            :change-follow-info-note (get-next-change-follow-info-note player)
             :note-event-time event-time
             :seg-num player-seg-num))
         )))
@@ -442,7 +440,6 @@
          :note next-note-or-rest
          :dur-info (next-note-dur player next-note-or-rest)
          :follow-note nil
-         :change-follow-info-note nil
          :instrument-info (get-instrument-info player)
          :note-event-time event-time
          :seg-num (get-seg-num player)
