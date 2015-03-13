@@ -109,7 +109,6 @@
 
 (defn- update-melody-list
   [cur-melody next-melody-no new-melody-event]
-  (print-msg "update-melody-list" "next-melody-no: " next-melody-no)
   (if (= (count cur-melody) SAVED-MELODY-LEN)
     (do
       (assoc (dissoc cur-melody (- next-melody-no SAVED-MELODY-LEN))
@@ -121,7 +120,6 @@
 
 (defn- update-melody-info
   [cur-melody player event-time melody-event new-seg? sync-beat-player-id]
-  (print-msg "update-melody-info" "new-seg?: " new-seg?)
   (let [prev-note-beat (get-cur-note-beat player)
         cur-note-beat (cond (not (nil? sync-beat-player-id)) nil
                             (nil? (get-cur-note-beat player)) 0 ;; right after sync beat this will be nill so reset it
@@ -133,7 +131,6 @@
                          1
                          (inc (get-last-melody-event-num-for-player player)))
         ]
-    (print-msg "update-melody-info" "after vars")
     {
      :cur-note-beat (if new-seg? 0 cur-note-beat)
      :cur-note-time cur-note-time
@@ -147,10 +144,6 @@
 (defn check-note-out-of-range
   [player-id melody-event]
   ;; Throw exception if note is out of instrument's range
-  (print-msg "check-note-out-of-range" "melody-event: " melody-event)
-  (print-msg "check-note-out-of-range" "note: " (get-note-for-event melody-event))
-  (print-msg "check-note-out-of-range" "range-hi " (get-range-hi-for-inst-info (get-instrument-info-for-event melody-event)))
-  (print-msg "check-note-out-of-range" "range-lo " (get-range-lo-for-inst-info (get-instrument-info-for-event melody-event)))
   (if (or (> (get-note-for-event melody-event)
              (get-range-hi-for-inst-info (get-instrument-info-for-event melody-event)))
           (< (get-note-for-event melody-event)
@@ -288,7 +281,7 @@
   [player-id player event-time new-seg? new-seg-following-player? sync-beat-player-id]
 
 ;;  (println)
-  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-melody-event-num player last-melody-event-num)
         last-melody-event-note (get-note-for-event last-melody-event)
@@ -326,14 +319,6 @@
         upd-melody-event (set-sc-instrument-id-and-note-play-time  melody-event
                                                                    sc-instrument-id
                                                                    note-play-time)
-        jnk (print-msg "play-melody" "update-melody-info: "
-                       (update-melody-info (deref (get @player-melodies player-id))
-                                               player
-                                               event-time
-                                               upd-melody-event
-                                               new-seg?
-                                               sync-beat-player-id
-                                               ))
         new-melody (reset! (get @player-melodies player-id)
                            (update-melody-info (deref (get @player-melodies player-id))
                                                player
@@ -344,7 +329,6 @@
                                                )
                            )
         ]
-    (print-msg "play-melody" "note-play-time: " note-play-time)
 
     (if (not (nil? melody-event-note))
       ;; if about to play a note, check range
@@ -384,10 +368,11 @@
                          (swap! (get @ensemble player-id) update-player-with-new-segment event-time)
                          new-seg-following-player?
                          (swap! (get @ensemble player-id)
-                                (update-player-follow-info (get-player-map (get-behavior-player-id
-                                                                            (get-behavior player)))
-                                                           (inc last-melody-event-num)
-                                                           ))
+                                update-player-follow-info
+                                (get-player-map (get-behavior-player-id
+                                                 (get-behavior player)))
+                                (inc last-melody-event-num)
+                                )
                              :else
                              player
                              )
@@ -414,7 +399,7 @@
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
     (if melody-event-note
-      (check-note-off new-player event-time)
+      (check-note-off melody-event event-time)
       )
     ;; if this is the start of a new segment, send messages
     (if (= (get-seg-start new-player) event-time)
