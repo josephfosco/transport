@@ -98,14 +98,14 @@
   "Returns player map with new segment info in it
 
    player - player map to get (and return new segment info for"
-  [player]
+  [player event-time]
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         upd-player (assoc player
                      :behavior new-behavior
                      :seg-len (select-segment-length)
                      :seg-num (inc (get-seg-num player))
-                     :seg-start 0
+                     :seg-start event-time
                      :cur-note-beat 0
                      )
         ]
@@ -113,8 +113,7 @@
      (= behavior-action FOLLOW-PLAYER)
      (let [following-player-id (get-behavior-player-id new-behavior)]
        (merge upd-player
-              (get-following-info-from-player (get-player-map following-player-id))
-              {:sync-beat-player-id following-player-id}))
+              (get-following-info-from-player (get-player-map following-player-id))))
 
      (= behavior-action SIMILAR-PLAYER)
      (let [similar-player-info (get-similar-info-from-player (get-player-map (get-behavior-player-id new-behavior)))
@@ -160,8 +159,4 @@
          :metronome (select-metronome upd-player)
          :mm new-mm
          :scale (select-scale upd-player)
-         :sync-beat-player-id (if (= behavior-action SIMILAR-ENSEMBLE)
-                                (get-player-with-mm player new-mm)
-                                nil
-                                )
          )))))

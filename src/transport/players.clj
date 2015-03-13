@@ -28,6 +28,15 @@
   (:import transport.behavior.Behavior)
   )
 
+(def ensemble (atom {}))
+(def player-melodies (atom {}))
+
+(declare get-player-id)
+(defn get-melody-info-for-player
+  [player]
+  (deref (get @player-melodies (get-player-id player)))
+  )
+
 (defn get-player-val
   "Returns the requested value for the specified player
 
@@ -47,15 +56,15 @@
 
 (defn get-cur-note-beat
   [player]
-  (:cur-note-beat player))
+  (:cur-note-beat (get-melody-info-for-player player)))
 
 (defn get-cur-note-time
   [player]
-  (:cur-note-time player))
+  (:cur-note-time (get-melody-info-for-player player)))
 
 (defn get-prev-note-time
   [player]
-  (:prev-note-time player))
+  (:prev-note-time (get-melody-info-for-player player)))
 
 (declare get-last-melody-event)
 (defn get-instrument-info
@@ -76,7 +85,7 @@
 
 (defn get-melody
   [player]
-  (:melody player))
+  (:melody (get-melody-info-for-player player)))
 
 (defn get-melody-char
   [player]
@@ -109,10 +118,6 @@
 (defn get-seg-start
   [player]
   (:seg-start player))
-
-(defn get-sync-beat-player-id
-  [player]
-  (:sync-beat-player-id player))
 
 (defn get-last-melody-event-num-for-player
   [player]
@@ -331,8 +336,6 @@
 
 ;; --------------------------------------------------------------------------------------
 
-(def ensemble (atom {}))
-
 (defn get-ensemble
   []
   (map deref (vals @ensemble)))
@@ -413,8 +416,14 @@
   )
 
 (defn clear-ensemble
-  "used by send or send-off to clear agents"
+  "used by send or send-off to clear ensemble atom"
   [cur-players]
+  {}
+  )
+
+(defn clear-player-melodies
+  "used by send or send-off to clear player-melodies atom"
+  [cur-melodies]
   {}
   )
 

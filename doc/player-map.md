@@ -4,7 +4,6 @@
     + :accuracy - this players accuracy
     + :action - interaction with other players (can be follow, complement, contrast, ignore)
     + :player-id - player id of player that is being observed (optional, only if :action is follow, complement or contrast)
-* :change-follow-info-notes a vector used when following another player. If the player you are following changes instruments, this is the note or notes they changed instrument on
 * :cur-note-beat - the beat the next note to be played will be played on (starts at 0)
 * :cur-note-time - the time the next note to be played is scheduled to be played (starts at 0)
 * :function - function to call when event is triggered
@@ -49,6 +48,5 @@
 * :seg-num - the number of the player's current segment
 * :seg-start - the start time in millis of the player's current segment. If = 0 the next note will start a new segment
 * :scale - the scale this player is using
-* :sync-beat-player-id - when not nil, sync downbeat with this player
 
 Copyright 2013-2015  Joseph Fosco. All Rights Reserved
