@@ -157,9 +157,14 @@
   (assoc player :behavior behavior)
   )
 
-(defn set-function
-  [player function]
-  (assoc player :function function)
+(defn set-first-note
+  "Called the first time a note is played for a plyer to set up
+   the seg-start-time and the function
+
+   seg-start-time - time to set :seg-start to
+   function - function to be used for subsequent notes"
+  [player seg-start-time function]
+  (assoc player :function function :seg-start seg-start-time)
   )
 
 (defn get-similar-info-from-player
