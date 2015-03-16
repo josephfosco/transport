@@ -356,17 +356,40 @@
   )
 
 (defn print-player-action
-  [player]
-  (let [plyr-action (get-behavior-action (get-behavior player))]
+  [player-atom]
+  (let [plyr-action (get-behavior-action (get-behavior @player-atom))]
     (cond (= plyr-action IGNORE) (println "IGNORE")
           (= plyr-action CONTRAST-PLAYER) (println "CONTRAST-PLAYER")
           (= plyr-action SIMILAR-PLAYER) (println "SIMILAR-PLAYER")
           (= plyr-action FOLLOW-PLAYER) (println "FOLLOW-PLAYER")
           (= plyr-action SIMILAR-ENSEMBLE) (println "SIMILAR-ENSEMBLE")
           (= plyr-action CONTRAST-ENSEMBLE) (println "CONTRAST-ENSEMBLE")
+          :else
+          (println "player-action:" plyr-action "*** DOES NOT MATCH ***" "behavior:" (get-behavior player-atom))
           )
     )
   )
+
+(defn print-player-num
+  [player-id]
+  (print-player (get-player-map player-id))
+  )
+
+(defn print-melody-for-player-id
+  [player-id]
+  (print-melody (get-melody-info-for-player-id player-id))
+  )
+
+(defn print-all-actions
+  []
+  (dorun
+   (map print-player-action (vals @ensemble)))
+  )
+
+(defn print-all-players
+  []
+  (dorun (map print-player (get-ensemble)))
+)
 
 
 ;; --------------------------------------------------------------------------------------
@@ -461,27 +484,6 @@
   [cur-melodies]
   {}
   )
-
-(defn print-player-num
-  [player-id]
-  (print-player (get-player-map player-id))
-  )
-
-(defn print-melody-for-player-id
-  [player-id]
-  (print-melody (get-melody-info-for-player-id player-id))
-  )
-
-(defn print-all-actions
-  []
-  (dorun
-   (map print-player-action (vals @ensemble)))
-  )
-
-(defn print-all-players
-  []
-  (dorun (map print-player (get-ensemble)))
-)
 
 
 ;;---------------------------- old player_copt.clj ----------------------------------------------------------
