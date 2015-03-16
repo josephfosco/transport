@@ -152,6 +152,10 @@
   (get (get-melody player) melody-event-num)
   )
 
+(defn get-player-id-for-melody
+  [melody]
+  (:player-id melody))
+
 (defn set-behavior
   [player behavior]
   (assoc player :behavior behavior)
@@ -313,6 +317,27 @@
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
     (println "end player: " (get-player-id player) "current time: " (System/currentTimeMillis))
+    (prn)
+    )
+  )
+
+(defn print-melody
+  "Pretty Print a player-melodies map
+
+  melody - the player map to print"
+  [melody & {:keys [prnt-full-inst-info]
+             :or {prnt-full-inst-info false}}]
+  (let [sorted-keys (sort (keys melody))]
+    (println "player: " (get-player-id-for-melody melody) "current time: " (System/currentTimeMillis))
+    (doseq [melody-key sorted-keys]
+      (cond
+        (= melody-key :melody)
+        (print-melody (:melody melody) :prnt-full-inst-info prnt-full-inst-info)
+
+       :else
+        (println (format "%-20s" (str "  " melody-key)) "-" (get melody melody-key)))
+      )
+    (println "end melody: " (get-player-id-for-melody melody) "current time: " (System/currentTimeMillis))
     (prn)
     )
   )

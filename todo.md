@@ -58,5 +58,3 @@
 * On loud interupt, set a max volume level for any other instrument besides loud instrument
 
 * Why is there reverb on only 1 channel?
-
-* If a FOLLOWING player changes segment twice before the FOLLOWer catches up, the info from the first change will be lost when the FOLLOWER catches up to it

@@ -55,8 +55,7 @@
                          :envelope-type "ADSR"
                          :range-lo (first MIDI-RANGE)
                          :range-hi (last MIDI-RANGE)
-;;                         :release-dur 0.3}
-                         :release-dur 0.1}
+                         :release-dur 0.3}
                         {:instrument plink-m1
                          :envelope-type "AD"
                          :range-lo (first MIDI-RANGE)
@@ -98,20 +97,6 @@
 (defn get-instrument-range-lo
   [instrument-info]
   (:range-lo instrument-info))
-
-(comment
-  ***************************
-  (defn get-instrument-range-for-player
-    [player]
-    (list (get-lo-range player) (get-hi-range player)))
-  )
-
-(comment
-  **************************************
-  (defn get-envelope-type
-    [player]
-    (:envelope-type (get-instrument-info player)))
-  )
 
 (defn get-gate-dur
   "player - player map
