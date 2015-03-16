@@ -37,6 +37,11 @@
   (deref (get @player-melodies (get-player-id player)))
   )
 
+(defn get-melody-info-for-player-id
+  [player-id]
+  (get-melody-info-for-player (get-player-map player-id))
+  )
+
 (defn get-player-val
   "Returns the requested value for the specified player
 
@@ -332,7 +337,7 @@
     (doseq [melody-key sorted-keys]
       (cond
         (= melody-key :melody)
-        (print-melody (:melody melody) :prnt-full-inst-info prnt-full-inst-info)
+        (print-player-melody (:melody melody) :prnt-full-inst-info prnt-full-inst-info)
 
        :else
         (println (format "%-20s" (str "  " melody-key)) "-" (get melody melody-key)))
@@ -460,6 +465,11 @@
 (defn print-player-num
   [player-id]
   (print-player (get-player-map player-id))
+  )
+
+(defn print-melody-for-player-id
+  [player-id]
+  (print-melody (get-melody-info-for-player-id player-id))
   )
 
 (defn print-all-actions
