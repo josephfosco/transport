@@ -198,15 +198,19 @@
 (defn- check-live-synth
   [player]
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
-        prior-melody-event (get-melody-event-num player (- last-melody-event-num 20))]
-    (if (and (> (get-last-melody-event-num-for-player player) 20)
+        prior-melody-event (get-melody-event-num player (- last-melody-event-num 30))]
+    (if (and (> (get-last-melody-event-num-for-player player) 30)
              (node-live? (get-sc-instrument-id prior-melody-event))
              (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player last-melody-event-num)))
+                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 5))))
+             (not= (get-sc-instrument-id prior-melody-event)
+                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 4))))
+             (not= (get-sc-instrument-id prior-melody-event)
+                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 2))))
              (not= (get-sc-instrument-id prior-melody-event)
                    (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 1))))
              (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 2))))
+                   (get-sc-instrument-id (get-melody-event-num player last-melody-event-num)))
              )
       (do
         (binding [*out* *err*]
