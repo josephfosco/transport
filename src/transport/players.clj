@@ -67,6 +67,14 @@
   [player]
   (:function player))
 
+(defn get-change-follow-info-notes
+  [player]
+  (:change-follow-info-notes player))
+
+(defn get-change-follow-info
+  [player]
+  (:change-follow-info player))
+
 (defn get-cur-note-beat
   [player]
   (:cur-note-beat (get-melody-info-for-player player)))
@@ -226,14 +234,20 @@
 (defn- set-new-follow-info
   [player melody-no follow-info]
   (assoc player
-    :change-follow-info-notes melody-no
-    :change-follow-info follow-info)
+    :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
+    :change-follow-info (conj (get-change-follow-info player) follow-info)
+    )
   )
 
 (defn new-follow-info-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
   (if (not= follow-player-id originator-player-id)
-    (swap! (get-player follow-player-id) set-new-follow-info melody-no follow-info)
+    (let [to-player (get-player-map follow-player-id)]
+      (if (and (= change-player-id (get-player-id (:behavior to-player)))
+               (not (some #{melody-no} (get-change-follow-info-notes to-player)))
+               )
+        (swap! (get-player follow-player-id) set-new-follow-info melody-no follow-info)
+        ))
     )
   )
 
