@@ -31,6 +31,14 @@
 (def ensemble (atom {}))
 (def player-melodies (atom {}))
 
+(defn get-ensemble
+  []
+  (map deref (vals @ensemble)))
+
+(defn get-player-map
+  [player-id]
+  (deref (get @ensemble player-id)))
+
 (declare get-player-id)
 (defn get-melody-info-for-player
   [player]
@@ -103,6 +111,10 @@
 (defn get-mm
   [player]
   (:mm player))
+
+(defn get-player
+  [player-id]
+  (get @ensemble player-id))
 
 (defn get-player-id
   [player]
@@ -365,7 +377,7 @@
           (= plyr-action SIMILAR-ENSEMBLE) (println "SIMILAR-ENSEMBLE")
           (= plyr-action CONTRAST-ENSEMBLE) (println "CONTRAST-ENSEMBLE")
           :else
-          (println "player-action:" plyr-action "*** DOES NOT MATCH ***" "behavior:" (get-behavior player-atom))
+          (println "player-action:" plyr-action "*** DOES NOT MATCH ***" "behavior:" (get-behavior @player-atom))
           )
     )
   )
@@ -393,18 +405,6 @@
 
 
 ;; --------------------------------------------------------------------------------------
-
-(defn get-ensemble
-  []
-  (map deref (vals @ensemble)))
-
-(defn get-player
-  [player-id]
-  (get @ensemble player-id))
-
-(defn get-player-map
-  [player-id]
-  (deref (get @ensemble player-id)))
 
 (defn get-player-with-mm
   "Returns player-id for the player with requested mm.
