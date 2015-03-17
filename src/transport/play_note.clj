@@ -34,16 +34,6 @@
   (:import transport.behavior.Behavior)
   )
 
-(defn new-follow-info
-  [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
-  (new-contrast-info-for-player
-   :change-player-id change-player-id
-   :contrast-player-id contrast-player-id
-   :originator-player-id originator-player-id
-   :contrasting-info (get-contrasting-info-for-player (get-player-map contrast-player-id))
-   )
-  )
-
 (defn new-contrast-info
   [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
   (new-contrast-info-for-player
@@ -71,7 +61,14 @@
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
        (cond
-        (= (get-behavior-action (get-behavior player)) SIMILAR-PLAYER)
+        (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+        (register-listener
+         MSG-PLAYER-NEW-FOLLOW-INFO
+         transport.players/new-follow-info-for-player
+         {:change-player-id (get-behavior-player-id (get-behavior player))}
+         :follow-player-id player-id
+         )
+       (= (get-behavior-action (get-behavior player)) SIMILAR-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
          transport.players/player-copy-new-similar-info
@@ -98,6 +95,13 @@
   (let [prev-behavior (get-behavior player) ;; behavior before new segment
         ]
     (cond
+     (= (get-behavior-action prev-behavior) FOLLOW-PLAYER)
+     (unregister-listener
+      MSG-PLAYER-NEW-FOLLOW-INFO
+      transport.players/new-change-follow-info-note-for-player
+      {:change-player-id (get-behavior-player-id prev-behavior)}
+      :follow-player-id (get-player-id player)
+      )
      (= (get-behavior-action prev-behavior) SIMILAR-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-SIMILAR-INFO

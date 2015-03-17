@@ -223,6 +223,10 @@
                 :originator-player-id  originator-player-id)
   )
 
+(defn new-follow-info-for-player
+  [& {:keys [change-player-id contrast-player-id originator-player-id melody-no follow-info]}]
+  )
+
 (defn set-new-contrast-info
   [cur-contrasting-player change-player-id originator-player-id new-contrasting-info-map]
   (if (= change-player-id (get-player-id (:behavior cur-contrasting-player)))
