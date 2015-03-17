@@ -223,8 +223,18 @@
                 :originator-player-id  originator-player-id)
   )
 
+(defn- set-new-follow-info
+  [player melody-no follow-info]
+  (assoc player
+    :change-follow-info-notes melody-no
+    :change-follow-info follow-info)
+  )
+
 (defn new-follow-info-for-player
-  [& {:keys [change-player-id contrast-player-id originator-player-id melody-no follow-info]}]
+  [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
+  (if (not= follow-player-id originator-player-id)
+    (swap! (get-player follow-player-id) set-new-follow-info melody-no follow-info)
+    )
   )
 
 (defn set-new-contrast-info
@@ -491,7 +501,7 @@
   )
 
 
-;;---------------------------- old player_copt.clj ----------------------------------------------------------
+;;---------------------------- old player_copy.clj ----------------------------------------------------------
 
 
 (defn adjust-melody-char-for-instrument

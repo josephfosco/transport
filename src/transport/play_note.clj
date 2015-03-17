@@ -56,7 +56,11 @@
   [player melody-no]
   (let [player-id (get-player-id player)]
        (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
-       (send-message MSG-PLAYER-NEW-FOLLOW-INFO :change-player-id player-id :originator-player-id player-id :melody-no melody-no)
+       (send-message MSG-PLAYER-NEW-FOLLOW-INFO
+                     :change-player-id player-id
+                     :originator-player-id player-id
+                     :melody-no melody-no
+                     :follow-info (get-following-info-from-player player))
        (send-message MSG-PLAYER-NEW-SIMILAR-INFO :change-player-id player-id :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
 
@@ -98,7 +102,7 @@
      (= (get-behavior-action prev-behavior) FOLLOW-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
-      transport.players/new-change-follow-info-note-for-player
+      transport.players/new-follow-info-for-player
       {:change-player-id (get-behavior-player-id prev-behavior)}
       :follow-player-id (get-player-id player)
       )
