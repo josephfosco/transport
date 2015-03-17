@@ -213,7 +213,8 @@
   (send-message MSG-PLAYER-NEW-FOLLOW-INFO
                 :change-player-id change-player-id
                 :originator-player-id  originator-player-id
-                :melody-no melody-no)
+                :melody-no melody-no
+                :follow-info (get-following-info-from-player (get-player-map change-player-id)))
   (send-message MSG-PLAYER-NEW-SIMILAR-INFO
                 :change-player-id change-player-id
                 :originator-player-id  originator-player-id)

@@ -34,6 +34,16 @@
   (:import transport.behavior.Behavior)
   )
 
+(defn new-follow-info
+  [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
+  (new-contrast-info-for-player
+   :change-player-id change-player-id
+   :contrast-player-id contrast-player-id
+   :originator-player-id originator-player-id
+   :contrasting-info (get-contrasting-info-for-player (get-player-map contrast-player-id))
+   )
+  )
+
 (defn new-contrast-info
   [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
   (new-contrast-info-for-player
