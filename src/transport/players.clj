@@ -232,23 +232,22 @@
   )
 
 (defn- set-new-follow-info
-  [player melody-no follow-info]
-  (assoc player
-    :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
-    :change-follow-info (conj (get-change-follow-info player) follow-info)
+  [player melody-no change-player-id follow-info]
+  (if (and (= change-player-id (get-player-id (:behavior player)))
+           (not (some #{melody-no} (get-change-follow-info-notes player)))
+           (< (get-last-melody-event-num-for-player player) melody-no)
+           )
+    (assoc player
+      :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
+      :change-follow-info (conj (get-change-follow-info player) follow-info)
+      )
+    player
     )
   )
 
 (defn new-follow-info-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
-  (if (not= follow-player-id originator-player-id)
-    (let [to-player (get-player-map follow-player-id)]
-      (if (and (= change-player-id (get-player-id (:behavior to-player)))
-               (not (some #{melody-no} (get-change-follow-info-notes to-player)))
-               )
-        (swap! (get-player follow-player-id) set-new-follow-info melody-no follow-info)
-        ))
-    )
+  (swap! (get-player follow-player-id) set-new-follow-info melody-no change-player-id follow-info)
   )
 
 (defn set-new-contrast-info
@@ -294,9 +293,22 @@
          (not (nil? last-follow-note))
          (= from-player-id (get-player-id from-player))
          )
-      (let [updated-player (merge to-player
-                                  (get-following-info-from-player from-player)
-                                  )]
+      (let [updated-player (if (> (count (get-change-follow-info to-player)) 0)
+                             (do
+                               (print-msg "update-player-follow-info" "***** using change-follow-info *****" "player-id: " to-player-id " melody-event-num: " melody-event-num)
+                               (assoc (merge to-player
+                                             (get (get-change-follow-info to-player) 0)
+                                             )
+                                 :change-follow-info-notes (subvec (get-change-follow-info-notes to-player) 1)
+                                 :change-follow-info (subvec (get-change-follow-info to-player) 1)
+                                 ))
+                             (do
+                               (print-msg "update-player-follow-info" "###### NOT using change-follow-info ###### " "player-id: " to-player-id " melody-event-num: " melody-event-num)
+                               (merge to-player
+                                      (get-following-info-from-player from-player)
+                                      ))
+                             )
+            ]
 
         (send-msg-new-player-info to-player-id to-player-id melody-event-num)
         updated-player)
