@@ -247,6 +247,7 @@
 
 (defn new-follow-info-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
+  (print-msg "new-follow-info-for-player" "follow-player-id: " follow-player-id)
   (swap! (get-player follow-player-id) set-new-follow-info melody-no change-player-id follow-info)
   )
 
@@ -295,7 +296,7 @@
          )
       (let [updated-player (if (> (count (get-change-follow-info to-player)) 0)
                              (do
-                               (print-msg "update-player-follow-info" "***** using change-follow-info *****" "player-id: " to-player-id " melody-event-num: " melody-event-num)
+                               (print-msg "update-player-follow-info" "***** using change-follow-info *****" "player-id: " to-player-id " from-player-id: " from-player-id " melody-event-num: " melody-event-num)
                                (assoc (merge to-player
                                              (get (get-change-follow-info to-player) 0)
                                              )
@@ -303,7 +304,7 @@
                                  :change-follow-info (subvec (get-change-follow-info to-player) 1)
                                  ))
                              (do
-                               (print-msg "update-player-follow-info" "###### NOT using change-follow-info ###### " "player-id: " to-player-id " melody-event-num: " melody-event-num)
+                               (print-msg "update-player-follow-info" "###### NOT using change-follow-info ###### " "player-id: " to-player-id " from-player-id: " from-player-id " melody-event-num: " melody-event-num)
                                (merge to-player
                                       (get-following-info-from-player from-player)
                                       ))

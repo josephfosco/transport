@@ -330,6 +330,7 @@
 
 (defn- sync-beat-follow
   [player follow-player event-time]
+  (print-msg "sync-beat-follow" "player-id: " (get-player-id player) " follow-player: " (get-player-id follow-player) " event-time: " event-time)
   (let [follow-player-mm (get-mm follow-player)
         follow-player-beat (get-cur-note-beat follow-player)
         follow-player-time (get-cur-note-time follow-player)
@@ -340,9 +341,12 @@
                        ;;  which means FOLLOW player is either syncing (nil) or resting before starting segment
                        ;;  so, sync time = cur-note-beat time + 1 beat
                        (do
-                         (get-dur-info-for-mm-and-millis
-                          follow-player-mm
-                          (+ (- follow-player-time event-time) (note-dur-to-millis follow-player-mm 1)))
+                         ;; use if below in case this is the first note and follow-player has not played a note yet
+                         (get-dur-info-for-mm-and-millis follow-player-mm
+                                                         (+ (if (> follow-player-time 0)
+                                                              (- follow-player-time event-time)
+                                                              0)
+                                                            (note-dur-to-millis follow-player-mm 1)))
                          )
                        (do
                          (get-dur-info-for-mm-and-millis
@@ -351,6 +355,7 @@
                          )
                        )
         ]
+    (print-msg "sync-beat-follow" "after let assignment")
     (create-melody-event
      :note nil
      :dur-info new-dur-info

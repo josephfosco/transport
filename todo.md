@@ -58,3 +58,7 @@
 * On loud interupt, set a max volume level for any other instrument besides loud instrument
 
 * Why is there reverb on only 1 channel?
+
+* in melody.clj syn-beat-follow check logic around comment "current info for FOLLOW player is for next segment". Is this still true?
+
+* For first note - all instruments should have the same event-time

@@ -110,11 +110,11 @@
         (if (false? @is-initialized?)
           (transport-init :num-players num-players))
 
-        (print-banner "transport-start about to start-scheduler")
-        (start-scheduler)
-
         (print-banner "transport-start about to start-message-processor")
         (start-message-processor)
+
+        (print-banner "transport-start about to start-scheduler")
+        (start-scheduler)
 
         (print-banner "transport-start init-melody-complete")
         (reset! is-playing? true)
@@ -152,12 +152,11 @@
         (print-banner "transport-restart about to start-scheduler")
         (start-scheduler)
 
-        (print-banner "transport-restart about to start-message-processor")
-        (start-message-processor)
-
-        ;; init-ensemble-status must occur after restart-message-processor
         (print-banner "transport-restart about to reset-ensemble-status")
         (reset-ensemble-status)
+
+        (print-banner "transport-restart about to start-message-processor")
+        (start-message-processor)
 
         (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for
