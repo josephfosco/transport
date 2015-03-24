@@ -139,7 +139,6 @@
 
 (defn- update-melody-info
   [cur-melody player event-time melody-event new-seg? sync-beat-player-id]
-  ;; (print-msg "update-melody-info" "player-id: " (get-player-id player))
   (let [prev-note-beat (get-cur-note-beat player)
         cur-note-beat (cond (not (nil? sync-beat-player-id)) nil
                             (nil? (get-cur-note-beat player)) 0 ;; right after sync beat this will be nill so reset it
@@ -151,7 +150,6 @@
                          1
                          (inc (get-last-melody-event-num-for-player player)))
         ]
-    (print-msg "update-melody-info" "after let assignment")
     {
      :cur-note-beat (if new-seg? 0 cur-note-beat)
      :cur-note-time cur-note-time

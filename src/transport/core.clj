@@ -147,16 +147,16 @@
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
         (init-ensemble)
-        (reset! is-playing? true)
-
-        (print-banner "transport-restart about to start-scheduler")
-        (start-scheduler)
-
         (print-banner "transport-restart about to reset-ensemble-status")
         (reset-ensemble-status)
 
+        (reset! is-playing? true)
+
         (print-banner "transport-restart about to start-message-processor")
         (start-message-processor)
+
+        (print-banner "transport-restart about to start-scheduler")
+        (start-scheduler)
 
         (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for

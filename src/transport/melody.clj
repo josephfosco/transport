@@ -330,7 +330,6 @@
 
 (defn- sync-beat-follow
   [player follow-player event-time]
-  (print-msg "sync-beat-follow" "player-id: " (get-player-id player) " follow-player: " (get-player-id follow-player) " event-time: " event-time)
   (let [follow-player-mm (get-mm follow-player)
         follow-player-beat (get-cur-note-beat follow-player)
         follow-player-time (get-cur-note-time follow-player)
@@ -355,7 +354,6 @@
                          )
                        )
         ]
-    (print-msg "sync-beat-follow" "after let assignment")
     (create-melody-event
      :note nil
      :dur-info new-dur-info

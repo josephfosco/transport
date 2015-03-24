@@ -235,7 +235,8 @@
   [player melody-no change-player-id follow-info]
   (if (and (= change-player-id (get-player-id (:behavior player)))
            (not (some #{melody-no} (get-change-follow-info-notes player)))
-           (< (get-last-melody-event-num-for-player player) melody-no)
+;; Commented out line possibly causes crash at start when follow-player has no melody events
+;;           (< (get-last-melody-event-num-for-player player) melody-no)
            )
     (assoc player
       :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
@@ -247,7 +248,6 @@
 
 (defn new-follow-info-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
-  (print-msg "new-follow-info-for-player" "follow-player-id: " follow-player-id)
   (swap! (get-player follow-player-id) set-new-follow-info melody-no change-player-id follow-info)
   )
 
@@ -296,7 +296,6 @@
          )
       (let [updated-player (if (> (count (get-change-follow-info to-player)) 0)
                              (do
-                               (print-msg "update-player-follow-info" "***** using change-follow-info *****" "player-id: " to-player-id " from-player-id: " from-player-id " melody-event-num: " melody-event-num)
                                (assoc (merge to-player
                                              (get (get-change-follow-info to-player) 0)
                                              )
@@ -304,7 +303,6 @@
                                  :change-follow-info (subvec (get-change-follow-info to-player) 1)
                                  ))
                              (do
-                               (print-msg "update-player-follow-info" "###### NOT using change-follow-info ###### " "player-id: " to-player-id " from-player-id: " from-player-id " melody-event-num: " melody-event-num)
                                (merge to-player
                                       (get-following-info-from-player from-player)
                                       ))
