@@ -216,7 +216,7 @@
     )
   )
 
-(defn- send-msg-new-player-info
+(defn  send-msg-new-player-info
   [change-player-id originator-player-id melody-no]
   (send-message MSG-PLAYER-NEW-FOLLOW-INFO
                 :change-player-id change-player-id
@@ -248,7 +248,9 @@
 
 (defn new-follow-info-for-player
   [& {:keys [change-player-id follow-player-id originator-player-id melody-no follow-info]}]
-  (swap! (get-player follow-player-id) set-new-follow-info melody-no change-player-id follow-info)
+  (if (not= originator-player-id follow-player-id)
+      (swap! (get-player follow-player-id) set-new-follow-info melody-no change-player-id follow-info)
+    )
   )
 
 (defn set-new-contrast-info
@@ -309,7 +311,6 @@
                              )
             ]
 
-        (send-msg-new-player-info to-player-id to-player-id melody-event-num)
         updated-player)
       (do
         (binding [*out* *err*]

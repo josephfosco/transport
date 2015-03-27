@@ -1,0 +1,1233 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x0000003ba9c09830, pid=4358, tid=139640422024960
+#
+# JRE version: OpenJDK Runtime Environment (8.0_31-b13) (build 1.8.0_31-b13)
+# Java VM: OpenJDK 64-Bit Server VM (25.31-b07 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# C  [libpthread.so.0+0x9830]  pthread_mutex_lock+0x0
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f00bc014800):  JavaThread "Thread-11" [_thread_in_native, id=4541, stack(0x00007f0091b04000,0x00007f0091c05000)]
+
+siginfo: si_signo: 11 (SIGSEGV), si_code: 128 (SI_KERNEL), si_addr: 0x0000000000000000
+
+Registers:
+RAX=0x00007f00c00526b0, RBX=0x00007f00f4027d40, RCX=0x0000000000000020, RDX=0x0000000000000010
+RSP=0x00007f0091c02e18, RBP=0x00007f00c097e4b0, RSI=0x00007f00c097e4b0, RDI=0x34326c6176652473
+R8 =0x0000003ba9bb9a40, R9 =0x00007f0091c04700, R10=0x0000000000000020, R11=0x00007f00f0b60610
+R12=0x0000000000000000, R13=0x00007f0091c03640, R14=0x00007f0091c03530, R15=0x0000000000000000
+RIP=0x0000003ba9c09830, EFLAGS=0x0000000000010202, CSGSFS=0x0000000000000033, ERR=0x0000000000000000
+  TRAPNO=0x000000000000000d
+
+Top of Stack: (sp=0x00007f0091c02e18)
+0x00007f0091c02e18:   00007f00f0b627cd 00007f0091c02cf0
+0x00007f0091c02e28:   0000000000000020 00007f0091c02e60
+0x00007f0091c02e38:   00007f00c09e8750 0000000000000020
+0x00007f0091c02e48:   00007f0091c02e60 00007f00c09e8750
+0x00007f0091c02e58:   00007f00f0fd7034 0000000000000006
+0x00007f0091c02e68:   00007f0091c036c0 00007f0091c02f40
+0x00007f0091c02e78:   00007f00f0fd6a61 00007f0091c02e90
+0x00007f0091c02e88:   00007f00bc014800 00007f00bc0149d8
+0x00007f0091c02e98:   00007f0091c02db0 0000000000000000
+0x00007f0091c02ea8:   00007f0091c03530 00007f00c09e8750
+0x00007f0091c02eb8:   00007f00f0b60ef0 00007f0091c036c0
+0x00007f0091c02ec8:   00007f0091c02db0 00007f00c09ce170
+0x00007f0091c02ed8:   0000000400000000 0000000000000020
+0x00007f0091c02ee8:   00007f0091c02e60 00007f0000000001
+0x00007f0091c02ef8:   00007f00f0fc8ee1 0000000000000001
+0x00007f0091c02f08:   b9488edd487f6100 0000000000000005
+0x00007f0091c02f18:   0000000000000003 0000000000000004
+0x00007f0091c02f28:   0000000000000006 00007f00f0fd8fcc
+0x00007f0091c02f38:   00007f0091c03638 00007f0091c03510
+0x00007f0091c02f48:   00007f00f0fcc1a5 0000000000000064
+0x00007f0091c02f58:   0000000100014800 00007f0091c03080
+0x00007f0091c02f68:   0000000500000000 00007f00c06130e0
+0x00007f0091c02f78:   00007f00f0fcbfec 00007f0091c02fc0
+0x00007f0091c02f88:   00007f0091c03080 0000000000000000
+0x00007f0091c02f98:   0000000000000000 00007f010fd86e70
+0x00007f0091c02fa8:   0000000000000000 00007f0091c036a0
+0x00007f0091c02fb8:   00007f0110154600 0000000000000000
+0x00007f0091c02fc8:   0000000000000000 00007f00c0e0a6f0
+0x00007f0091c02fd8:   0000000000000000 00007f0091c036b0
+0x00007f0091c02fe8:   00007f0091c035d0 00007f00bc00fa40
+0x00007f0091c02ff8:   00007f0108008030 0000000000000000
+0x00007f0091c03008:   0000000000000000 00007f0091c03060 
+
+Instructions: (pc=0x0000003ba9c09830)
+0x0000003ba9c09810:   00 64 48 c7 04 25 f0 02 00 00 00 00 00 00 b8 82
+0x0000003ba9c09820:   00 00 00 e9 cd fa ff ff 0f 1f 84 00 00 00 00 00
+0x0000003ba9c09830:   8b 57 10 49 89 f8 89 d1 81 e1 7f 01 00 00 90 89
+0x0000003ba9c09840:   d0 83 e0 7c 75 7a 85 c9 75 7e 8b 05 74 1c 21 00 
+
+Register to memory mapping:
+
+RAX=0x00007f00c00526b0 is an unknown value
+RBX=0x00007f00f4027d40 is an unknown value
+RCX=0x0000000000000020 is an unknown value
+RDX=0x0000000000000010 is an unknown value
+RSP=0x00007f0091c02e18 is pointing into the stack for thread: 0x00007f00bc014800
+RBP=0x00007f00c097e4b0 is an unknown value
+RSI=0x00007f00c097e4b0 is an unknown value
+RDI=0x34326c6176652473 is an unknown value
+R8 =0x0000003ba9bb9a40: <offset 0x3b9a40> in /lib64/libc.so.6 at 0x0000003ba9800000
+R9 =0x00007f0091c04700 is pointing into the stack for thread: 0x00007f00bc014800
+R10=0x0000000000000020 is an unknown value
+R11=0x00007f00f0b60610: _Z10dumpOSCmsgiPc+0 in /home/joseph/clj/src/transport/target/native/linux/x86_64/libscsynth.so at 0x00007f00f0b3f000
+R12=0x0000000000000000 is an unknown value
+R13=0x00007f0091c03640 is pointing into the stack for thread: 0x00007f00bc014800
+R14=0x00007f0091c03530 is pointing into the stack for thread: 0x00007f00bc014800
+R15=0x0000000000000000 is an unknown value
+
+
+Stack: [0x00007f0091b04000,0x00007f0091c05000],  sp=0x00007f0091c02e18,  free space=1019k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libpthread.so.0+0x9830]  pthread_mutex_lock+0x0
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+J 5688  overtone.sc.machinery.server.native.lib_35840222_0870_4d6e_9618_90ae70c7c9c1.World_SendPacket(Lcom/sun/jna/Pointer;ILjava/nio/ByteBuffer;Lovertone/sc/machinery/server/native/callback_a4cc9f35_039d_4936_b553_b92128dd5b1b;)B (0 bytes) @ 0x00007f00f957107a [0x00007f00f9571000+0x7a]
+J 6549 C2 overtone.osc.peer$send_loop$fn__2139.invoke()Ljava/lang/Object; (227 bytes) @ 0x00007f00fa31249c [0x00007f00fa311f00+0x59c]
+j  overtone.osc.peer$send_loop.invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;+236
+J 3596 C2 clojure.lang.AFn.applyToHelper(Lclojure/lang/IFn;Lclojure/lang/ISeq;)Ljava/lang/Object; (3238 bytes) @ 0x00007f00f9d4e434 [0x00007f00f9d4c020+0x2414]
+J 504 C1 clojure.lang.AFn.applyTo(Lclojure/lang/ISeq;)Ljava/lang/Object; (12 bytes) @ 0x00007f00f925c1fc [0x00007f00f925c140+0xbc]
+J 3280 C2 clojure.core$apply.invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; (32 bytes) @ 0x00007f00f9249f4c [0x00007f00f9249e80+0xcc]
+j  overtone.osc.peer$sender_thread$fn__2200.invoke()Ljava/lang/Object;+19
+j  clojure.lang.AFn.run()V+1
+j  java.lang.Thread.run()V+11
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007f00bc097000 JavaThread "XToolkt-Shutdown-Thread" daemon [_thread_blocked, id=7341, stack(0x00007f00903f5000,0x00007f00904f6000)]
+  0x00007f00bc095800 JavaThread "Thread-9" daemon [_thread_in_vm, id=7339, stack(0x00007f00911ff000,0x00007f0091300000)]
+  0x00007f00d4004000 JavaThread "SIGTERM handler" daemon [_thread_blocked, id=7336, stack(0x00007f00f2597000,0x00007f00f2698000)]
+  0x00007f00c801a800 JavaThread "nREPL-worker-50" daemon [_thread_blocked, id=7331, stack(0x00007f00d866d000,0x00007f00d876e000)]
+  0x00007f00c0e65000 JavaThread "clojure-agent-send-off-pool-69" [_thread_in_vm, id=7330, stack(0x00007f00910fe000,0x00007f00911ff000)]
+  0x00007f00c8087000 JavaThread "pool-4-thread-4" [_thread_blocked, id=4579, stack(0x00007f00904f6000,0x00007f00905f7000)]
+  0x00007f00c8077000 JavaThread "pool-4-thread-3" [_thread_blocked, id=4578, stack(0x00007f00905f7000,0x00007f00906f8000)]
+  0x00007f00c8088800 JavaThread "pool-4-thread-2" [_thread_blocked, id=4577, stack(0x00007f00906f8000,0x00007f00907f9000)]
+  0x00007f00c813a800 JavaThread "pool-4-thread-1" [_thread_blocked, id=4576, stack(0x00007f00907f9000,0x00007f00908fa000)]
+  0x00007f00c8058800 JavaThread "clojure-agent-send-pool-3" daemon [_thread_blocked, id=4575, stack(0x00007f00908fa000,0x00007f00909fb000)]
+  0x00007f00b400a000 JavaThread "clojure-agent-send-pool-2" daemon [_thread_blocked, id=4574, stack(0x00007f00909fb000,0x00007f0090afc000)]
+  0x00007f00c8026000 JavaThread "clojure-agent-send-pool-1" daemon [_thread_blocked, id=4573, stack(0x00007f0090afc000,0x00007f0090bfd000)]
+  0x00007f00c805f800 JavaThread "clojure-agent-send-pool-0" daemon [_thread_blocked, id=4572, stack(0x00007f0090bfd000,0x00007f0090cfe000)]
+  0x00007f00c0135800 JavaThread "clojure-agent-send-off-pool-9" [_thread_in_native, id=4569, stack(0x00007f00f2a9c000,0x00007f00f2b9d000)]
+  0x00007f00b8002000 JavaThread "clojure-agent-send-off-pool-8" [_thread_in_native, id=4568, stack(0x00007f00f30b6000,0x00007f00f31b7000)]
+  0x00007f00b8001000 JavaThread "clojure-agent-send-off-pool-7" [_thread_blocked, id=4567, stack(0x00007f00f2fb5000,0x00007f00f30b6000)]
+=>0x00007f00bc014800 JavaThread "Thread-11" [_thread_in_native, id=4541, stack(0x00007f0091b04000,0x00007f0091c05000)]
+  0x00007f00c0820800 JavaThread "pool-2-thread-4" [_thread_blocked, id=4520, stack(0x00007f00d978a000,0x00007f00d988b000)]
+  0x00007f00c0826800 JavaThread "pool-2-thread-3" [_thread_blocked, id=4519, stack(0x00007f00d988b000,0x00007f00d998c000)]
+  0x00007f00c0771000 JavaThread "pool-2-thread-2" [_thread_blocked, id=4518, stack(0x00007f00d998c000,0x00007f00d9a8d000)]
+  0x00007f00c076d000 JavaThread "pool-2-thread-1" [_thread_blocked, id=4517, stack(0x00007f00f003a000,0x00007f00f013b000)]
+  0x00007f00d01f7000 JavaThread "pool-3-thread-4" [_thread_blocked, id=4516, stack(0x00007f00f053b000,0x00007f00f063c000)]
+  0x00007f00c4003000 JavaThread "pool-3-thread-3" [_thread_blocked, id=4515, stack(0x00007f00f083c000,0x00007f00f093d000)]
+  0x00007f00c4001800 JavaThread "pool-3-thread-2" [_thread_blocked, id=4464, stack(0x00007f00f093d000,0x00007f00f0a3e000)]
+  0x00007f00c09eb800 JavaThread "pool-3-thread-1" [_thread_blocked, id=4461, stack(0x00007f00f0a3e000,0x00007f00f0b3f000)]
+  0x00007f00c0236000 JavaThread "AWT-XAWT" daemon [_thread_blocked, id=4395, stack(0x00007f00f1816000,0x00007f00f1917000)]
+  0x00007f00c0215000 JavaThread "Java2D Disposer" daemon [_thread_blocked, id=4394, stack(0x00007f00f1917000,0x00007f00f1a18000)]
+  0x0000000001bb5000 JavaThread "clojure-agent-send-off-pool-6" [_thread_in_native, id=4391, stack(0x00007f00f2698000,0x00007f00f2799000)]
+  0x00007f00b4001000 JavaThread "clojure-agent-send-off-pool-4" [_thread_blocked, id=4389, stack(0x00007f00f289a000,0x00007f00f299b000)]
+  0x00007f010872d000 JavaThread "clojure-agent-send-off-pool-3" [_thread_blocked, id=4379, stack(0x00007f00f299b000,0x00007f00f2a9c000)]
+  0x00007f01080d7000 JavaThread "Service Thread" daemon [_thread_blocked, id=4371, stack(0x00007f00f36f7000,0x00007f00f37f8000)]
+  0x00007f01080c9800 JavaThread "C1 CompilerThread1" daemon [_thread_blocked, id=4370, stack(0x00007f00f37f8000,0x00007f00f38f9000)]
+  0x00007f01080c7000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=4369, stack(0x00007f00f38f9000,0x00007f00f39fa000)]
+  0x00007f01080ba000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=4368, stack(0x00007f00f39fa000,0x00007f00f3afb000)]
+  0x00007f0108084800 JavaThread "Finalizer" daemon [_thread_blocked, id=4367, stack(0x00007f00f3afb000,0x00007f00f3bfc000)]
+  0x00007f0108082800 JavaThread "Reference Handler" daemon [_thread_blocked, id=4366, stack(0x00007f00f3bfc000,0x00007f00f3cfd000)]
+  0x00007f010800a800 JavaThread "main" [_thread_blocked, id=4362, stack(0x00007f010f323000,0x00007f010f424000)]
+
+Other Threads:
+  0x00007f010807d800 VMThread [stack: 0x00007f00f3cfd000,0x00007f00f3dfe000] [id=4365]
+  0x00007f01080d9000 WatcherThread [stack: 0x00007f00f35f6000,0x00007f00f36f7000] [id=4372]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00007f0108007cb0] Threads_lock - owner thread: 0x00007f00c0e65000
+
+Heap:
+ PSYoungGen      total 155136K, used 58414K [0x00000000ec700000, 0x00000000fe500000, 0x0000000100000000)
+  eden space 153600K, 37% used [0x00000000ec700000,0x00000000efed3b78,0x00000000f5d00000)
+  from space 1536K, 81% used [0x00000000fe100000,0x00000000fe238000,0x00000000fe280000)
+  to   space 2560K, 0% used [0x00000000fe280000,0x00000000fe280000,0x00000000fe500000)
+ ParOldGen       total 127488K, used 95014K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0c9b48,0x00000000cd080000)
+ Metaspace       used 54554K, capacity 85337K, committed 85424K, reserved 1110016K
+  class space    used 14376K, capacity 24175K, committed 24240K, reserved 1048576K
+
+Card table byte_map: [0x00007f010e516000,0x00007f010e6ed000] byte_map_base: 0x00007f010deec000
+
+Marking Bits: (ParMarkBitMap*) 0x00007f011062c600
+ Begin Bits: [0x00007f010c47a000, 0x00007f010d32a000)
+ End Bits:   [0x00007f010d32a000, 0x00007f010e1da000)
+
+Polling page: 0x00007f011066c000
+
+CodeCache: size=245760Kb used=25313Kb max_used=25325Kb free=220446Kb
+ bounds [0x00007f00f9000000, 0x00007f00fa8f0000, 0x00007f0108000000]
+ total_blobs=5711 nmethods=5200 adapters=425
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 24602.841 Thread 0x00007f01080c9800 8153       3       transport.melody$eval245869$fn__245870::invoke (18 bytes)
+Event: 24602.842 Thread 0x00007f01080c9800 nmethod 8153 0x00007f00fa0fb550 code [0x00007f00fa0fb6e0, 0x00007f00fa0fbb98]
+Event: 24712.870 Thread 0x00007f01080c7000 8154       4       clojure.tools.nrepl.transport.FnTransport::send (32 bytes)
+Event: 24712.875 Thread 0x00007f01080c7000 nmethod 8154 0x00007f00fa0f7a90 code [0x00007f00fa0f7c60, 0x00007f00fa0f8098]
+Event: 24727.822 Thread 0x00007f01080c7000 8155       4       clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__564::send (168 bytes)
+Event: 24727.861 Thread 0x00007f01080c7000 nmethod 8155 0x00007f00fa8e7d10 code [0x00007f00fa8e80a0, 0x00007f00fa8e94a8]
+Event: 24794.848 Thread 0x00007f01080c9800 8156       3       java.util.logging.LogManager$LoggerContext::ensureDefaultLogger (70 bytes)
+Event: 24794.850 Thread 0x00007f01080c9800 nmethod 8156 0x00007f00fa0fa8d0 code [0x00007f00fa0faaa0, 0x00007f00fa0fb328]
+Event: 24794.851 Thread 0x00007f01080c9800 8157  s    3       java.util.Hashtable::containsKey (65 bytes)
+Event: 24794.852 Thread 0x00007f01080c9800 nmethod 8157 0x00007f00f917a410 code [0x00007f00f917a5c0, 0x00007f00f917abd8]
+
+GC Heap History (10 events):
+Event: 24223.330 GC heap before
+{Heap before GC invocations=2566 (full 5):
+ PSYoungGen      total 181760K, used 181584K [0x00000000ec700000, 0x00000000fe980000, 0x0000000100000000)
+  eden space 180736K, 100% used [0x00000000ec700000,0x00000000f7780000,0x00000000f7780000)
+  from space 1024K, 82% used [0x00000000fe880000,0x00000000fe954010,0x00000000fe980000)
+  to   space 2560K, 0% used [0x00000000fe480000,0x00000000fe480000,0x00000000fe700000)
+ ParOldGen       total 127488K, used 94846K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb09fb48,0x00000000cd080000)
+ Metaspace       used 53348K, capacity 82753K, committed 82992K, reserved 1110016K
+  class space    used 13892K, capacity 23215K, committed 23344K, reserved 1048576K
+Event: 24223.336 GC heap after
+Heap after GC invocations=2566 (full 5):
+ PSYoungGen      total 175616K, used 976K [0x00000000ec700000, 0x00000000fe900000, 0x0000000100000000)
+  eden space 174592K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000f7180000)
+  from space 1024K, 95% used [0x00000000fe480000,0x00000000fe574010,0x00000000fe580000)
+  to   space 2560K, 0% used [0x00000000fe680000,0x00000000fe680000,0x00000000fe900000)
+ ParOldGen       total 127488K, used 94870K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0a5b48,0x00000000cd080000)
+ Metaspace       used 53348K, capacity 82753K, committed 82992K, reserved 1110016K
+  class space    used 13892K, capacity 23215K, committed 23344K, reserved 1048576K
+}
+Event: 24598.045 GC heap before
+{Heap before GC invocations=2567 (full 5):
+ PSYoungGen      total 175616K, used 175568K [0x00000000ec700000, 0x00000000fe900000, 0x0000000100000000)
+  eden space 174592K, 100% used [0x00000000ec700000,0x00000000f7180000,0x00000000f7180000)
+  from space 1024K, 95% used [0x00000000fe480000,0x00000000fe574010,0x00000000fe580000)
+  to   space 2560K, 0% used [0x00000000fe680000,0x00000000fe680000,0x00000000fe900000)
+ ParOldGen       total 127488K, used 94870K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0a5b48,0x00000000cd080000)
+ Metaspace       used 53757K, capacity 83593K, committed 83760K, reserved 1110016K
+  class space    used 14050K, capacity 23515K, committed 23600K, reserved 1048576K
+Event: 24598.052 GC heap after
+Heap after GC invocations=2567 (full 5):
+ PSYoungGen      total 170496K, used 1104K [0x00000000ec700000, 0x00000000fe800000, 0x0000000100000000)
+  eden space 168960K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000f6c00000)
+  from space 1536K, 71% used [0x00000000fe680000,0x00000000fe794010,0x00000000fe800000)
+  to   space 2560K, 0% used [0x00000000fe300000,0x00000000fe300000,0x00000000fe580000)
+ ParOldGen       total 127488K, used 94902K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0adb48,0x00000000cd080000)
+ Metaspace       used 53757K, capacity 83593K, committed 83760K, reserved 1110016K
+  class space    used 14050K, capacity 23515K, committed 23600K, reserved 1048576K
+}
+Event: 24599.196 GC heap before
+{Heap before GC invocations=2568 (full 5):
+ PSYoungGen      total 170496K, used 170064K [0x00000000ec700000, 0x00000000fe800000, 0x0000000100000000)
+  eden space 168960K, 100% used [0x00000000ec700000,0x00000000f6c00000,0x00000000f6c00000)
+  from space 1536K, 71% used [0x00000000fe680000,0x00000000fe794010,0x00000000fe800000)
+  to   space 2560K, 0% used [0x00000000fe300000,0x00000000fe300000,0x00000000fe580000)
+ ParOldGen       total 127488K, used 94902K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0adb48,0x00000000cd080000)
+ Metaspace       used 53950K, capacity 84019K, committed 84144K, reserved 1110016K
+  class space    used 14133K, capacity 23673K, committed 23728K, reserved 1048576K
+Event: 24599.206 GC heap after
+Heap after GC invocations=2568 (full 5):
+ PSYoungGen      total 165376K, used 1056K [0x00000000ec700000, 0x00000000fe700000, 0x0000000100000000)
+  eden space 163840K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000f6700000)
+  from space 1536K, 68% used [0x00000000fe300000,0x00000000fe408000,0x00000000fe480000)
+  to   space 2560K, 0% used [0x00000000fe480000,0x00000000fe480000,0x00000000fe700000)
+ ParOldGen       total 127488K, used 94934K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0b5b48,0x00000000cd080000)
+ Metaspace       used 53950K, capacity 84019K, committed 84144K, reserved 1110016K
+  class space    used 14133K, capacity 23673K, committed 23728K, reserved 1048576K
+}
+Event: 24601.719 GC heap before
+{Heap before GC invocations=2569 (full 5):
+ PSYoungGen      total 165376K, used 164896K [0x00000000ec700000, 0x00000000fe700000, 0x0000000100000000)
+  eden space 163840K, 100% used [0x00000000ec700000,0x00000000f6700000,0x00000000f6700000)
+  from space 1536K, 68% used [0x00000000fe300000,0x00000000fe408000,0x00000000fe480000)
+  to   space 2560K, 0% used [0x00000000fe480000,0x00000000fe480000,0x00000000fe700000)
+ ParOldGen       total 127488K, used 94934K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0b5b48,0x00000000cd080000)
+ Metaspace       used 54183K, capacity 84579K, committed 84912K, reserved 1110016K
+  class space    used 14232K, capacity 23877K, committed 23984K, reserved 1048576K
+Event: 24601.726 GC heap after
+Heap after GC invocations=2569 (full 5):
+ PSYoungGen      total 160256K, used 1184K [0x00000000ec700000, 0x00000000fe600000, 0x0000000100000000)
+  eden space 158720K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000f6200000)
+  from space 1536K, 77% used [0x00000000fe480000,0x00000000fe5a8000,0x00000000fe600000)
+  to   space 2560K, 0% used [0x00000000fe100000,0x00000000fe100000,0x00000000fe380000)
+ ParOldGen       total 127488K, used 94974K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0bfb48,0x00000000cd080000)
+ Metaspace       used 54183K, capacity 84579K, committed 84912K, reserved 1110016K
+  class space    used 14232K, capacity 23877K, committed 23984K, reserved 1048576K
+}
+Event: 24602.750 GC heap before
+{Heap before GC invocations=2570 (full 5):
+ PSYoungGen      total 160256K, used 159904K [0x00000000ec700000, 0x00000000fe600000, 0x0000000100000000)
+  eden space 158720K, 100% used [0x00000000ec700000,0x00000000f6200000,0x00000000f6200000)
+  from space 1536K, 77% used [0x00000000fe480000,0x00000000fe5a8000,0x00000000fe600000)
+  to   space 2560K, 0% used [0x00000000fe100000,0x00000000fe100000,0x00000000fe380000)
+ ParOldGen       total 127488K, used 94974K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0bfb48,0x00000000cd080000)
+ Metaspace       used 54436K, capacity 85167K, committed 85296K, reserved 1110016K
+  class space    used 14340K, capacity 24093K, committed 24112K, reserved 1048576K
+Event: 24602.758 GC heap after
+Heap after GC invocations=2570 (full 5):
+ PSYoungGen      total 155136K, used 1248K [0x00000000ec700000, 0x00000000fe500000, 0x0000000100000000)
+  eden space 153600K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000f5d00000)
+  from space 1536K, 81% used [0x00000000fe100000,0x00000000fe238000,0x00000000fe280000)
+  to   space 2560K, 0% used [0x00000000fe280000,0x00000000fe280000,0x00000000fe500000)
+ ParOldGen       total 127488K, used 95014K [0x00000000c5400000, 0x00000000cd080000, 0x00000000ec700000)
+  object space 127488K, 74% used [0x00000000c5400000,0x00000000cb0c9b48,0x00000000cd080000)
+ Metaspace       used 54436K, capacity 85167K, committed 85296K, reserved 1110016K
+  class space    used 14340K, capacity 24093K, committed 24112K, reserved 1048576K
+}
+
+Deoptimization events (10 events):
+Event: 24730.909 Thread 0x00007f00c801a800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f00f9cead14 method=java.lang.Character.getType(I)I @ 5
+Event: 24793.789 Thread 0x0000000001bb5000 Uncommon trap: reason=unreached action=reinterpret pc=0x00007f00f9d74c20 method=java.lang.ref.SoftReference.get()Ljava/lang/Object; @ 6
+Event: 24794.835 Thread 0x00007f01080ba000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x00007f00f97907e0 method=java.util.Hashtable.get(Ljava/lang/Object;)Ljava/lang/Object; @ 6
+Event: 24794.839 Thread 0x00007f00bc095800 Uncommon trap: reason=unreached action=reinterpret pc=0x00007f00fa3ffd4c method=overtone.libs.handlers$emhs_handle_async_events.invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 59
+Event: 24794.849 Thread 0x00007f00bc024000 Uncommon trap: reason=unloaded action=reinterpret pc=0x00007f00f9ef10cc method=java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await()V @ 6
+Event: 24794.849 Thread 0x00007f00c4005000 Uncommon trap: reason=unreached action=reinterpret pc=0x00007f00f9ef1060 method=java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await()V @ 81
+Event: 24794.850 Thread 0x00007f00c4006000 Uncommon trap: reason=unreached action=reinterpret pc=0x00007f00f9ef1060 method=java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await()V @ 81
+Event: 24794.855 Thread 0x00007f00bc095800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f00f9a5e580 method=clojure.core$apply.invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 26
+Event: 24794.855 Thread 0x00007f00bc095800 Uncommon trap: reason=null_check action=make_not_entrant pc=0x00007f00fa35dfb4 method=clojure.core$vec.invoke(Ljava/lang/Object;)Ljava/lang/Object; @ 1
+Event: 24794.858 Thread 0x00007f00bc095800 Uncommon trap: reason=unreached action=reinterpret pc=0x00007f00fa4f0b0c method=overtone.sc.machinery.server.osc_validator$sig_arity.invoke(Ljava/lang/Object;)Ljava/lang/Object; @ 40
+
+Internal exceptions (10 events):
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef389880) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef389f78) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38a670) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38b280) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38dfc8) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38e6c0) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38edb8) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24602.882 Thread 0x00007f00c801a800 Exception <a 'java/security/PrivilegedActionException'> (0x00000000ef38f4b0) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jdk8/hotspot/src/share/vm/prims/jvm.cpp, line 1312]
+Event: 24793.789 Thread 0x0000000001bb5000 Implicit null exception at 0x00007f00f9d7342e to 0x00007f00f9d74be9
+Event: 24794.855 Thread 0x00007f00bc095800 Implicit null exception at 0x00007f00fa35cd2c to 0x00007f00fa35dfa9
+
+Events (10 events):
+Event: 24794.854 Thread 0x00007f00bc07e000 Thread exited: 0x00007f00bc07e000
+Event: 24794.855 Thread 0x00007f00bc095800 Uncommon trap: trap_request=0xffffffde fr.pc=0x00007f00f9a5e580
+Event: 24794.855 Thread 0x00007f00bc095800 DEOPT PACKING pc=0x00007f00f9a5e580 sp=0x00007f00912fe2e0
+Event: 24794.855 Thread 0x00007f00bc095800 DEOPT UNPACKING pc=0x00007f00f9004f69 sp=0x00007f00912fe238 mode 2
+Event: 24794.855 Thread 0x00007f00bc095800 Uncommon trap: trap_request=0xfffffff4 fr.pc=0x00007f00fa35dfb4
+Event: 24794.855 Thread 0x00007f00bc095800 DEOPT PACKING pc=0x00007f00fa35dfb4 sp=0x00007f00912fdf20
+Event: 24794.855 Thread 0x00007f00bc095800 DEOPT UNPACKING pc=0x00007f00f9004f69 sp=0x00007f00912fdf18 mode 2
+Event: 24794.858 Thread 0x00007f00bc095800 Uncommon trap: trap_request=0xffffffad fr.pc=0x00007f00fa4f0b0c
+Event: 24794.858 Thread 0x00007f00bc095800 DEOPT PACKING pc=0x00007f00fa4f0b0c sp=0x00007f00912fd9a0
+Event: 24794.858 Thread 0x00007f00bc095800 DEOPT UNPACKING pc=0x00007f00f9004f69 sp=0x00007f00912fd8e8 mode 2
+
+
+Dynamic libraries:
+00400000-00401000 r-xp 00000000 fd:00 1315071                            /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/bin/java
+00600000-00601000 r--p 00000000 fd:00 1315071                            /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/bin/java
+00601000-00602000 rw-p 00001000 fd:00 1315071                            /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/bin/java
+01bb0000-01bd1000 rw-p 00000000 00:00 0                                  [heap]
+c5400000-cd080000 rw-p 00000000 00:00 0 
+cd080000-ec700000 ---p 00000000 00:00 0 
+ec700000-fe500000 rw-p 00000000 00:00 0 
+fe500000-100000000 ---p 00000000 00:00 0 
+100000000-1017ac000 rw-p 00000000 00:00 0 
+1017ac000-140000000 ---p 00000000 00:00 0 
+3ba9400000-3ba9421000 r-xp 00000000 fd:00 1180000                        /usr/lib64/ld-2.20.so
+3ba9621000-3ba9622000 r--p 00021000 fd:00 1180000                        /usr/lib64/ld-2.20.so
+3ba9622000-3ba9623000 rw-p 00022000 fd:00 1180000                        /usr/lib64/ld-2.20.so
+3ba9623000-3ba9624000 rw-p 00000000 00:00 0 
+3ba9800000-3ba99b3000 r-xp 00000000 fd:00 1180009                        /usr/lib64/libc-2.20.so
+3ba99b3000-3ba9bb3000 ---p 001b3000 fd:00 1180009                        /usr/lib64/libc-2.20.so
+3ba9bb3000-3ba9bb7000 r--p 001b3000 fd:00 1180009                        /usr/lib64/libc-2.20.so
+3ba9bb7000-3ba9bb9000 rw-p 001b7000 fd:00 1180009                        /usr/lib64/libc-2.20.so
+3ba9bb9000-3ba9bbd000 rw-p 00000000 00:00 0 
+3ba9c00000-3ba9c17000 r-xp 00000000 fd:00 1180163                        /usr/lib64/libpthread-2.20.so
+3ba9c17000-3ba9e16000 ---p 00017000 fd:00 1180163                        /usr/lib64/libpthread-2.20.so
+3ba9e16000-3ba9e17000 r--p 00016000 fd:00 1180163                        /usr/lib64/libpthread-2.20.so
+3ba9e17000-3ba9e18000 rw-p 00017000 fd:00 1180163                        /usr/lib64/libpthread-2.20.so
+3ba9e18000-3ba9e1c000 rw-p 00000000 00:00 0 
+3baa000000-3baa003000 r-xp 00000000 fd:00 1180022                        /usr/lib64/libdl-2.20.so
+3baa003000-3baa202000 ---p 00003000 fd:00 1180022                        /usr/lib64/libdl-2.20.so
+3baa202000-3baa203000 r--p 00002000 fd:00 1180022                        /usr/lib64/libdl-2.20.so
+3baa203000-3baa204000 rw-p 00003000 fd:00 1180022                        /usr/lib64/libdl-2.20.so
+3baa400000-3baa415000 r-xp 00000000 fd:00 1180913                        /usr/lib64/libz.so.1.2.8
+3baa415000-3baa614000 ---p 00015000 fd:00 1180913                        /usr/lib64/libz.so.1.2.8
+3baa614000-3baa615000 r--p 00014000 fd:00 1180913                        /usr/lib64/libz.so.1.2.8
+3baa615000-3baa616000 rw-p 00015000 fd:00 1180913                        /usr/lib64/libz.so.1.2.8
+3baa800000-3baa80d000 r-xp 00000000 fd:00 1310764                        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/jli/libjli.so
+3baa80d000-3baaa0c000 ---p 0000d000 fd:00 1310764                        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/jli/libjli.so
+3baaa0c000-3baaa0d000 r--p 0000c000 fd:00 1310764                        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/jli/libjli.so
+3baaa0d000-3baaa0e000 rw-p 0000d000 fd:00 1310764                        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/jli/libjli.so
+3bab800000-3bab816000 r-xp 00000000 fd:00 1185343                        /usr/lib64/libgcc_s-4.9.2-20150212.so.1
+3bab816000-3baba15000 ---p 00016000 fd:00 1185343                        /usr/lib64/libgcc_s-4.9.2-20150212.so.1
+3baba15000-3baba16000 r--p 00015000 fd:00 1185343                        /usr/lib64/libgcc_s-4.9.2-20150212.so.1
+3baba16000-3baba17000 rw-p 00016000 fd:00 1185343                        /usr/lib64/libgcc_s-4.9.2-20150212.so.1
+3babc00000-3babc07000 r-xp 00000000 fd:00 1182042                        /usr/lib64/librt-2.20.so
+3babc07000-3babe06000 ---p 00007000 fd:00 1182042                        /usr/lib64/librt-2.20.so
+3babe06000-3babe07000 r--p 00006000 fd:00 1182042                        /usr/lib64/librt-2.20.so
+3babe07000-3babe08000 rw-p 00007000 fd:00 1182042                        /usr/lib64/librt-2.20.so
+3bac800000-3bac80f000 r-xp 00000000 fd:00 1180993                        /usr/lib64/libbz2.so.1.0.6
+3bac80f000-3baca0e000 ---p 0000f000 fd:00 1180993                        /usr/lib64/libbz2.so.1.0.6
+3baca0e000-3baca0f000 r--p 0000e000 fd:00 1180993                        /usr/lib64/libbz2.so.1.0.6
+3baca0f000-3baca10000 rw-p 0000f000 fd:00 1180993                        /usr/lib64/libbz2.so.1.0.6
+3badc00000-3badc32000 r-xp 00000000 fd:00 1180997                        /usr/lib64/libpng16.so.16.10.0
+3badc32000-3bade31000 ---p 00032000 fd:00 1180997                        /usr/lib64/libpng16.so.16.10.0
+3bade31000-3bade32000 r--p 00031000 fd:00 1180997                        /usr/lib64/libpng16.so.16.10.0
+3bade32000-3bade33000 rw-p 00032000 fd:00 1180997                        /usr/lib64/libpng16.so.16.10.0
+3bae000000-3bae002000 r-xp 00000000 fd:00 1181034                        /usr/lib64/libXau.so.6.0.0
+3bae002000-3bae202000 ---p 00002000 fd:00 1181034                        /usr/lib64/libXau.so.6.0.0
+3bae202000-3bae203000 r--p 00002000 fd:00 1181034                        /usr/lib64/libXau.so.6.0.0
+3bae203000-3bae204000 rw-p 00003000 fd:00 1181034                        /usr/lib64/libXau.so.6.0.0
+3bae400000-3bae421000 r-xp 00000000 fd:00 1181165                        /usr/lib64/libxcb.so.1.1.0
+3bae421000-3bae620000 ---p 00021000 fd:00 1181165                        /usr/lib64/libxcb.so.1.1.0
+3bae620000-3bae621000 r--p 00020000 fd:00 1181165                        /usr/lib64/libxcb.so.1.1.0
+3bae621000-3bae622000 rw-p 00021000 fd:00 1181165                        /usr/lib64/libxcb.so.1.1.0
+3bae800000-3bae93c000 r-xp 00000000 fd:00 1181433                        /usr/lib64/libX11.so.6.3.0
+3bae93c000-3baeb3b000 ---p 0013c000 fd:00 1181433                        /usr/lib64/libX11.so.6.3.0
+3baeb3b000-3baeb3d000 r--p 0013b000 fd:00 1181433                        /usr/lib64/libX11.so.6.3.0
+3baeb3d000-3baeb42000 rw-p 0013d000 fd:00 1181433                        /usr/lib64/libX11.so.6.3.0
+3baeb42000-3baeb43000 rw-p 00000000 00:00 0 
+3baec00000-3baecf0000 r-xp 00000000 fd:00 1185381                        /usr/lib64/libstdc++.so.6.0.20
+3baecf0000-3baeef0000 ---p 000f0000 fd:00 1185381                        /usr/lib64/libstdc++.so.6.0.20
+3baeef0000-3baeef8000 r--p 000f0000 fd:00 1185381                        /usr/lib64/libstdc++.so.6.0.20
+3baeef8000-3baeefa000 rw-p 000f8000 fd:00 1185381                        /usr/lib64/libstdc++.so.6.0.20
+3baeefa000-3baef0f000 rw-p 00000000 00:00 0 
+3baf000000-3baf011000 r-xp 00000000 fd:00 1185328                        /usr/lib64/libXext.so.6.4.0
+3baf011000-3baf210000 ---p 00011000 fd:00 1185328                        /usr/lib64/libXext.so.6.4.0
+3baf210000-3baf211000 r--p 00010000 fd:00 1185328                        /usr/lib64/libXext.so.6.4.0
+3baf211000-3baf212000 rw-p 00011000 fd:00 1185328                        /usr/lib64/libXext.so.6.4.0
+3baf400000-3baf4a4000 r-xp 00000000 fd:00 1181001                        /usr/lib64/libfreetype.so.6.11.2
+3baf4a4000-3baf6a3000 ---p 000a4000 fd:00 1181001                        /usr/lib64/libfreetype.so.6.11.2
+3baf6a3000-3baf6a9000 r--p 000a3000 fd:00 1181001                        /usr/lib64/libfreetype.so.6.11.2
+3baf6a9000-3baf6aa000 rw-p 000a9000 fd:00 1181001                        /usr/lib64/libfreetype.so.6.11.2
+3bb0000000-3bb0047000 r-xp 00000000 fd:00 1185365                        /usr/lib64/libdbus-1.so.3.8.11
+3bb0047000-3bb0247000 ---p 00047000 fd:00 1185365                        /usr/lib64/libdbus-1.so.3.8.11
+3bb0247000-3bb0248000 r--p 00047000 fd:00 1185365                        /usr/lib64/libdbus-1.so.3.8.11
+3bb0248000-3bb0249000 rw-p 00048000 fd:00 1185365                        /usr/lib64/libdbus-1.so.3.8.11
+3bb0400000-3bb0409000 r-xp 00000000 fd:00 1185327                        /usr/lib64/libXrender.so.1.3.0
+3bb0409000-3bb0608000 ---p 00009000 fd:00 1185327                        /usr/lib64/libXrender.so.1.3.0
+3bb0608000-3bb0609000 r--p 00008000 fd:00 1185327                        /usr/lib64/libXrender.so.1.3.0
+3bb0609000-3bb060a000 rw-p 00009000 fd:00 1185327                        /usr/lib64/libXrender.so.1.3.0
+3bb1400000-3bb1457000 r-xp 00000000 fd:00 1185647                        /usr/lib64/libjack.so.0.1.0
+3bb1457000-3bb1656000 ---p 00057000 fd:00 1185647                        /usr/lib64/libjack.so.0.1.0
+3bb1656000-3bb1659000 r--p 00056000 fd:00 1185647                        /usr/lib64/libjack.so.0.1.0
+3bb1659000-3bb165a000 rw-p 00059000 fd:00 1185647                        /usr/lib64/libjack.so.0.1.0
+3bb165a000-3bb165b000 rw-p 00000000 00:00 0 
+3bb2400000-3bb24e1000 r-xp 00000000 fd:00 1185704                        /usr/lib64/libasound.so.2.0.0
+3bb24e1000-3bb26e0000 ---p 000e1000 fd:00 1185704                        /usr/lib64/libasound.so.2.0.0
+3bb26e0000-3bb26e7000 r--p 000e0000 fd:00 1185704                        /usr/lib64/libasound.so.2.0.0
+3bb26e7000-3bb26e9000 rw-p 000e7000 fd:00 1185704                        /usr/lib64/libasound.so.2.0.0
+3bb2800000-3bb2805000 r-xp 00000000 fd:00 1185329                        /usr/lib64/libXfixes.so.3.1.0
+3bb2805000-3bb2a04000 ---p 00005000 fd:00 1185329                        /usr/lib64/libXfixes.so.3.1.0
+3bb2a04000-3bb2a05000 r--p 00004000 fd:00 1185329                        /usr/lib64/libXfixes.so.3.1.0
+3bb2a05000-3bb2a06000 rw-p 00005000 fd:00 1185329                        /usr/lib64/libXfixes.so.3.1.0
+3bb5000000-3bb500f000 r-xp 00000000 fd:00 1185357                        /usr/lib64/libXi.so.6.1.0
+3bb500f000-3bb520e000 ---p 0000f000 fd:00 1185357                        /usr/lib64/libXi.so.6.1.0
+3bb520e000-3bb520f000 r--p 0000e000 fd:00 1185357                        /usr/lib64/libXi.so.6.1.0
+3bb520f000-3bb5210000 rw-p 0000f000 fd:00 1185357                        /usr/lib64/libXi.so.6.1.0
+3bb6800000-3bb680a000 r-xp 00000000 fd:00 1185359                        /usr/lib64/libXcursor.so.1.0.2
+3bb680a000-3bb6a09000 ---p 0000a000 fd:00 1185359                        /usr/lib64/libXcursor.so.1.0.2
+3bb6a09000-3bb6a0a000 r--p 00009000 fd:00 1185359                        /usr/lib64/libXcursor.so.1.0.2
+3bb6a0a000-3bb6a0b000 rw-p 0000a000 fd:00 1185359                        /usr/lib64/libXcursor.so.1.0.2
+3bb8e00000-3bb8ff9000 r-xp 00000000 fd:00 1179791                        /usr/lib64/libfftw3f.so.3.4.4
+3bb8ff9000-3bb91f8000 ---p 001f9000 fd:00 1179791                        /usr/lib64/libfftw3f.so.3.4.4
+3bb91f8000-3bb920c000 r--p 001f8000 fd:00 1179791                        /usr/lib64/libfftw3f.so.3.4.4
+3bb920c000-3bb920d000 rw-p 0020c000 fd:00 1179791                        /usr/lib64/libfftw3f.so.3.4.4
+3bc7000000-3bc7006000 r-xp 00000000 fd:00 1185499                        /usr/lib64/libogg.so.0.8.0
+3bc7006000-3bc7205000 ---p 00006000 fd:00 1185499                        /usr/lib64/libogg.so.0.8.0
+3bc7205000-3bc7206000 r--p 00005000 fd:00 1185499                        /usr/lib64/libogg.so.0.8.0
+3bc7206000-3bc7207000 rw-p 00006000 fd:00 1185499                        /usr/lib64/libogg.so.0.8.0
+3bc7c00000-3bc7c2b000 r-xp 00000000 fd:00 1185512                        /usr/lib64/libvorbis.so.0.4.7
+3bc7c2b000-3bc7e2b000 ---p 0002b000 fd:00 1185512                        /usr/lib64/libvorbis.so.0.4.7
+3bc7e2b000-3bc7e2c000 r--p 0002b000 fd:00 1185512                        /usr/lib64/libvorbis.so.0.4.7
+3bc7e2c000-3bc7e2d000 rw-p 0002c000 fd:00 1185512                        /usr/lib64/libvorbis.so.0.4.7
+3bc8400000-3bc844b000 r-xp 00000000 fd:00 1185645                        /usr/lib64/libopus.so.0.5.0
+3bc844b000-3bc864a000 ---p 0004b000 fd:00 1185645                        /usr/lib64/libopus.so.0.5.0
+3bc864a000-3bc864b000 r--p 0004a000 fd:00 1185645                        /usr/lib64/libopus.so.0.5.0
+3bc864b000-3bc864c000 rw-p 0004b000 fd:00 1185645                        /usr/lib64/libopus.so.0.5.0
+3bc9c00000-3bc9c0c000 r-xp 00000000 fd:00 1185610                        /usr/lib64/libavahi-common.so.3.5.3
+3bc9c0c000-3bc9e0b000 ---p 0000c000 fd:00 1185610                        /usr/lib64/libavahi-common.so.3.5.3
+3bc9e0b000-3bc9e0c000 r--p 0000b000 fd:00 1185610                        /usr/lib64/libavahi-common.so.3.5.3
+3bc9e0c000-3bc9e0d000 rw-p 0000c000 fd:00 1185610                        /usr/lib64/libavahi-common.so.3.5.3
+3bca000000-3bca010000 r-xp 00000000 fd:00 1185612                        /usr/lib64/libavahi-client.so.3.2.9
+3bca010000-3bca210000 ---p 00010000 fd:00 1185612                        /usr/lib64/libavahi-client.so.3.2.9
+3bca210000-3bca211000 r--p 00010000 fd:00 1185612                        /usr/lib64/libavahi-client.so.3.2.9
+3bca211000-3bca212000 rw-p 00011000 fd:00 1185612                        /usr/lib64/libavahi-client.so.3.2.9
+3bd0800000-3bd0805000 r-xp 00000000 fd:00 1185478                        /usr/lib64/libXtst.so.6.1.0
+3bd0805000-3bd0a04000 ---p 00005000 fd:00 1185478                        /usr/lib64/libXtst.so.6.1.0
+3bd0a04000-3bd0a05000 r--p 00004000 fd:00 1185478                        /usr/lib64/libXtst.so.6.1.0
+3bd0a05000-3bd0a06000 rw-p 00005000 fd:00 1185478                        /usr/lib64/libXtst.so.6.1.0
+3bd0c00000-3bd0c57000 r-xp 00000000 fd:00 1185504                        /usr/lib64/libFLAC.so.8.3.0
+3bd0c57000-3bd0e57000 ---p 00057000 fd:00 1185504                        /usr/lib64/libFLAC.so.8.3.0
+3bd0e57000-3bd0e58000 r--p 00057000 fd:00 1185504                        /usr/lib64/libFLAC.so.8.3.0
+3bd0e58000-3bd0e59000 rw-p 00058000 fd:00 1185504                        /usr/lib64/libFLAC.so.8.3.0
+3bd1400000-3bd140b000 r-xp 00000000 fd:00 1185493                        /usr/lib64/libgsm.so.1.0.12
+3bd140b000-3bd160a000 ---p 0000b000 fd:00 1185493                        /usr/lib64/libgsm.so.1.0.12
+3bd160a000-3bd160b000 r--p 0000a000 fd:00 1185493                        /usr/lib64/libgsm.so.1.0.12
+3bd160b000-3bd160c000 rw-p 0000b000 fd:00 1185493                        /usr/lib64/libgsm.so.1.0.12
+3bd1c00000-3bd1c91000 r-xp 00000000 fd:00 1185516                        /usr/lib64/libvorbisenc.so.2.0.10
+3bd1c91000-3bd1e90000 ---p 00091000 fd:00 1185516                        /usr/lib64/libvorbisenc.so.2.0.10
+3bd1e90000-3bd1eb2000 r--p 00090000 fd:00 1185516                        /usr/lib64/libvorbisenc.so.2.0.10
+3bd1eb2000-3bd1eb3000 rw-p 000b2000 fd:00 1185516                        /usr/lib64/libvorbisenc.so.2.0.10
+3bd5200000-3bd5258000 r-xp 00000000 fd:00 1185519                        /usr/lib64/libsndfile.so.1.0.25
+3bd5258000-3bd5458000 ---p 00058000 fd:00 1185519                        /usr/lib64/libsndfile.so.1.0.25
+3bd5458000-3bd545a000 r--p 00058000 fd:00 1185519                        /usr/lib64/libsndfile.so.1.0.25
+3bd545a000-3bd545b000 rw-p 0005a000 fd:00 1185519                        /usr/lib64/libsndfile.so.1.0.25
+3bd545b000-3bd545f000 rw-p 00000000 00:00 0 
+7f008fcf4000-7f008fef4000 rw-p 00000000 00:00 0 
+7f008fef4000-7f00900f4000 rw-p 00000000 00:00 0 
+7f00900f4000-7f00902f4000 rw-p 00000000 00:00 0 
+7f00902f4000-7f00902f7000 ---p 00000000 00:00 0 
+7f00902f7000-7f00903f5000 rw-p 00000000 00:00 0 
+7f00903f5000-7f00903f8000 ---p 00000000 00:00 0 
+7f00903f8000-7f00904f6000 rw-p 00000000 00:00 0                          [stack:7341]
+7f00904f6000-7f00904f9000 ---p 00000000 00:00 0 
+7f00904f9000-7f00905f7000 rw-p 00000000 00:00 0                          [stack:4579]
+7f00905f7000-7f00905fa000 ---p 00000000 00:00 0 
+7f00905fa000-7f00906f8000 rw-p 00000000 00:00 0                          [stack:4578]
+7f00906f8000-7f00906fb000 ---p 00000000 00:00 0 
+7f00906fb000-7f00907f9000 rw-p 00000000 00:00 0                          [stack:4577]
+7f00907f9000-7f00907fc000 ---p 00000000 00:00 0 
+7f00907fc000-7f00908fa000 rw-p 00000000 00:00 0                          [stack:4576]
+7f00908fa000-7f00908fd000 ---p 00000000 00:00 0 
+7f00908fd000-7f00909fb000 rw-p 00000000 00:00 0                          [stack:4575]
+7f00909fb000-7f00909fe000 ---p 00000000 00:00 0 
+7f00909fe000-7f0090afc000 rw-p 00000000 00:00 0                          [stack:4574]
+7f0090afc000-7f0090aff000 ---p 00000000 00:00 0 
+7f0090aff000-7f0090bfd000 rw-p 00000000 00:00 0                          [stack:4573]
+7f0090bfd000-7f0090c00000 ---p 00000000 00:00 0 
+7f0090c00000-7f0090efe000 rw-p 00000000 00:00 0                          [stack:4572]
+7f0090efe000-7f00910fe000 rw-p 00000000 00:00 0 
+7f00910fe000-7f0091101000 ---p 00000000 00:00 0 
+7f0091101000-7f00911ff000 rw-p 00000000 00:00 0                          [stack:7330]
+7f00911ff000-7f0091202000 ---p 00000000 00:00 0 
+7f0091202000-7f0091500000 rw-p 00000000 00:00 0                          [stack:7339]
+7f0091500000-7f0091503000 ---p 00000000 00:00 0 
+7f0091503000-7f0091801000 rw-p 00000000 00:00 0 
+7f0091801000-7f0091804000 ---p 00000000 00:00 0 
+7f0091804000-7f0091902000 rw-p 00000000 00:00 0 
+7f0091902000-7f0091905000 ---p 00000000 00:00 0 
+7f0091905000-7f0091a03000 rw-p 00000000 00:00 0 
+7f0091a03000-7f0091a06000 ---p 00000000 00:00 0 
+7f0091a06000-7f0091b04000 rw-p 00000000 00:00 0 
+7f0091b04000-7f0091b07000 ---p 00000000 00:00 0 
+7f0091b07000-7f0091c05000 rw-p 00000000 00:00 0                          [stack:4541]
+7f0091c05000-7f0091c06000 ---p 00000000 00:00 0 
+7f0091c06000-7f0092406000 rw-p 00000000 00:00 0                          [stack:4540]
+7f0092406000-7f0092407000 ---p 00000000 00:00 0 
+7f0092407000-7f0092487000 rw-p 00000000 00:00 0 
+7f0098ae4000-7f0098ae5000 ---p 00000000 00:00 0 
+7f0098ae5000-7f0098b65000 rw-p 00000000 00:00 0 
+7f0098b65000-7f0098b66000 ---p 00000000 00:00 0 
+7f0098b66000-7f0098be6000 rw-p 00000000 00:00 0 
+7f0098be6000-7f0098be9000 ---p 00000000 00:00 0 
+7f0098be9000-7f00993e7000 rw-p 00000000 00:00 0 
+7f00a8de8000-7f00a8fa8000 rw-p 00000000 00:00 0 
+7f00a8fa8000-7f00a8fe8000 ---p 00000000 00:00 0 
+7f00a8fe8000-7f00a91e8000 rw-p 00000000 00:00 0 
+7f00a91e8000-7f00a93e8000 rw-p 00000000 00:00 0 
+7f00a93e8000-7f00a93f5000 r-xp 00000000 fd:02 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f00a93f5000-7f00a95f4000 ---p 0000d000 fd:02 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f00a95f4000-7f00a95f5000 r--p 0000c000 fd:02 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f00a95f5000-7f00a95f6000 rw-p 0000d000 fd:02 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f00a95f6000-7f00a9641000 rw-p 00000000 00:00 0 
+7f00a9641000-7f00a967b000 r-xp 00000000 fd:02 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f00a967b000-7f00a987a000 ---p 0003a000 fd:02 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f00a987a000-7f00a987b000 r--p 00039000 fd:02 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f00a987b000-7f00a987c000 rw-p 0003a000 fd:02 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f00a987c000-7f00a98aa000 r-xp 00000000 fd:02 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f00a98aa000-7f00a9aaa000 ---p 0002e000 fd:02 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f00a9aaa000-7f00a9aab000 r--p 0002e000 fd:02 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f00a9aab000-7f00a9aac000 rw-p 0002f000 fd:02 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f00a9aac000-7f00a9ab6000 r-xp 00000000 fd:02 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f00a9ab6000-7f00a9cb5000 ---p 0000a000 fd:02 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f00a9cb5000-7f00a9cb6000 r--p 00009000 fd:02 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f00a9cb6000-7f00a9cb7000 rw-p 0000a000 fd:02 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f00a9cb7000-7f00a9cc3000 rw-p 00000000 00:00 0 
+7f00a9cc3000-7f00a9cd6000 r-xp 00000000 fd:02 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f00a9cd6000-7f00a9ed5000 ---p 00013000 fd:02 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f00a9ed5000-7f00a9ed6000 r--p 00012000 fd:02 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f00a9ed6000-7f00a9ed7000 rw-p 00013000 fd:02 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f00a9ed7000-7f00a9ee3000 rw-p 00000000 00:00 0 
+7f00a9ee3000-7f00a9ee6000 r-xp 00000000 fd:02 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f00a9ee6000-7f00aa0e5000 ---p 00003000 fd:02 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f00aa0e5000-7f00aa0e6000 r--p 00002000 fd:02 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f00aa0e6000-7f00aa0e7000 rw-p 00003000 fd:02 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f00aa0e7000-7f00aa0ea000 r-xp 00000000 fd:02 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f00aa0ea000-7f00aa2e9000 ---p 00003000 fd:02 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f00aa2e9000-7f00aa2ea000 r--p 00002000 fd:02 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f00aa2ea000-7f00aa2eb000 rw-p 00003000 fd:02 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f00aa2eb000-7f00aa2f3000 r-xp 00000000 fd:02 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f00aa2f3000-7f00aa4f2000 ---p 00008000 fd:02 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f00aa4f2000-7f00aa4f3000 r--p 00007000 fd:02 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f00aa4f3000-7f00aa4f4000 rw-p 00008000 fd:02 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f00aa4f4000-7f00aa500000 r-xp 00000000 fd:02 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f00aa500000-7f00aa700000 ---p 0000c000 fd:02 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f00aa700000-7f00aa701000 r--p 0000c000 fd:02 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f00aa701000-7f00aa702000 rw-p 0000d000 fd:02 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f00aa702000-7f00aa709000 r-xp 00000000 fd:02 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f00aa709000-7f00aa908000 ---p 00007000 fd:02 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f00aa908000-7f00aa909000 r--p 00006000 fd:02 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f00aa909000-7f00aa90a000 rw-p 00007000 fd:02 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f00aa90a000-7f00aa912000 r-xp 00000000 fd:02 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f00aa912000-7f00aab11000 ---p 00008000 fd:02 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f00aab11000-7f00aab12000 r--p 00007000 fd:02 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f00aab12000-7f00aab13000 rw-p 00008000 fd:02 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f00aab13000-7f00aab24000 r-xp 00000000 fd:02 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f00aab24000-7f00aad23000 ---p 00011000 fd:02 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f00aad23000-7f00aad24000 r--p 00010000 fd:02 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f00aad24000-7f00aad25000 rw-p 00011000 fd:02 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f00aad25000-7f00aad27000 r-xp 00000000 fd:02 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f00aad27000-7f00aaf26000 ---p 00002000 fd:02 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f00aaf26000-7f00aaf27000 r--p 00001000 fd:02 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f00aaf27000-7f00aaf28000 rw-p 00002000 fd:02 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f00aaf28000-7f00aaf34000 rw-p 00000000 00:00 0 
+7f00aaf34000-7f00aaf36000 r-xp 00000000 fd:02 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f00aaf36000-7f00ab135000 ---p 00002000 fd:02 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f00ab135000-7f00ab136000 r--p 00001000 fd:02 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f00ab136000-7f00ab137000 rw-p 00002000 fd:02 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f00ab137000-7f00ab169000 r-xp 00000000 fd:02 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f00ab169000-7f00ab369000 ---p 00032000 fd:02 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f00ab369000-7f00ab36a000 r--p 00032000 fd:02 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f00ab36a000-7f00ab36b000 rw-p 00033000 fd:02 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f00ab36b000-7f00ab36d000 r-xp 00000000 fd:02 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f00ab36d000-7f00ab56c000 ---p 00002000 fd:02 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f00ab56c000-7f00ab56d000 r--p 00001000 fd:02 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f00ab56d000-7f00ab56e000 rw-p 00002000 fd:02 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f00ab56e000-7f00ab58c000 r-xp 00000000 fd:02 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f00ab58c000-7f00ab78c000 ---p 0001e000 fd:02 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f00ab78c000-7f00ab78d000 r--p 0001e000 fd:02 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f00ab78d000-7f00ab78e000 rw-p 0001f000 fd:02 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f00ab78e000-7f00ab790000 r-xp 00000000 fd:02 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f00ab790000-7f00ab98f000 ---p 00002000 fd:02 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f00ab98f000-7f00ab990000 r--p 00001000 fd:02 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f00ab990000-7f00ab991000 rw-p 00002000 fd:02 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f00ab991000-7f00ab9a1000 r-xp 00000000 fd:02 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f00ab9a1000-7f00abba0000 ---p 00010000 fd:02 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f00abba0000-7f00abba1000 r--p 0000f000 fd:02 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f00abba1000-7f00abba2000 rw-p 00010000 fd:02 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f00abba2000-7f00abbac000 r-xp 00000000 fd:02 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f00abbac000-7f00abdab000 ---p 0000a000 fd:02 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f00abdab000-7f00abdac000 r--p 00009000 fd:02 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f00abdac000-7f00abdb4000 rw-p 0000a000 fd:02 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f00abdb4000-7f00abdf0000 rw-p 00000000 00:00 0 
+7f00abdf0000-7f00abe06000 r-xp 00000000 fd:02 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f00abe06000-7f00ac005000 ---p 00016000 fd:02 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f00ac005000-7f00ac006000 r--p 00015000 fd:02 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f00ac006000-7f00ac007000 rw-p 00016000 fd:02 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f00ac007000-7f00ac00d000 r-xp 00000000 fd:02 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f00ac00d000-7f00ac20c000 ---p 00006000 fd:02 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f00ac20c000-7f00ac20d000 r--p 00005000 fd:02 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f00ac20d000-7f00ac20e000 rw-p 00006000 fd:02 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f00ac20e000-7f00ac211000 r-xp 00000000 fd:02 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f00ac211000-7f00ac410000 ---p 00003000 fd:02 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f00ac410000-7f00ac411000 r--p 00002000 fd:02 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f00ac411000-7f00ac412000 rw-p 00003000 fd:02 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f00ac412000-7f00ac416000 r-xp 00000000 fd:02 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f00ac416000-7f00ac615000 ---p 00004000 fd:02 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f00ac615000-7f00ac616000 r--p 00003000 fd:02 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f00ac616000-7f00ac617000 rw-p 00004000 fd:02 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f00ac617000-7f00ac61a000 r-xp 00000000 fd:02 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f00ac61a000-7f00ac81a000 ---p 00003000 fd:02 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f00ac81a000-7f00ac81b000 r--p 00003000 fd:02 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f00ac81b000-7f00ac81c000 rw-p 00004000 fd:02 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f00ac81c000-7f00ac822000 r-xp 00000000 fd:02 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f00ac822000-7f00aca21000 ---p 00006000 fd:02 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f00aca21000-7f00aca22000 r--p 00005000 fd:02 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f00aca22000-7f00aca23000 rw-p 00006000 fd:02 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f00aca23000-7f00aca26000 r-xp 00000000 fd:02 393701                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DynNoiseUGens.so
+7f00aca26000-7f00acc25000 ---p 00003000 fd:02 393701                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DynNoiseUGens.so
+7f00acc25000-7f00acc26000 r--p 00002000 fd:02 393701                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DynNoiseUGens.so
+7f00acc26000-7f00acc27000 rw-p 00003000 fd:02 393701                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DynNoiseUGens.so
+7f00acc27000-7f00acc2f000 r-xp 00000000 fd:02 393578                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RMEQSuite.so
+7f00acc2f000-7f00ace2e000 ---p 00008000 fd:02 393578                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RMEQSuite.so
+7f00ace2e000-7f00ace2f000 r--p 00007000 fd:02 393578                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RMEQSuite.so
+7f00ace2f000-7f00ace30000 rw-p 00008000 fd:02 393578                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RMEQSuite.so
+7f00ace30000-7f00ace33000 r-xp 00000000 fd:02 393554                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GlitchUGens.so
+7f00ace33000-7f00ad032000 ---p 00003000 fd:02 393554                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GlitchUGens.so
+7f00ad032000-7f00ad033000 r--p 00002000 fd:02 393554                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GlitchUGens.so
+7f00ad033000-7f00ad034000 rw-p 00003000 fd:02 393554                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GlitchUGens.so
+7f00ad034000-7f00ad04c000 r-xp 00000000 fd:02 393705                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GrainUGens.so
+7f00ad04c000-7f00ad24b000 ---p 00018000 fd:02 393705                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GrainUGens.so
+7f00ad24b000-7f00ad24c000 r--p 00017000 fd:02 393705                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GrainUGens.so
+7f00ad24c000-7f00ad24d000 rw-p 00018000 fd:02 393705                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GrainUGens.so
+7f00ad24d000-7f00ad250000 r-xp 00000000 fd:02 393585                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VOSIM.so
+7f00ad250000-7f00ad44f000 ---p 00003000 fd:02 393585                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VOSIM.so
+7f00ad44f000-7f00ad450000 r--p 00002000 fd:02 393585                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VOSIM.so
+7f00ad450000-7f00ad451000 rw-p 00003000 fd:02 393585                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VOSIM.so
+7f00ad451000-7f00ad455000 r-xp 00000000 fd:02 393561                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDBufferUGens.so
+7f00ad455000-7f00ad654000 ---p 00004000 fd:02 393561                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDBufferUGens.so
+7f00ad654000-7f00ad655000 r--p 00003000 fd:02 393561                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDBufferUGens.so
+7f00ad655000-7f00ad656000 rw-p 00004000 fd:02 393561                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDBufferUGens.so
+7f00ad656000-7f00ad662000 r-xp 00000000 fd:02 393720                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TriggerUGens.so
+7f00ad662000-7f00ad861000 ---p 0000c000 fd:02 393720                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TriggerUGens.so
+7f00ad861000-7f00ad862000 r--p 0000b000 fd:02 393720                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TriggerUGens.so
+7f00ad862000-7f00ad863000 rw-p 0000c000 fd:02 393720                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TriggerUGens.so
+7f00ad863000-7f00ad868000 r-xp 00000000 fd:02 393552                     /home/joseph/clj/src/transport/target/native/linux/x86_64/Concat.so
+7f00ad868000-7f00ada67000 ---p 00005000 fd:02 393552                     /home/joseph/clj/src/transport/target/native/linux/x86_64/Concat.so
+7f00ada67000-7f00ada68000 r--p 00004000 fd:02 393552                     /home/joseph/clj/src/transport/target/native/linux/x86_64/Concat.so
+7f00ada68000-7f00ada69000 rw-p 00005000 fd:02 393552                     /home/joseph/clj/src/transport/target/native/linux/x86_64/Concat.so
+7f00ada69000-7f00ada6b000 r-xp 00000000 fd:02 393568                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDOscUGens.so
+7f00ada6b000-7f00adc6a000 ---p 00002000 fd:02 393568                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDOscUGens.so
+7f00adc6a000-7f00adc6b000 r--p 00001000 fd:02 393568                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDOscUGens.so
+7f00adc6b000-7f00adc6c000 rw-p 00002000 fd:02 393568                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDOscUGens.so
+7f00adc6c000-7f00adc6f000 r-xp 00000000 fd:02 393581                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SummerUGens.so
+7f00adc6f000-7f00ade6f000 ---p 00003000 fd:02 393581                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SummerUGens.so
+7f00ade6f000-7f00ade70000 r--p 00003000 fd:02 393581                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SummerUGens.so
+7f00ade70000-7f00ade71000 rw-p 00004000 fd:02 393581                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SummerUGens.so
+7f00ade71000-7f00ade76000 r-xp 00000000 fd:02 393547                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFFT.so
+7f00ade76000-7f00ae075000 ---p 00005000 fd:02 393547                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFFT.so
+7f00ae075000-7f00ae076000 r--p 00004000 fd:02 393547                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFFT.so
+7f00ae076000-7f00ae077000 rw-p 00005000 fd:02 393547                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFFT.so
+7f00ae077000-7f00ae083000 rw-p 00000000 00:00 0 
+7f00ae083000-7f00ae085000 r-xp 00000000 fd:02 393569                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDPollUGens.so
+7f00ae085000-7f00ae284000 ---p 00002000 fd:02 393569                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDPollUGens.so
+7f00ae284000-7f00ae285000 r--p 00001000 fd:02 393569                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDPollUGens.so
+7f00ae285000-7f00ae286000 rw-p 00002000 fd:02 393569                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDPollUGens.so
+7f00ae286000-7f00ae289000 r-xp 00000000 fd:02 393573                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MdaUGens.so
+7f00ae289000-7f00ae488000 ---p 00003000 fd:02 393573                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MdaUGens.so
+7f00ae488000-7f00ae489000 r--p 00002000 fd:02 393573                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MdaUGens.so
+7f00ae489000-7f00ae5a8000 rw-p 00003000 fd:02 393573                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MdaUGens.so
+7f00ae5a8000-7f00ae5aa000 r-xp 00000000 fd:02 393567                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDGetenvUGen.so
+7f00ae5aa000-7f00ae7a9000 ---p 00002000 fd:02 393567                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDGetenvUGen.so
+7f00ae7a9000-7f00ae7aa000 r--p 00001000 fd:02 393567                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDGetenvUGen.so
+7f00ae7aa000-7f00ae7ab000 rw-p 00002000 fd:02 393567                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDGetenvUGen.so
+7f00ae7ab000-7f00ae7ad000 r-xp 00000000 fd:02 393719                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TestUGens.so
+7f00ae7ad000-7f00ae9ac000 ---p 00002000 fd:02 393719                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TestUGens.so
+7f00ae9ac000-7f00ae9ad000 r--p 00001000 fd:02 393719                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TestUGens.so
+7f00ae9ad000-7f00ae9ae000 rw-p 00002000 fd:02 393719                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TestUGens.so
+7f00ae9ae000-7f00ae9b0000 r-xp 00000000 fd:02 393722                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnpackFFTUGens.so
+7f00ae9b0000-7f00aebaf000 ---p 00002000 fd:02 393722                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnpackFFTUGens.so
+7f00aebaf000-7f00aebb0000 r--p 00001000 fd:02 393722                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnpackFFTUGens.so
+7f00aebb0000-7f00aebb1000 rw-p 00002000 fd:02 393722                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnpackFFTUGens.so
+7f00aebb1000-7f00aebbd000 rw-p 00000000 00:00 0 
+7f00aebbd000-7f00aebcb000 r-xp 00000000 fd:02 393579                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SLUGens.so
+7f00aebcb000-7f00aedca000 ---p 0000e000 fd:02 393579                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SLUGens.so
+7f00aedca000-7f00aedcb000 r--p 0000d000 fd:02 393579                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SLUGens.so
+7f00aedcb000-7f00aedcc000 rw-p 0000e000 fd:02 393579                     /home/joseph/clj/src/transport/target/native/linux/x86_64/SLUGens.so
+7f00aedcc000-7f00aedce000 r-xp 00000000 fd:02 393559                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LadspaUGen.so
+7f00aedce000-7f00aefce000 ---p 00002000 fd:02 393559                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LadspaUGen.so
+7f00aefce000-7f00aefcf000 r--p 00002000 fd:02 393559                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LadspaUGen.so
+7f00aefcf000-7f00aefd0000 rw-p 00003000 fd:02 393559                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LadspaUGen.so
+7f00aefd0000-7f00aefdb000 r-xp 00000000 fd:02 393546                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobChaos.so
+7f00aefdb000-7f00af1da000 ---p 0000b000 fd:02 393546                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobChaos.so
+7f00af1da000-7f00af1db000 r--p 0000a000 fd:02 393546                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobChaos.so
+7f00af1db000-7f00af1dc000 rw-p 0000b000 fd:02 393546                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobChaos.so
+7f00af1dc000-7f00af1e0000 r-xp 00000000 fd:02 393542                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatUGens.so
+7f00af1e0000-7f00af3df000 ---p 00004000 fd:02 393542                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatUGens.so
+7f00af3df000-7f00af3e0000 r--p 00003000 fd:02 393542                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatUGens.so
+7f00af3e0000-7f00af3e1000 rw-p 00004000 fd:02 393542                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatUGens.so
+7f00af3e1000-7f00af3e7000 r-xp 00000000 fd:02 393718                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ReverbUGens.so
+7f00af3e7000-7f00af5e6000 ---p 00006000 fd:02 393718                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ReverbUGens.so
+7f00af5e6000-7f00af5e7000 r--p 00005000 fd:02 393718                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ReverbUGens.so
+7f00af5e7000-7f00af5e8000 rw-p 00006000 fd:02 393718                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ReverbUGens.so
+7f00af5e8000-7f00af5eb000 r-xp 00000000 fd:02 393704                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GendynUGens.so
+7f00af5eb000-7f00af7ea000 ---p 00003000 fd:02 393704                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GendynUGens.so
+7f00af7ea000-7f00af7eb000 r--p 00002000 fd:02 393704                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GendynUGens.so
+7f00af7eb000-7f00af7ec000 rw-p 00003000 fd:02 393704                     /home/joseph/clj/src/transport/target/native/linux/x86_64/GendynUGens.so
+7f00af7ec000-7f00af7ff000 r-xp 00000000 fd:02 393721                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnaryOpUGens.so
+7f00af7ff000-7f00af9ff000 ---p 00013000 fd:02 393721                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnaryOpUGens.so
+7f00af9ff000-7f00afa00000 r--p 00013000 fd:02 393721                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnaryOpUGens.so
+7f00afa00000-7f00afa01000 rw-p 00014000 fd:02 393721                     /home/joseph/clj/src/transport/target/native/linux/x86_64/UnaryOpUGens.so
+7f00afa01000-7f00afa04000 r-xp 00000000 fd:02 393562                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDCepstrumUGens.so
+7f00afa04000-7f00afc03000 ---p 00003000 fd:02 393562                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDCepstrumUGens.so
+7f00afc03000-7f00afc04000 r--p 00002000 fd:02 393562                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDCepstrumUGens.so
+7f00afc04000-7f00afc05000 rw-p 00003000 fd:02 393562                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDCepstrumUGens.so
+7f00afc05000-7f00afc11000 rw-p 00000000 00:00 0 
+7f00afc11000-7f00afc17000 r-xp 00000000 fd:02 393717                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PV_ThirdParty.so
+7f00afc17000-7f00afe17000 ---p 00006000 fd:02 393717                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PV_ThirdParty.so
+7f00afe17000-7f00afe18000 r--p 00006000 fd:02 393717                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PV_ThirdParty.so
+7f00afe18000-7f00afe19000 rw-p 00007000 fd:02 393717                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PV_ThirdParty.so
+7f00afe19000-7f00afe49000 rw-p 00000000 00:00 0 
+7f00afe49000-7f00afe4d000 r-xp 00000000 fd:02 393582                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TagSystemUgens.so
+7f00afe4d000-7f00b004c000 ---p 00004000 fd:02 393582                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TagSystemUgens.so
+7f00b004c000-7f00b004d000 r--p 00003000 fd:02 393582                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TagSystemUgens.so
+7f00b004d000-7f00b004e000 rw-p 00004000 fd:02 393582                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TagSystemUgens.so
+7f00b004e000-7f00b005a000 r-xp 00000000 fd:02 393702                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FFT_UGens.so
+7f00b005a000-7f00b025a000 ---p 0000c000 fd:02 393702                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FFT_UGens.so
+7f00b025a000-7f00b025b000 r--p 0000c000 fd:02 393702                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FFT_UGens.so
+7f00b025b000-7f00b025c000 rw-p 0000d000 fd:02 393702                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FFT_UGens.so
+7f00b025c000-7f00b028c000 rw-p 00000000 00:00 0 
+7f00b028c000-7f00b0292000 r-xp 00000000 fd:02 393712                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MulAddUGens.so
+7f00b0292000-7f00b0491000 ---p 00006000 fd:02 393712                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MulAddUGens.so
+7f00b0491000-7f00b0492000 r--p 00005000 fd:02 393712                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MulAddUGens.so
+7f00b0492000-7f00b0493000 rw-p 00006000 fd:02 393712                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MulAddUGens.so
+7f00b0493000-7f00b0494000 ---p 00000000 00:00 0 
+7f00b0494000-7f00b0c94000 rw-p 00000000 00:00 0                          [stack:4524]
+7f00b0c94000-7f00b0c97000 r-xp 00000000 fd:02 393711                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MouseUGens.so
+7f00b0c97000-7f00b0e96000 ---p 00003000 fd:02 393711                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MouseUGens.so
+7f00b0e96000-7f00b0e97000 r--p 00002000 fd:02 393711                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MouseUGens.so
+7f00b0e97000-7f00b0e98000 rw-p 00003000 fd:02 393711                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MouseUGens.so
+7f00b0e98000-7f00b0e9b000 r-xp 00000000 fd:02 393574                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MembraneUGens.so
+7f00b0e9b000-7f00b109a000 ---p 00003000 fd:02 393574                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MembraneUGens.so
+7f00b109a000-7f00b109b000 r--p 00002000 fd:02 393574                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MembraneUGens.so
+7f00b109b000-7f00b109c000 rw-p 00003000 fd:02 393574                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MembraneUGens.so
+7f00b109c000-7f00b10a0000 r-xp 00000000 fd:02 393540                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AY_UGen.so
+7f00b10a0000-7f00b129f000 ---p 00004000 fd:02 393540                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AY_UGen.so
+7f00b129f000-7f00b12a0000 r--p 00003000 fd:02 393540                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AY_UGen.so
+7f00b12a0000-7f00b12a1000 rw-p 00004000 fd:02 393540                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AY_UGen.so
+7f00b12a1000-7f00b12a3000 rw-p 00000000 00:00 0 
+7f00b12a3000-7f00b12b5000 r-xp 00000000 fd:02 393708                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LFUGens.so
+7f00b12b5000-7f00b14b5000 ---p 00012000 fd:02 393708                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LFUGens.so
+7f00b14b5000-7f00b14b6000 r--p 00012000 fd:02 393708                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LFUGens.so
+7f00b14b6000-7f00b14b7000 rw-p 00013000 fd:02 393708                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LFUGens.so
+7f00b14b7000-7f00b14bc000 r-xp 00000000 fd:02 393549                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobGrain.so
+7f00b14bc000-7f00b16bc000 ---p 00005000 fd:02 393549                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobGrain.so
+7f00b16bc000-7f00b16bd000 r--p 00005000 fd:02 393549                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobGrain.so
+7f00b16bd000-7f00b16be000 rw-p 00006000 fd:02 393549                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobGrain.so
+7f00b16be000-7f00b16c0000 r-xp 00000000 fd:02 393716                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PhysicalModelingUGens.so
+7f00b16c0000-7f00b18bf000 ---p 00002000 fd:02 393716                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PhysicalModelingUGens.so
+7f00b18bf000-7f00b18c0000 r--p 00001000 fd:02 393716                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PhysicalModelingUGens.so
+7f00b18c0000-7f00b18c1000 rw-p 00002000 fd:02 393716                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PhysicalModelingUGens.so
+7f00b18c1000-7f00b18c2000 ---p 00000000 00:00 0 
+7f00b18c2000-7f00b20c2000 rw-p 00000000 00:00 0                          [stack:4523]
+7f00b20c2000-7f00b20c5000 r-xp 00000000 fd:02 393700                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DiskIO_UGens.so
+7f00b20c5000-7f00b22c5000 ---p 00003000 fd:02 393700                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DiskIO_UGens.so
+7f00b22c5000-7f00b22c6000 r--p 00003000 fd:02 393700                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DiskIO_UGens.so
+7f00b22c6000-7f00b22c7000 rw-p 00004000 fd:02 393700                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DiskIO_UGens.so
+7f00b22c7000-7f00b22c8000 rw-p 00000000 00:00 0 
+7f00b22c8000-7f00b22e3000 r-xp 00000000 fd:02 393539                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AtkUGens.so
+7f00b22e3000-7f00b24e3000 ---p 0001b000 fd:02 393539                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AtkUGens.so
+7f00b24e3000-7f00b24e4000 r--p 0001b000 fd:02 393539                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AtkUGens.so
+7f00b24e4000-7f00b24e5000 rw-p 0001c000 fd:02 393539                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AtkUGens.so
+7f00b24e5000-7f00b24eb000 r-xp 00000000 fd:02 393543                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BBCut2UGens.so
+7f00b24eb000-7f00b26ea000 ---p 00006000 fd:02 393543                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BBCut2UGens.so
+7f00b26ea000-7f00b26eb000 r--p 00005000 fd:02 393543                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BBCut2UGens.so
+7f00b26eb000-7f00b26ed000 rw-p 00006000 fd:02 393543                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BBCut2UGens.so
+7f00b26ed000-7f00b27af000 r-xp 00000000 fd:02 393580                     /home/joseph/clj/src/transport/target/native/linux/x86_64/StkUGens.so
+7f00b27af000-7f00b29ae000 ---p 000c2000 fd:02 393580                     /home/joseph/clj/src/transport/target/native/linux/x86_64/StkUGens.so
+7f00b29ae000-7f00b29b2000 r--p 000c1000 fd:02 393580                     /home/joseph/clj/src/transport/target/native/linux/x86_64/StkUGens.so
+7f00b29b2000-7f00b29b7000 rw-p 000c5000 fd:02 393580                     /home/joseph/clj/src/transport/target/native/linux/x86_64/StkUGens.so
+7f00b29b7000-7f00b29ba000 r-xp 00000000 fd:02 393560                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LoopBuf.so
+7f00b29ba000-7f00b2bb9000 ---p 00003000 fd:02 393560                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LoopBuf.so
+7f00b2bb9000-7f00b2bba000 r--p 00002000 fd:02 393560                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LoopBuf.so
+7f00b2bba000-7f00b2bbb000 rw-p 00003000 fd:02 393560                     /home/joseph/clj/src/transport/target/native/linux/x86_64/LoopBuf.so
+7f00b2bbb000-7f00b2bbc000 ---p 00000000 00:00 0 
+7f00b2bbc000-7f00b33bc000 rw-p 00000000 00:00 0                          [stack:4522]
+7f00b33bc000-7f00b33bd000 r-xp 00000000 fd:02 393707                     /home/joseph/clj/src/transport/target/native/linux/x86_64/KeyboardUGens.so
+7f00b33bd000-7f00b35bd000 ---p 00001000 fd:02 393707                     /home/joseph/clj/src/transport/target/native/linux/x86_64/KeyboardUGens.so
+7f00b35bd000-7f00b35be000 r--p 00001000 fd:02 393707                     /home/joseph/clj/src/transport/target/native/linux/x86_64/KeyboardUGens.so
+7f00b35be000-7f00b35bf000 rw-p 00002000 fd:02 393707                     /home/joseph/clj/src/transport/target/native/linux/x86_64/KeyboardUGens.so
+7f00b35bf000-7f00b35c4000 r-xp 00000000 fd:02 393563                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDChaosUGens.so
+7f00b35c4000-7f00b37c3000 ---p 00005000 fd:02 393563                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDChaosUGens.so
+7f00b37c3000-7f00b37c4000 r--p 00004000 fd:02 393563                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDChaosUGens.so
+7f00b37c4000-7f00b37c5000 rw-p 00005000 fd:02 393563                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDChaosUGens.so
+7f00b37c5000-7f00b37e1000 r-xp 00000000 fd:02 393703                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FilterUGens.so
+7f00b37e1000-7f00b39e0000 ---p 0001c000 fd:02 393703                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FilterUGens.so
+7f00b39e0000-7f00b39e1000 r--p 0001b000 fd:02 393703                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FilterUGens.so
+7f00b39e1000-7f00b39e2000 rw-p 0001c000 fd:02 393703                     /home/joseph/clj/src/transport/target/native/linux/x86_64/FilterUGens.so
+7f00b39e2000-7f00b39ee000 r-xp 00000000 fd:02 393576                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PitchDetection.so
+7f00b39ee000-7f00b3bed000 ---p 0000c000 fd:02 393576                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PitchDetection.so
+7f00b3bed000-7f00b3bee000 r--p 0000b000 fd:02 393576                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PitchDetection.so
+7f00b3bee000-7f00b3bef000 rw-p 0000c000 fd:02 393576                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PitchDetection.so
+7f00b3bef000-7f00b3bf5000 r-xp 00000000 fd:02 393706                     /home/joseph/clj/src/transport/target/native/linux/x86_64/IOUGens.so
+7f00b3bf5000-7f00b3df5000 ---p 00006000 fd:02 393706                     /home/joseph/clj/src/transport/target/native/linux/x86_64/IOUGens.so
+7f00b3df5000-7f00b3df6000 r--p 00006000 fd:02 393706                     /home/joseph/clj/src/transport/target/native/linux/x86_64/IOUGens.so
+7f00b3df6000-7f00b3df7000 rw-p 00007000 fd:02 393706                     /home/joseph/clj/src/transport/target/native/linux/x86_64/IOUGens.so
+7f00b3df7000-7f00b3dff000 r-xp 00000000 fd:02 393584                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VBAP.so
+7f00b3dff000-7f00b3ffe000 ---p 00008000 fd:02 393584                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VBAP.so
+7f00b3ffe000-7f00b3fff000 r--p 00007000 fd:02 393584                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VBAP.so
+7f00b3fff000-7f00b4000000 rw-p 00008000 fd:02 393584                     /home/joseph/clj/src/transport/target/native/linux/x86_64/VBAP.so
+7f00b4000000-7f00b4029000 rw-p 00000000 00:00 0 
+7f00b4029000-7f00b8000000 ---p 00000000 00:00 0 
+7f00b8000000-7f00b8276000 rw-p 00000000 00:00 0 
+7f00b8276000-7f00bc000000 ---p 00000000 00:00 0 
+7f00bc000000-7f00bc099000 rw-p 00000000 00:00 0 
+7f00bc099000-7f00c0000000 ---p 00000000 00:00 0 
+7f00c0000000-7f00c0f21000 rw-p 00000000 00:00 0 
+7f00c0f21000-7f00c4000000 ---p 00000000 00:00 0 
+7f00c4000000-7f00c4021000 rw-p 00000000 00:00 0 
+7f00c4021000-7f00c8000000 ---p 00000000 00:00 0 
+7f00c8000000-7f00c834b000 rw-p 00000000 00:00 0 
+7f00c834b000-7f00cc000000 ---p 00000000 00:00 0 
+7f00cc000000-7f00ce318000 rw-p 00000000 00:00 0 
+7f00ce318000-7f00d0000000 ---p 00000000 00:00 0 
+7f00d0000000-7f00d0bfd000 rw-p 00000000 00:00 0 
+7f00d0bfd000-7f00d4000000 ---p 00000000 00:00 0 
+7f00d4000000-7f00d4021000 rw-p 00000000 00:00 0 
+7f00d4021000-7f00d8000000 ---p 00000000 00:00 0 
+7f00d8013000-7f00d8016000 ---p 00000000 00:00 0 
+7f00d8016000-7f00d804c000 rw-p 00000000 00:00 0 
+7f00d804c000-7f00d8053000 r-xp 00000000 fd:02 393697                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ChaosUGens.so
+7f00d8053000-7f00d8252000 ---p 00007000 fd:02 393697                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ChaosUGens.so
+7f00d8252000-7f00d8253000 r--p 00006000 fd:02 393697                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ChaosUGens.so
+7f00d8253000-7f00d8254000 rw-p 00007000 fd:02 393697                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ChaosUGens.so
+7f00d8254000-7f00d8266000 r-xp 00000000 fd:02 393544                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BerlachUGens.so
+7f00d8266000-7f00d8465000 ---p 00012000 fd:02 393544                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BerlachUGens.so
+7f00d8465000-7f00d8466000 r--p 00011000 fd:02 393544                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BerlachUGens.so
+7f00d8466000-7f00d8467000 rw-p 00012000 fd:02 393544                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BerlachUGens.so
+7f00d8467000-7f00d846b000 r-xp 00000000 fd:02 393538                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AmbisonicUGens.so
+7f00d846b000-7f00d866b000 ---p 00004000 fd:02 393538                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AmbisonicUGens.so
+7f00d866b000-7f00d866c000 r--p 00004000 fd:02 393538                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AmbisonicUGens.so
+7f00d866c000-7f00d866d000 rw-p 00005000 fd:02 393538                     /home/joseph/clj/src/transport/target/native/linux/x86_64/AmbisonicUGens.so
+7f00d866d000-7f00d8670000 ---p 00000000 00:00 0 
+7f00d8670000-7f00d876e000 rw-p 00000000 00:00 0                          [stack:7331]
+7f00d876e000-7f00d8776000 r-xp 00000000 fd:00 1323563                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libmanagement.so
+7f00d8776000-7f00d8976000 ---p 00008000 fd:00 1323563                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libmanagement.so
+7f00d8976000-7f00d8977000 r--p 00008000 fd:00 1323563                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libmanagement.so
+7f00d8977000-7f00d8978000 rw-p 00009000 fd:00 1323563                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libmanagement.so
+7f00d8978000-7f00d8b78000 rw-p 00000000 00:00 0 
+7f00d8b78000-7f00d8b87000 r-xp 00000000 fd:00 1323694                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsoundalsa.so
+7f00d8b87000-7f00d8d86000 ---p 0000f000 fd:00 1323694                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsoundalsa.so
+7f00d8d86000-7f00d8d87000 r--p 0000e000 fd:00 1323694                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsoundalsa.so
+7f00d8d87000-7f00d8d88000 rw-p 0000f000 fd:00 1323694                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsoundalsa.so
+7f00d8d88000-7f00d8d89000 r-xp 00000000 fd:00 1323562                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsound.so
+7f00d8d89000-7f00d8f88000 ---p 00001000 fd:00 1323562                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsound.so
+7f00d8f88000-7f00d8f89000 r--p 00000000 fd:00 1323562                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsound.so
+7f00d8f89000-7f00d8f8a000 rw-p 00001000 fd:00 1323562                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjsound.so
+7f00d8f8a000-7f00d918a000 rw-p 00000000 00:00 0 
+7f00d918a000-7f00d938a000 rw-p 00000000 00:00 0 
+7f00d938a000-7f00d958a000 rw-p 00000000 00:00 0 
+7f00d958a000-7f00d978a000 rw-p 00000000 00:00 0 
+7f00d978a000-7f00d978d000 ---p 00000000 00:00 0 
+7f00d978d000-7f00d988b000 rw-p 00000000 00:00 0                          [stack:4520]
+7f00d988b000-7f00d988e000 ---p 00000000 00:00 0 
+7f00d988e000-7f00d998c000 rw-p 00000000 00:00 0                          [stack:4519]
+7f00d998c000-7f00d998f000 ---p 00000000 00:00 0 
+7f00d998f000-7f00d9a8d000 rw-p 00000000 00:00 0                          [stack:4518]
+7f00d9a8d000-7f00e0000000 r--p 00000000 fd:00 920999                     /usr/lib/locale/locale-archive
+7f00e0000000-7f00e0021000 rw-p 00000000 00:00 0 
+7f00e0021000-7f00e4000000 ---p 00000000 00:00 0 
+7f00e4000000-7f00e4021000 rw-p 00000000 00:00 0 
+7f00e4021000-7f00e8000000 ---p 00000000 00:00 0 
+7f00e8000000-7f00e827b000 rw-p 00000000 00:00 0 
+7f00e827b000-7f00ec000000 ---p 00000000 00:00 0 
+7f00ec000000-7f00ec03f000 rw-p 00000000 00:00 0 
+7f00ec03f000-7f00f0000000 ---p 00000000 00:00 0 
+7f00f0023000-7f00f0024000 r--p 00000000 00:00 0 
+7f00f0027000-7f00f0039000 rw-s 00000000 00:11 39729                      /dev/shm/jack-shm-registry
+7f00f003a000-7f00f003d000 ---p 00000000 00:00 0 
+7f00f003d000-7f00f033b000 rw-p 00000000 00:00 0                          [stack:4517]
+7f00f033b000-7f00f053b000 rw-p 00000000 00:00 0 
+7f00f053b000-7f00f053e000 ---p 00000000 00:00 0 
+7f00f053e000-7f00f083c000 rw-p 00000000 00:00 0                          [stack:4516]
+7f00f083c000-7f00f083f000 ---p 00000000 00:00 0 
+7f00f083f000-7f00f093d000 rw-p 00000000 00:00 0                          [stack:4515]
+7f00f093d000-7f00f0940000 ---p 00000000 00:00 0 
+7f00f0940000-7f00f0a3e000 rw-p 00000000 00:00 0                          [stack:4464]
+7f00f0a3e000-7f00f0a41000 ---p 00000000 00:00 0 
+7f00f0a41000-7f00f0b3f000 rw-p 00000000 00:00 0                          [stack:4461]
+7f00f0b3f000-7f00f0ba1000 r-xp 00000000 fd:02 393709                     /home/joseph/clj/src/transport/target/native/linux/x86_64/libscsynth.so
+7f00f0ba1000-7f00f0da1000 ---p 00062000 fd:02 393709                     /home/joseph/clj/src/transport/target/native/linux/x86_64/libscsynth.so
+7f00f0da1000-7f00f0da3000 r--p 00062000 fd:02 393709                     /home/joseph/clj/src/transport/target/native/linux/x86_64/libscsynth.so
+7f00f0da3000-7f00f0da5000 rw-p 00064000 fd:02 393709                     /home/joseph/clj/src/transport/target/native/linux/x86_64/libscsynth.so
+7f00f0da5000-7f00f0fc5000 rw-p 00000000 00:00 0 
+7f00f0fc5000-7f00f0fdc000 r-xp 00000000 00:22 44877                      /tmp/jna/jna5690757504855997128.tmp (deleted)
+7f00f0fdc000-7f00f11db000 ---p 00017000 00:22 44877                      /tmp/jna/jna5690757504855997128.tmp (deleted)
+7f00f11db000-7f00f11dc000 r--p 00016000 00:22 44877                      /tmp/jna/jna5690757504855997128.tmp (deleted)
+7f00f11dc000-7f00f11dd000 rw-p 00017000 00:22 44877                      /tmp/jna/jna5690757504855997128.tmp (deleted)
+7f00f11dd000-7f00f11ee000 r-xp 00000000 fd:00 1323566                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnio.so
+7f00f11ee000-7f00f13ed000 ---p 00011000 fd:00 1323566                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnio.so
+7f00f13ed000-7f00f13ee000 r--p 00010000 fd:00 1323566                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnio.so
+7f00f13ee000-7f00f13ef000 rw-p 00011000 fd:00 1323566                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnio.so
+7f00f13ef000-7f00f13fa000 r--s 0011c000 fd:00 1323494                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/ext/localedata.jar
+7f00f13fa000-7f00f1416000 r--s 003b6000 fd:00 1323589                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/ext/cldrdata.jar
+7f00f1416000-7f00f1616000 rw-p 00000000 00:00 0 
+7f00f1616000-7f00f1816000 rw-p 00000000 00:00 0 
+7f00f1816000-7f00f1819000 ---p 00000000 00:00 0 
+7f00f1819000-7f00f1917000 rw-p 00000000 00:00 0                          [stack:4395]
+7f00f1917000-7f00f191a000 ---p 00000000 00:00 0 
+7f00f191a000-7f00f1a18000 rw-p 00000000 00:00 0                          [stack:4394]
+7f00f1a18000-7f00f1a68000 r-xp 00000000 fd:00 1323548                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libfontmanager.so
+7f00f1a68000-7f00f1c68000 ---p 00050000 fd:00 1323548                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libfontmanager.so
+7f00f1c68000-7f00f1c6b000 r--p 00050000 fd:00 1323548                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libfontmanager.so
+7f00f1c6b000-7f00f1c6c000 rw-p 00053000 fd:00 1323548                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libfontmanager.so
+7f00f1c6c000-7f00f1e6c000 rw-p 00000000 00:00 0 
+7f00f1e6c000-7f00f1ec1000 r-xp 00000000 fd:00 1323692                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt_xawt.so
+7f00f1ec1000-7f00f20c0000 ---p 00055000 fd:00 1323692                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt_xawt.so
+7f00f20c0000-7f00f20c1000 r--p 00054000 fd:00 1323692                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt_xawt.so
+7f00f20c1000-7f00f20c4000 rw-p 00055000 fd:00 1323692                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt_xawt.so
+7f00f20c4000-7f00f20c5000 rw-p 00000000 00:00 0 
+7f00f20c5000-7f00f2166000 r-xp 00000000 fd:00 1323545                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt.so
+7f00f2166000-7f00f2366000 ---p 000a1000 fd:00 1323545                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt.so
+7f00f2366000-7f00f2367000 r--p 000a1000 fd:00 1323545                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt.so
+7f00f2367000-7f00f2372000 rw-p 000a2000 fd:00 1323545                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libawt.so
+7f00f2372000-7f00f2597000 rw-p 00000000 00:00 0 
+7f00f2597000-7f00f259a000 ---p 00000000 00:00 0 
+7f00f259a000-7f00f2698000 rw-p 00000000 00:00 0                          [stack:7336]
+7f00f2698000-7f00f269b000 ---p 00000000 00:00 0 
+7f00f269b000-7f00f2799000 rw-p 00000000 00:00 0                          [stack:4391]
+7f00f2799000-7f00f279c000 ---p 00000000 00:00 0 
+7f00f279c000-7f00f289a000 rw-p 00000000 00:00 0                          [stack:7346]
+7f00f289a000-7f00f289d000 ---p 00000000 00:00 0 
+7f00f289d000-7f00f299b000 rw-p 00000000 00:00 0                          [stack:4389]
+7f00f299b000-7f00f299e000 ---p 00000000 00:00 0 
+7f00f299e000-7f00f2a9c000 rw-p 00000000 00:00 0                          [stack:4379]
+7f00f2a9c000-7f00f2a9f000 ---p 00000000 00:00 0 
+7f00f2a9f000-7f00f2b9d000 rw-p 00000000 00:00 0                          [stack:4569]
+7f00f2b9d000-7f00f2bb4000 r-xp 00000000 fd:00 1323565                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnet.so
+7f00f2bb4000-7f00f2db3000 ---p 00017000 fd:00 1323565                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnet.so
+7f00f2db3000-7f00f2db4000 r--p 00016000 fd:00 1323565                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnet.so
+7f00f2db4000-7f00f2db5000 rw-p 00017000 fd:00 1323565                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libnet.so
+7f00f2db5000-7f00f2fb5000 rw-p 00000000 00:00 0 
+7f00f2fb5000-7f00f2fb8000 ---p 00000000 00:00 0 
+7f00f2fb8000-7f00f30b6000 rw-p 00000000 00:00 0                          [stack:4567]
+7f00f30b6000-7f00f30b9000 ---p 00000000 00:00 0 
+7f00f30b9000-7f00f33b7000 rw-p 00000000 00:00 0                          [stack:4568]
+7f00f33b7000-7f00f35b7000 rw-p 00000000 00:00 0 
+7f00f35b7000-7f00f35f6000 r--s 0032d000 fd:02 2886626                    /home/joseph/.m2/repository/org/clojure/clojure/1.5.1/clojure-1.5.1.jar
+7f00f35f6000-7f00f35f7000 ---p 00000000 00:00 0 
+7f00f35f7000-7f00f36f7000 rw-p 00000000 00:00 0                          [stack:4372]
+7f00f36f7000-7f00f36fa000 ---p 00000000 00:00 0 
+7f00f36fa000-7f00f37f8000 rw-p 00000000 00:00 0                          [stack:4371]
+7f00f37f8000-7f00f37fb000 ---p 00000000 00:00 0 
+7f00f37fb000-7f00f38f9000 rw-p 00000000 00:00 0                          [stack:4370]
+7f00f38f9000-7f00f38fc000 ---p 00000000 00:00 0 
+7f00f38fc000-7f00f39fa000 rw-p 00000000 00:00 0                          [stack:4369]
+7f00f39fa000-7f00f39fd000 ---p 00000000 00:00 0 
+7f00f39fd000-7f00f3afb000 rw-p 00000000 00:00 0                          [stack:4368]
+7f00f3afb000-7f00f3afe000 ---p 00000000 00:00 0 
+7f00f3afe000-7f00f3bfc000 rw-p 00000000 00:00 0                          [stack:4367]
+7f00f3bfc000-7f00f3bff000 ---p 00000000 00:00 0 
+7f00f3bff000-7f00f3cfd000 rw-p 00000000 00:00 0                          [stack:4366]
+7f00f3cfd000-7f00f3cfe000 ---p 00000000 00:00 0 
+7f00f3cfe000-7f00f4000000 rw-p 00000000 00:00 0                          [stack:4365]
+7f00f4000000-7f00f4352000 rw-p 00000000 00:00 0 
+7f00f4352000-7f00f8000000 ---p 00000000 00:00 0 
+7f00f8001000-7f00f8002000 rw-p 00000000 00:00 0 
+7f00f8002000-7f00f8003000 rw-s 00000000 00:22 45046                      /tmp/ffia6eGV6 (deleted)
+7f00f8003000-7f00f8004000 r-xs 00000000 00:22 45046                      /tmp/ffia6eGV6 (deleted)
+7f00f8004000-7f00f8017000 r--s 00345000 fd:00 1323479                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/resources.jar
+7f00f8017000-7f00f801b000 r--s 000ad000 fd:00 1323602                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/jsse.jar
+7f00f801b000-7f00f801c000 r--s 00001000 fd:02 3015890                    /home/joseph/.m2/repository/overtone/libs.handlers/0.2.0/libs.handlers-0.2.0.jar
+7f00f801c000-7f00f801d000 r--s 00004000 fd:02 2886783                    /home/joseph/.m2/repository/overtone/osc-clj/0.9.0/osc-clj-0.9.0.jar
+7f00f801d000-7f00f8022000 r--s 0003d000 fd:02 2884665                    /home/joseph/.m2/repository/commons-net/commons-net/3.0.1/commons-net-3.0.1.jar
+7f00f8022000-7f00f8023000 r--s 00005000 fd:02 2886785                    /home/joseph/.m2/repository/clj-native/clj-native/0.9.3/clj-native-0.9.3.jar
+7f00f8023000-7f00f8024000 r--s 00002000 fd:02 3015929                    /home/joseph/.m2/repository/org/thnetos/cd-client/0.3.6/cd-client-0.3.6.jar
+7f00f8024000-7f00f8025000 r--s 00000000 fd:02 3145774                    /home/joseph/.m2/repository/clojure-complete/clojure-complete/0.2.2/clojure-complete-0.2.2.jar
+7f00f8025000-7f00f802b000 r--s 00068000 fd:02 2895256                    /home/joseph/.m2/repository/overtone/overtone/0.9.1/overtone-0.9.1.jar
+7f00f802b000-7f00f802c000 r--s 00002000 fd:02 3015931                    /home/joseph/.m2/repository/clj-http-lite/clj-http-lite/0.2.0/clj-http-lite-0.2.0.jar
+7f00f802c000-7f00f802d000 r--s 00001000 fd:02 2886779                    /home/joseph/.m2/repository/overtone/midi-clj/0.5.0/midi-clj-0.5.0.jar
+7f00f802d000-7f00f8633000 rw-p 00000000 00:00 0 
+7f00f8633000-7f00f8800000 r--s 04391000 fd:00 1323613                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/rt.jar
+7f00f8800000-7f00f9000000 rw-p 00000000 00:00 0 
+7f00f9000000-7f00fa8f0000 rwxp 00000000 00:00 0 
+7f00fa8f0000-7f0108000000 ---p 00000000 00:00 0 
+7f0108000000-7f0108ed8000 rw-p 00000000 00:00 0 
+7f0108ed8000-7f010c000000 ---p 00000000 00:00 0 
+7f010c000000-7f010c002000 r--s 00001000 fd:02 3015933                    /home/joseph/.m2/repository/slingshot/slingshot/0.10.3/slingshot-0.10.3.jar
+7f010c002000-7f010c006000 r--s 00b46000 fd:02 3015892                    /home/joseph/.m2/repository/overtone/scsynth/3.5.7.0/scsynth-3.5.7.0.jar
+7f010c006000-7f010c007000 r--s 00000000 fd:02 2884639                    /home/joseph/.m2/repository/clj-glob/clj-glob/1.0.0/clj-glob-1.0.0.jar
+7f010c007000-7f010c00b000 r--s 0002f000 fd:02 2886772                    /home/joseph/.m2/repository/javax/jmdns/jmdns/3.4.1/jmdns-3.4.1.jar
+7f010c00b000-7f010c00d000 r--s 00008000 fd:02 3145770                    /home/joseph/.m2/repository/org/clojure/tools.nrepl/0.2.1/tools.nrepl-0.2.1.jar
+7f010c00d000-7f010c00e000 r--s 00002000 fd:02 3015932                    /home/joseph/.m2/repository/cheshire/cheshire/4.0.3/cheshire-4.0.3.jar
+7f010c00e000-7f010c011000 r--s 0002d000 fd:02 3145768                    /home/joseph/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.0.6/jackson-core-2.0.6.jar
+7f010c011000-7f010c013000 r--s 0000b000 fd:02 3145769                    /home/joseph/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-smile/2.0.6/jackson-dataformat-smile-2.0.6.jar
+7f010c013000-7f010c017000 r--s 00b6f000 fd:02 3015894                    /home/joseph/.m2/repository/overtone/scsynth-extras/3.5.7.0/scsynth-extras-3.5.7.0.jar
+7f010c017000-7f010c01b000 r--s 000f3000 fd:02 2886771                    /home/joseph/.m2/repository/net/java/dev/jna/jna/3.4.0/jna-3.4.0.jar
+7f010c01b000-7f010e1da000 rw-p 00000000 00:00 0 
+7f010e1da000-7f010e1db000 ---p 00000000 00:00 0 
+7f010e1db000-7f010e2db000 rw-p 00000000 00:00 0                          [stack:4364]
+7f010e2db000-7f010e2dc000 ---p 00000000 00:00 0 
+7f010e2dc000-7f010e41b000 rw-p 00000000 00:00 0                          [stack:4363]
+7f010e41b000-7f010e516000 ---p 00000000 00:00 0 
+7f010e516000-7f010e555000 rw-p 00000000 00:00 0 
+7f010e555000-7f010e64f000 ---p 00000000 00:00 0 
+7f010e64f000-7f010e6df000 rw-p 00000000 00:00 0 
+7f010e6df000-7f010e6ec000 ---p 00000000 00:00 0 
+7f010e6ec000-7f010e751000 rw-p 00000000 00:00 0 
+7f010e751000-7f010eaad000 ---p 00000000 00:00 0 
+7f010eaad000-7f010eab5000 r-xp 00000000 fd:00 1323572                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libzip.so
+7f010eab5000-7f010ecb4000 ---p 00008000 fd:00 1323572                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libzip.so
+7f010ecb4000-7f010ecb5000 r--p 00007000 fd:00 1323572                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libzip.so
+7f010ecb5000-7f010ecb6000 rw-p 00008000 fd:00 1323572                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libzip.so
+7f010ecb6000-7f010ecc2000 r-xp 00000000 fd:00 1180763                    /usr/lib64/libnss_files-2.20.so
+7f010ecc2000-7f010eec1000 ---p 0000c000 fd:00 1180763                    /usr/lib64/libnss_files-2.20.so
+7f010eec1000-7f010eec2000 r--p 0000b000 fd:00 1180763                    /usr/lib64/libnss_files-2.20.so
+7f010eec2000-7f010eec3000 rw-p 0000c000 fd:00 1180763                    /usr/lib64/libnss_files-2.20.so
+7f010eec3000-7f010eee4000 rw-p 00000000 00:00 0 
+7f010eee4000-7f010ef12000 r-xp 00000000 fd:00 1323555                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjava.so
+7f010ef12000-7f010f111000 ---p 0002e000 fd:00 1323555                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjava.so
+7f010f111000-7f010f112000 r--p 0002d000 fd:00 1323555                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjava.so
+7f010f112000-7f010f114000 rw-p 0002e000 fd:00 1323555                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libjava.so
+7f010f114000-7f010f121000 r-xp 00000000 fd:00 1323571                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libverify.so
+7f010f121000-7f010f320000 ---p 0000d000 fd:00 1323571                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libverify.so
+7f010f320000-7f010f322000 r--p 0000c000 fd:00 1323571                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libverify.so
+7f010f322000-7f010f323000 rw-p 0000e000 fd:00 1323571                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/libverify.so
+7f010f323000-7f010f326000 ---p 00000000 00:00 0 
+7f010f326000-7f010f424000 rw-p 00000000 00:00 0                          [stack:4362]
+7f010f424000-7f010f52b000 r-xp 00000000 fd:00 1180885                    /usr/lib64/libm-2.20.so
+7f010f52b000-7f010f72a000 ---p 00107000 fd:00 1180885                    /usr/lib64/libm-2.20.so
+7f010f72a000-7f010f72b000 r--p 00106000 fd:00 1180885                    /usr/lib64/libm-2.20.so
+7f010f72b000-7f010f72c000 rw-p 00107000 fd:00 1180885                    /usr/lib64/libm-2.20.so
+7f010f72c000-7f011034f000 r-xp 00000000 fd:00 1323576                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/server/libjvm.so
+7f011034f000-7f011054e000 ---p 00c23000 fd:00 1323576                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/server/libjvm.so
+7f011054e000-7f01105f1000 r--p 00c22000 fd:00 1323576                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/server/libjvm.so
+7f01105f1000-7f0110619000 rw-p 00cc5000 fd:00 1323576                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.31-5.b13.fc21.x86_64/jre/lib/amd64/server/libjvm.so
+7f0110619000-7f011064c000 rw-p 00000000 00:00 0 
+7f011064c000-7f011064d000 r--s 00001000 fd:02 2895257                    /home/joseph/.m2/repository/overtone/at-at/1.2.0/at-at-1.2.0.jar
+7f011064d000-7f011064e000 r--s 00001000 fd:02 2895254                    /home/joseph/.m2/repository/org/clojure/data.json/0.2.3/data.json-0.2.3.jar
+7f011064e000-7f0110650000 r--s 00000000 fd:02 2884724                    /home/joseph/.m2/repository/overtone/byte-spec/0.3.1/byte-spec-0.3.1.jar
+7f0110650000-7f0110663000 rw-p 00000000 00:00 0 
+7f0110663000-7f011066b000 rw-s 00000000 00:22 44815                      /tmp/hsperfdata_joseph/4358
+7f011066b000-7f011066c000 rw-p 00000000 00:00 0 
+7f011066c000-7f011066d000 r--p 00000000 00:00 0 
+7f011066d000-7f011066e000 rw-p 00000000 00:00 0 
+7ffc1d264000-7ffc1d286000 rw-p 00000000 00:00 0                          [stack]
+7ffc1d28a000-7ffc1d28c000 r--p 00000000 00:00 0                          [vvar]
+7ffc1d28c000-7ffc1d28e000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+VM Arguments:
+jvm_args: -XX:+TieredCompilation -Dclojure.compile.path=/home/joseph/clj/src/transport/target/classes -Dtransport.version=0.3.0-SNAPSHOT -Dfile.encoding=UTF-8 -Dclojure.debug=false -Djava.library.path=/home/joseph/clj/src/transport/target/native/linux/x86_64 
+java_command: clojure.main -e (do (clojure.core/require (quote clojure.tools.nrepl.server) (quote complete.core)) (set! *warn-on-reflection* nil) (clojure.core/let [server__4127__auto__ (clojure.tools.nrepl.server/start-server :bind "127.0.0.1" :port 0 :ack-port 49902 :handler (clojure.tools.nrepl.server/default-handler)) port__4128__auto__ (clojure.core/-> server__4127__auto__ clojure.core/deref :ss .getLocalPort)] (clojure.core/when nil (clojure.core/println "nREPL server started on port" port__4128__auto__)) (do nil) (clojure.core/spit "/home/joseph/clj/src/transport/target/repl-port" port__4128__auto__) (.deleteOnExit (clojure.java.io/file "/home/joseph/clj/src/transport/target" "repl-port")) (clojure.core/deref (clojure.core/promise))))
+java_class_path (initial): /home/joseph/clj/src/transport/test:/home/joseph/clj/src/transport/src:/home/joseph/clj/src/transport/dev-resources:/home/joseph/clj/src/transport/resources:/home/joseph/clj/src/transport/target/classes:/home/joseph/.m2/repository/overtone/byte-spec/0.3.1/byte-spec-0.3.1.jar:/home/joseph/.m2/repository/net/java/dev/jna/jna/3.4.0/jna-3.4.0.jar:/home/joseph/.m2/repository/org/clojure/data.json/0.2.3/data.json-0.2.3.jar:/home/joseph/.m2/repository/overtone/at-at/1.2.0/at-at-1.2.0.jar:/home/joseph/.m2/repository/overtone/scsynth-extras/3.5.7.0/scsynth-extras-3.5.7.0.jar:/home/joseph/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-smile/2.0.6/jackson-dataformat-smile-2.0.6.jar:/home/joseph/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.0.6/jackson-core-2.0.6.jar:/home/joseph/.m2/repository/cheshire/cheshire/4.0.3/cheshire-4.0.3.jar:/home/joseph/.m2/repository/org/clojure/tools.nrepl/0.2.1/tools.nrepl-0.2.1.jar:/home/joseph/.m2/repository/javax/jmdns/jmdns/3.4.1/jmdns-3.4.1.jar:/home/joseph/.m2/repository/clj-glob/clj-glob/1.0.0/clj-glob-1.0.0.jar:/home/joseph/.m2/repository/overtone/scsynth/3.5.7.0/scsynth-3.5.7.0.jar:/home/joseph/.m2/repository/slingshot/slingshot/0.10.3/slingshot-0.10.3.jar:/home/joseph/.m2/repository/overtone/midi-clj/0.5.0/midi-clj-0.5.0.jar:/home/joseph/.m2/repository/clj-http-lite/clj-http-lite/0.2.0/clj-http-lite-0.2.0.jar:/home/joseph/.m2/repository/overtone/overtone/0.9.1/overtone-0.9.1.jar:/home/joseph/.m2/repository/org/clojure/clojure/1.5.1/clojure-1.5.1.jar:/home/joseph/.m2/repository/clojure-complete/clojure-complete/0.2.2/clojure-complete-0.2.2.jar:/home/joseph/.m2/repository/org/thnetos/cd-client/0.3.6/cd-client-0.3.6.jar:/home/joseph/.m2/repository/clj-native/clj-native/0.9.3/clj-native-0.9.3.jar:/home/joseph/.m2/repository/commons-net/commons-net/3.0.1/commons-net-3.0.1.jar:/home/joseph/.m2/repository/overtone/osc-clj/0.9.0/osc-clj-0.9.0.jar:/home/joseph/.m2/repository/overtone/l
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+CLASSPATH=/home/joseph/bin/overtone/lib/*:/home/joseph/.lein/self-installs/leiningen-2.0.0-standalone.jar
+PATH=/usr/lib64/ccache:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/home/joseph/clj/bin:/home/joseph/clj/src/leiningen:/home/joseph/local/bin:/home/joseph/bin:/home/joseph/clj/bin:/home/joseph/clj/src/leiningen:/home/joseph/local/bin:/home/joseph/bin
+USERNAME=joseph
+SHELL=/bin/bash
+DISPLAY=:0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0xa310d0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGBUS: [libjvm.so+0xa310d0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGFPE: [libjvm.so+0x88dcd0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGPIPE: [libjvm.so+0x88dcd0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGXFSZ: [libjvm.so+0x88dcd0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGILL: [libjvm.so+0x88dcd0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGUSR1: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGUSR2: [libjvm.so+0x88db80], sa_mask[0]=00100000000000000000000000000000, sa_flags=SA_RESTART|SA_SIGINFO
+SIGHUP: [libjvm.so+0x88dd90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGINT: [libjvm.so+0x88dd90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGTERM: [libjvm.so+0x88dd90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGQUIT: [libjvm.so+0x88dd90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+
+
+---------------  S Y S T E M  ---------------
+
+OS:Fedora release 21 (Twenty One)
+
+uname:Linux 3.18.9-200.fc21.x86_64 #1 SMP Mon Mar 9 15:10:50 UTC 2015 x86_64
+libc:glibc 2.20 NPTL 2.20 
+rlimit: STACK 8192k, CORE 0k, NPROC 4096, NOFILE 4096, AS infinity
+load average:0.01 0.07 0.12
+
+/proc/meminfo:
+MemTotal:        3843708 kB
+MemFree:         1255484 kB
+MemAvailable:    2054896 kB
+Buffers:          173132 kB
+Cached:           873376 kB
+SwapCached:            0 kB
+Active:          1712800 kB
+Inactive:         524664 kB
+Active(anon):    1297224 kB
+Inactive(anon):    79664 kB
+Active(file):     415576 kB
+Inactive(file):   445000 kB
+Unevictable:          16 kB
+Mlocked:              16 kB
+SwapTotal:       5931004 kB
+SwapFree:        5931004 kB
+Dirty:               192 kB
+Writeback:             0 kB
+AnonPages:       1191112 kB
+Mapped:           221200 kB
+Shmem:            185792 kB
+Slab:             239084 kB
+SReclaimable:     192252 kB
+SUnreclaim:        46832 kB
+KernelStack:        7632 kB
+PageTables:        37872 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     7852856 kB
+Committed_AS:    3576704 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:      558760 kB
+VmallocChunk:   34359169468 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      115960 kB
+DirectMap2M:     3872768 kB
+
+
+CPU:total 2 (2 cores per cpu, 1 threads per core) family 6 model 37 stepping 5, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, popcnt, tsc, tscinvbit
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 37
+model name	: Intel(R) Pentium(R) CPU        P6200  @ 2.13GHz
+stepping	: 5
+microcode	: 0x4
+cpu MHz		: 2133.000
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 2
+core id		: 0
+cpu cores	: 2
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl est tm2 ssse3 cx16 xtpr pdcm pcid popcnt lahf_lm arat dtherm
+bugs		:
+bogomips	: 4256.42
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 37
+model name	: Intel(R) Pentium(R) CPU        P6200  @ 2.13GHz
+stepping	: 5
+microcode	: 0x4
+cpu MHz		: 2133.000
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 2
+core id		: 2
+cpu cores	: 2
+apicid		: 4
+initial apicid	: 4
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl est tm2 ssse3 cx16 xtpr pdcm pcid popcnt lahf_lm arat dtherm
+bugs		:
+bogomips	: 4256.42
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+
+
+Memory: 4k page, physical 3843708k(1255484k free), swap 5931004k(5931004k free)
+
+vm_info: OpenJDK 64-Bit Server VM (25.31-b07) for linux-amd64 JRE (1.8.0_31-b13), built on Feb 13 2015 14:09:38 by "mockbuild" with gcc 4.9.2 20141101 (Red Hat 4.9.2-1)
+
+time: Thu Mar 26 08:32:09 2015
+elapsed time: 24794 seconds (0d 6h 53m 14s)
+

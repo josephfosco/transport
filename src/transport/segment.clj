@@ -110,7 +110,6 @@
                      :seg-len (select-segment-length)
                      :seg-num (inc (get-seg-num player))
                      :seg-start event-time
-                     :cur-note-beat 0
                      )
         ]
     (cond

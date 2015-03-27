@@ -358,7 +358,8 @@
      :note nil
      :dur-info new-dur-info
      :follow-note 0
-     :instrument-info (get-instrument-info player)
+     :follow-player-id (get-player-id follow-player)
+     :instrument-info (get-instrument-info follow-player)
      :note-event-time event-time
      :player-id (get-player-id player)
      :seg-num (get-seg-num player)
@@ -371,7 +372,7 @@
   [player event-time sync-beat-player-id]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player-map follow-player-id)
-        follow-player-last-event-num (get-last-melody-event-num-for-player (get-player-map follow-player-id))
+        follow-player-last-event-num (get-last-melody-event-num-for-player follow-player)
         last-follow-event-num (get-follow-note-for-event (get-last-melody-event player))
         player-seg-num (get-seg-num player)
         ]
@@ -389,6 +390,7 @@
          :follow-note (if (nil? follow-player-last-event-num)
                         0
                         (dec follow-player-last-event-num))
+         :follow-player-id follow-player-id
          ;; if follow-player has not played a note yet, get follow-player instrument-info
          ;; otherwise get instrument-info from last follow-player-event
          :instrument-info (if (nil? follow-player-last-event-num)
@@ -411,7 +413,7 @@
         (if (nil? next-melody-event)
           ;; unless
           ;; FOLLOWer ahead of FOLLOWed
-          ;; then repeat whatever melody-event just played
+          ;; then throw exception - should never happen
           (do
             (binding [*out* *err*]
                      (println "*************** FOLLOWER AHEAD OF FOLLOWED ***************")
@@ -429,7 +431,9 @@
             )
           (assoc next-melody-event
             :follow-note event-num-to-play
+            :follow-player-id follow-player-id
             :note-event-time event-time
+            :player-id (get-player-id player)
             :seg-num player-seg-num))
         )))
   )
@@ -444,6 +448,7 @@
        :note next-note-or-rest
        :dur-info (next-note-dur player next-note-or-rest)
        :follow-note nil
+       :follow-player-id nil
        :instrument-info (get-instrument-info player)
        :note-event-time event-time
        :player-id (get-player-id player)
