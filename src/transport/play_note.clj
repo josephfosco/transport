@@ -194,7 +194,6 @@
 (defn get-actual-release-dur-millis
   [inst-info dur-millis]
   (let [release-dur (get-release-millis-for-inst-info inst-info)]
-    (print-msg "get-actual-release-dur-millis" "release-dur: " release-dur)
     (if (> dur-millis release-dur)
       release-dur
       0))
@@ -208,7 +207,6 @@
                      dur-millis
                      )
         ]
-    (print-msg "articulate-note?" "dur-millis: " dur-millis " release-dur: " release-dur)
     (if (and (> release-dur 0)
              (> (- dur-millis (- (get-note-play-time-for-event melody-event) event-time ) release-dur)
                 0)
@@ -258,24 +256,13 @@
 
    player - map for the player to check
    melody event - melody event to check or player's last melody event if omitted"
-  [player & {:keys [melody-event]
-             :or {melody-event (get-last-melody-event player)}}]
+  [player & {:keys [melody-event increment]
+             :or {melody-event (get-last-melody-event player)
+                  increment 0}}]
 
   ;; (print-msg "new-segment-for-following-player?" "player-id: " (get-player-id player))
-  (if (and (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-           (not= (get-follow-note-for-event melody-event) 0))
-    (let [following-player (get-player-map (get-behavior-player-id (get-behavior player)))
-          cur-following-event-seg (get-seg-num-for-event (get-melody-event-num following-player
-                                                                               (get-follow-note-for-event melody-event)))
-          next-following-event-seg (get-seg-num-for-event (get-melody-event-num following-player
-                                                                                (inc (get-follow-note-for-event melody-event))))
-          ]
-      (if (not= cur-following-event-seg next-following-event-seg)
-        true
-        false)
-      )
-    false
-    )
+  (and (get-next-change-follow-info-note player)
+       (>= (+ (get-follow-note-for-event melody-event) increment) (get-next-change-follow-info-note player)))
   )
 
 (defn- check-note-off
@@ -291,7 +278,6 @@
                       false
                       )
         ]
-    (print-msg "check-note-off" "articulate? " articulate? " has-release? " (has-release? (get-instrument-info melody-event)) " articulate-note? " (articulate-note? melody-event event-time))
     (if articulate?
           (do
             ;; (print-msg "check-note-off" "player-id: " (get-player-id-for-event melody-event) " note: " (get-note-for-event melody-event))

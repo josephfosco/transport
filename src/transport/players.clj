@@ -71,6 +71,10 @@
   [player]
   (:change-follow-info-notes player))
 
+(defn get-next-change-follow-info-note
+  [player]
+  (first (:change-follow-info-notes player)))
+
 (defn get-change-follow-info
   [player]
   (:change-follow-info player))
@@ -289,41 +293,35 @@
   [to-player from-player melody-event-num]
   (let [to-player-id (get-player-id to-player)
         from-player-id (get-behavior-player-id (get-behavior to-player))
+        cur-change-follow-info-note (get-next-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
-    (if (and
-         (not (nil? from-player-id))
-         (not (nil? last-follow-note))
-         (= from-player-id (get-player-id from-player))
-         )
-      (let [updated-player (if (> (count (get-change-follow-info to-player)) 0)
-                             (do
-                               (assoc (merge to-player
-                                             (get (get-change-follow-info to-player) 0)
-                                             )
-                                 :change-follow-info-notes (subvec (get-change-follow-info-notes to-player) 1)
-                                 :change-follow-info (subvec (get-change-follow-info to-player) 1)
-                                 ))
-                             (do
-                               (merge to-player
-                                      (get-following-info-from-player from-player)
-                                      ))
-                             )
-            ]
-
-        updated-player)
+    (if (and (not (nil? from-player-id))
+             (not (nil? last-follow-note))
+             (not (nil? cur-change-follow-info-note))
+             (>= (inc last-follow-note) cur-change-follow-info-note)
+             (> (count (get-change-follow-info to-player)) 0)
+             (= from-player-id (get-player-id from-player))
+             )
+      (assoc (merge to-player
+                    (get (get-change-follow-info to-player) 0)
+                    )
+        :change-follow-info-notes (subvec (get-change-follow-info-notes to-player) 1)
+        :change-follow-info (subvec (get-change-follow-info to-player) 1)
+        )
       (do
         (binding [*out* *err*]
-                 (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
-                 (print-player to-player)
-                 (print-player from-player)
-                 (print-msg "update-player-follow-info" "from-player-id:   " (get-player-id from-player))
-                 (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
-                 (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)
-                 )
+          (print-msg "update-player-and-follow-info" "COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   COPY FOLLOW-INFO ERROR   ")
+          (print-player to-player)
+          (print-player from-player)
+          (print-msg "update-player-follow-info" "from-player-id:   " (get-player-id from-player))
+          (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
+          (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)
+          )
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )
-      ))
+      )
+    )
   )
 
 (defn print-player-melody

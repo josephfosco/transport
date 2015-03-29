@@ -356,6 +356,7 @@
         ]
     (create-melody-event
      :note nil
+     :change-follow-info-note nil
      :dur-info new-dur-info
      :follow-note 0
      :follow-player-id (get-player-id follow-player)
@@ -386,6 +387,7 @@
       (do
         (create-melody-event
          :note nil
+         :change-follow-info-note (get-next-change-follow-info-note player)
          :dur-info (get-dur-info-for-beats follow-player 3)
          :follow-note (if (nil? follow-player-last-event-num)
                         0
@@ -430,6 +432,7 @@
             (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
             )
           (assoc next-melody-event
+            :change-follow-info-note (get-next-change-follow-info-note player)
             :follow-note event-num-to-play
             :follow-player-id follow-player-id
             :note-event-time event-time
@@ -446,6 +449,7 @@
     (let [next-note-or-rest (if (note-or-rest player event-time) (next-pitch player) nil)]
       (create-melody-event
        :note next-note-or-rest
+       :change-follow-info-note nil
        :dur-info (next-note-dur player next-note-or-rest)
        :follow-note nil
        :follow-player-id nil
