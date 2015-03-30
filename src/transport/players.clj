@@ -237,14 +237,22 @@
 
 (defn- set-new-follow-info
   [player melody-no change-player-id follow-info]
-  (if (and (= change-player-id (get-player-id (:behavior player)))
-           (not (some #{melody-no} (get-change-follow-info-notes player)))
-           )
-    (assoc player
-      :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
-      :change-follow-info (conj (get-change-follow-info player) follow-info)
-      )
-    player
+  (if (= change-player-id (get-player-id (:behavior player)))
+    (if (not (some #{melody-no} (get-change-follow-info-notes player)))
+
+      (assoc player
+        :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
+        :change-follow-info (conj (get-change-follow-info player) follow-info)
+        )
+      ;; If melody-num already exists in change-follow-info-notes
+      ;; replace melody-num's current follow-info in :change-follow-info
+      ;; with the new follow-info
+      (let [melody-num-index (first (keep-indexed #(if (= %2 melody-no) %1 nil) (get-change-follow-info-notes player)))]
+        (print-msg "set-new-follow-info" "player-id: " (get-player-id player) " melody-no: " melody-no " change-follow-info-notes: " (get-change-follow-info-notes player) " melody-num-index: " melody-num-index " count-info: " (count (get-change-follow-info player)))
+        (print-msg "set-new-follow-info" "*********** REPLACING FOLLOW-INFO ***************")
+        (assoc player
+          :change-follow-info (assoc (get-change-follow-info player) melody-num-index follow-info)
+          )))
     )
   )
 
