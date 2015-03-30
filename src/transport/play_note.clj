@@ -411,7 +411,8 @@
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
         new-seg-following-player? (if (not new-seg?)
                                     (new-segment-for-following-player? player
-                                                                       :melody-event last-melody-event)
+                                                                       :melody-event last-melody-event
+                                                                       :increment 1)
                                     false
                                     )
         new-player (swap! (get @ensemble player-id)
