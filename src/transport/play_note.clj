@@ -260,7 +260,6 @@
              :or {melody-event (get-last-melody-event player)
                   increment 0}}]
 
-  ;; (print-msg "new-segment-for-following-player?" "player-id: " (get-player-id player))
   (and (get-next-change-follow-info-note player)
        (>= (+ (get-follow-note-for-event melody-event) increment) (get-next-change-follow-info-note player)))
   )
@@ -406,9 +405,9 @@
 (defn next-note
   [player-id event-time]
 
-  (let [last-melody-event (get-last-melody-event (get-player-map player-id))
+  (let [player (get-player-map player-id)
+        last-melody-event (get-last-melody-event player)
         ;; will the new melody event start a new segment?
-        player (get-player-map player-id)
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
         new-seg-following-player? (if (not new-seg?)
                                     (new-segment-for-following-player? player
@@ -434,7 +433,7 @@
 
     (cond new-seg?
           (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
-          new-segment-for-following-player?
+          new-seg-following-player?
           (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
           )
 
@@ -507,12 +506,12 @@
   [player-id event-time]
 
   (print-msg "first-note" "player-id: " player-id)
-  (listeners-msg-new-segment (get-player-map player-id) 1)
   (let [new-player (swap! (get @ensemble player-id) set-first-note event-time transport.play-note/next-note)
         melody-event (play-first-melody-note new-player player-id event-time)
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
+    (listeners-msg-new-segment (get-player-map player-id) 1)
     (print-msg "first-note" "player-id: " player-id " melody-dur-millis: " melody-dur-millis)
     (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
     (if (get-note-for-event melody-event)

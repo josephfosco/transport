@@ -239,8 +239,6 @@
   [player melody-no change-player-id follow-info]
   (if (and (= change-player-id (get-player-id (:behavior player)))
            (not (some #{melody-no} (get-change-follow-info-notes player)))
-;; Commented out line possibly causes crash at start when follow-player has no melody events
-;;           (< (get-last-melody-event-num-for-player player) melody-no)
            )
     (assoc player
       :change-follow-info-notes (conj (get-change-follow-info-notes player) melody-no)
