@@ -61,4 +61,3 @@
 
 * in melody.clj syn-beat-follow check logic around comment "current info for FOLLOW player is for next segment". Is this still true?
 
-* if there is a duplicate change-follow-info note that comes through - must replace change-follow-info for that note to have the most up to date info
