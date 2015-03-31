@@ -31,7 +31,7 @@
      (< action-num 0.51) SIMILAR-PLAYER
      (< action-num 0.68) SIMILAR-ENSEMBLE
      (< action-num 0.85) CONTRAST-ENSEMBLE
-     :else IGNORE
+     :else IGNORE-ALL
      )) )
 
 (defn select-first-behavior
@@ -40,7 +40,7 @@
 
    player - the player to set behavior for"
   [player]
-  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)]
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE-ALL)]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
                nil)                     ;; behavior player-id
@@ -49,12 +49,12 @@
 
 (defn select-behavior
   [player]
-  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE)
+  (let [behavior-action (if (> @number-of-players 1) (select-behavior-action player) IGNORE-ALL)
         ;; select ensemble-action behavior only if not watching another player
         ]
     (Behavior. (ranged-rand 0.25 0.85)  ;; accuracy
                behavior-action          ;; action
-               (if (and (not= behavior-action IGNORE)
+               (if (and (not= behavior-action IGNORE-ALL)
                         (not= behavior-action SIMILAR-ENSEMBLE)
                         (not= behavior-action CONTRAST-ENSEMBLE)
                        )

@@ -149,7 +149,7 @@
               new-similar-info)
        )
 
-     :else  ;;  IGNORE or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
+     :else  ;;  IGNORE-ALL or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
      (let [new-instrument (if (= behavior-action CONTRAST-PLAYER)
                             (select-instrument upd-player :cntrst-plyr (get-behavior-player-id upd-player))
                             (select-instrument upd-player))

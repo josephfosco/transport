@@ -416,7 +416,8 @@
 (defn print-player-action
   [player-atom]
   (let [plyr-action (get-behavior-action (get-behavior @player-atom))]
-    (cond (= plyr-action IGNORE) (println "IGNORE")
+    (print (format "%-2s" (get-player-id @player-atom)) " - ")
+    (cond (= plyr-action IGNORE-ALL) (println "IGNORE-ALL")
           (= plyr-action CONTRAST-PLAYER) (println "CONTRAST-PLAYER")
           (= plyr-action SIMILAR-PLAYER) (println "SIMILAR-PLAYER")
           (= plyr-action FOLLOW-PLAYER) (println "FOLLOW-PLAYER")
@@ -482,17 +483,17 @@
     ))
 
 (defn select-and-set-behavior-player-id
-  "If :behavior :action is not IGNORE, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
+  "If :behavior :action is not IGNORE-ALL, SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
    returns a :behavior map with :player-id selected from map of players
    passed in as all-players.
-   if :behavior is IGNORE returns the current :behavior map
+   if :behavior is IGNORE-ALL returns the current :behavior map
 
    player - the player to set :behavior :player-id"
   [player & {:keys [all-players]}]
   (let [player-action (get-behavior-action (get-behavior player))]
     (if (and (not= player-action SIMILAR-ENSEMBLE)
              (not= player-action CONTRAST-ENSEMBLE)
-             (not= player-action IGNORE))
+             (not= player-action IGNORE-ALL))
       (let [player-id (rand-player-id-excluding-player player :all-players all-players)]
         (set-behavior-player-id (get-behavior player) player-id)
         )
