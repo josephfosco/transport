@@ -246,7 +246,7 @@
   )
 
 
-(defn- new-segment-for-following-player?
+(defn- check-new-follow-info
   "Returns true if the event after melody-event
    is a new segment in the following player.
    Compares the seg-num in the molody-event of the FOLLOWing player for the melody
@@ -295,7 +295,7 @@
    player - map for the current player
    player-id - the id of the current player
    event-time - time this note event was scheduled for"
-  [player-id player event-time new-seg? new-seg-following-player?]
+  [player-id player event-time new-seg? new-follow-info?]
 
 ;;  (println)
 ;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
@@ -328,7 +328,7 @@
                            (cond
                             (or articulate?
                                 new-seg?
-                                new-seg-following-player?
+                                new-follow-info?
                                 )
                             ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
                              (midi->hz (get-note-for-event melody-event))
@@ -361,7 +361,7 @@
       ;; if about to play a note, check range
       (do
         (check-note-out-of-range player-id upd-melody-event)
-        (if (and (or new-seg? new-seg-following-player?)
+        (if (and (or new-seg? new-follow-info?)
                  (not articulate?)
                  inst-has-release?
                  )
@@ -383,7 +383,7 @@
     ))
 
 (defn- update-player
-  [player event-time new-seg? new-seg-for-following-player?]
+  [player event-time new-seg? new-follow-info?]
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-melody-event-num player last-melody-event-num)
         ;; will the new melody event start a new segment?
@@ -391,7 +391,7 @@
 ;;    (print-msg "update-player" "new-seg? " new-seg?)
     (cond new-seg?
           (update-player-with-new-segment player event-time)
-          new-seg-for-following-player?
+          new-follow-info?
           (update-player-follow-info player
                                      (get-player-map (get-behavior-player-id (get-behavior player)))
                                      (inc last-melody-event-num)
@@ -409,22 +409,22 @@
         last-melody-event (get-last-melody-event player)
         ;; will the new melody event start a new segment?
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
-        new-seg-following-player? (if (not new-seg?)
-                                    (new-segment-for-following-player? player
-                                                                       :melody-event last-melody-event
-                                                                       :increment 1)
+        new-follow-info? (if (not new-seg?)
+                                    (check-new-follow-info player
+                                                           :melody-event last-melody-event
+                                                           :increment 1)
                                     false
                                     )
         new-player (swap! (get @ensemble player-id)
                           update-player
                           event-time
                           new-seg?
-                          new-seg-following-player?)
+                          new-follow-info?)
         melody-event (play-melody player-id
                                   new-player
                                   event-time
                                   new-seg?
-                                  new-seg-following-player?
+                                  new-follow-info?
                                   )
         melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
@@ -434,7 +434,7 @@
 
     (cond new-seg?
           (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
-          new-seg-following-player?
+          new-follow-info?
           (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
           )
 
