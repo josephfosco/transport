@@ -17,22 +17,30 @@
   (:require
    [overtone.live :refer [ranged-rand]]
    [transport.players :refer [rand-player-id-excluding-player]]
+   [transport.random :refer [weighted-choice]]
    [transport.settings :refer :all]
+   [transport.util.utils :refer [print-msg]]
    )
   (:import transport.behavior.Behavior)
   )
 
+(def behavior-probs (atom [1 1 1 1 1 1]))
+
+(defn init-behaviors
+  []
+  (reset! behavior-probs (assoc @behavior-probs
+                           FOLLOW-PLAYER 2
+                           CONTRAST-PLAYER 1
+                           SIMILAR-PLAYER 2
+                           SIMILAR-ENSEMBLE 4
+                           CONTRAST-ENSEMBLE 1
+                           IGNORE-ALL 1
+                           ))
+  )
+
 (defn select-behavior-action
   [player]
-  (let [action-num (rand)]
-    (cond
-     (< action-num 0.17) FOLLOW-PLAYER
-     (< action-num 0.34) CONTRAST-PLAYER
-     (< action-num 0.51) SIMILAR-PLAYER
-     (< action-num 0.68) SIMILAR-ENSEMBLE
-     (< action-num 0.85) CONTRAST-ENSEMBLE
-     :else IGNORE-ALL
-     )) )
+  (weighted-choice @behavior-probs) )
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.

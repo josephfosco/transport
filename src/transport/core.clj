@@ -18,6 +18,7 @@
   (:require
    [overtone.live :refer :all]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
+   [transport.behaviors :refer [init-behaviors]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.play-note :refer [init-ensemble reset-ensemble]]
@@ -71,6 +72,7 @@
     (do
       (set-number-of-players num-players)
       (transport.pitch/load-scales)
+      (transport.behaviors/init-behaviors)
       (print-banner "transport-init about to init-lateness in schedule")
       (init-lateness)
 
