@@ -28,8 +28,8 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [get-dur-info-for-beats get-dur-info-for-mm-and-millis next-note-dur note-dur-to-millis]]
-   [transport.settings :refer :all]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
+   [transport.util.constants :refer :all]
    [transport.util.utils :refer :all]
    )
   (:import

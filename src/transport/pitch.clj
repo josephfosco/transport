@@ -23,8 +23,7 @@
    [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
-   [transport.settings :refer :all]
-   [transport.util.utils :refer :all]
+   [transport.util.constants :refer :all]
    )
   (:import transport.behavior.Behavior)
   )

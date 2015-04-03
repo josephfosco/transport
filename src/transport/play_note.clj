@@ -29,6 +29,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.segment :refer [first-segment new-segment new-segment? get-contrasting-info-for-player]]
    [transport.settings :refer :all]
+   [transport.util.constants :refer :all]
    [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)

@@ -22,7 +22,7 @@
 
 (defmacro round-number
   [nmbr]
-  `(int (+ ~nmbr 0.5))
+  `(if (> ~nmbr 0) (int (+ ~nmbr 0.5)) (int (- ~nmbr 0.5)))
   )
 
 (defn get-max-map-key

@@ -19,6 +19,7 @@
    [transport.players :refer [rand-player-id-excluding-player]]
    [transport.random :refer [weighted-choice]]
    [transport.settings :refer :all]
+   [transport.util.constants :refer :all]
    [transport.util.utils :refer [print-msg]]
    )
   (:import transport.behavior.Behavior)

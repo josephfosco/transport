@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -17,13 +17,12 @@
   (:require
    [transport.behavior :refer [get-behavior-action]]
    [transport.dur-info :refer [get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-mm]]
+   [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-trend-mm]]
    [transport.melodychar :refer [get-melody-char-density]]
    [transport.melodyevent :refer :all]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
-   [transport.settings :refer [SIMILAR-ENSEMBLE]]
-   [transport.util.utils :refer :all]
+   [transport.util.constants :refer [SIMILAR-ENSEMBLE]]
    [overtone.live :refer [metronome]]
    ))
 
@@ -111,7 +110,7 @@
   ([] (random-int min-mm max-mm))
   ([player]
      (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-       (get-ensemble-mm)
+       (get-ensemble-trend-mm)
        (random-int min-mm max-mm)
        )
      )

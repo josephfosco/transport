@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -25,9 +25,13 @@
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
    [transport.settings :refer :all]
+   [transport.util.compare-prior-current :refer :all]
+   [transport.util.constants :refer :all]
    [transport.util.utils :refer :all])
   (:import (java.util Date TimerTask Timer))
    )
+
+(def trend-upd-millis 3000)
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
@@ -35,6 +39,7 @@
 ;;  player-id is index into vector.
 (def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
 (def player-mms (atom (apply vector (repeat @number-of-players nil))))
+(def mm-trend (compare-prior-current))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
 (def player-continuities (atom (apply vector (repeat @number-of-players 0))))
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
@@ -129,6 +134,10 @@
   []
   (average @player-volumes @number-of-players))
 
+(defn get-average-mm
+  []
+  (round-number (average @player-mms @number-of-players)))
+
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob. Returns fraction or float."
   []
@@ -151,6 +160,14 @@
   []
   (print-msg "get-ensemble-mm:" @player-mms)
   (get-vector-max-frequency @player-mms)
+  )
+
+(defn get-ensemble-trend-mm
+  "Returns mm most that is the average ensemble-mm +/- the ensemble mm trend"
+  []
+  (print-msg "get-ensemble-mm:" @player-mms)
+  (print-msg "get-ensemble-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
+  (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
   )
 
 (defn get-ensemble-continuity
@@ -227,8 +244,6 @@
 
 (defn check-activity
   []
-;;  (print-msg "check-activity" "current-time: " (System/currentTimeMillis))
-;;  (print-msg "check-activity" "note-times: " @note-times)
   (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)]
 
     (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
@@ -252,11 +267,12 @@
     )
   )
 
-(defn upd-density-trend
+(defn upd-ensemble-trends
   [& args]
   (check-activity)
   (send-off note-times remove-expired-times)
-  (sched-event 5000 transport.ensemble-status/upd-density-trend nil)
+  ((mm-trend :new-value) (round-number (get-average-mm)))
+  (sched-event trend-upd-millis transport.ensemble-status/upd-ensemble-trends nil)
   )
 
 (defn init-ensemble-status
@@ -265,6 +281,7 @@
 
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
   (reset! player-mms (apply vector (repeat @number-of-players nil)))
+  ((mm-trend :init) 3)
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
@@ -287,7 +304,7 @@
    transport.ensemble-status/update-ensemble-status
    {}
    )
-  (sched-event 5000 transport.ensemble-status/upd-density-trend nil)
+  (sched-event trend-upd-millis transport.ensemble-status/upd-ensemble-trends nil)
   )
 
 (defn reset-ensemble-status

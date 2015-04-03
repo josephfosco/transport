@@ -23,9 +23,8 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodyevent :refer [get-sc-instrument-id]]
-   [transport.settings :refer :all]
    [transport.random :refer [random-int]]
-   [transport.util.utils :refer :all]
+   [transport.util.constants :refer :all]
    ))
 
 (def LO-RANGE 47)

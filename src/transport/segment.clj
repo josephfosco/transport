@@ -26,7 +26,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome select-metronome-mm select-mm]]
-   [transport.settings :refer :all]
+   [transport.util.constants :refer :all]
    ))
 
 (def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)

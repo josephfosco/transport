@@ -21,7 +21,7 @@
    [transport.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
-   [transport.settings :refer :all]
+   [transport.util.constants :refer :all]
    ))
 
 (def volume-smoothness [9 8 7 6 5 4 3 2 1 0])
