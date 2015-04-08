@@ -186,11 +186,6 @@
   [melody]
   (:player-id melody))
 
-(defn set-behavior
-  [player behavior]
-  (assoc player :behavior behavior)
-  )
-
 (defn set-first-note
   "Called the first time a note is played for a plyer to set up
    the seg-start-time and the function
@@ -234,6 +229,11 @@
   (send-message MSG-PLAYER-NEW-CONTRAST-INFO
                 :change-player-id change-player-id
                 :originator-player-id  originator-player-id)
+  )
+
+(defn set-mm
+  [player new-mm]
+  (assoc player :mm new-mm)
   )
 
 (defn- set-new-follow-info
@@ -521,22 +521,6 @@
          )
   )
 
-(defn clear-ensemble
-  "used by send or send-off to clear ensemble atom"
-  [cur-players]
-  {}
-  )
-
-(defn clear-player-melodies
-  "used by send or send-off to clear player-melodies atom"
-  [cur-melodies]
-  {}
-  )
-
-
-;;---------------------------- old player_copy.clj ----------------------------------------------------------
-
-
 (defn adjust-melody-char-for-instrument
   [new-melody-char instrument-info]
   (let [new-melody-lo (if (<=
@@ -580,4 +564,16 @@
          )
         )
       ))
+  )
+
+(defn clear-ensemble
+  "used by send or send-off to clear ensemble atom"
+  [cur-players]
+  {}
+  )
+
+(defn clear-player-melodies
+  "used by send or send-off to clear player-melodies atom"
+  [cur-melodies]
+  {}
   )

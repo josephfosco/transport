@@ -18,6 +18,7 @@
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
+   [transport.ensemble-status :refer [get-average-mm]]
    [transport.instrument :refer [has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
@@ -55,23 +56,25 @@
    player - the player starting a new segment
    melody-no - the key of the melody event that is being played"
   [player melody-no]
-  (let [player-id (get-player-id player)]
+  (let [player-id (get-player-id player)
+        behavior-action (get-behavior-action (get-behavior player))
+        ]
        (cond
-        (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+        (= behavior-action FOLLOW-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-FOLLOW-INFO
          transport.players/new-follow-info-for-player
          {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
-        (= (get-behavior-action (get-behavior player)) SIMILAR-PLAYER)
+        (= behavior-action SIMILAR-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-SIMILAR-INFO
          transport.players/player-copy-new-similar-info
          {:change-player-id (get-behavior-player-id (get-behavior player))}
          :follow-player-id player-id
          )
-        (= (get-behavior-action (get-behavior player)) CONTRAST-PLAYER)
+        (= behavior-action CONTRAST-PLAYER)
         (register-listener
          MSG-PLAYER-NEW-CONTRAST-INFO
          transport.play-note/new-contrast-info
@@ -98,28 +101,29 @@
 
    player - the player to get a new segment for"
   [player event-time]
-  (let [prev-behavior (get-behavior player) ;; behavior before new segment
+  (let [behavior-action (get-behavior-action (get-behavior player))
+        behavior-player-id (get-behavior-player-id (get-behavior player))
         ]
     (cond
-     (= (get-behavior-action prev-behavior) FOLLOW-PLAYER)
+     (= behavior-action FOLLOW-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-FOLLOW-INFO
       transport.players/new-follow-info-for-player
-      {:change-player-id (get-behavior-player-id prev-behavior)}
+      {:change-player-id behavior-player-id}
       :follow-player-id (get-player-id player)
       )
-     (= (get-behavior-action prev-behavior) SIMILAR-PLAYER)
+     (= behavior-action SIMILAR-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-SIMILAR-INFO
       transport.players/player-copy-new-similar-info
-      {:change-player-id (get-behavior-player-id prev-behavior)}
+      {:change-player-id behavior-player-id}
       :follow-player-id (get-player-id player)
       )
-     (= (get-behavior-action prev-behavior) CONTRAST-PLAYER)
+     (= behavior-action CONTRAST-PLAYER)
      (unregister-listener
       MSG-PLAYER-NEW-CONTRAST-INFO
       transport.play-note/new-contrast-info
-      {:change-player-id (get-behavior-player-id prev-behavior)}
+      {:change-player-id behavior-player-id}
       :contrast-player-id (get-player-id player)
       )
      )
@@ -383,13 +387,23 @@
     upd-melody-event
     ))
 
+(defn update-ensemble-mm
+  [player]
+  (let [mm-diff (- (get-average-mm) (get-mm player))]
+    (cond (> mm-diff @ensemble-mm-change-threshold)
+          (set-mm player (+ (get-mm player) 2))
+          (< mm-diff (* @ensemble-mm-change-threshold -1))
+          (set-mm player (- (get-mm player) 2))
+          :else
+          player
+          ))
+  )
+
 (defn- update-player
   [player event-time new-seg? new-follow-info?]
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-melody-event-num player last-melody-event-num)
-        ;; will the new melody event start a new segment?
         ]
-;;    (print-msg "update-player" "new-seg? " new-seg?)
     (cond new-seg?
           (update-player-with-new-segment player event-time)
           new-follow-info?
@@ -397,6 +411,9 @@
                                      (get-player-map (get-behavior-player-id (get-behavior player)))
                                      (inc last-melody-event-num)
                                      )
+          (and (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+               (= (type (get-cur-note-beat player)) Long)) ;; current note is on the beat
+          (update-ensemble-mm player)
           :else
           player
           )
@@ -435,7 +452,7 @@
 
     (cond new-seg?
           (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
-          new-follow-info?
+          (not= player new-player)
           (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
           )
 

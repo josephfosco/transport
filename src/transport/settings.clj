@@ -23,3 +23,5 @@
 (defn set-number-of-players
   [new-num-players]
   (reset! number-of-players new-num-players))
+
+(def ensemble-mm-change-threshold (atom 5))

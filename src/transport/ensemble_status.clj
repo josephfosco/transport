@@ -281,7 +281,7 @@
 
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
   (reset! player-mms (apply vector (repeat @number-of-players nil)))
-  ((mm-trend :init) 3)
+  ((mm-trend :init) @ensemble-mm-change-threshold)
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
