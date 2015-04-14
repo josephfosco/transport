@@ -39,6 +39,8 @@
 
 (def CONTINUITY-PROBS [1 2 2 3 3 7 9 10 12 17])
 (def SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
+
+(def cur-continuity-probs (atom []))
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
 (def loud-player-time (atom nil))   ;; start time of loud player interrupt
 
@@ -49,6 +51,18 @@
       (reset! loud-player player-id)
       (reset! loud-player-time time)
       (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
       ))
   )
 
@@ -57,6 +71,7 @@
   []
   (reset! loud-player nil)
   (reset! loud-player-time nil)
+  (reset! cur-continuity-probs CONTINUITY-PROBS)
   (register-listener
    MSG-LOUD-INTERUPT-EVENT
    transport.melody/melody-loud-interrupt-event
@@ -70,6 +85,31 @@
   (init-melody)
   )
 
+(defn adjust-continuity-probs-based-on-ensemble
+  [probs & {:keys [change-val]
+            :or {change-val 1}}]
+  (let [cur-density-trend (get-density-trend)]
+    (cond (= cur-density-trend INCREASING)
+          (let [new-probs (mapv #(if (<= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+                                probs
+                                (range (count probs))
+                                (repeat (Math/round (* (get-ensemble-density) 0.9))))
+                ]
+            (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
+            )
+          (= cur-density-trend DECREASING)
+          (let [new-probs (mapv #(if (>= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+                                probs
+                                (range (count probs))
+                                (repeat (Math/round (* (get-ensemble-density) 0.9))))
+                ]
+            (if (= 0 (reduce + new-probs)) '[1 0 0 0 0 0 0 0 0 0] new-probs)
+            )
+          :else probs
+          )
+    )
+  )
+
 (defn- select-melody-continuity
   "Returns a number from 0 to 9 to determine how continuous
    the melody will be.
@@ -78,37 +118,38 @@
   ([player]
      (cond
       (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-      (cond (= get-density-trend INCREASING)
-            (if (< 0.44 (get-ensemble-density) 0.55)
-              (random-int 8 9)
-              (random-int (min (inc (get-ensemble-continuity)) 9) 9)
-              )
-            (= get-density-trend DECREASING)
-            (if (< 0.44 (get-ensemble-density) 0.55)
-              (rand-int 0 2)
-              (rand-int (max (dec (get-ensemble-continuity)) 0)))
-            :else (get-ensemble-continuity)
-        )
+      (weighted-choice (adjust-continuity-probs-based-on-ensemble @cur-continuity-probs :change-val 7))
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
-      :else (weighted-choice CONTINUITY-PROBS)
+      :else (weighted-choice  (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble))
       )
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-continuity (get-melody-char-continuity cntrst-melody-char)
+           the-continuity-probs @cur-continuity-probs
            cntrst-continuity-probs (cond
                                     (and (> cntrst-continuity 0) (< cntrst-continuity 9))
-                                    (assoc CONTINUITY-PROBS
-                                      (dec cntrst-continuity ) 0
-                                      cntrst-continuity 0
-                                      (inc cntrst-continuity) 0)
+                                    (if (and (= (reduce + (subvec the-continuity-probs 0 (dec cntrst-continuity))) 0)
+                                             (= (reduce + (subvec the-continuity-probs (+ cntrst-continuity 2))) 0)
+                                             )
+                                      '[1 0 0 0 0 0 0 0 0 1]
+                                      (assoc the-continuity-probs
+                                        (dec cntrst-continuity) 0
+                                        cntrst-continuity 0
+                                        (inc cntrst-continuity) 0)
+                                      )
                                     (= cntrst-continuity 0)
-                                    (assoc CONTINUITY-PROBS 0 0 1 0)
+                                    (if (= (reduce + (subvec the-continuity-probs 2)) 0)
+                                      '[0 0 0 0 0 0 0 0 0 1]
+                                      (assoc @cur-continuity-probs 0 0 1 0))
                                     :else
-                                    (assoc CONTINUITY-PROBS 8 0 9 0)
+                                    (if (= (reduce + (subvec the-continuity-probs 0 8)) 0)
+                                      '[1 0 0 0 0 0 0 0 0]
+                                      (assoc @cur-continuity-probs 8 0 9 0))
                                     )
            ]
+       (print-msg "select-melody-continuity" "cntrst-continuity-probs: " cntrst-continuity-probs)
        (weighted-choice cntrst-continuity-probs)
        ))
   )
@@ -116,12 +157,12 @@
 (defn- select-melody-density
   "Returns a number from 0 to 9 to determine how dense
    the melody will be.
-   0 - sparse  (few notes, all long duration) -> 9 - dense (many notes of short duration"
+   0 - sparse  (few notes, all long duration) -> 9 - dense (many notes of short duration)"
   ([] (rand-int 10))
   ([player]
      (cond
-      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-      (round-number (* (get-ensemble-density) 0.9))   ;; scale from 0 - 10 to 0 - 9
+;;      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+;;      (Math/round (* (get-ensemble-density) 0.9))   ;; scale from 0 - 10 to 0 - 9
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-density (round-number (get-average-density))]
         (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))
@@ -286,8 +327,8 @@
    player - the player to determine note or rest for"
   [player note-time]
   (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
-        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-        (note-or-rest-similar-ensemble player note-time)
+;;        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+;;        (note-or-rest-similar-ensemble player note-time)
         (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
         :else (let [play-note? (random-int 0 10)]

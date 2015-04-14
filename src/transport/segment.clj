@@ -74,11 +74,7 @@
   [player]
   {
    :instrument-info (select-instrument player
-                                       :cntrst-plyr-inst-info (-> (get-behavior player)
-                                                                  (get-behavior-player-id)
-                                                                  (get-player-map)
-                                                                  (get-instrument-info)
-                                                                  )
+                                       :cntrst-plyr-inst-info (get-instrument-info player)
                                        )
    :melody-char (select-melody-characteristics player)
    }

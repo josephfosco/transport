@@ -27,10 +27,12 @@
    [transport.settings :refer :all]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.constants :refer :all]
+   [transport.util.count-vector :refer [count-vector]]
    [transport.util.utils :refer :all])
   (:import (java.util Date TimerTask Timer))
    )
 
+(def density-vector (count-vector)) ; count ensemble density over time
 (def trend-upd-millis 3000)
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
@@ -52,6 +54,20 @@
 (def prev-ensemble-density (atom 0))
 (def density-trend (atom INCREASING))
 
+(defn set-density-vector
+  [new-val]
+  ((density-vector :inc) new-val)
+  new-val
+  )
+
+(defn init-density-vector
+  []
+  ((density-vector :init) [0 0 0 0 0 0 0 0 0 0])
+  ((density-vector :set-eval) (fn [num]
+                                 num
+                                 ))
+  )
+
 (defn update-note-times
   [cur-note-times new-value]
   (conj cur-note-times new-value)
@@ -64,7 +80,7 @@
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @number-of-players 0.1)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) 0.25) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) 0.1) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )
@@ -218,7 +234,7 @@
 
 (defn get-ensemble-density
   []
-  (round-number (* 10 (get-ensemble-density-ratio)))
+  (Math/round (float (* 10 (get-ensemble-density-ratio))))
  )
 
 (defn get-density-trend
@@ -244,27 +260,65 @@
 
 (defn check-activity
   []
-  (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)]
+  (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)
+        cur-density-trend (get-density-trend)]
+
+    (set-density-vector (Math/round (* cur-ensemble-density 10.9)))
 
     (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
 
-    (reset! density-trend (cond
-                           (>= (- cur-ensemble-density @prev-ensemble-density) 0.05)
-                           (do
-                             (reset! prev-ensemble-density cur-ensemble-density)
-                             INCREASING
-                             )
-                           (<= (- cur-ensemble-density @prev-ensemble-density) -0.05)
-                           (do
-                             (reset! prev-ensemble-density cur-ensemble-density)
-                             DECREASING
-                             )
-                           :else STEADY
-                           )
+
+    (reset! density-trend (cond (= cur-density-trend STEADY)
+                                (cond
+                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.05)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   INCREASING
+                                   )
+                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.05)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   DECREASING
+                                   )
+                                 :else STEADY)
+                                (= cur-density-trend INCREASING)
+                                (cond
+                                 (>= (- cur-ensemble-density @prev-ensemble-density) -0.05)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   INCREASING
+                                   )
+                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.1)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   DECREASING
+                                   )
+                                 :else STEADY)
+                                (= cur-density-trend DECREASING)
+                                (cond
+                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.1)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   INCREASING
+                                   )
+                                 (<= (- cur-ensemble-density @prev-ensemble-density) 0.05)
+                                 (do
+                                   (reset! prev-ensemble-density cur-ensemble-density)
+                                   DECREASING
+                                   )
+                                 :else STEADY)
+                                )
             )
     (print-msg "check-activity" " density-trend: " @density-trend)
 
     )
+  )
+
+(defn print-density
+  []
+  (println "ensemble_status.clj - time: " (System/currentTimeMillis))
+  (println "ensemble_status.clj - density-vector: " ((density-vector :get)))
+  (println "ensemble_status.clj - density-trend: " (get-density-trend))
   )
 
 (defn upd-ensemble-trends
@@ -277,6 +331,7 @@
 
 (defn init-ensemble-status
   []
+  (init-density-vector)
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))

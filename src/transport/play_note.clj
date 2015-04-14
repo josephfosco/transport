@@ -18,10 +18,11 @@
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
-   [transport.ensemble-status :refer [get-average-mm]]
+   [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
    [transport.instrument :refer [has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density]]
    [transport.melodyevent :refer :all]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
@@ -387,16 +388,45 @@
     upd-melody-event
     ))
 
-(defn update-ensemble-mm
+(defn update-based-on-ensemble-density
   [player]
-  (let [mm-diff (- (get-average-mm) (get-mm player))]
-    (cond (> mm-diff @ensemble-mm-change-threshold)
-          (set-mm player (+ (get-mm player) 2))
-          (< mm-diff (* @ensemble-mm-change-threshold -1))
-          (set-mm player (- (get-mm player) 2))
+  (let [player-melody-char (get-melody-char player)
+        player-continuity (get-melody-char-continuity player-melody-char)
+        ]
+    (cond (or
+           (= (get-density-trend) INCREASING)
+           (> (Math/round (* (get-ensemble-density) 0.9)) player-continuity))
+          (do
+;;            (set-density player (min (inc player-density) 9))
+            (set-continuity player (min (inc player-continuity) 9))
+            )
+          (or (= (get-density-trend) DECREASING)
+              (< (Math/round (* (get-ensemble-density) 0.9)) player-continuity))
+          (do
+;;            (set-density player (max (dec player-density) 0))
+            (set-continuity player (max (dec player-continuity) 0))
+            )
           :else
           player
-          ))
+          )
+    )
+  )
+
+(defn update-based-on-ensemble
+  [player]
+  (-> (if (= (type (get-cur-note-beat player)) Long) ;; current note is on the beat
+        (let [mm-diff (- (get-average-mm) (get-mm player))]
+          (cond (> mm-diff @ensemble-mm-change-threshold)
+                (set-mm player (+ (get-mm player) 2))
+                (< mm-diff (* @ensemble-mm-change-threshold -1))
+                (set-mm player (- (get-mm player) 2))
+                :else
+                player
+                ))
+        player
+        )
+      (update-based-on-ensemble-density)
+      )
   )
 
 (defn- update-player
@@ -411,9 +441,8 @@
                                      (get-player-map (get-behavior-player-id (get-behavior player)))
                                      (inc last-melody-event-num)
                                      )
-          (and (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-               (= (type (get-cur-note-beat player)) Long)) ;; current note is on the beat
-          (update-ensemble-mm player)
+          (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+          (update-based-on-ensemble player)
           :else
           player
           )

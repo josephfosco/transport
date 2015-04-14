@@ -40,3 +40,11 @@
 (defn get-melody-char-smoothness
   [melody-char]
   (:smoothness melody-char))
+
+(defn set-melody-char-continuity
+  [melody-char new-continuity]
+  (assoc melody-char :continuity new-continuity))
+
+(defn set-melody-char-density
+  [melody-char new-density]
+  (assoc melody-char :density new-density))
