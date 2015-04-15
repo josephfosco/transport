@@ -50,19 +50,9 @@
     (do
       (reset! loud-player player-id)
       (reset! loud-player-time time)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
-      (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+      (dotimes [i 12]
+        (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+        )
       ))
   )
 
@@ -85,21 +75,59 @@
   (init-melody)
   )
 
+(defn get-new-continuity-prob-value
+  [value f max-change index threshold]
+  (let [amt (if (>= threshold index)
+              (max (+ (- index threshold) max-change) 0)
+              (max (+ (- threshold index) max-change) 0)
+              )
+        ]
+    (if (apply f (list index threshold))
+      (max (max (- value amt) 1) 0)
+      (min (max (+ value (inc amt)) 1) 9))
+    )
+  )
+
 (defn adjust-continuity-probs-based-on-ensemble
   [probs & {:keys [change-val]
             :or {change-val 1}}]
   (let [cur-density-trend (get-density-trend)]
+    (comment
+      (cond (= cur-density-trend INCREASING)
+            (let [new-probs (mapv #(if (<= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+                                  probs
+                                  (range (count probs))
+                                  (repeat (Math/round (* (get-ensemble-density) 0.9))))
+                  ]
+              (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
+              )
+            (= cur-density-trend DECREASING)
+            (let [new-probs (mapv #(if (>= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+                                  probs
+                                  (range (count probs))
+                                  (repeat (Math/round (* (get-ensemble-density) 0.9))))
+                  ]
+              (if (= 0 (reduce + new-probs)) '[1 0 0 0 0 0 0 0 0 0] new-probs)
+              )
+            :else probs
+            )
+      )
+
     (cond (= cur-density-trend INCREASING)
-          (let [new-probs (mapv #(if (<= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+          (let [new-probs (mapv get-new-continuity-prob-value
                                 probs
+                                (repeat <=)
+                                (repeat change-val)
                                 (range (count probs))
                                 (repeat (Math/round (* (get-ensemble-density) 0.9))))
                 ]
             (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
             )
           (= cur-density-trend DECREASING)
-          (let [new-probs (mapv #(if (>= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
+          (let [new-probs (mapv get-new-continuity-prob-value
                                 probs
+                                (repeat >=)
+                                (repeat change-val)
                                 (range (count probs))
                                 (repeat (Math/round (* (get-ensemble-density) 0.9))))
                 ]
@@ -122,7 +150,8 @@
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
-      :else (weighted-choice  (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble))
+      :else
+      (weighted-choice (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble :change-val 2))
       )
      )
   ([player cntrst-plyr cntrst-melody-char]

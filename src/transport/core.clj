@@ -162,7 +162,7 @@
 
         (print-banner "transport-restart about to reset-melody")
         ;; if melody reset after scheduler and msg processor won't listen for
-        ;; LOUD EVENTmsgs right away
+        ;; LOUD EVENT msgs right away
         (reset-melody)
 
         (transport.schedule/reset-lateness)

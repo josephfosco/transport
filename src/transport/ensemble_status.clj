@@ -75,10 +75,10 @@
 
 (defn- players-soft?
   "Returns true if the current volume of 90% of all players except
-   exception-player-id is less than .25"
+   exception-player-id is less than .1"
   [exception-player-id]
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
-    (cond (> (count rslt) (* @number-of-players 0.1)) false
+    (cond (> (count rslt) (* @number-of-players 0.05)) false
           (empty? vols-to-check) true
           (>= (first vols-to-check) 0.1) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
@@ -270,12 +270,12 @@
 
     (reset! density-trend (cond (= cur-density-trend STEADY)
                                 (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.05)
+                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.07)
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    INCREASING
                                    )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.05)
+                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.07)
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    DECREASING
