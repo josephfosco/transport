@@ -39,7 +39,7 @@
   (try
     (loop [i 0 rnd-num (inc (rand-int (reduce + weight-vector))) w-vec weight-vector]
       (let [rnd-total (- rnd-num (first w-vec))]
-        (if (<= rnd-total 0)
+        (if (< rnd-total 1)
           i
           (recur (inc i) rnd-total (rest w-vec)))))
     (catch NullPointerException e

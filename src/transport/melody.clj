@@ -91,28 +91,9 @@
 (defn adjust-continuity-probs-based-on-ensemble
   [probs & {:keys [change-val]
             :or {change-val 1}}]
-  (let [cur-density-trend (get-density-trend)]
-    (comment
-      (cond (= cur-density-trend INCREASING)
-            (let [new-probs (mapv #(if (<= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
-                                  probs
-                                  (range (count probs))
-                                  (repeat (Math/round (* (get-ensemble-density) 0.9))))
-                  ]
-              (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
-              )
-            (= cur-density-trend DECREASING)
-            (let [new-probs (mapv #(if (>= %2 %3) (max (- %1 change-val) 0) (min (+ %1 change-val) 9))
-                                  probs
-                                  (range (count probs))
-                                  (repeat (Math/round (* (get-ensemble-density) 0.9))))
-                  ]
-              (if (= 0 (reduce + new-probs)) '[1 0 0 0 0 0 0 0 0 0] new-probs)
-              )
-            :else probs
-            )
-      )
-
+  (let [cur-density-trend (get-density-trend)
+        continuity-function (if (= cur-density-trend INCREASING) <= >=)
+        ]
     (cond (= cur-density-trend INCREASING)
           (let [new-probs (mapv get-new-continuity-prob-value
                                 probs
