@@ -77,14 +77,17 @@
 
 (defn get-new-continuity-prob-value
   [value f max-change index threshold]
-  (let [amt (if (>= threshold index)
-              (max (+ (- index threshold) max-change) 0)
+  (let [amt (if (>= threshold index max-index)
+              (if (get-density-trend INCREASING)
+                (max (+ (- index threshold) max-change) 0)
+                (max (+ (- index threshold) max-change) 0)
+                )
               (max (+ (- threshold index) max-change) 0)
               )
         ]
     (if (apply f (list index threshold))
-      (max (max (- value amt) 1) 0)
-      (min (max (+ value (inc amt)) 1) 9))
+      (max (- value (max amt 1)) 0)
+      (+ value (max amt) 1))
     )
   )
 
@@ -94,25 +97,16 @@
   (let [cur-density-trend (get-density-trend)
         continuity-function (if (= cur-density-trend INCREASING) <= >=)
         ]
-    (cond (= cur-density-trend INCREASING)
+    (cond (or (= cur-density-trend INCREASING) (= cur-density-trend DECREASING))
           (let [new-probs (mapv get-new-continuity-prob-value
                                 probs
-                                (repeat <=)
+                                (repeat (if (= cur-density-trend INCREASING) <= >=))
                                 (repeat change-val)
                                 (range (count probs))
-                                (repeat (Math/round (* (get-ensemble-density) 0.9))))
+                                (repeat (Math/round (* (get-ensemble-density) 0.9)))
+                                (repeat (dec count probs)))
                 ]
             (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
-            )
-          (= cur-density-trend DECREASING)
-          (let [new-probs (mapv get-new-continuity-prob-value
-                                probs
-                                (repeat >=)
-                                (repeat change-val)
-                                (range (count probs))
-                                (repeat (Math/round (* (get-ensemble-density) 0.9))))
-                ]
-            (if (= 0 (reduce + new-probs)) '[1 0 0 0 0 0 0 0 0 0] new-probs)
             )
           :else probs
           )
