@@ -76,18 +76,25 @@
   )
 
 (defn get-new-continuity-prob-value
-  [value f max-change index threshold]
-  (let [amt (if (>= threshold index max-index)
-              (if (get-density-trend INCREASING)
-                (max (+ (- index threshold) max-change) 0)
-                (max (+ (- index threshold) max-change) 0)
+  [value f max-change index threshold max-index density-trend]
+  (let [amt (if (or (> index threshold) (= threshold max-index index))
+              (if (= density-trend INCREASING)
+                (max (+ (- (inc threshold) index) max-change) 0)
+                (min (- (- max-index index) max-change) -1)
                 )
-              (max (+ (- threshold index) max-change) 0)
+              (if (= density-trend INCREASING)
+                (min (- (- threshold index) max-change) -1)
+                (- max-change index)
+                )
               )
         ]
-    (if (apply f (list index threshold))
-      (max (- value (max amt 1)) 0)
-      (+ value (max amt) 1))
+;;    (println "index:" index "max-index:" max-index "threshold:" threshold "amt:" amt)
+    (comment
+      (if (apply f (list index threshold))
+        (max (- value (max amt 1)) 0)
+        (+ value (max amt) 1))
+      )
+    (max (+ value amt) 0)
     )
   )
 
@@ -104,7 +111,9 @@
                                 (repeat change-val)
                                 (range (count probs))
                                 (repeat (Math/round (* (get-ensemble-density) 0.9)))
-                                (repeat (dec count probs)))
+                                (repeat (dec (count probs)))
+                                (repeat cur-density-trend)
+                                )
                 ]
             (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
             )
@@ -124,9 +133,11 @@
       (weighted-choice (adjust-continuity-probs-based-on-ensemble @cur-continuity-probs :change-val 7))
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
-        (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9)))
+        (weighted-choice (vec (reverse @cur-continuity-probs)))
+;;        (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9))
+        )
       :else
-      (weighted-choice (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble :change-val 2))
+      (weighted-choice (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble :change-val 3))
       )
      )
   ([player cntrst-plyr cntrst-melody-char]

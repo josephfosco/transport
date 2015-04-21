@@ -288,19 +288,19 @@
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    INCREASING
                                    )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.1)
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   DECREASING
-                                   )
+;;                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.15)
+;;                               (do
+;;                                   (reset! prev-ensemble-density cur-ensemble-density)
+;;                                   DECREASING
+;;                               )
                                  :else STEADY)
                                 (= cur-density-trend DECREASING)
                                 (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.1)
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   INCREASING
-                                   )
+;;                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.15)
+;;                              (do
+;;                                   (reset! prev-ensemble-density cur-ensemble-density)
+;;                                   INCREASING
+;;                                )
                                  (<= (- cur-ensemble-density @prev-ensemble-density) 0.05)
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
