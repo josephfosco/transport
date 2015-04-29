@@ -431,22 +431,17 @@
 
 (defn- update-player
   [player event-time new-seg? new-follow-info?]
-  (let [last-melody-event-num (get-last-melody-event-num-for-player player)
-        last-melody-event (get-melody-event-num player last-melody-event-num)
-        ]
-    (cond new-seg?
-          (update-player-with-new-segment player event-time)
-          new-follow-info?
-          (update-player-follow-info player
-                                     (get-player-map (get-behavior-player-id (get-behavior player)))
-                                     (inc last-melody-event-num)
-                                     )
-          (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-          (update-based-on-ensemble player)
-          :else
-          player
-          )
-    )
+  (cond new-seg?
+        (update-player-with-new-segment player event-time)
+        new-follow-info?
+        (update-player-follow-info player
+                                   (get-player-map (get-behavior-player-id (get-behavior player)))
+                                   )
+        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+        (update-based-on-ensemble player)
+        :else
+        player
+        )
   )
 
 (defn next-note

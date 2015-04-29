@@ -313,7 +313,7 @@
 
 (declare print-player)
 (defn update-player-follow-info
-  [to-player from-player melody-event-num]
+  [to-player from-player]
   (let [to-player-id (get-player-id to-player)
         from-player-id (get-behavior-player-id (get-behavior to-player))
         cur-change-follow-info-note (get-next-change-follow-info-note to-player)
@@ -340,6 +340,7 @@
           (print-msg "update-player-follow-info" "from-player-id:   " (get-player-id from-player))
           (print-msg "update-player-follow-info" "to-player-id:     " to-player-id)
           (print-msg "update-player-follow-info" "last-follow-note: " last-follow-note)
+          (print-msg "update-player-follow-info" "cur-change-follow-info-note: " cur-change-follow-info-note)
           )
         (throw (Throwable. "COPY FOLLOW-INFO ERROR"))
         )

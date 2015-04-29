@@ -76,7 +76,7 @@
   )
 
 (defn get-new-continuity-prob-value
-  [value f max-change index threshold max-index density-trend]
+  [value max-change index threshold max-index density-trend]
   (let [amt (if (or (> index threshold) (= threshold max-index index))
               (if (= density-trend INCREASING)
                 (max (+ (- (inc threshold) index) max-change) 0)
@@ -102,16 +102,20 @@
   [probs & {:keys [change-val]
             :or {change-val 1}}]
   (let [cur-density-trend (get-density-trend)
-        continuity-function (if (= cur-density-trend INCREASING) <= >=)
+        ;; highest index containing a non-zero value
+        max-index (loop [continuity-probs probs ndx (dec (count probs))]
+                    (cond (> (get continuity-probs ndx) 0) ndx
+                          (= ndx 0) nil
+                          :else
+                          (recur (subvec continuity-probs 0 ndx) (dec ndx))))
         ]
     (cond (or (= cur-density-trend INCREASING) (= cur-density-trend DECREASING))
           (let [new-probs (mapv get-new-continuity-prob-value
                                 probs
-                                (repeat (if (= cur-density-trend INCREASING) <= >=))
                                 (repeat change-val)
                                 (range (count probs))
                                 (repeat (Math/round (* (get-ensemble-density) 0.9)))
-                                (repeat (dec (count probs)))
+                                (repeat max-index)
                                 (repeat cur-density-trend)
                                 )
                 ]
