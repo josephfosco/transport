@@ -19,7 +19,7 @@
    [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
-   [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
+   [transport.melody :refer [adjust-melody-char-range select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
    [transport.melodyevent :refer [get-dur-info-for-event get-note-event-time-for-event get-seg-num-for-event]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
@@ -71,13 +71,15 @@
    CONTRAST another player
 
    player - player to get info for"
-  [player]
-  {
-   :instrument-info (select-instrument player
-                                       :cntrst-plyr-inst-info (get-instrument-info player)
-                                       )
-   :melody-char (select-melody-characteristics player)
-   }
+  [player cntrst-player]
+  (let [new-melody-char (select-melody-characteristics player)]
+    {
+     :instrument-info (select-instrument player new-melody-char
+                                         :cntrst-plyr-inst-info (get-instrument-info cntrst-player)
+                                         )
+     :melody-char new-melody-char
+     }
+    )
   )
 
 (defn new-segment?
@@ -95,7 +97,7 @@
 (defn new-segment
   "Returns player map with new segment info in it
 
-   player - player map to get (and return new segment info for"
+   player - player map to get (and return) new segment info for"
   [player event-time]
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
@@ -117,26 +119,8 @@
      (= behavior-action SIMILAR-PLAYER)
      (let [similar-player-info (get-similar-info-from-player (get-player-map (get-behavior-player-id new-behavior)))
            similar-melody-char (:melody-char similar-player-info)
-           new-instrument (select-instrument upd-player)
-           new-melody-lo (if (<=
-                              (get-instrument-range-lo new-instrument)
-                              (get-melody-char-range-lo similar-melody-char)
-                              (get-instrument-range-hi new-instrument)
-                              )
-                           (get-melody-char-range-lo similar-melody-char)
-                           (get-instrument-range-lo new-instrument)
-                           )
-           new-melody-hi (if (> (get-instrument-range-hi new-instrument)
-                                (get-melody-char-range-hi similar-melody-char)
-                                new-melody-lo
-                                )
-                           (get-melody-char-range-hi similar-melody-char)
-                           (get-instrument-range-hi new-instrument)
-                           )
-
-           new-melody-char (assoc similar-melody-char
-                             :range (list new-melody-lo new-melody-hi)
-                             )
+           new-instrument (select-instrument upd-player similar-melody-char)
+           new-melody-char (adjust-melody-char-range similar-melody-char new-instrument)
            new-similar-info (assoc similar-player-info :melody-char new-melody-char)
            ]
        (merge (assoc upd-player
@@ -146,15 +130,18 @@
        )
 
      :else  ;;  IGNORE-ALL or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
-     (let [new-instrument (if (= behavior-action CONTRAST-PLAYER)
-                            (select-instrument upd-player :cntrst-plyr (get-behavior-player-id upd-player))
-                            (select-instrument upd-player))
+     (let [new-melody-char (select-melody-characteristics upd-player)
+           new-instrument (if (= behavior-action CONTRAST-PLAYER)
+                            (select-instrument upd-player
+                                               new-melody-char
+                                               :cntrst-plyr (get-behavior-player-id upd-player))
+                            (select-instrument upd-player new-melody-char))
            new-mm (select-mm upd-player)
            ]
        (assoc upd-player
          :instrument-info new-instrument
          :key (select-key upd-player)
-         :melody-char (select-melody-characteristics (assoc upd-player :instrument-info new-instrument))
+         :melody-char (adjust-melody-char-range new-melody-char new-instrument)
          :metronome (select-metronome upd-player)
          :mm new-mm
          :scale (select-scale upd-player)

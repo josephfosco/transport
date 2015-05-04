@@ -20,7 +20,7 @@
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-smoothness]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
@@ -88,12 +88,6 @@
                 )
               )
         ]
-;;    (println "index:" index "max-index:" max-index "threshold:" threshold "amt:" amt)
-    (comment
-      (if (apply f (list index threshold))
-        (max (- value (max amt 1)) 0)
-        (+ value (max amt) 1))
-      )
     (max (+ value amt) 0)
     )
   )
@@ -138,7 +132,6 @@
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
         (weighted-choice (vec (reverse @cur-continuity-probs)))
-;;        (if (> ens-continuity 4) (random-int 0 (- ens-continuity 5)) (random-int (+ ens-continuity 5) 9))
         )
       :else
       (weighted-choice (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble :change-val 3))
@@ -168,7 +161,6 @@
                                       (assoc @cur-continuity-probs 8 0 9 0))
                                     )
            ]
-       (print-msg "select-melody-continuity" "cntrst-continuity-probs: " cntrst-continuity-probs)
        (weighted-choice cntrst-continuity-probs)
        ))
   )
@@ -242,6 +234,23 @@
            (list melody-range-lo (min player-hi (+ melody-range-lo range-in-semitones))))
          )
        ))
+  )
+
+(defn adjust-melody-char-range
+  "Returns new :melody-char for player that has the range adjusted
+   to be within the range of the player's instrument"
+  [melody-char inst-info]
+  (set-melody-char-range melody-char (list (max (get-instrument-range-lo inst-info)
+                                                (min (get-melody-char-range-lo melody-char)
+                                                     (get-instrument-range-hi inst-info)
+                                                     )
+                                                )
+                                           (min (get-instrument-range-hi inst-info)
+                                                (max
+                                                 (get-melody-char-range-hi melody-char)
+                                                 (get-instrument-range-lo inst-info))
+                                                )
+                                           ))
   )
 
 (defn- select-melody-smoothness

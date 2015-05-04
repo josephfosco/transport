@@ -48,3 +48,7 @@
 (defn set-melody-char-density
   [melody-char new-density]
   (assoc melody-char :density new-density))
+
+(defn set-melody-char-range
+  [melody-char new-range]
+  (assoc melody-char :range new-range))

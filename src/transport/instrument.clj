@@ -31,6 +31,9 @@
 (def MID-RANGE 79)
 (def HI-RANGE (last MIDI-RANGE))
 
+(def perc-env (sorted-set "AD" "NE"))
+(def non-perc-env (sorted-set "ADSR" "ASR"))
+
 (def all-instruments [
                         {:instrument bass-m1
                          :envelope-type "NE"
@@ -85,6 +88,15 @@
                          :release-dur 0.1}
                         ])
 
+(defn non-perc-instruments
+  [instrument-list]
+  (filter #(not (contains? perc-env (:envelope-type %1))) instrument-list)
+  )
+
+(defn get-inst-list-for-melody-char
+  [melody-char]
+  (if (nil? melody-char) all-instruments (non-perc-instruments all-instruments))  )
+
 (defn note->hz
   [music-note]
   (midi->hz music-note))
@@ -126,11 +138,14 @@
    from the player that is being FOLLOWed
 
    player - the player to get instrument for"
-  [player & {:keys [cntrst-plyr-inst-info]}]
+  [player melody-char & {:keys [cntrst-plyr-inst-info]}]
   ;; select instrument info from all-insruments map
   ;; if not CONTRASTing, select a random instrument
   ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
-  (let [inst-info (if (= cntrst-plyr-inst-info nil)
+  (let [instrument-list (if (nil? melody-char)
+                          (get-inst-list-for-melody-char nil)
+                          (get-inst-list-for-melody-char melody-char))
+        inst-info (if (nil? cntrst-plyr-inst-info)
                     (rand-nth all-instruments)
                     (let [instrument-index (rand-int (count all-instruments))]
                       (if (=
@@ -155,9 +170,7 @@
 
 (defn has-release?
   [inst-info]
-  (if (or (= "ASR" (:envelope-type inst-info))
-          (= "ADSR" (:envelope-type inst-info))
-          )
+  (if (contains? non-perc-env (:envelope-type inst-info))
     true
     false)
   )

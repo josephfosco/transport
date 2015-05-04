@@ -39,12 +39,13 @@
 
 (defn new-contrast-info
   [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
-  (new-contrast-info-for-player
-   :change-player-id change-player-id
-   :contrast-player-id contrast-player-id
-   :originator-player-id originator-player-id
-   :contrasting-info (get-contrasting-info-for-player (get-player-map contrast-player-id))
-   )
+  (if (not= originator-player-id change-player-id)
+    (new-contrast-info-for-player
+     :change-player-id change-player-id
+     :contrast-player-id contrast-player-id
+     :originator-player-id originator-player-id
+     :contrasting-info (get-contrasting-info-for-player (get-player-map change-player-id) (get-player-map contrast-player-id))
+     ))
   )
 
 (defn- listeners-msg-new-segment
@@ -502,12 +503,6 @@
   [player player-id event-time]
 
   (print-msg "play-first-melody-note" "player-id: " player-id " event-time: " event-time " action: " (get-behavior-action (get-behavior player)))
-  (comment
-    (if (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-      (get-behavior-player-id (get-behavior player))
-      nil
-      )
-    )
   (let [melody-event (next-melody player
                                   event-time
                                   (if (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)

@@ -282,33 +282,20 @@
 
 (defn set-new-contrast-info
   [cur-contrasting-player change-player-id originator-player-id new-contrasting-info-map]
-  (if (= change-player-id (get-player-id (:behavior cur-contrasting-player)))
-    (do
-      (if (not= originator-player-id (get-player-id cur-contrasting-player))
-        (do
-          (send-msg-new-player-info (get-player-id cur-contrasting-player)
-                                    originator-player-id
-                                    (get-last-melody-event-num-for-player cur-contrasting-player))
-          (merge cur-contrasting-player new-contrasting-info-map)
-          )
-        )
-      cur-contrasting-player)
+  (if (and (= change-player-id (get-player-id (:behavior cur-contrasting-player)))
+           (not= originator-player-id (get-player-id cur-contrasting-player)))
+    (merge cur-contrasting-player new-contrasting-info-map)
     cur-contrasting-player)
   )
 
 (defn replace-similar-info
   [cur-to-player from-player-id originator-player-id new-similar-info]
   (let [to-player-id (get-player-id cur-to-player)]
-    (if (= from-player-id (get-player-id (get-behavior cur-to-player)))
-      (do
-        (if (not= originator-player-id to-player-id)
-          (send-msg-new-player-info to-player-id
-                                    originator-player-id
-                                    (get-last-melody-event-num-for-player cur-to-player))
-          )
-        (merge cur-to-player new-similar-info)
-        )
-      cur-to-player))
+    (if (and (= from-player-id (get-player-id (get-behavior cur-to-player)))
+             (not= originator-player-id to-player-id))
+      (merge cur-to-player new-similar-info)
+      )
+    cur-to-player)
   )
 
 (declare print-player)
@@ -538,6 +525,11 @@
         originator-player-id
         contrasting-info
         )
+  (if (not= change-player-id originator-player-id)
+    (send-msg-new-player-info change-player-id
+                              originator-player-id
+                              (get-last-melody-event-num-for-player (get-player-map change-player-id)))
+    )
   )
 
 (defn new-similar-info-for-player
@@ -548,27 +540,33 @@
          originator-player-id
          similar-info
          )
+  (if (not= change-player-id originator-player-id)
+    (send-msg-new-player-info change-player-id
+                              originator-player-id
+                              (get-last-melody-event-num-for-player (get-player-map change-player-id)))
+    )
+
   )
 
 (defn adjust-melody-char-for-instrument
-  [new-melody-char instrument-info]
+  [melody-char instrument-info]
   (let [new-melody-lo (if (<=
                            (get-instrument-range-lo instrument-info)
-                           (get-melody-char-range-lo new-melody-char)
+                           (get-melody-char-range-lo melody-char)
                            (get-instrument-range-hi instrument-info)
                            )
-                        (get-melody-char-range-lo new-melody-char)
+                        (get-melody-char-range-lo melody-char)
                         (get-instrument-range-lo instrument-info)
                         )
         new-melody-hi (if (> (get-instrument-range-hi instrument-info)
-                             (get-melody-char-range-hi new-melody-char)
+                             (get-melody-char-range-hi melody-char)
                              new-melody-lo
                              )
-                        (get-melody-char-range-hi new-melody-char)
+                        (get-melody-char-range-hi melody-char)
                         (get-instrument-range-hi instrument-info)
                         )
 
-        new-melody-char (assoc new-melody-char
+        new-melody-char (assoc melody-char
                           :range (list new-melody-lo new-melody-hi))
         ]
     new-melody-char
