@@ -172,8 +172,6 @@
   ([] (rand-int 10))
   ([player]
      (cond
-;;      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-;;      (Math/round (* (get-ensemble-density) 0.9))   ;; scale from 0 - 10 to 0 - 9
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-density (round-number (get-average-density))]
         (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))

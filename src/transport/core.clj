@@ -198,4 +198,8 @@
   (reset-ensemble)
   )
 
+(defn start64
+  []
+  (transport-start :num-players 64))
+
 (transport-help)

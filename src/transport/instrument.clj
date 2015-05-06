@@ -22,6 +22,7 @@
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
+   [transport.melodychar :refer [get-melody-char-density]]
    [transport.melodyevent :refer [get-sc-instrument-id]]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
@@ -95,7 +96,13 @@
 
 (defn get-inst-list-for-melody-char
   [melody-char]
-  (if (nil? melody-char) all-instruments (non-perc-instruments all-instruments))  )
+  (if (nil? melody-char)
+    all-instruments
+    (if (> (get-melody-char-density melody-char) 5)
+      (non-perc-instruments all-instruments)
+      all-instruments
+      ))
+  )
 
 (defn note->hz
   [music-note]
@@ -139,20 +146,20 @@
 
    player - the player to get instrument for"
   [player melody-char & {:keys [cntrst-plyr-inst-info]}]
-  ;; select instrument info from all-insruments map
+  ;; select instrument info from insrument-list map (selected based on melody-char)
   ;; if not CONTRASTing, select a random instrument
   ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
   (let [instrument-list (if (nil? melody-char)
                           (get-inst-list-for-melody-char nil)
                           (get-inst-list-for-melody-char melody-char))
         inst-info (if (nil? cntrst-plyr-inst-info)
-                    (rand-nth all-instruments)
-                    (let [instrument-index (rand-int (count all-instruments))]
+                    (rand-nth instrument-list)
+                    (let [instrument-index (rand-int (count instrument-list))]
                       (if (=
                            (:name (:instrument cntrst-plyr-inst-info))
-                           (:name (:instrument (nth all-instruments instrument-index))))
-                        (nth all-instruments (mod (inc instrument-index) (count all-instruments)))
-                        (nth all-instruments instrument-index)
+                           (:name (:instrument (nth instrument-list instrument-index))))
+                        (nth instrument-list (mod (inc instrument-index) (count instrument-list)))
+                        (nth instrument-list instrument-index)
                         )
                       )
                     )

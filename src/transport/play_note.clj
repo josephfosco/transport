@@ -19,7 +19,7 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
-   [transport.instrument :refer [has-release? play-instrument get-instrument-range-hi get-instrument-range-lo]]
+   [transport.instrument :refer [has-release? get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density]]

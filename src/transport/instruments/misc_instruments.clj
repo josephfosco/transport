@@ -35,7 +35,7 @@
       (* (env-gen (adsr 0.03 0.3 0.4 release) gate :action action))
       (* (sin-osc (* 2 freq)))
       (clip2 (line:kr 1 land 16))
-      (* (/ vol 1.5))
+      (* (/ vol 3))
       )
   )
 
