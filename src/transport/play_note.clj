@@ -329,7 +329,7 @@
                                   :else
                                   nil
                                   )
-        melody-event (next-melody player event-time sync-beat-player-id)
+        melody-event (next-melody player event-time sync-beat-player-id new-seg?)
         melody-event-note (get-note-for-event melody-event)
         sc-instrument-id (if (not (nil? melody-event-note))
                            (cond
@@ -508,8 +508,8 @@
                                   (if (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
                                     (get-behavior-player-id (get-behavior player))
                                     nil
-      )
-
+                                  )
+                                  true   ;; new segment
                                   )
         sc-instrument-id (if (not (nil? (:note melody-event)))
                              ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))

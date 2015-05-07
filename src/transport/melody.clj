@@ -509,7 +509,7 @@
   )
 
 (defn- next-melody-for-player
-  [player event-time sync-beat-player-id]
+  [player event-time sync-beat-player-id new-seg?]
 
   (if sync-beat-player-id
     (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
@@ -524,7 +524,7 @@
        :note-event-time event-time
        :player-id (get-player-id player)
        :seg-num (get-seg-num player)
-       :volume (select-volume-for-next-note player event-time next-note-or-rest)
+       :volume (select-volume-for-next-note player new-seg? event-time next-note-or-rest)
        )))
   )
 
@@ -532,12 +532,12 @@
   "Returns the next note information as a map for player
 
     player - the player map"
-  [player event-time sync-beat-player-id]
+  [player event-time sync-beat-player-id new-seg?]
   (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
   (cond
    (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time
                                                                                      sync-beat-player-id)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
-   :else (next-melody-for-player player event-time sync-beat-player-id))
+   :else (next-melody-for-player player event-time sync-beat-player-id new-seg?))
   )

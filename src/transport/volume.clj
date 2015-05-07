@@ -56,16 +56,38 @@
       )
     ))
 
+(defn select-ensemble-volume
+  []
+  (let [average-volume (get-average-volume)]
+    (select-volume-in-range
+     (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
+     (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
+    )
+  )
+
+(defn select-volume-similar-ensemble
+  [player]
+  (let [smoothness (volume-smoothness (get-melody-char-continuity (get-melody-char player)))
+        last-volume (get-volume-for-event (get-last-melody-event player))
+        vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
+        vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
+        ]
+    (if (not= last-volume 0)
+      (select-volume-in-range vol-min vol-max)
+      (select-ensemble-volume)
+      )
+    ))
+
 (defn select-volume-for-next-note
-  [player event-time next-pitch]
+  [player new-seg? event-time next-pitch]
   (let [player-action (get-behavior-action (get-behavior player))]
     (cond
      (not next-pitch) 0  ;; if no pitch (rest) set volume to 0
      (= player-action SIMILAR-ENSEMBLE)
-     (let [average-volume (get-average-volume)]
-       (select-volume-in-range
-        (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
-        (if (> average-volume 0.9) 1 (+ average-volume 0.1)))) ;; + or - 0.1 of average volume
+     (if new-seg?
+       (select-ensemble-volume)
+       (select-volume-similar-ensemble player)
+       )
      (= player-action CONTRAST-ENSEMBLE)
      (let [average-volume (get-average-volume)]
        (select-volume-in-range
