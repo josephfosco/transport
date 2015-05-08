@@ -15,11 +15,11 @@
 
 (ns transport.melodychar)
 
-(defrecord MelodyChar [continuity note-durs range smoothness])
+(defrecord MelodyChar [density note-durs range smoothness])
 
-(defn get-melody-char-continuity
+(defn get-melody-char-density
   [melody-char]
-  (:continuity melody-char))
+  (:density melody-char))
 
 (defn get-melody-char-note-durs
   [melody-char]
@@ -41,9 +41,9 @@
   [melody-char]
   (:smoothness melody-char))
 
-(defn set-melody-char-continuity
-  [melody-char new-continuity]
-  (assoc melody-char :continuity new-continuity))
+(defn set-melody-char-density
+  [melody-char new-density]
+  (assoc melody-char :density new-density))
 
 (defn set-melody-char-note-durs
   [melody-char new-note-durs]

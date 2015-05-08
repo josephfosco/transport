@@ -18,7 +18,7 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id set-behavior-player-id]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-range-hi get-melody-char-range-lo set-melody-char-continuity set-melody-char-note-durs]]
+   [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo set-melody-char-density set-melody-char-note-durs]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
@@ -241,9 +241,9 @@
   (assoc player :mm new-mm)
   )
 
-(defn set-continuity
-  [player new-continuity]
-  (set-melody-char player (set-melody-char-continuity (get-melody-char player) new-continuity))
+(defn set-density
+  [player new-density]
+  (set-melody-char player (set-melody-char-density (get-melody-char player) new-density))
   )
 
 (defn set-note-durs
@@ -449,17 +449,17 @@
    (map print-player-action (vals @ensemble)))
   )
 
-(defn print-player-continuity
+(defn print-player-density
   [player-atom]
   (println (format "%-2s" (get-player-id @player-atom))
            " - "
-           (get-melody-char-continuity (get-melody-char @player-atom)))
+           (get-melody-char-density (get-melody-char @player-atom)))
   )
 
-(defn print-all-continuities
+(defn print-all-densities
   []
   (dorun
-   (map print-player-continuity (vals @ensemble)))
+   (map print-player-density (vals @ensemble)))
   )
 
 (defn print-all-players

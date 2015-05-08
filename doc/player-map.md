@@ -15,12 +15,12 @@
     + :range-hi - the highest note (midi note number)this instrument will play
 * :key - the key this player is playing in. A number between 0 and 11, 0 = C.
 * :melody-char - a map of melody characteristics
-    + continuity - how continuous the melody will be
-        - 0 - discontinuous (all rests)
-        - 9 - continuous (few rests)
-    + density - melody density
-        - 0 - sparse (mostly notes of long duration)
-        - 9 - dense (mostly notes of short duration)
+    + density - how dense (continuous) the melody will be
+        - 0 - sparse (discontinuous) (all rests)
+        - 9 - dense (continuous) (few rests)
+    + note-durs - rhythmic values of notes in melody
+        - 0 - mostly notes of long duration
+        - 9 - mostly notes of short duration
     + range - width of the melody's ramge in semitones
         - Range in semitones
     + smoothness - how stepwise the melody will be and the change in volume from note to note

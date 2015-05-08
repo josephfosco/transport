@@ -17,7 +17,7 @@
   (:require
    [transport.behavior :refer [get-behavior-action]]
    [transport.ensemble-status :refer [get-average-volume]]
-   [transport.melodychar :refer [get-melody-char-continuity]]
+   [transport.melodychar :refer [get-melody-char-density]]
    [transport.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
@@ -45,7 +45,7 @@
 
 (defn select-volume
   [player]
-  (let [smoothness (volume-smoothness (get-melody-char-continuity (get-melody-char player)))
+  (let [smoothness (volume-smoothness (get-melody-char-density (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
         vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
         vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
@@ -67,7 +67,7 @@
 
 (defn select-volume-similar-ensemble
   [player]
-  (let [smoothness (volume-smoothness (get-melody-char-continuity (get-melody-char player)))
+  (let [smoothness (volume-smoothness (get-melody-char-density (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
         vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
         vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)

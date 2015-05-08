@@ -43,7 +43,7 @@
 (def player-mms (atom (apply vector (repeat @number-of-players nil))))
 (def mm-trend (compare-prior-current))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
-(def player-continuities (atom (apply vector (repeat @number-of-players 0))))
+(def player-densities (atom (apply vector (repeat @number-of-players 0))))
 (def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
 
 (def rest-prob-len (atom 0))
@@ -112,8 +112,8 @@
   (if (not= (get-melody-char-note-durs (get-melody-char player)) (get player-note-durs player-id))
     (reset! player-note-durs (assoc @player-note-durs player-id
                                     (get-melody-char-note-durs (get-melody-char player)))))
-  (if (not= (get-melody-char-continuity (get-melody-char player)) (get player-continuities player-id))
-    (reset! player-continuities (assoc @player-continuities player-id (get-melody-char-continuity (get-melody-char player)))))
+  (if (not= (get-melody-char-density (get-melody-char player)) (get @player-densities player-id))
+    (reset! player-densities (assoc @player-densities player-id (get-melody-char-density (get-melody-char player)))))
   )
 
 (defn update-ensemble-status
@@ -187,14 +187,14 @@
   (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
   )
 
-(defn get-ensemble-continuity
+(defn get-ensemble-density
   []
-  (get-vector-max-frequency @player-continuities)
+  (get-vector-max-frequency @player-densities)
   )
 
-(defn get-average-continuity
+(defn get-average-density
   []
-  (average @player-continuities @number-of-players))
+  (average @player-densities @number-of-players))
 
 (defn get-ensemble-most-common-note-durs
   []
@@ -348,7 +348,7 @@
       (reset! rest-prob (conj @rest-prob false))
       ))
 
-  (reset! player-continuities (apply vector (repeat @number-of-players 0)))
+  (reset! player-densities (apply vector (repeat @number-of-players 0)))
   (reset! player-note-durs (apply vector (repeat @number-of-players 0)))
 
   (reset! prev-ensemble-density 0)

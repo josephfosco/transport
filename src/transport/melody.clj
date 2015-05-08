@@ -18,9 +18,9 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-note-durs get-ensemble-density get-ensemble-density-ratio]]
+   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density get-average-note-durs get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
+   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
@@ -37,10 +37,10 @@
    )
   )
 
-(def CONTINUITY-PROBS [1 2 2 3 3 7 9 10 12 17])
+(def DENSITY-PROBS [1 2 2 3 3 7 9 10 12 17])
 (def SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
 
-(def cur-continuity-probs (atom []))
+(def cur-density-probs (atom []))
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
 (def loud-player-time (atom nil))   ;; start time of loud player interrupt
 
@@ -61,7 +61,7 @@
   []
   (reset! loud-player nil)
   (reset! loud-player-time nil)
-  (reset! cur-continuity-probs CONTINUITY-PROBS)
+  (reset! cur-density-probs DENSITY-PROBS)
   (register-listener
    MSG-LOUD-INTERUPT-EVENT
    transport.melody/melody-loud-interrupt-event
@@ -75,7 +75,7 @@
   (init-melody)
   )
 
-(defn get-new-continuity-prob-value
+(defn get-new-density-prob-value
   [value max-change index threshold max-index density-trend]
   (let [amt (if (or (> index threshold) (= threshold max-index index))
               (if (= density-trend INCREASING)
@@ -92,19 +92,19 @@
     )
   )
 
-(defn adjust-continuity-probs-based-on-ensemble
+(defn adjust-density-probs-based-on-ensemble
   [probs & {:keys [change-val]
             :or {change-val 1}}]
   (let [cur-density-trend (get-density-trend)
         ;; highest index containing a non-zero value
-        max-index (loop [continuity-probs probs ndx (dec (count probs))]
-                    (cond (> (get continuity-probs ndx) 0) ndx
+        max-index (loop [density-probs probs ndx (dec (count probs))]
+                    (cond (> (get density-probs ndx) 0) ndx
                           (= ndx 0) nil
                           :else
-                          (recur (subvec continuity-probs 0 ndx) (dec ndx))))
+                          (recur (subvec density-probs 0 ndx) (dec ndx))))
         ]
     (cond (or (= cur-density-trend INCREASING) (= cur-density-trend DECREASING))
-          (let [new-probs (mapv get-new-continuity-prob-value
+          (let [new-probs (mapv get-new-density-prob-value
                                 probs
                                 (repeat change-val)
                                 (range (count probs))
@@ -120,48 +120,48 @@
     )
   )
 
-(defn- select-melody-continuity
-  "Returns a number from 0 to 9 to determine how continuous
+(defn- select-melody-density
+  "Returns a number from 0 to 9 to determine how continuous (dense)
    the melody will be.
    0 - discontinuous (all rests) -> 9 - continuous (few rests)"
-  ([] (weighted-choice CONTINUITY-PROBS))
+  ([] (weighted-choice DENSITY-PROBS))
   ([player]
      (cond
       (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-      (weighted-choice (adjust-continuity-probs-based-on-ensemble @cur-continuity-probs :change-val 7))
+      (weighted-choice (adjust-density-probs-based-on-ensemble @cur-density-probs :change-val 7))
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
-      (let [ens-continuity (int (+ (get-average-continuity) 0.5))]
-        (weighted-choice (vec (reverse @cur-continuity-probs)))
+      (let [ens-density (int (+ (get-average-density) 0.5))]
+        (weighted-choice (vec (reverse @cur-density-probs)))
         )
       :else
-      (weighted-choice (swap! cur-continuity-probs adjust-continuity-probs-based-on-ensemble :change-val 3))
+      (weighted-choice (swap! cur-density-probs adjust-density-probs-based-on-ensemble :change-val 3))
       )
      )
   ([player cntrst-plyr cntrst-melody-char]
-     (let [cntrst-continuity (get-melody-char-continuity cntrst-melody-char)
-           the-continuity-probs @cur-continuity-probs
-           cntrst-continuity-probs (cond
-                                    (and (> cntrst-continuity 0) (< cntrst-continuity 9))
-                                    (if (and (= (reduce + (subvec the-continuity-probs 0 (dec cntrst-continuity))) 0)
-                                             (= (reduce + (subvec the-continuity-probs (+ cntrst-continuity 2))) 0)
+     (let [cntrst-density (get-melody-char-density cntrst-melody-char)
+           the-density-probs @cur-density-probs
+           cntrst-density-probs (cond
+                                    (and (> cntrst-density 0) (< cntrst-density 9))
+                                    (if (and (= (reduce + (subvec the-density-probs 0 (dec cntrst-density))) 0)
+                                             (= (reduce + (subvec the-density-probs (+ cntrst-density 2))) 0)
                                              )
                                       '[1 0 0 0 0 0 0 0 0 1]
-                                      (assoc the-continuity-probs
-                                        (dec cntrst-continuity) 0
-                                        cntrst-continuity 0
-                                        (inc cntrst-continuity) 0)
+                                      (assoc the-density-probs
+                                        (dec cntrst-density) 0
+                                        cntrst-density 0
+                                        (inc cntrst-density) 0)
                                       )
-                                    (= cntrst-continuity 0)
-                                    (if (= (reduce + (subvec the-continuity-probs 2)) 0)
+                                    (= cntrst-density 0)
+                                    (if (= (reduce + (subvec the-density-probs 2)) 0)
                                       '[0 0 0 0 0 0 0 0 0 1]
-                                      (assoc @cur-continuity-probs 0 0 1 0))
+                                      (assoc @cur-density-probs 0 0 1 0))
                                     :else
-                                    (if (= (reduce + (subvec the-continuity-probs 0 8)) 0)
+                                    (if (= (reduce + (subvec the-density-probs 0 8)) 0)
                                       '[1 0 0 0 0 0 0 0 0]
-                                      (assoc @cur-continuity-probs 8 0 9 0))
+                                      (assoc @cur-density-probs 8 0 9 0))
                                     )
            ]
-       (weighted-choice cntrst-continuity-probs)
+       (weighted-choice cntrst-density-probs)
        ))
   )
 
@@ -274,7 +274,7 @@
 
 (defn select-random-melody-characteristics
   [lo-range hi-range]
-  (MelodyChar. (select-melody-continuity)
+  (MelodyChar. (select-melody-density)
                (select-melody-note-durs)
                (select-melody-range lo-range hi-range)
                (select-melody-smoothness))
@@ -287,12 +287,12 @@
                       nil)
         ]
     (if (= cntrst-plyr nil)
-      (MelodyChar. (select-melody-continuity player)
+      (MelodyChar. (select-melody-density player)
                    (select-melody-note-durs player)
                    (select-melody-range player)
                    (select-melody-smoothness player))
       (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
-            (MelodyChar. (select-melody-continuity player cntrst-plyr cntrst-melody-char)
+            (MelodyChar. (select-melody-density player cntrst-plyr cntrst-melody-char)
                          (select-melody-note-durs player cntrst-plyr cntrst-melody-char)
                          (select-melody-range player cntrst-plyr cntrst-melody-char)
                          (select-melody-smoothness player))
@@ -358,7 +358,7 @@
         (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
         :else (let [play-note? (random-int 0 10)]
-                (if (> (get-melody-char-continuity (get-melody-char player)) play-note?)
+                (if (> (get-melody-char-density (get-melody-char player)) play-note?)
                   true
                   (if (not= 9 play-note?)                                ;; if play-note? not 9
                     false                                                ;; rest
