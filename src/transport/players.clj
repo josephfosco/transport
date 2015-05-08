@@ -18,7 +18,7 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id set-behavior-player-id]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-range-hi get-melody-char-range-lo set-melody-char-continuity set-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-range-hi get-melody-char-range-lo set-melody-char-continuity set-melody-char-note-durs]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
@@ -246,9 +246,9 @@
   (set-melody-char player (set-melody-char-continuity (get-melody-char player) new-continuity))
   )
 
-(defn set-density
-  [player new-density]
-  (set-melody-char player (set-melody-char-density (get-melody-char player) new-density))
+(defn set-note-durs
+  [player new-note-durs]
+  (set-melody-char player (set-melody-char-note-durs (get-melody-char player) new-note-durs))
   )
 
 (defn- set-new-follow-info

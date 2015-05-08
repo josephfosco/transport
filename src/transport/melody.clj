@@ -18,9 +18,9 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-density get-ensemble-density get-ensemble-density-ratio]]
+   [transport.ensemble-status :refer [get-average-continuity get-density-trend get-ensemble-continuity get-average-note-durs get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
+   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
@@ -165,7 +165,7 @@
        ))
   )
 
-(defn- select-melody-density
+(defn- select-melody-note-durs
   "Returns a number from 0 to 9 to determine how dense
    the melody will be.
    0 - sparse  (few notes, all long duration) -> 9 - dense (many notes of short duration)"
@@ -173,17 +173,17 @@
   ([player]
      (cond
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
-      (let [ens-density (round-number (get-average-density))]
-        (if (> ens-density 4) (random-int 0 (- ens-density 5)) (random-int (+ ens-density 5) 9)))
+      (let [ens-note-durs (round-number (get-average-note-durs))]
+        (if (> ens-note-durs 4) (random-int 0 (- ens-note-durs 5)) (random-int (+ ens-note-durs 5) 9)))
       :else (rand-int 10))
      )
   ([player cntrst-plyr cntrst-melody-char]
-     (let [cntrst-density (get-melody-char-density cntrst-melody-char)]
+     (let [cntrst-note-durs (get-melody-char-note-durs cntrst-melody-char)]
        (cond
-        (and (> cntrst-density 0) (< cntrst-density 9))
-        (let [density (rand-int 7)]
-          (if (> density (dec cntrst-density)) density (+ density 3)))
-        (= cntrst-density 0)
+        (and (> cntrst-note-durs 0) (< cntrst-note-durs 9))
+        (let [note-durs (rand-int 7)]
+          (if (> note-durs (dec cntrst-note-durs)) note-durs (+ note-durs 3)))
+        (= cntrst-note-durs 0)
         (+ (rand-int 8) 2)
         :else
         (rand-int 8)
@@ -275,7 +275,7 @@
 (defn select-random-melody-characteristics
   [lo-range hi-range]
   (MelodyChar. (select-melody-continuity)
-               (select-melody-density)
+               (select-melody-note-durs)
                (select-melody-range lo-range hi-range)
                (select-melody-smoothness))
   )
@@ -288,12 +288,12 @@
         ]
     (if (= cntrst-plyr nil)
       (MelodyChar. (select-melody-continuity player)
-                   (select-melody-density player)
+                   (select-melody-note-durs player)
                    (select-melody-range player)
                    (select-melody-smoothness player))
       (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
             (MelodyChar. (select-melody-continuity player cntrst-plyr cntrst-melody-char)
-                         (select-melody-density player cntrst-plyr cntrst-melody-char)
+                         (select-melody-note-durs player cntrst-plyr cntrst-melody-char)
                          (select-melody-range player cntrst-plyr cntrst-melody-char)
                          (select-melody-smoothness player))
             )))
@@ -488,13 +488,8 @@
                      (println "*************** FOLLOWER AHEAD OF FOLLOWED ***************")
                      (print-player player)
                      (print-player-num follow-player-id)
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
-                     (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************")
+                     (dotimes [i 7]
+                       (println "*************** END FOLLOWER AHEAD OF FOLLOWED END ***************"))
                      )
             (throw (Throwable. "FOLLOWER AHEAD OF FOLLOWED"))
             )

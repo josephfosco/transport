@@ -22,7 +22,7 @@
    [transport.instrument :refer [has-release? get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
-   [transport.melodychar :refer [get-melody-char-continuity get-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-continuity]]
    [transport.melodyevent :refer :all]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
@@ -398,13 +398,11 @@
            (= (get-density-trend) INCREASING)
            (> (Math/round (* (get-ensemble-density) 0.9)) player-continuity))
           (do
-;;            (set-density player (min (inc player-density) 9))
             (set-continuity player (min (inc player-continuity) 9))
             )
           (or (= (get-density-trend) DECREASING)
               (< (Math/round (* (get-ensemble-density) 0.9)) player-continuity))
           (do
-;;            (set-density player (max (dec player-density) 0))
             (set-continuity player (max (dec player-continuity) 0))
             )
           :else

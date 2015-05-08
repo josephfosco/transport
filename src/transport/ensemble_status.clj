@@ -44,7 +44,7 @@
 (def mm-trend (compare-prior-current))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
 (def player-continuities (atom (apply vector (repeat @number-of-players 0))))
-(def player-densities (atom (apply vector (repeat @number-of-players 0))))
+(def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
 
 (def rest-prob-len (atom 0))
 ;; rest-prob is list of true for notes, false for rests
@@ -109,8 +109,9 @@
     (reset! player-keys (assoc @player-keys player-id (get-key player))) )
   (if (not= (get-mm player) (get player-mms player-id))
     (reset! player-mms (assoc @player-mms player-id (get-mm player))) )
-  (if (not= (get-melody-char-density (get-melody-char player)) (get player-densities player-id))
-    (reset! player-densities (assoc @player-densities player-id (get-melody-char-density (get-melody-char player)))))
+  (if (not= (get-melody-char-note-durs (get-melody-char player)) (get player-note-durs player-id))
+    (reset! player-note-durs (assoc @player-note-durs player-id
+                                    (get-melody-char-note-durs (get-melody-char player)))))
   (if (not= (get-melody-char-continuity (get-melody-char player)) (get player-continuities player-id))
     (reset! player-continuities (assoc @player-continuities player-id (get-melody-char-continuity (get-melody-char player)))))
   )
@@ -195,15 +196,15 @@
   []
   (average @player-continuities @number-of-players))
 
-(defn get-ensemble-most-common-density
+(defn get-ensemble-most-common-note-durs
   []
-  (print-msg "get-ensemble-most-common-density:   " @player-densities)
-  (get-vector-max-frequency @player-densities)
+  (print-msg "get-ensemble-most-common-note-durs:   " @player-note-durs)
+  (get-vector-max-frequency @player-note-durs)
   )
 
-(defn get-average-density
+(defn get-average-note-durs
   []
-  (average @player-densities @number-of-players))
+  (average @player-note-durs @number-of-players))
 
 (defn get-note-dur-list
   [cur-note-times to-time]
@@ -348,7 +349,7 @@
       ))
 
   (reset! player-continuities (apply vector (repeat @number-of-players 0)))
-  (reset! player-densities (apply vector (repeat @number-of-players 0)))
+  (reset! player-note-durs (apply vector (repeat @number-of-players 0)))
 
   (reset! prev-ensemble-density 0)
   (reset! density-trend INCREASING)

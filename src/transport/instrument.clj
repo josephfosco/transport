@@ -22,7 +22,7 @@
    [transport.instruments.osc-instruments :refer :all]
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
-   [transport.melodychar :refer [get-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-note-durs]]
    [transport.melodyevent :refer [get-sc-instrument-id]]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
@@ -98,7 +98,7 @@
   [melody-char]
   (if (nil? melody-char)
     all-instruments
-    (if (> (get-melody-char-density melody-char) 5)
+    (if (> (get-melody-char-note-durs melody-char) 5)
       (non-perc-instruments all-instruments)
       all-instruments
       ))

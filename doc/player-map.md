@@ -19,8 +19,8 @@
         - 0 - discontinuous (all rests)
         - 9 - continuous (few rests)
     + density - melody density
-        - 0 - sparse (few notes of long duration)
-        - 9 - dense (many notes of short duration)
+        - 0 - sparse (mostly notes of long duration)
+        - 9 - dense (mostly notes of short duration)
     + range - width of the melody's ramge in semitones
         - Range in semitones
     + smoothness - how stepwise the melody will be and the change in volume from note to note

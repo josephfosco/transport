@@ -18,7 +18,7 @@
    [transport.behavior :refer [get-behavior-action]]
    [transport.dur-info :refer [get-dur-beats]]
    [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-trend-mm]]
-   [transport.melodychar :refer [get-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-note-durs]]
    [transport.melodyevent :refer :all]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
@@ -52,7 +52,7 @@
   [2 8 5 15 10 15 10 15 10 5 5]
 )
 
-(def DENSITY-PROBS
+(def note-dur-probs
   ;;  32   16   16.  8    8.   q    q.   h    h.   w    ww
   ;; [2    8    5    15   10   15   10   15   10   5    5   ]
   {0 [-999 -999 -999 -999 -999 -999 -999 0    25   40   40  ]
@@ -178,9 +178,9 @@
       ))
   )
 
-(defn- adjust-prob-based-on-density
+(defn- adjust-prob-based-on-note-durs
   [note-probs player]
-  (let [prob-adjust (get DENSITY-PROBS (get-melody-char-density (get-melody-char player)))]
+  (let [prob-adjust (get note-dur-probs (get-melody-char-note-durs (get-melody-char player)))]
     (if prob-adjust
       (mapv + note-probs prob-adjust)
       note-probs))
@@ -219,7 +219,7 @@
   [player next-note-or-rest]
   (let [note-durs-millis (map note-dur-to-millis (repeat (get-mm player)) NOTE-DURS-BEATS)
         adjusted-note-prob (-> (adjust-note-prob player note-durs-millis)
-                               (adjust-prob-based-on-density player)
+                               (adjust-prob-based-on-note-durs player)
                                (adjust-prob-based-on-rhythm player next-note-or-rest)
                                )
         ;; make all probs < 0 be 0
