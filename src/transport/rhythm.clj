@@ -153,9 +153,9 @@
 (defn adjust-note-prob
   " If player-action is not SIMILAR-ENSEMBLE, returns NOTE-PROBS unchanged. Else,
     finds the index of the rhythmic value closest to ensemble average duration,
-    then adds 10 to that index's probability in NOTE-PROBS. It adds 5 to the
+    then adds 15 to that index's probability in NOTE-PROBS. It adds 10 to the
     probabilities of the values on either side of the index. If this
-    is the first or last index, add 5 to the probability of the index
+    is the first or last index, add 10 to the probability of the index
     either before or after the selected one.
     Returns the new NOTE-PROBS probability map.
 
@@ -166,15 +166,15 @@
     (let [index-closest-to-average (last (keep-indexed #(if (<= %2 (get-average-note-dur-millis)) %1) note-durs-millis))]
       (cond
        (or (= index-closest-to-average 0) (nil? index-closest-to-average))  ;; first index
-       (add-probabilities NOTE-PROBS {0 10 1 5})
+       (add-probabilities NOTE-PROBS {0 15 1 10})
        (= index-closest-to-average (- (count note-durs-millis) 1))          ;; last index
        (add-probabilities NOTE-PROBS
-                          {(- (count note-durs-millis) 1) 10
-                           (- (count note-durs-millis) 2) 5})
+                          {(- (count note-durs-millis) 1) 15
+                           (- (count note-durs-millis) 2) 10})
        :else (add-probabilities NOTE-PROBS
-                                {index-closest-to-average 10
-                                 (- index-closest-to-average 1) 5
-                                 (+ index-closest-to-average 1) 5}))
+                                {index-closest-to-average 15
+                                 (- index-closest-to-average 1) 10
+                                 (+ index-closest-to-average 1) 10}))
       ))
   )
 
