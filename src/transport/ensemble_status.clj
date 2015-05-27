@@ -63,7 +63,7 @@
 
 (defn init-density-vector
   []
-  ((density-vector :init) [0 0 0 0 0 0 0 0 0 0])
+  ((density-vector :init) [0 0 0 0 0 0 0 0 0 0 0])
   ((density-vector :set-eval) (fn [num]
                                  num
                                  ))
@@ -265,7 +265,7 @@
   (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)
         cur-density-trend (get-density-trend)]
 
-    (set-density-vector (Math/round (* cur-ensemble-density 10.9)))
+    (set-density-vector (Math/round (* cur-ensemble-density 10.0)))
 
     (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
 

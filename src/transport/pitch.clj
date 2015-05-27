@@ -20,7 +20,7 @@
    [transport.ensemble-status :refer [get-ensemble-key-for-player]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
+   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-pitch-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.util.constants :refer :all]
@@ -229,7 +229,7 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP)
+    (if (>  rand-rounded (get-melody-char-pitch-smoothness (get-melody-char player))) STEP SKIP)
     )
   )
 

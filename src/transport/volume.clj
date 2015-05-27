@@ -17,14 +17,14 @@
   (:require
    [transport.behavior :refer [get-behavior-action]]
    [transport.ensemble-status :refer [get-average-volume]]
-   [transport.melodychar :refer [get-melody-char-density]]
+   [transport.melodychar :refer [get-melody-char-vol-smoothness]]
    [transport.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
    ))
 
-(def volume-smoothness [9 8 7 6 5 4 3 2 1 0])
+(def volume-smoothness [0 1 2 3 4 5 6 7 8 9])
 
 (defn select-volume-in-range
   "Returns a random float between lo-vol and hi-vol(exclusive).
@@ -45,7 +45,7 @@
 
 (defn select-volume
   [player]
-  (let [smoothness (volume-smoothness (get-melody-char-density (get-melody-char player)))
+  (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
         vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
         vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
@@ -67,7 +67,7 @@
 
 (defn select-volume-similar-ensemble
   [player]
-  (let [smoothness (volume-smoothness (get-melody-char-density (get-melody-char player)))
+  (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
         vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
         vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)

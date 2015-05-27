@@ -20,7 +20,7 @@
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density get-average-note-durs get-ensemble-density get-ensemble-density-ratio]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-smoothness set-melody-char-range]]
+   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness get-melody-char-vol-smoothness set-melody-char-range]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
@@ -38,7 +38,8 @@
   )
 
 (def DENSITY-PROBS [1 2 2 3 3 7 9 10 12 17])
-(def SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
+(def PITCH-SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
+(def VOL-SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
 
 (def cur-density-probs (atom []))
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
@@ -295,16 +296,37 @@
                                            ))
   )
 
-(defn- select-melody-smoothness
+(defn- select-melody-pitch-smoothness
   "Returns a number from 0 to 9 to determine how smooth (stepwise)
-   the melody will be (steps vs skips and changes in volume levels.
-   0 - mostly steps, same voolume -> 9 - mostly skips (wide skips), large volume changes"
-  ([] (weighted-choice SMOOTHNESS-PROBS))
+   the melody will be (steps vs skips).
+   0 - mostly steps -> 9 - mostly skips (wide skips)"
+  ([] (weighted-choice PITCH-SMOOTHNESS-PROBS))
   ([player]
-     (weighted-choice SMOOTHNESS-PROBS)
+     (weighted-choice PITCH-SMOOTHNESS-PROBS)
      )
   ([player cntrst-plyr cntrst-melody-char]
-     (let [cntrst-smoothness (get-melody-char-smoothness cntrst-melody-char)]
+     (let [cntrst-smoothness (get-melody-char-pitch-smoothness cntrst-melody-char)]
+       (cond
+        (and (> cntrst-smoothness 0) (< cntrst-smoothness 9))
+        (let [smoothness (rand-int 7)]
+          (if (> smoothness (dec cntrst-smoothness)) smoothness (+ smoothness 3)))
+        (= cntrst-smoothness 0)
+        (+ (rand-int 8) 2)
+        :else
+        (rand-int 8)
+        )))
+  )
+
+(defn- select-melody-vol-smoothness
+  "Returns a number from 0 to 9 to determine how smooth the volume
+   will be note to note (same volume level vs large changes in volume level).
+   0 - same volume -> 9 - large volume changes"
+  ([] (weighted-choice VOL-SMOOTHNESS-PROBS))
+  ([player]
+     (weighted-choice VOL-SMOOTHNESS-PROBS)
+     )
+  ([player cntrst-plyr cntrst-melody-char]
+     (let [cntrst-smoothness (get-melody-char-vol-smoothness cntrst-melody-char)]
        (cond
         (and (> cntrst-smoothness 0) (< cntrst-smoothness 9))
         (let [smoothness (rand-int 7)]
@@ -321,7 +343,9 @@
   (MelodyChar. (select-melody-density)
                (select-melody-note-durs)
                (select-melody-range lo-range hi-range)
-               (select-melody-smoothness))
+               (select-melody-pitch-smoothness)
+               (select-melody-vol-smoothness)
+               )
   )
 
 (defn select-melody-characteristics
@@ -334,12 +358,16 @@
       (MelodyChar. (select-melody-density player)
                    (select-melody-note-durs player)
                    (select-melody-range player)
-                   (select-melody-smoothness player))
+                   (select-melody-pitch-smoothness player)
+                   (select-melody-vol-smoothness player)
+                   )
       (do (let [cntrst-melody-char (get-melody-char cntrst-plyr)]
             (MelodyChar. (select-melody-density player cntrst-plyr cntrst-melody-char)
                          (select-melody-note-durs player cntrst-plyr cntrst-melody-char)
                          (select-melody-range player cntrst-plyr cntrst-melody-char)
-                         (select-melody-smoothness player))
+                         (select-melody-pitch-smoothness player)
+                         (select-melody-vol-smoothness player)
+                         )
             )))
     )
   )
