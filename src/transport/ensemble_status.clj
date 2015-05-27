@@ -34,6 +34,7 @@
 
 (def density-vector (count-vector)) ; count ensemble density over time
 (def trend-upd-millis 3000)
+(def steady-density-count (atom 0))
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
@@ -175,15 +176,15 @@
   "Returns the mm most used in the ensemble.
    If all mms are unique, returns one mm from the ensemble."
   []
-  (print-msg "get-ensemble-mm:" @player-mms)
+  ;; (print-msg "get-ensemble-mm:" @player-mms)
   (get-vector-max-frequency @player-mms)
   )
 
 (defn get-ensemble-trend-mm
   "Returns mm most that is the average ensemble-mm +/- the ensemble mm trend"
   []
-  (print-msg "get-ensemble-mm:" @player-mms)
-  (print-msg "get-ensemble-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
+;;  (print-msg "get-ensemble-trend-mm:" @player-mms)
+;;  (print-msg "get-ensemble-trend-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
   (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
   )
 
@@ -271,20 +272,27 @@
 
     (reset! density-trend (cond (= cur-density-trend STEADY)
                                 (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.07)
+                                 (>= (- cur-ensemble-density @prev-ensemble-density)
+                                     (max (- 0.15 (* @steady-density-count 0.005)) 0.07))
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
+                                   (reset! steady-density-count 0)
                                    INCREASING
                                    )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.07)
+                                 (<= (- cur-ensemble-density @prev-ensemble-density)
+                                     (min (+ -0.15 (* @steady-density-count 0.005)) -0.07))
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
+                                   (reset! steady-density-count 0)
                                    DECREASING
                                    )
-                                 :else STEADY)
+                                 :else
+                                 (do
+                                   (reset! steady-density-count (inc @steady-density-count))
+                                   STEADY))
                                 (= cur-density-trend INCREASING)
                                 (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density) -0.05)
+                                 (>= (- cur-ensemble-density @prev-ensemble-density) -0.07)
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    INCREASING
@@ -302,7 +310,7 @@
 ;;                                   (reset! prev-ensemble-density cur-ensemble-density)
 ;;                                   INCREASING
 ;;                                )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density) 0.05)
+                                 (<= (- cur-ensemble-density @prev-ensemble-density) 0.07)
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    DECREASING
@@ -333,6 +341,7 @@
 (defn init-ensemble-status
   []
   (init-density-vector)
+  (reset! steady-density-count 0)
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))

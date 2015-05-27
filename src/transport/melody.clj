@@ -77,6 +77,28 @@
 
 (defn get-new-density-prob-value
   [value max-change index threshold max-index density-trend]
+  ;; INCREASING [10 10 10 10 10 10 10 10 10 10] -> [9 9 9 8 7 | 13 12 11 11 11]
+  ;; DECREASING [10 10 10 10 10 10 10 10 10 10] -> [11 11 11 12 13 | 7 8 9 9 9]
+  (let [amt (if (or (> index threshold) (= threshold max-index index))
+              (if (= density-trend INCREASING)
+                (max (+ (- (inc threshold) index) max-change) 1)
+                (min (- (- index (inc threshold)) max-change) -1)
+                )
+              (if (= density-trend INCREASING)
+                (min (- (- threshold index) max-change) -1)
+                (max (+ (- index threshold) max-change) 1)
+                )
+              )
+        ]
+    (max (+ value amt) 0)
+    )
+  )
+
+(comment - old fnc
+(defn get-new-density-prob-value
+  [value max-change index threshold max-index density-trend]
+  ;; INCREASING [10 10 10 10 10 10 10 10 10 10] -> [9 9 9 8 7 13 12 11 10 10]
+  ;; DECREASING [10 10 10 10 10 10 10 10 10 10] -> [13 12 11 10 9 9 9 9 8 7]
   (let [amt (if (or (> index threshold) (= threshold max-index index))
               (if (= density-trend INCREASING)
                 (max (+ (- (inc threshold) index) max-change) 0)
@@ -90,6 +112,28 @@
         ]
     (max (+ value amt) 0)
     )
+  )
+  )
+
+(comment - old fnc
+(defn get-new-density-prob-value
+  [value max-change index threshold max-index density-trend]
+  ;; INCREASING [10 10 10 10 10 10 10 10 10 10] -> [9 9 9 8 7 13 12 11 11 11]
+  ;; DECREASING [10 10 10 10 10 10 10 10 10 10] -> [13 12 11 11 11 9 9 9 8 7]
+  (let [amt (if (or (> index threshold) (= threshold max-index index))
+              (if (= density-trend INCREASING)
+                (max (+ (- (inc threshold) index) max-change) 1)
+                (min (- (- max-index index) max-change) -1)
+                )
+              (if (= density-trend INCREASING)
+                (min (- (- threshold index) max-change) -1)
+                (max (- max-change index) 1)
+                )
+              )
+        ]
+    (max (+ value amt) 0)
+    )
+  )
   )
 
 (defn adjust-density-probs-based-on-ensemble
@@ -346,7 +390,7 @@
   [player note-time]
   (not (note-or-rest-similar-ensemble player note-time)))
 
-(defn note-or-rest
+(defn note-or-rest?
   "Determines whether to play a note or rest.
    Returne true for note, false for rest
 
@@ -357,12 +401,12 @@
 ;;        (note-or-rest-similar-ensemble player note-time)
         (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
         (note-or-rest-contrast-ensemble player note-time)
-        :else (let [play-note? (random-int 0 10)]
-                (if (> (get-melody-char-density (get-melody-char player)) play-note?)
+        :else (let [play-note-prob (rand-int 10)]
+                (if (> (get-melody-char-density (get-melody-char player)) play-note-prob)
                   true
-                  (if (not= 9 play-note?)                                ;; if play-note? not 9
+                  (if (not= 9 play-note-prob)                          ;; if play-note-prob not 9
                     false                                                ;; rest
-                    (if (and                                             ;; else
+                    (if (and                                           ;; else
                          (not= {} (get-melody player))                   ;; if melody not empty
                          (= 0                                            ;; and last pitch is root
                             (get-scale-degree
@@ -508,7 +552,7 @@
 
   (if sync-beat-player-id
     (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
-    (let [next-note-or-rest (if (note-or-rest player event-time) (next-pitch player) nil)]
+    (let [next-note-or-rest (if (note-or-rest? player event-time) (next-pitch player) nil)]
       (create-melody-event
        :note next-note-or-rest
        :change-follow-info-note nil
