@@ -53,7 +53,7 @@
 (def note-times (agent '()))
 
 (def prev-ensemble-density (atom 0))
-(def density-trend (atom INCREASING))
+(def density-trend (atom STEADY))
 
 (defn set-density-vector
   [new-val]
@@ -75,13 +75,13 @@
   )
 
 (defn- players-soft?
-  "Returns true if the current volume of 90% of all players except
-   exception-player-id is less than .1"
+  "Returns true if the current volume of 95% of all players except
+   exception-player-id is less than .3"
   [exception-player-id]
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @number-of-players 0.05)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) 0.1) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) 0.3) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )
@@ -265,7 +265,7 @@
   (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)
         cur-density-trend (get-density-trend)]
 
-    (set-density-vector (Math/round (* cur-ensemble-density 10.0)))
+    (set-density-vector (Math/round (* cur-ensemble-density 9.0)))
 
     (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
 
@@ -292,7 +292,8 @@
                                    STEADY))
                                 (= cur-density-trend INCREASING)
                                 (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density) -0.07)
+                                 (>= (- cur-ensemble-density @prev-ensemble-density)
+                                     (if (< @prev-ensemble-density 0.75) -0.07 -0.055))
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    INCREASING
@@ -310,7 +311,8 @@
 ;;                                   (reset! prev-ensemble-density cur-ensemble-density)
 ;;                                   INCREASING
 ;;                                )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density) 0.07)
+                                 (<= (- cur-ensemble-density @prev-ensemble-density)
+                                     (if (> @prev-ensemble-density 0.25) 0.07 0.055))
                                  (do
                                    (reset! prev-ensemble-density cur-ensemble-density)
                                    DECREASING

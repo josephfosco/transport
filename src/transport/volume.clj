@@ -24,7 +24,8 @@
    [transport.util.constants :refer :all]
    ))
 
-(def volume-smoothness [0 1 2 3 4 5 6 7 8 9])
+(def MIN-VOLUME 0.2)
+(def volume-smoothness [0 0.01 0.03 0.05 0.07 0.1 0.15 0.2 0.25 0.3])
 
 (defn select-volume-in-range
   "Returns a random float between lo-vol and hi-vol(exclusive).
@@ -37,7 +38,7 @@
   )
 
 (defn- select-random-volume
-  "Returns a random volume between 0 and .999"
+  "Returns a random volume between .2 and .999"
   []
   ;;(float (/ (int (* (rand) 1000)) 1000))
   (float (/ (random-int 200 999) 1000))
@@ -47,8 +48,8 @@
   [player]
   (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
-        vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
-        vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
+        vol-min (if last-volume (max (- last-volume smoothness) MIN-VOLUME) MIN-VOLUME)
+        vol-max (if last-volume (min (+ last-volume smoothness) 1) 1)
         ]
     (if (not= last-volume 0)
       (select-volume-in-range vol-min vol-max)
@@ -60,7 +61,7 @@
   []
   (let [average-volume (get-average-volume)]
     (select-volume-in-range
-     (if (< average-volume 0.1) 0 (- average-volume 0.1)) ;; set range of volume to
+     (if (<= average-volume 0.3) MIN-VOLUME (- average-volume 0.1)) ;; set range of volume to
      (if (> average-volume 0.9) 1 (+ average-volume 0.1))) ;; + or - 0.1 of average volume
     )
   )
@@ -69,8 +70,8 @@
   [player]
   (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
         last-volume (get-volume-for-event (get-last-melody-event player))
-        vol-min (if last-volume (max (- last-volume (* smoothness 0.05)) 0) 0)
-        vol-max (if last-volume (min (+ last-volume (* smoothness 0.05)) 1) 1)
+        vol-min (if last-volume (max (- last-volume smoothness) MIN-VOLUME) MIN-VOLUME)
+        vol-max (if last-volume (min (+ last-volume smoothness) 1) 1)
         ]
     (if (not= last-volume 0)
       (select-volume-in-range vol-min vol-max)
@@ -91,8 +92,8 @@
      (= player-action CONTRAST-ENSEMBLE)
      (let [average-volume (get-average-volume)]
        (select-volume-in-range
-        (if (< average-volume 0.5) 0.7 0) ;; set range of volume eithe 0.7 - 1 or
-        (if (< average-volume 0.5) 1 0.3))) ;; 0 - 0.3 opposite of ensemble
+        (if (< average-volume 0.5) 0.7 MIN-VOLUME) ;; set range of volume eithe 0.7 - 1 or
+        (if (< average-volume 0.5) 1 0.3))) ;; MIN-VOLUME - 0.3 opposite of ensemble
      ;; else pick next melody note based only on players settings
      ;;  do not reference other players or ensemble
      :else (select-volume player) )

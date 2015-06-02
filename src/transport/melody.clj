@@ -39,7 +39,7 @@
 
 (def DENSITY-PROBS [1 2 2 3 3 7 9 10 12 17])
 (def PITCH-SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
-(def VOL-SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
+(def VOL-SMOOTHNESS-PROBS [1 1 5 4 3 3 2 2 1 1])
 
 (def cur-density-probs (atom []))
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
@@ -78,6 +78,25 @@
 
 (defn get-new-density-prob-value
   [value max-change index threshold max-index density-trend]
+  ;; Random change + or - between 1 and max-change
+  (let [amt (if (or (> index threshold) (= threshold max-index index))
+              (if (= density-trend INCREASING)
+                (inc (rand-int max-change))
+                (* (inc (rand-int max-change)) -1)
+                )
+              (if (= density-trend INCREASING)
+                (* (inc (rand-int max-change)) -1)
+                (inc (rand-int max-change))
+                )
+              )
+        ]
+    (max (+ value amt) 0)
+    )
+  )
+
+(comment - old fnc
+(defn get-new-density-prob-value
+  [value max-change index threshold max-index density-trend]
   ;; INCREASING [10 10 10 10 10 10 10 10 10 10] -> [9 9 9 8 7 | 13 12 11 11 11]
   ;; DECREASING [10 10 10 10 10 10 10 10 10 10] -> [11 11 11 12 13 | 7 8 9 9 9]
   (let [amt (if (or (> index threshold) (= threshold max-index index))
@@ -94,6 +113,7 @@
     (max (+ value amt) 0)
     )
   )
+)
 
 (comment - old fnc
 (defn get-new-density-prob-value
@@ -307,13 +327,13 @@
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-smoothness (get-melody-char-pitch-smoothness cntrst-melody-char)]
        (cond
-        (and (> cntrst-smoothness 0) (< cntrst-smoothness 9))
+        (and (> cntrst-smoothness 0) (< cntrst-smoothness 8))
         (let [smoothness (rand-int 7)]
           (if (> smoothness (dec cntrst-smoothness)) smoothness (+ smoothness 3)))
-        (= cntrst-smoothness 0)
-        (+ (rand-int 8) 2)
+        (< cntrst-smoothness 3)
+        (random-int 0 1)
         :else
-        (rand-int 8)
+        (random-int 8 9)
         )))
   )
 
@@ -328,13 +348,13 @@
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-smoothness (get-melody-char-vol-smoothness cntrst-melody-char)]
        (cond
-        (and (> cntrst-smoothness 0) (< cntrst-smoothness 9))
+        (and (> cntrst-smoothness 1) (< cntrst-smoothness 8))
         (let [smoothness (rand-int 7)]
           (if (> smoothness (dec cntrst-smoothness)) smoothness (+ smoothness 3)))
-        (= cntrst-smoothness 0)
-        (+ (rand-int 8) 2)
+        (< cntrst-smoothness 3)
+        (random-int 0 1)
         :else
-        (rand-int 8)
+        (random-int 8 9)
         )))
   )
 
