@@ -18,7 +18,7 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density get-average-note-durs get-ensemble-density get-ensemble-density-ratio]]
+   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density get-average-note-durs get-ensemble-density get-ensemble-density-ratio get-ensemble-most-common-note-durs]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness get-melody-char-vol-smoothness set-melody-char-range]]
    [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
@@ -237,6 +237,16 @@
   ([] (rand-int 10))
   ([player]
      (cond
+      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+      (let [most-common-note-durs (get-ensemble-most-common-note-durs)]
+        (cond (< 0 most-common-note-durs 9)
+              (random-int (dec most-common-note-durs) (inc most-common-note-durs))
+              (= 0 most-common-note-durs)
+              (random-int 0 2)
+              :else
+              (random-int 7 9)
+              )
+        )
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-note-durs (round-number (get-average-note-durs))]
         (if (> ens-note-durs 4) (random-int 0 (- ens-note-durs 5)) (random-int (+ ens-note-durs 5) 9)))
