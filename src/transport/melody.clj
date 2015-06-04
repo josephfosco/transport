@@ -173,7 +173,7 @@
                                 probs
                                 (repeat change-val)
                                 (range (count probs))
-                                (repeat (Math/round (* (get-ensemble-density) 0.9)))
+                                (repeat (get-ensemble-density))
                                 (repeat max-index)
                                 (repeat cur-density-trend)
                                 )
@@ -249,20 +249,14 @@
         )
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-note-durs (round-number (get-average-note-durs))]
-        (if (> ens-note-durs 4) (random-int 0 (- ens-note-durs 5)) (random-int (+ ens-note-durs 5) 9)))
+        (rem (+ (round-number (get-average-note-durs)) 5 ) 10)
+        )
       :else (rand-int 10))
      )
   ([player cntrst-plyr cntrst-melody-char]
      (let [cntrst-note-durs (get-melody-char-note-durs cntrst-melody-char)]
-       (cond
-        (and (> cntrst-note-durs 0) (< cntrst-note-durs 9))
-        (let [note-durs (rand-int 7)]
-          (if (> note-durs (dec cntrst-note-durs)) note-durs (+ note-durs 3)))
-        (= cntrst-note-durs 0)
-        (+ (rand-int 8) 2)
-        :else
-        (rand-int 8)
-        )))
+       (rem (+ (get-melody-char-note-durs cntrst-melody-char) 5) 10)
+       ))
   )
 
 (defn- select-melody-range
