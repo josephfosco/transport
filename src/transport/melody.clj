@@ -76,24 +76,6 @@
   (init-melody)
   )
 
-(defn get-new-density-prob-value
-  [value max-change index threshold max-index density-trend]
-  ;; Random change + or - between 1 and max-change
-  (let [amt (if (or (> index threshold) (= threshold max-index index))
-              (if (= density-trend INCREASING)
-                (inc (rand-int max-change))
-                (* (inc (rand-int max-change)) -1)
-                )
-              (if (= density-trend INCREASING)
-                (* (inc (rand-int max-change)) -1)
-                (inc (rand-int max-change))
-                )
-              )
-        ]
-    (max (+ value amt) 0)
-    )
-  )
-
 (comment - old fnc
 (defn get-new-density-prob-value
   [value max-change index threshold max-index density-trend]
@@ -157,9 +139,27 @@
   )
   )
 
+(defn get-new-density-prob-value
+  [value above-change below-change index threshold max-index density-trend]
+  ;; Random change + or - between 1 and max-change
+  (let [amt (if (= density-trend INCREASING)
+              (if (or (> index threshold) (= threshold max-index index))
+                (if (> above-change 0) (inc (rand-int (dec above-change))) 0)
+                (if (> above-change 0) (* (inc (rand-int (dec below-change))) -1) 0)
+                )
+              (if (or (>= index threshold))
+                (if (> below-change 0) (* (inc (rand-int (dec above-change))) -1) 0)
+                (if (> below-change 0) (inc (rand-int (dec below-change))) 0)
+                )
+              )
+        ]
+    (max (+ value amt) 0)
+    )
+  )
+
 (defn adjust-density-probs-based-on-ensemble
-  [probs & {:keys [change-val]
-            :or {change-val 1}}]
+  [probs & {:keys [above-change-val below-change-val]
+            :or {above-change-val 1 below-change-val 1}}]
   (let [cur-density-trend (get-density-trend)
         ;; highest index containing a non-zero value
         max-index (loop [density-probs probs ndx (dec (count probs))]
@@ -171,7 +171,8 @@
     (cond (or (= cur-density-trend INCREASING) (= cur-density-trend DECREASING))
           (let [new-probs (mapv get-new-density-prob-value
                                 probs
-                                (repeat change-val)
+                                (repeat above-change-val)
+                                (repeat below-change-val)
                                 (range (count probs))
                                 (repeat (get-ensemble-density))
                                 (repeat max-index)
@@ -199,7 +200,34 @@
         (weighted-choice (vec (reverse @cur-density-probs)))
         )
       :else
-      (weighted-choice (swap! cur-density-probs adjust-density-probs-based-on-ensemble :change-val 3))
+      (do
+        (let [ensemble-density (get-ensemble-density)
+              cur-density-trend (get-density-trend)
+              the-density-probs @cur-density-probs
+              high-subvec (subvec the-density-probs (if (= cur-density-trend INCREASING)
+                                                      (inc ensemble-density)
+                                                      (dec ensemble-density)))
+              low-subvec (subvec the-density-probs 0 (if (= cur-density-trend INCREASING)
+                                                       (inc ensemble-density)
+                                                       (dec ensemble-density)))
+              high-total (reduce + high-subvec)
+              low-total (reduce + low-subvec)
+              above-change-val (if (= cur-density-trend INCREASING)
+                                 (if (or (= low-total 0) (= low-total (first low-subvec))) 0 3)
+                                 (if (= high-total 0) 0 3)
+                                 )
+              below-change-val (if (= cur-density-trend INCREASING)
+                                 (if (= low-total 0) 0 3)
+                                 (if (or (= high-total 0) (= high-total (first high-subvec))) 0 3)
+                                 )
+              ]
+          (if (= 0 above-change-val below-change-val)
+            (weighted-choice @cur-density-probs)
+            (weighted-choice (swap! cur-density-probs adjust-density-probs-based-on-ensemble
+                                    :above-change-val above-change-val
+                                    :below-change-val below-change-val))
+            )
+          ))
       )
      )
   ([player cntrst-plyr cntrst-melody-char]
