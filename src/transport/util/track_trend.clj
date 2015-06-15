@@ -13,35 +13,34 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.util.compare-prior-current
+(ns transport.util.track-trend
   (:require
    [transport.util.constants :refer :all]
+   [transport.util.utils :refer [average]]
    ))
 
-(defn compare-prior-current
+(defn track-trend
   []
-  (let [prior-val (atom 0)
-        current-val (atom 0)
+  (let [vals (atom '())
+        val-len (atom 0)
         change-threshold (atom 0)
 
-        init (fn [new-threshold]
-               (reset! prior-val 0)
-               (reset! current-val 0)
-               (reset! change-threshold new-threshold)
+        init (fn [new-vals new-threshold]
+                 (dosync
+                  (reset! vals new-vals)
+                  (reset! val-len (count @vals))
+                  (reset! change-threshold new-threshold)
+                  )
                )
 
-        new-value (fn [new-val]
-                    (if (or (> (- @current-val new-val) @change-threshold)
-                            (> (- new-val @current-val) @change-threshold))
-                      (do
-                        (reset! prior-val @current-val)
-                        (reset! current-val new-val)
-                        )
-                      (reset! prior-val @current-val))
-                    )
+        new-track-value (fn [new-val]
+                      (dosync
+                       (swap! vals #(conj (drop-last %1) %2) new-val)
+                       )
+                      )
 
         trend (fn []
-                (let [diff (- @current-val @prior-val)]
+                (let [diff (- (average @vals @val-len) (last @vals))]
                   (cond (> diff @change-threshold)
                         INCREASING
                         (> (* diff -1) @change-threshold)
@@ -52,23 +51,17 @@
                   )
                 )
 
-        ;; Returns the difference between current value and prior value
-        trend-amount (fn []
-                       (- @current-val @prior-val)
-                       )
-
         print (fn []
-                (println "current-val:       "  @current-val)
-                (println "prior-val:         "  @prior-val)
+                (println "vals:              "  @vals)
+                (println "val-len         :  "  @val-len)
                 (println "change-threshold:  "  @change-threshold)
                 )
         ]
 
     (fn [m]
       (cond
-       (= m :new-value) new-value
+       (= m :new-track-value) new-track-value
        (= m :trend) trend
-       (= m :trend-amount) trend-amount
        (= m :print) print
        (= m :init) init
        )

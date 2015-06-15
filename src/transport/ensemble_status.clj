@@ -24,14 +24,16 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
-   [transport.settings :refer :all]
+   [transport.settings :refer [ensemble-mm-change-threshold ensemble-volume-change-threshold min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.constants :refer :all]
    [transport.util.count-vector :refer [count-vector]]
+   [transport.util.track-trend :refer [track-trend]]
    [transport.util.utils :refer :all])
   (:import (java.util Date TimerTask Timer))
    )
 
+(def INITIAL-NUM-VOLUME-TREND 10)
 (def density-vector (count-vector)) ; count ensemble density over time
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
@@ -44,6 +46,7 @@
 (def player-mms (atom (apply vector (repeat @number-of-players nil))))
 (def mm-trend (compare-prior-current))
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def volume-trend (track-trend))
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
 (def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
 
@@ -81,7 +84,7 @@
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @number-of-players 0.05)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) 0.3) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) (+ min-volume 0.1)) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )
@@ -151,6 +154,20 @@
 (defn get-average-volume
   []
   (average @player-volumes @number-of-players))
+
+(defn get-average-playing-volume
+  []
+  "Returns the average volume of all players playing a note"
+  (let [vols (for [vol @player-volumes :when (> vol 0)] vol)]
+    (if (not= (first vols) nil)
+      (average vols (count vols))
+      0
+      )))
+
+(defn get-ensemble-trend-volume
+  []
+  ((volume-trend :trend))
+  )
 
 (defn get-average-mm
   []
@@ -337,6 +354,7 @@
   (check-activity)
   (send-off note-times remove-expired-times)
   ((mm-trend :new-value) (round-number (get-average-mm)))
+  ((volume-trend :new-track-value) (get-average-playing-volume))
   (sched-event trend-upd-millis transport.ensemble-status/upd-ensemble-trends nil)
   )
 
@@ -350,6 +368,7 @@
   (reset! player-mms (apply vector (repeat @number-of-players nil)))
   ((mm-trend :init) @ensemble-mm-change-threshold)
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
+  ((volume-trend :init) (map (fn [x] 0) (range INITIAL-NUM-VOLUME-TREND)) @ensemble-volume-change-threshold)
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())

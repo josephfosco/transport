@@ -18,8 +18,10 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id set-behavior-player-id]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.instrumentinfo :refer [get-all-instrument-info]]
-   [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo set-melody-char-density set-melody-char-note-durs]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id]]
+   [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo
+                                 set-melody-char-density set-melody-char-note-durs]]
+   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id
+                                  get-volume-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer :all]
@@ -460,6 +462,22 @@
   []
   (dorun
    (map print-player-density (vals @ensemble)))
+  )
+
+(defn print-playing-volume
+  [player-atom]
+  (let [vol (get-volume-for-event (get-last-melody-event @player-atom))]
+    (if (> vol 0)
+      (println (format "%-2s" (get-player-id @player-atom))
+               " - "
+               vol
+               )))
+  )
+
+(defn print-all-playing-volumes
+  []
+  (dorun
+   (map print-playing-volume (vals @ensemble)))
   )
 
 (defn print-all-players

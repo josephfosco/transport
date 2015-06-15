@@ -23,7 +23,7 @@
         - 9 - mostly notes of short duration
     + range - width of the melody's ramge in semitones
         - Range in semitones
-    + smoothness - how stepwise the melody will be and the change in volume from note to note
+    + pitch-smoothness - how stepwise the melody will be and the change in volume from note to note
         - 0 - mostly steps, same volume levels
         - 9 - mostly skips (wide skips), large volume differences
 * :mm - BPM for this player

@@ -43,7 +43,7 @@
 
 (defn get-melody-char-vol-smoothness
   [melody-char]
-  (:pitch-smoothness melody-char))
+  (:vol-smoothness melody-char))
 
 (defn set-melody-char-density
   [melody-char new-density]
