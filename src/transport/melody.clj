@@ -40,6 +40,7 @@
 (def DENSITY-PROBS [1 2 2 3 3 7 9 10 12 17])
 (def PITCH-SMOOTHNESS-PROBS [3 3 4 4 5 5 6 6 8 10])
 (def VOL-SMOOTHNESS-PROBS [1 1 5 4 3 3 2 2 1 1])
+(def DENSITY-BASE-CHANGE 3)
 
 (def cur-density-probs (atom []))
 (def loud-player (atom nil))        ;; player-id of loud player interrupt
@@ -144,12 +145,12 @@
   ;; Random change + or - between 1 and max-change
   (let [amt (if (= density-trend INCREASING)
               (if (or (> index threshold) (= threshold max-index index))
-                (if (> above-change 0) (inc (rand-int (dec above-change))) 0)
-                (if (> above-change 0) (* (inc (rand-int (dec below-change))) -1) 0)
+                (if (> above-change 0) (inc (rand-int above-change)) 0)
+                (if (> above-change 0) (* (inc (rand-int below-change)) -1) 0)
                 )
               (if (or (>= index threshold))
-                (if (> below-change 0) (* (inc (rand-int (dec above-change))) -1) 0)
-                (if (> below-change 0) (inc (rand-int (dec below-change))) 0)
+                (if (> below-change 0) (* (inc (rand-int above-change)) -1) 0)
+                (if (> below-change 0) (inc (rand-int below-change)) 0)
                 )
               )
         ]
@@ -213,12 +214,16 @@
               high-total (reduce + high-subvec)
               low-total (reduce + low-subvec)
               above-change-val (if (= cur-density-trend INCREASING)
-                                 (if (or (= low-total 0) (= low-total (first low-subvec))) 0 3)
-                                 (if (= high-total 0) 0 3)
+                                 (if (or (= low-total 0) (= low-total (first low-subvec))) 0 DENSITY-BASE-CHANGE)
+                                 (cond (= high-total 0) 0
+                                       (= high-total (first high-subvec)) (quot high-total 2)
+                                       :else (+ DENSITY-BASE-CHANGE (quot (reduce max high-subvec) 25)))
                                  )
               below-change-val (if (= cur-density-trend INCREASING)
-                                 (if (= low-total 0) 0 3)
-                                 (if (or (= high-total 0) (= high-total (first high-subvec))) 0 3)
+                                 (cond (= low-total 0) 0
+                                       (= low-total (first low-subvec)) (quot low-total 2)
+                                       :else (+ DENSITY-BASE-CHANGE (quot (reduce max low-subvec) 25)))
+                                 (if (or (= high-total 0) (= high-total (first high-subvec))) 0 DENSITY-BASE-CHANGE)
                                  )
               ]
           (if (= 0 above-change-val below-change-val)
