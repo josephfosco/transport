@@ -140,16 +140,16 @@
   )
   )
 
-(defn get-new-density-prob-value
+(defn- get-new-density-prob-value
   [value above-change below-change index threshold max-index density-trend]
   ;; Random change + or - between 1 and max-change
   (let [amt (if (= density-trend INCREASING)
-              (if (or (> index threshold) (= threshold max-index index))
+              (if (>= index threshold)
                 (if (> above-change 0) (inc (rand-int above-change)) 0)
-                (if (> above-change 0) (* (inc (rand-int below-change)) -1) 0)
+                (if (> below-change 0) (* (inc (rand-int below-change)) -1) 0)
                 )
-              (if (or (>= index threshold))
-                (if (> below-change 0) (* (inc (rand-int above-change)) -1) 0)
+              (if (>= index threshold)
+                (if (> above-change 0) (* (inc (rand-int above-change)) -1) 0)
                 (if (> below-change 0) (inc (rand-int below-change)) 0)
                 )
               )
@@ -158,26 +158,25 @@
     )
   )
 
-(defn adjust-density-probs-based-on-ensemble
-  [probs & {:keys [above-change-val below-change-val]
+(defn- adjust-density-probs-based-on-ensemble
+  [probs & {:keys [above-change-val below-change-val threshold density-trend]
             :or {above-change-val 1 below-change-val 1}}]
-  (let [cur-density-trend (get-density-trend)
-        ;; highest index containing a non-zero value
+  (let [;; highest index containing a non-zero value
         max-index (loop [density-probs probs ndx (dec (count probs))]
                     (cond (> (get density-probs ndx) 0) ndx
                           (= ndx 0) nil
                           :else
                           (recur (subvec density-probs 0 ndx) (dec ndx))))
         ]
-    (cond (or (= cur-density-trend INCREASING) (= cur-density-trend DECREASING))
+    (cond (or (= density-trend INCREASING) (= density-trend DECREASING))
           (let [new-probs (mapv get-new-density-prob-value
                                 probs
                                 (repeat above-change-val)
                                 (repeat below-change-val)
                                 (range (count probs))
-                                (repeat (get-ensemble-density))
+                                (repeat threshold)
                                 (repeat max-index)
-                                (repeat cur-density-trend)
+                                (repeat density-trend)
                                 )
                 ]
             (if (= 0 (reduce + new-probs)) '[0 0 0 0 0 0 0 0 0 1] new-probs)
@@ -195,7 +194,7 @@
   ([player]
      (cond
       (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-      (weighted-choice (adjust-density-probs-based-on-ensemble @cur-density-probs :change-val 7))
+      (weighted-choice (adjust-density-probs-based-on-ensemble @cur-density-probs :change-val 6))
       (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
       (let [ens-density (int (+ (get-average-density) 0.5))]
         (weighted-choice (vec (reverse @cur-density-probs)))
@@ -205,23 +204,22 @@
         (let [ensemble-density (get-ensemble-density)
               cur-density-trend (get-density-trend)
               the-density-probs @cur-density-probs
-              high-subvec (subvec the-density-probs (if (= cur-density-trend INCREASING)
-                                                      (inc ensemble-density)
-                                                      (dec ensemble-density)))
-              low-subvec (subvec the-density-probs 0 (if (= cur-density-trend INCREASING)
-                                                       (inc ensemble-density)
-                                                       (dec ensemble-density)))
+              threshold (if (= cur-density-trend INCREASING)
+                          (inc ensemble-density)
+                          (dec ensemble-density))
+              high-subvec (subvec the-density-probs threshold)
+              low-subvec (subvec the-density-probs 0 threshold)
               high-total (reduce + high-subvec)
               low-total (reduce + low-subvec)
               above-change-val (if (= cur-density-trend INCREASING)
                                  (if (or (= low-total 0) (= low-total (first low-subvec))) 0 DENSITY-BASE-CHANGE)
                                  (cond (= high-total 0) 0
-                                       (= high-total (first high-subvec)) (quot high-total 2)
+                                       (= high-total (first high-subvec)) (max (quot high-total 2) DENSITY-BASE-CHANGE)
                                        :else (+ DENSITY-BASE-CHANGE (quot (reduce max high-subvec) 25)))
                                  )
               below-change-val (if (= cur-density-trend INCREASING)
                                  (cond (= low-total 0) 0
-                                       (= low-total (first low-subvec)) (quot low-total 2)
+                                       (= low-total (last low-subvec)) (max (quot low-total 2) DENSITY-BASE-CHANGE)
                                        :else (+ DENSITY-BASE-CHANGE (quot (reduce max low-subvec) 25)))
                                  (if (or (= high-total 0) (= high-total (first high-subvec))) 0 DENSITY-BASE-CHANGE)
                                  )
@@ -230,7 +228,10 @@
             (weighted-choice @cur-density-probs)
             (weighted-choice (swap! cur-density-probs adjust-density-probs-based-on-ensemble
                                     :above-change-val above-change-val
-                                    :below-change-val below-change-val))
+                                    :below-change-val below-change-val
+                                    :threshold threshold
+                                    :density-trend cur-density-trend
+                                    :ensemble-density ensemble-density))
             )
           ))
       )
