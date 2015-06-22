@@ -24,7 +24,8 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
-   [transport.settings :refer [ensemble-mm-change-threshold ensemble-volume-change-threshold min-volume number-of-players]]
+   [transport.settings :refer [ensemble-density-change-threshold ensemble-mm-change-threshold
+                               ensemble-volume-change-threshold min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.constants :refer :all]
    [transport.util.count-vector :refer [count-vector]]
@@ -34,7 +35,7 @@
    )
 
 (def INITIAL-NUM-VOLUME-TREND 10)
-(def density-vector (count-vector)) ; count ensemble density over time
+(def INITIAL-NUM-DENSITY-TREND 10)
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
 
@@ -48,29 +49,13 @@
 (def player-volumes (atom (apply vector (repeat @number-of-players 0))))
 (def volume-trend (track-trend))
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
+(def density-trend (track-trend))
 (def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
 
 (def rest-prob-len (atom 0))
 ;; rest-prob is list of true for notes, false for rests
 (def rest-prob (atom '()))
 (def note-times (agent '()))
-
-(def prev-ensemble-density (atom 0))
-(def density-trend (atom STEADY))
-
-(defn set-density-vector
-  [new-val]
-  ((density-vector :inc) new-val)
-  new-val
-  )
-
-(defn init-density-vector
-  []
-  ((density-vector :init) [0 0 0 0 0 0 0 0 0 0 0])
-  ((density-vector :set-eval) (fn [num]
-                                 num
-                                 ))
-  )
 
 (defn update-note-times
   [cur-note-times new-value]
@@ -205,7 +190,7 @@
   (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
   )
 
-(defn get-ensemble-density
+(defn get-ensemble-max-freq-density
   []
   (get-vector-max-frequency @player-densities)
   )
@@ -216,7 +201,6 @@
 
 (defn get-ensemble-most-common-note-durs
   []
-  (print-msg "get-ensemble-most-common-note-durs:   " @player-note-durs)
   (get-vector-max-frequency @player-note-durs)
   )
 
@@ -258,7 +242,8 @@
 
 (defn get-density-trend
   []
-  @density-trend)
+  ((density-trend :trend))
+  )
 
 (defn remove-expired-times
   [cur-note-times]
@@ -277,90 +262,26 @@
           :when (not (nil? rtn-entry))] rtn-entry))
   )
 
-(defn check-activity
-  []
-  (let [cur-ensemble-density (get-ensemble-density-ratio :cur-note-times @note-times)
-        cur-density-trend (get-density-trend)]
-
-    (set-density-vector (Math/round (* cur-ensemble-density 9.0)))
-
-    (print-msg "check-activity" "prev-ensemble-density: " (float @prev-ensemble-density) " cur-ensemble-density: " (float cur-ensemble-density) " length note-times: " (count @note-times))
-
-
-    (reset! density-trend (cond (= cur-density-trend STEADY)
-                                (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density)
-                                     (max (- 0.15 (* @steady-density-count 0.005)) 0.07))
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   (reset! steady-density-count 0)
-                                   INCREASING
-                                   )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density)
-                                     (min (+ -0.15 (* @steady-density-count 0.005)) -0.07))
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   (reset! steady-density-count 0)
-                                   DECREASING
-                                   )
-                                 :else
-                                 (do
-                                   (reset! steady-density-count (inc @steady-density-count))
-                                   STEADY))
-                                (= cur-density-trend INCREASING)
-                                (cond
-                                 (>= (- cur-ensemble-density @prev-ensemble-density)
-                                     (if (< @prev-ensemble-density 0.75) -0.07 -0.055))
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   INCREASING
-                                   )
-;;                                 (<= (- cur-ensemble-density @prev-ensemble-density) -0.15)
-;;                               (do
-;;                                   (reset! prev-ensemble-density cur-ensemble-density)
-;;                                   DECREASING
-;;                               )
-                                 :else STEADY)
-                                (= cur-density-trend DECREASING)
-                                (cond
-;;                                 (>= (- cur-ensemble-density @prev-ensemble-density) 0.15)
-;;                              (do
-;;                                   (reset! prev-ensemble-density cur-ensemble-density)
-;;                                   INCREASING
-;;                                )
-                                 (<= (- cur-ensemble-density @prev-ensemble-density)
-                                     (if (> @prev-ensemble-density 0.25) 0.07 0.055))
-                                 (do
-                                   (reset! prev-ensemble-density cur-ensemble-density)
-                                   DECREASING
-                                   )
-                                 :else STEADY)
-                                )
-            )
-    (print-msg "check-activity" " density-trend: " @density-trend)
-
-    )
-  )
-
 (defn print-density
   []
   (println "ensemble_status.clj - time: " (System/currentTimeMillis))
-  (println "ensemble_status.clj - density-vector: " ((density-vector :get)))
   (println "ensemble_status.clj - density-trend: " (get-density-trend))
   )
 
 (defn upd-ensemble-trends
   [& args]
-  (check-activity)
+  (print-msg "upd-ensemble-trends" "cur-ensemble-density: "
+             (float (get-ensemble-density-ratio :cur-note-times @note-times)) " density-trend: " (get-density-trend)
+             " length note-times: " (count @note-times))
   (send-off note-times remove-expired-times)
   ((mm-trend :new-value) (round-number (get-average-mm)))
-  ((volume-trend :new-track-value) (get-average-playing-volume))
+  ((volume-trend :new-value-to-track) (get-average-playing-volume))
+  ((density-trend :new-value-to-track) (get-ensemble-density-ratio))
   (sched-event trend-upd-millis transport.ensemble-status/upd-ensemble-trends nil)
   )
 
 (defn init-ensemble-status
   []
-  (init-density-vector)
   (reset! steady-density-count 0)
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
@@ -369,6 +290,7 @@
   ((mm-trend :init) @ensemble-mm-change-threshold)
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   ((volume-trend :init) (map (fn [x] 0) (range INITIAL-NUM-VOLUME-TREND)) @ensemble-volume-change-threshold)
+  ((density-trend :init) (map (fn [x] 0.0) (range INITIAL-NUM-DENSITY-TREND)) @ensemble-density-change-threshold)
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
@@ -380,9 +302,6 @@
 
   (reset! player-densities (apply vector (repeat @number-of-players 0)))
   (reset! player-note-durs (apply vector (repeat @number-of-players 0)))
-
-  (reset! prev-ensemble-density 0)
-  (reset! density-trend INCREASING)
 
   ;; update ensemble-status with each new note
   (register-listener

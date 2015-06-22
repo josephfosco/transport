@@ -394,17 +394,10 @@
   (let [player-melody-char (get-melody-char player)
         player-density (get-melody-char-density player-melody-char)
         ]
-    (cond (or
-           (= (get-density-trend) INCREASING)
-           (> (Math/round (* (get-ensemble-density) 0.9)) player-density))
-          (do
-            (set-density player (min (inc player-density) 9))
-            )
-          (or (= (get-density-trend) DECREASING)
-              (< (Math/round (* (get-ensemble-density) 0.9)) player-density))
-          (do
-            (set-density player (max (dec player-density) 0))
-            )
+    (cond (= (get-density-trend) INCREASING)
+          (set-density player (min (inc player-density) 9))
+          (= (get-density-trend) DECREASING)
+          (set-density player (max (dec player-density) 0))
           :else
           player
           )

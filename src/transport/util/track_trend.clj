@@ -33,11 +33,9 @@
                   )
                )
 
-        new-track-value (fn [new-val]
-                      (dosync
-                       (swap! vals #(conj (drop-last %1) %2) new-val)
-                       )
-                      )
+        new-value-to-track (fn [new-val]
+                             (swap! vals #(conj (drop-last %1) %2) new-val)
+                             )
 
         trend (fn []
                 (let [diff (- (average @vals @val-len) (last @vals))]
@@ -52,15 +50,17 @@
                 )
 
         print (fn []
-                (println "vals:              "  @vals)
-                (println "val-len         :  "  @val-len)
-                (println "change-threshold:  "  @change-threshold)
+                (println "vals:             "  @vals)
+                (println "val-len:          "  @val-len)
+                (println "change-threshold: "  @change-threshold)
+                (println "average:          " (float (average @vals @val-len)))
+                (println "diff:             " (float (- (average @vals @val-len) (last @vals))))
                 )
         ]
 
     (fn [m]
       (cond
-       (= m :new-track-value) new-track-value
+       (= m :new-value-to-track) new-value-to-track
        (= m :trend) trend
        (= m :print) print
        (= m :init) init
