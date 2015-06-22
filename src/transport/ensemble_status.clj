@@ -98,11 +98,13 @@
     (reset! player-keys (assoc @player-keys player-id (get-key player))) )
   (if (not= (get-mm player) (get player-mms player-id))
     (reset! player-mms (assoc @player-mms player-id (get-mm player))) )
-  (if (not= (get-melody-char-note-durs (get-melody-char player)) (get player-note-durs player-id))
-    (reset! player-note-durs (assoc @player-note-durs player-id
-                                    (get-melody-char-note-durs (get-melody-char player)))))
-  (if (not= (get-melody-char-density (get-melody-char player)) (get @player-densities player-id))
-    (reset! player-densities (assoc @player-densities player-id (get-melody-char-density (get-melody-char player)))))
+  (let [melody-char (get-melody-char player)]
+    (if (not= (get-melody-char-note-durs melody-char) (get player-note-durs player-id))
+      (reset! player-note-durs (assoc @player-note-durs player-id
+                                      (get-melody-char-note-durs melody-char))))
+    (if (not= (get-melody-char-density melody-char) (get @player-densities player-id))
+      (reset! player-densities (assoc @player-densities player-id (get-melody-char-density melody-char))))
+    )
   )
 
 (defn update-ensemble-status
