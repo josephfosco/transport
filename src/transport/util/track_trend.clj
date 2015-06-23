@@ -38,7 +38,7 @@
                              )
 
         trend (fn []
-                (let [diff (- (average @vals @val-len) (last @vals))]
+                (let [diff (- (average @vals :list-length @val-len) (last @vals))]
                   (cond (> diff @change-threshold)
                         INCREASING
                         (> (* diff -1) @change-threshold)
@@ -53,8 +53,8 @@
                 (println "vals:             "  @vals)
                 (println "val-len:          "  @val-len)
                 (println "change-threshold: "  @change-threshold)
-                (println "average:          " (float (average @vals @val-len)))
-                (println "diff:             " (float (- (average @vals @val-len) (last @vals))))
+                (println "average:          " (float (average @vals :list-length @val-len)))
+                (println "diff:             " (float (- (average @vals :list-length @val-len) (last @vals))))
                 )
         ]
 

@@ -17,7 +17,7 @@
 
 (defn average
  "Returns the average of a set of numbers"
- [nmbrs list-length]
+ [nmbrs & {:keys [list-length] :or {list-length (count nmbrs)}}]
  (/ (apply + nmbrs) list-length))
 
 (defmacro round-number

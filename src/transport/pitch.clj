@@ -17,7 +17,7 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
-   [transport.ensemble-status :refer [get-ensemble-key-for-player]]
+   [transport.ensemble-status :refer [get-ensemble-key-for-player get-pitch-trend]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-pitch-smoothness]]
@@ -321,6 +321,30 @@
       )
     )  )
 
+(defn next-pitch-similar-ensemble
+  [player]
+  (let [ensemble-dir (get-pitch-trend)
+        direction (cond (= ensemble-dir STEADY) (select-direction player)
+                        (= ensemble-dir INCREASING) ASCEND
+                        (= ensemble-dir DECREASING) DESCEND
+                        )
+        last-pitch (get-last-melody-note player)
+        next-pitch (cond
+                    (nil? last-pitch) (get-scale-pitch-in-range player)
+                    (= direction ASCEND) (dir-ascend player)
+                    (= direction DESCEND) (dir-descend player)
+                    (= direction REPEAT-NOTE) (get-last-melody-note player)
+                    :else (get-scale-pitch-in-range player)
+                    )
+        ]
+    ;; if no pitch is available in direction selected, return a random pitch in melody range
+    (if (= next-pitch (check-note-in-range player next-pitch))
+      next-pitch
+      (get-scale-pitch-in-range player)
+      )
+    )
+  )
+
 (defn next-pitch-similar
   [player]
   (next-pitch-ignore player)
@@ -337,6 +361,7 @@
   (let [player-behavior-action (get-behavior-action (get-behavior player))
         ]
     (cond
+     (= player-behavior-action SIMILAR-ENSEMBLE) (next-pitch-similar-ensemble player)
      (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)
      (= player-behavior-action CONTRAST-PLAYER) (next-pitch-contrast player)
      :else (next-pitch-ignore player)

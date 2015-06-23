@@ -15,6 +15,7 @@
 
 (ns transport.ensemble-status
   (:require
+   [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
@@ -25,7 +26,8 @@
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
    [transport.settings :refer [ensemble-density-change-threshold ensemble-mm-change-threshold
-                               ensemble-volume-change-threshold min-volume number-of-players]]
+                               ensemble-pitch-change-threshold ensemble-volume-change-threshold
+                               min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.constants :refer :all]
    [transport.util.count-vector :refer [count-vector]]
@@ -36,8 +38,10 @@
 
 (def INITIAL-NUM-VOLUME-TREND 10)
 (def INITIAL-NUM-DENSITY-TREND 10)
+(def INITIAL-NUM-PITCH-TREND 6)
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
+(def midi-mid (int (/ (first MIDI-RANGE) 2)))
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
@@ -51,6 +55,8 @@
 (def player-densities (atom (apply vector (repeat @number-of-players 0))))
 (def density-trend (track-trend))
 (def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
+(def player-notes (atom (apply vector (repeat @number-of-players midi-mid))))
+(def pitch-trend (track-trend))
 
 (def rest-prob-len (atom 0))
 ;; rest-prob is list of true for notes, false for rests
@@ -114,6 +120,8 @@
         ]
     ;; update this player's volume in player-volumes
     (reset! player-volumes (assoc @player-volumes player-id (get-volume-for-event last-melody)))
+    ;; update this player's pitch in player-notes
+    (reset! player-notes (assoc @player-notes player-id (get-note-for-event last-melody)))
     ;; Track relevent ensemble-status info when player starts a new segment
     (update-ensemble-new-segment :player player :note-time note-time :player-id player-id)
     ;; if note (not rest) update note-values-millis with latest note rhythm value
@@ -136,18 +144,18 @@
 
 (defn get-average-note-dur-millis
   []
-  (average @note-values-millis @number-of-players))
+  (average @note-values-millis :list-length @number-of-players))
 
 (defn get-average-volume
   []
-  (average @player-volumes @number-of-players))
+  (average @player-volumes :list-length @number-of-players))
 
 (defn get-average-playing-volume
   []
   "Returns the average volume of all players playing a note"
   (let [vols (for [vol @player-volumes :when (> vol 0)] vol)]
     (if (not= (first vols) nil)
-      (average vols (count vols))
+      (average vols)
       0
       )))
 
@@ -158,7 +166,7 @@
 
 (defn get-average-mm
   []
-  (round-number (average @player-mms @number-of-players)))
+  (round-number (average @player-mms :list-length @number-of-players)))
 
 (defn get-rest-probability
   "Compute the percent of rests in rest-prob. Returns fraction or float."
@@ -199,7 +207,19 @@
 
 (defn get-average-density
   []
-  (average @player-densities @number-of-players))
+  (average @player-densities :list-length @number-of-players))
+
+(defn get-pitch-trend
+  []
+  ((pitch-trend :trend))
+  )
+
+(defn get-ensemble-average-pitch
+  []
+  (let [pitches (for [p @player-notes :when (not (nil? p))] p)]
+    (average pitches)
+    )
+  )
 
 (defn get-ensemble-most-common-note-durs
   []
@@ -208,7 +228,7 @@
 
 (defn get-average-note-durs
   []
-  (average @player-note-durs @number-of-players))
+  (average @player-note-durs :list-length @number-of-players))
 
 (defn get-note-dur-list
   [cur-note-times to-time]
@@ -279,6 +299,7 @@
   ((mm-trend :new-value) (round-number (get-average-mm)))
   ((volume-trend :new-value-to-track) (get-average-playing-volume))
   ((density-trend :new-value-to-track) (get-ensemble-density-ratio))
+  ((pitch-trend :new-value-to-track) (get-ensemble-average-pitch))
   (sched-event trend-upd-millis transport.ensemble-status/upd-ensemble-trends nil)
   )
 
@@ -293,6 +314,7 @@
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   ((volume-trend :init) (map (fn [x] 0) (range INITIAL-NUM-VOLUME-TREND)) @ensemble-volume-change-threshold)
   ((density-trend :init) (map (fn [x] 0.0) (range INITIAL-NUM-DENSITY-TREND)) @ensemble-density-change-threshold)
+  ((pitch-trend :init) (map (fn [x] midi-mid) (range INITIAL-NUM-PITCH-TREND)) @ensemble-pitch-change-threshold)
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
   (reset! rest-prob '())
@@ -304,6 +326,7 @@
 
   (reset! player-densities (apply vector (repeat @number-of-players 0)))
   (reset! player-note-durs (apply vector (repeat @number-of-players 0)))
+  (reset! player-notes (apply vector (repeat @number-of-players midi-mid)))
 
   ;; update ensemble-status with each new note
   (register-listener
