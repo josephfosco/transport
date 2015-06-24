@@ -17,13 +17,15 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
-   [transport.ensemble-status :refer [get-ensemble-key-for-player get-pitch-trend]]
+   [transport.ensemble-status :refer [get-ensemble-average-pitch get-ensemble-key-for-player get-pitch-trend]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-pitch-smoothness]]
+   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo
+                                 get-melody-char-pitch-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.util.constants :refer :all]
+   [transport.util.utils :refer [print-msg]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -70,10 +72,10 @@
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-melody-char-range-lo (get-melody-char player))
                   hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
-;;  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
+;;  (print-msg "get-scale-pitch-in-range lo:" lo-range " hi: " hi-range)
   (let [player-key (get-key player)
         rand-pitch (random-int lo-range hi-range)
-        rand-octave (int (/ rand-pitch OCTAVE)) ;; octave multiplier for rand-pitch
+        rand-octave (quot rand-pitch OCTAVE)   ;; octave multiplier for rand-pitch
         semitones-above-c (mod rand-pitch OCTAVE)
         semitones-above-tonic (mod (+ semitones-above-c (- OCTAVE player-key)) OCTAVE)
         scale-degree-in-range (last
@@ -340,7 +342,15 @@
     ;; if no pitch is available in direction selected, return a random pitch in melody range
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
-      (get-scale-pitch-in-range player)
+      (cond (= direction ASCEND)
+            (get-scale-pitch-in-range player
+                                      :lo-range (min (get-melody-char-range-hi (get-melody-char player))
+                                                     (get-ensemble-average-pitch)))
+            (= direction DESCEND)
+            (get-scale-pitch-in-range player
+                                      :hi-range (max (get-melody-char-range-lo (get-melody-char player))
+                                                     (get-ensemble-average-pitch)))
+            :else (get-scale-pitch-in-range player))
       )
     )
   )

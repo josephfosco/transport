@@ -38,10 +38,10 @@
 
 (def INITIAL-NUM-VOLUME-TREND 10)
 (def INITIAL-NUM-DENSITY-TREND 10)
-(def INITIAL-NUM-PITCH-TREND 6)
+(def INITIAL-NUM-PITCH-TREND 8)
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
-(def midi-mid (int (/ (first MIDI-RANGE) 2)))
+(def midi-mid (int (/ (last MIDI-RANGE) 2)))
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
@@ -313,7 +313,7 @@
   ((mm-trend :init) @ensemble-mm-change-threshold)
   (reset! player-volumes (apply vector (repeat @number-of-players 0)))
   ((volume-trend :init) (map (fn [x] 0) (range INITIAL-NUM-VOLUME-TREND)) @ensemble-volume-change-threshold)
-  ((density-trend :init) (map (fn [x] 0.0) (range INITIAL-NUM-DENSITY-TREND)) @ensemble-density-change-threshold)
+  ((density-trend :init) (map (fn [x] 0) (range INITIAL-NUM-DENSITY-TREND)) @ensemble-density-change-threshold)
   ((pitch-trend :init) (map (fn [x] midi-mid) (range INITIAL-NUM-PITCH-TREND)) @ensemble-pitch-change-threshold)
   (reset! rest-prob-len (* @number-of-players 3))
   ;; initialize rest-prob
