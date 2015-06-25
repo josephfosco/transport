@@ -345,11 +345,11 @@
       (cond (= direction ASCEND)
             (get-scale-pitch-in-range player
                                       :lo-range (min (get-melody-char-range-hi (get-melody-char player))
-                                                     (get-ensemble-average-pitch)))
+                                                     (int (get-ensemble-average-pitch))))
             (= direction DESCEND)
             (get-scale-pitch-in-range player
                                       :hi-range (max (get-melody-char-range-lo (get-melody-char player))
-                                                     (get-ensemble-average-pitch)))
+                                                     (int (get-ensemble-average-pitch))))
             :else (get-scale-pitch-in-range player))
       )
     )

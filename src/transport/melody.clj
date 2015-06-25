@@ -18,10 +18,15 @@
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density get-average-note-durs get-ensemble-density get-ensemble-density-ratio get-ensemble-most-common-note-durs]]
+   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density
+                                      get-average-note-durs get-ensemble-average-pitch get-ensemble-density
+                                      get-ensemble-density-ratio get-ensemble-most-common-note-durs get-pitch-trend]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness get-melody-char-vol-smoothness set-melody-char-range]]
-   [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event get-instrument-info-for-event get-seg-num-for-event]]
+   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range
+                                 get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness
+                                 get-melody-char-vol-smoothness set-melody-char-range]]
+   [transport.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event
+                                  get-instrument-info-for-event get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
@@ -308,9 +313,37 @@
      (let [range-lo (random-int lo-range hi-range)]
        (list range-lo (random-int range-lo hi-range))))
   ([player]
-     (list (get-instrument-range-lo (get-instrument-info player))
-           (get-instrument-range-hi (get-instrument-info player))
-           )
+     (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+       (let [instrument-hi (get-instrument-range-hi (get-instrument-info player))
+             instrument-lo (get-instrument-range-lo (get-instrument-info player))
+             ]
+         (cond (= (get-pitch-trend) INCREASING)
+               (do
+                 (print-msg "select-melody-range" "selecting INCREASING Range")
+                 (list (max (min (int (get-ensemble-average-pitch)) instrument-hi)
+                            instrument-lo)
+                       instrument-hi
+                       )
+                 )
+               (= (get-pitch-trend) DECREASING)
+               (do
+                 (print-msg "select-melody-range" "selecting DECREASING Range")
+                 (list instrument-lo
+                       (if (> (min (int (get-ensemble-average-pitch)) instrument-hi) instrument-lo)
+                         (min (int (get-ensemble-average-pitch)) instrument-hi)
+                         instrument-lo
+                         )
+                       )
+                 )
+               :else
+               (list (get-instrument-range-lo (get-instrument-info player))
+                     (get-instrument-range-hi (get-instrument-info player))
+                     )
+               ))
+       (list (get-instrument-range-lo (get-instrument-info player))
+             (get-instrument-range-hi (get-instrument-info player))
+             )
+       )
      )
   ([player cntrst-plyr cntrst-melody-char]
      ;; if CONTRASTing player has narrow range
