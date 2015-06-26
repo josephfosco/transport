@@ -16,10 +16,15 @@
 (ns transport.util.constants
   "This namespace is a 'terminal namespace'.
    It should not :require :use :refer or :import any
-   other namespaces")
+   other transport namespaces"
+  (:require
+   [overtone.live :refer [MIDI-RANGE]]
+   )
+  )
 
 (def SAVED-MELODY-LEN 64)
 (def OCTAVE 12)
+(def MIDI-HI (last MIDI-RANGE))
 
 (def IGNORE-ALL 0)
 (def CONTRAST-PLAYER 1)

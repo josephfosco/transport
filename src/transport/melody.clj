@@ -20,7 +20,8 @@
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density
                                       get-average-note-durs get-ensemble-average-pitch get-ensemble-density
-                                      get-ensemble-density-ratio get-ensemble-most-common-note-durs get-pitch-trend]]
+                                      get-ensemble-density-ratio get-ensemble-most-common-note-durs get-pitch-trend
+                                      get-pitch-trend-diff]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
    [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range
                                  get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness
@@ -320,7 +321,9 @@
          (cond (= (get-pitch-trend) INCREASING)
                (do
                  (print-msg "select-melody-range" "selecting INCREASING Range")
-                 (list (max (min (int (get-ensemble-average-pitch)) instrument-hi)
+                 (list (max (min (+ (int (get-ensemble-average-pitch))
+                                    (max (- (int (get-pitch-trend-diff)) 12)) 0)
+                                 instrument-hi)
                             instrument-lo)
                        instrument-hi
                        )
@@ -329,10 +332,10 @@
                (do
                  (print-msg "select-melody-range" "selecting DECREASING Range")
                  (list instrument-lo
-                       (if (> (min (int (get-ensemble-average-pitch)) instrument-hi) instrument-lo)
-                         (min (int (get-ensemble-average-pitch)) instrument-hi)
-                         instrument-lo
-                         )
+                       (max (min (- (int (get-ensemble-average-pitch))
+                                    (+ (int (get-pitch-trend-diff)) 12))
+                                 instrument-hi)
+                            instrument-lo)
                        )
                  )
                :else

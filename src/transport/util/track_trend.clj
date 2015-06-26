@@ -37,8 +37,10 @@
                              (swap! vals #(conj (drop-last %1) %2) new-val)
                              )
 
+        trend-diff (fn [] (- (average @vals :list-length @val-len) (last @vals)))
+
         trend (fn []
-                (let [diff (- (average @vals :list-length @val-len) (last @vals))]
+                (let [diff (trend-diff)]
                   (cond (> diff @change-threshold)
                         INCREASING
                         (> (* diff -1) @change-threshold)
@@ -54,7 +56,7 @@
                 (println "val-len:          "  @val-len)
                 (println "change-threshold: "  @change-threshold)
                 (println "average:          " (float (average @vals :list-length @val-len)))
-                (println "diff:             " (float (- (average @vals :list-length @val-len) (last @vals))))
+                (println "diff:             " (float (trend-diff)))
                 )
         ]
 
@@ -62,6 +64,7 @@
       (cond
        (= m :new-value-to-track) new-value-to-track
        (= m :trend) trend
+       (= m :trend-diff) trend-diff
        (= m :print) print
        (= m :init) init
        )
