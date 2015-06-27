@@ -38,10 +38,10 @@
 
 (def INITIAL-NUM-VOLUME-TREND 10)
 (def INITIAL-NUM-DENSITY-TREND 10)
-(def INITIAL-NUM-PITCH-TREND 9)
+(def INITIAL-NUM-PITCH-TREND 10)
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
-(def midi-mid (int (/ (last MIDI-RANGE) 2)))
+(def midi-mid (int (/ MIDI-HI 2)))
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
