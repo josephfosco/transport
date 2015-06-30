@@ -202,7 +202,7 @@
            cur-density-trend (get-density-trend)
            threshold (if (= cur-density-trend INCREASING)
                        (inc ensemble-density)
-                       (dec ensemble-density))
+                       (max (dec ensemble-density) 0))
            ]
          (cond
           (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)

@@ -28,16 +28,16 @@
         init (fn [new-vals new-threshold]
                  (dosync
                   (reset! vals new-vals)
-                  (reset! val-len (count @vals))
+                  (reset! val-len (dec (count @vals)))
                   (reset! change-threshold new-threshold)
                   )
                )
 
         new-value-to-track (fn [new-val]
-                             (swap! vals #(conj (drop-last %1) %2) new-val)
+                             (swap! vals #(conj (drop-last %1) %2) (float new-val))
                              )
 
-        trend-diff (fn [] (- (average @vals :list-length @val-len) (last @vals)))
+        trend-diff (fn [] (- (first @vals) (average (rest @vals) :list-length @val-len)))
 
         trend (fn []
                 (let [diff (trend-diff)]
@@ -55,7 +55,8 @@
                 (println "vals:             "  @vals)
                 (println "val-len:          "  @val-len)
                 (println "change-threshold: "  @change-threshold)
-                (println "average:          " (float (average @vals :list-length @val-len)))
+                (println "average:          " (float (average (rest @vals) :list-length @val-len)))
+                (println "first  :          " (float (first @vals)))
                 (println "diff:             " (float (trend-diff)))
                 )
         ]

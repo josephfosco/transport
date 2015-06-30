@@ -29,8 +29,8 @@
    [transport.util.constants :refer :all]
    ))
 
-(def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
-(def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
+(def min-segment-len 5000)   ;minimum segment length in milliseconds (5 seconds)
+(def max-segment-len 20000)  ;maximum segment length in milliseconds (20 seconds)
 
 (defn select-segment-length
   []

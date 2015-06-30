@@ -27,6 +27,6 @@
 (def ensemble-mm-change-threshold (atom 5))
 (def ensemble-volume-change-threshold (atom 0.01))
 (def ensemble-density-change-threshold (atom 0.07))
-(def ensemble-pitch-change-threshold (atom 8))
+(def ensemble-pitch-change-threshold (atom 12))
 
 (def min-volume 0.2)
