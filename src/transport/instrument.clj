@@ -26,6 +26,7 @@
    [transport.melodyevent :refer [get-sc-instrument-id]]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
+   [transport.util.utils :refer [print-msg]]
    ))
 
 (def LO-RANGE 47)
@@ -38,39 +39,39 @@
 (def all-instruments [
                         {:instrument bass-m1
                          :envelope-type "NE"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 25
                          :range-hi 60}
                         {:instrument bassoon
                          :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 25
                          :range-hi 84
                          :release-dur 0.1}
                         {:instrument clarinet
                          :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 20
                          :range-hi 100
                          :release-dur 0.1}
                         {:instrument drum-m1
                          :envelope-type "AD"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 50
                          :range-hi 90}
                         {:instrument organ-m1
                          :envelope-type "ADSR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 40
                          :range-hi (last MIDI-RANGE)
                          :release-dur 0.3}
                         {:instrument plink-m1
                          :envelope-type "AD"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 33
                          :range-hi (last MIDI-RANGE)}
                         {:instrument reedy-organ
                          :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 20
                          :range-hi (last MIDI-RANGE)
                          :release-dur 0.1}
                         {:instrument saw-wave-sus
                          :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 25
                          :range-hi (last MIDI-RANGE)
                          :release-dur 0.1}
                         {:instrument sine-wave-sus
@@ -80,11 +81,11 @@
                          :release-dur 0.1}
                         {:instrument steel-drum
                          :envelope-type "AD"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 45
                          :range-hi (last MIDI-RANGE)}
                         {:instrument tri-wave-sus
                          :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
+                         :range-lo 15
                          :range-hi (last MIDI-RANGE)
                          :release-dur 0.1}
                         ])
@@ -92,16 +93,6 @@
 (defn non-perc-instruments
   [instrument-list]
   (filter #(not (contains? perc-env (:envelope-type %1))) instrument-list)
-  )
-
-(defn get-inst-list-for-melody-char
-  [melody-char]
-  (if (nil? melody-char)
-    all-instruments
-    (if (> (get-melody-char-note-durs melody-char) 5)
-      (non-perc-instruments all-instruments)
-      all-instruments
-      ))
   )
 
 (defn note->hz
@@ -138,6 +129,21 @@
      :range-lo (get-range-lo-for-inst-info inst-info))
     ))
 
+(defn- get-inst-list-for-melody-char
+  [melody-char]
+  (if (nil? melody-char)
+    all-instruments
+    (if (> (get-melody-char-note-durs melody-char) 5)
+      (non-perc-instruments all-instruments)
+      all-instruments
+      ))
+  )
+
+(defn- filter-inst-list-by-range
+  [player inst-list]
+  inst-list
+  )
+
 (defn select-instrument
   "Selects instrument-info for player.
    Generally this should not be used if player is FOLLOWing
@@ -151,7 +157,9 @@
   ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
   (let [instrument-list (if (nil? melody-char)
                           (get-inst-list-for-melody-char nil)
-                          (get-inst-list-for-melody-char melody-char))
+                          (->> melody-char (get-inst-list-for-melody-char)
+                              (filter-inst-list-by-range player)
+                              ))
         inst-info (if (nil? cntrst-plyr-inst-info)
                     (rand-nth instrument-list)
                     (let [instrument-index (rand-int (count instrument-list))]
