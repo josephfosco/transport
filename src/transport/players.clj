@@ -16,8 +16,7 @@
 (ns transport.players
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id set-behavior-player-id]]
-   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.instrumentinfo :refer [get-all-instrument-info]]
+   [transport.instrumentinfo :refer [get-all-instrument-info get-range-hi-for-inst-info get-range-lo-for-inst-info]]
    [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo
                                  set-melody-char-density set-melody-char-note-durs]]
    [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id
@@ -569,19 +568,19 @@
 (defn adjust-melody-char-for-instrument
   [melody-char instrument-info]
   (let [new-melody-lo (if (<=
-                           (get-instrument-range-lo instrument-info)
+                           (get-range-lo-for-inst-info instrument-info)
                            (get-melody-char-range-lo melody-char)
-                           (get-instrument-range-hi instrument-info)
+                           (get-range-hi-for-inst-info instrument-info)
                            )
                         (get-melody-char-range-lo melody-char)
-                        (get-instrument-range-lo instrument-info)
+                        (get-range-lo-for-inst-info instrument-info)
                         )
-        new-melody-hi (if (> (get-instrument-range-hi instrument-info)
+        new-melody-hi (if (> (get-range-hi-for-inst-info instrument-info)
                              (get-melody-char-range-hi melody-char)
                              new-melody-lo
                              )
                         (get-melody-char-range-hi melody-char)
-                        (get-instrument-range-hi instrument-info)
+                        (get-range-hi-for-inst-info instrument-info)
                         )
 
         new-melody-char (assoc melody-char

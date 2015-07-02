@@ -16,6 +16,8 @@
 (ns transport.instrument
   (:require
    [overtone.live :refer :all]
+   [transport.behavior :refer [get-behavior-action]]
+   [transport.ensemble-status :refer [get-ensemble-average-pitch get-pitch-trend]]
    [transport.instrumentinfo :refer :all]
    [transport.instruments.elec-instruments :refer :all]
    [transport.instruments.misc-instruments :refer :all]
@@ -24,6 +26,7 @@
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodychar :refer [get-melody-char-note-durs]]
    [transport.melodyevent :refer [get-sc-instrument-id]]
+   [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
    [transport.util.utils :refer [print-msg]]
@@ -141,7 +144,19 @@
 
 (defn- filter-inst-list-by-range
   [player inst-list]
-  inst-list
+  (let [behavior-action (get-behavior-action (get-behavior player))]
+    (cond (= behavior-action SIMILAR-ENSEMBLE)
+          (let [pitch-trend (get-pitch-trend)]
+            (cond (= pitch-trend INCREASING)
+                  (filter #(> (:range-hi %1) (get-ensemble-average-pitch)) inst-list)
+                  (= pitch-trend DECREASING)
+                  (filter #(< (:range-lo %1) (get-ensemble-average-pitch)) inst-list)
+                  :else inst-list
+                  )
+            )
+          :else inst-list
+          )
+    )
   )
 
 (defn select-instrument
