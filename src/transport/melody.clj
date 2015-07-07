@@ -507,48 +507,44 @@
    )
   )
 
-(defn note-or-rest-similar-ensemble
-  [player note-time]
-  (let [play-note-prob (rand)]
-    (cond (= get-density-trend INCREASING)
-          (if (< play-note-prob (+ (get-ensemble-density-ratio) 0.2)) true false)
-          (= get-density-trend DECREASING)
-          (if (< play-note-prob (- (get-ensemble-density-ratio) 0.2)) true false)
-          :else (if (< play-note-prob (get-ensemble-density-ratio)) true false)
-          )
-    ))
-
-(defn note-or-rest-contrast-ensemble
-  [player note-time]
-  (not (note-or-rest-similar-ensemble player note-time)))
-
 (defn note-or-rest?
   "Determines whether to play a note or rest.
    Returne true for note, false for rest
 
    player - the player to determine note or rest for"
   [player note-time]
-  (cond (loud-rest? player note-time) false     ;; rest because of loud interruption
-;;        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-;;        (note-or-rest-similar-ensemble player note-time)
-        (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
-        (note-or-rest-contrast-ensemble player note-time)
-        :else (let [play-note-prob (rand-int 10)]
-                (if (> (get-melody-char-density (get-melody-char player)) play-note-prob)
-                  true
-                  (if (not= 9 play-note-prob)                          ;; if play-note-prob not 9
-                    false                                                ;; rest
-                    (if (and                                           ;; else
-                         (not= {} (get-melody player))                   ;; if melody not empty
-                         (= 0                                            ;; and last pitch is root
-                            (get-scale-degree
-                             player
-                             (or (get-last-melody-note player) 0)))      ;; or rest
-                         (< (rand) 0.8))                                 ;; possibly rest
-                      false
-                      true)))
-                )
+  (if (loud-rest? player note-time) false     ;; rest because of loud interruption
+      (let [play-note-prob (rand-int 10)
+            density-trend (get-density-trend)
+            player-density (get-melody-char-density (get-melody-char player))
+            adjusted-density-char (cond
+                                   (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+                                   (cond (= density-trend INCREASING) (min (inc player-density) 9)
+                                         (= density-trend DECREASING) (max (dec player-density) 0)
+                                         :else player-density
+                                         )
+                                   (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
+                                   (cond (= density-trend INCREASING) (max (dec player-density) 0)
+                                         (= density-trend DECREASING) (min (inc player-density) 9)
+                                         :else player-density
+                                         )
+                            :else player-density)
+            ]
+        (if (> player-density play-note-prob)
+          true
+          (if (not= 9 play-note-prob)                          ;; if play-note-prob not 9
+            false                                                ;; rest
+            (if (and                                           ;; else
+                 (not= {} (get-melody player))                   ;; if melody not empty
+                 (= 0                                            ;; and last pitch is root
+                    (get-scale-degree
+                     player
+                     (or (get-last-melody-note player) 0)))      ;; or rest
+                 (< (rand) 0.8))                                 ;; possibly rest
+              false
+              true)))
         )
+      )
   )
 
 (defn get-melody-event
