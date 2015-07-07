@@ -325,7 +325,12 @@
                                   (and new-seg?
                                        (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
                                        )
-                                  (get-player-with-mm player (get-mm player))
+                                  (if-let [mm-player (get-player-with-mm player (get-mm player))]
+                                    ;; if there are no players with this player's mm
+                                    ;; just return the player-id 1 higher than this id
+                                    ;; (this is very very rare)
+                                    mm-player
+                                    (mod (inc player-id) @number-of-players))
                                   :else
                                   nil
                                   )

@@ -24,6 +24,7 @@
 
 (def SAVED-MELODY-LEN 64)
 (def OCTAVE 12)
+(def MIDI-LO (first MIDI-RANGE))
 (def MIDI-HI (last MIDI-RANGE))
 
 (def IGNORE-ALL 0)

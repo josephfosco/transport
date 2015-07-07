@@ -339,8 +339,10 @@
                        )
                  )
                :else
-               (list (get-instrument-range-lo (get-instrument-info player))
-                     (get-instrument-range-hi (get-instrument-info player))
+               (list (max (max (- (int (get-ensemble-average-pitch)) 36) MIDI-LO)
+                          (get-instrument-range-lo (get-instrument-info player)))
+                     (min (min (+ (int (get-ensemble-average-pitch)) 36) MIDI-HI)
+                          (get-instrument-range-hi (get-instrument-info player)))
                      )
                ))
        (list (get-instrument-range-lo (get-instrument-info player))
