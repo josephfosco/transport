@@ -37,7 +37,7 @@
    )
 
 (def INITIAL-NUM-VOLUME-TREND 10)
-(def INITIAL-NUM-DENSITY-TREND 10)
+(def INITIAL-NUM-DENSITY-TREND 9)
 (def INITIAL-NUM-PITCH-TREND 11)
 (def trend-upd-millis 3000)
 (def steady-density-count (atom 0))
