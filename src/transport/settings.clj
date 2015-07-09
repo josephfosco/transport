@@ -25,7 +25,7 @@
   (reset! number-of-players new-num-players))
 
 (def ensemble-mm-change-threshold (atom 5))
-(def ensemble-volume-change-threshold (atom 0.01))
+(def ensemble-volume-change-threshold (atom 0.03))
 (def ensemble-density-change-threshold (atom 0.08))
 (def ensemble-pitch-change-threshold (atom 12))
 

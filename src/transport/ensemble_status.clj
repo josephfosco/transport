@@ -40,7 +40,6 @@
 (def INITIAL-NUM-DENSITY-TREND 9)
 (def INITIAL-NUM-PITCH-TREND 11)
 (def trend-upd-millis 3000)
-(def steady-density-count (atom 0))
 (def midi-mid (int (/ MIDI-HI 2)))
 
 (def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
@@ -58,9 +57,6 @@
 (def player-notes (atom (apply vector (repeat @number-of-players midi-mid))))
 (def pitch-trend (track-trend))
 
-(def rest-prob-len (atom 0))
-;; rest-prob is list of true for notes, false for rests
-(def rest-prob (atom '()))
 (def note-times (agent '()))
 
 (defn update-note-times
@@ -125,17 +121,11 @@
     ;; Track relevent ensemble-status info when player starts a new segment
     (update-ensemble-new-segment :player player :note-time note-time :player-id player-id)
     ;; if note (not rest) update note-values-millis with latest note rhythm value
-    ;;   and rest-prob (with new note)
-    ;; else just update rest-prob (with new rest)
     (if (not (nil? (get-note-for-event last-melody)))
       (do
         (let [dur-millis (get-dur-millis (get-dur-info-for-event last-melody))]
           (reset! note-values-millis (conj (butlast @note-values-millis) dur-millis))
           (send-off note-times update-note-times (list note-time dur-millis)))
-        (reset! rest-prob (conj (butlast @rest-prob) true))
-        )
-      (do
-        (reset! rest-prob (conj (butlast @rest-prob) false))
         )
       )
     (send-status-msgs player last-melody player-id note-time)
@@ -164,14 +154,14 @@
   ((volume-trend :trend))
   )
 
+(defn get-volume-trend-diff
+  []
+  ((volume-trend :trend-diff))
+  )
+
 (defn get-average-mm
   []
   (round-number (average @player-mms :list-length @number-of-players)))
-
-(defn get-rest-probability
-  "Compute the percent of rests in rest-prob. Returns fraction or float."
-  []
-  (/ (count (filter #(= false %1) @rest-prob)) @rest-prob-len))
 
 (defn get-ensemble-key-for-player
   "Select a key for player from keys currently playing in ensemble"
@@ -310,7 +300,6 @@
 
 (defn init-ensemble-status
   []
-  (reset! steady-density-count 0)
   (reset! note-values-millis '(0 0 0 0 0 0 0 0 0 0))
 
   (reset! player-keys (apply vector (repeat @number-of-players (rand 12))))
@@ -320,14 +309,6 @@
   ((volume-trend :init) (map (fn [x] 0) (range INITIAL-NUM-VOLUME-TREND)) @ensemble-volume-change-threshold)
   ((density-trend :init) (map (fn [x] 0) (range INITIAL-NUM-DENSITY-TREND)) @ensemble-density-change-threshold)
   ((pitch-trend :init) (map (fn [x] midi-mid) (range INITIAL-NUM-PITCH-TREND)) @ensemble-pitch-change-threshold)
-  (reset! rest-prob-len (* @number-of-players 3))
-  ;; initialize rest-prob
-  (reset! rest-prob '())
-  (dotimes [n @rest-prob-len]
-    (if (< (rand) 0.8)
-      (reset! rest-prob (conj @rest-prob true))
-      (reset! rest-prob (conj @rest-prob false))
-      ))
 
   (reset! player-densities (apply vector (repeat @number-of-players 0)))
   (reset! player-note-durs (apply vector (repeat @number-of-players 0)))

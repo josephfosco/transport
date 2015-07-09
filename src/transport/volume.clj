@@ -16,12 +16,12 @@
 (ns transport.volume
   (:require
    [transport.behavior :refer [get-behavior-action]]
-   [transport.ensemble-status :refer [get-average-playing-volume get-ensemble-trend-volume]]
+   [transport.ensemble-status :refer [get-average-playing-volume get-ensemble-trend-volume get-volume-trend-diff]]
    [transport.melodychar :refer [get-melody-char-vol-smoothness]]
    [transport.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
-   [transport.settings :refer [min-volume]]
+   [transport.settings :refer [ensemble-volume-change-threshold min-volume]]
    [transport.util.constants :refer :all]
    ))
 
@@ -79,14 +79,19 @@
 (defn select-volume-similar-ensemble
   [player]
   (let [last-volume (get-volume-for-event (get-last-melody-event player))]
-    (if (or (= last-volume 0) (nil? last-volume))
-      (select-ensemble-volume)
-      (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
-            vol-min (max (- last-volume (* (/ smoothness 2) 0.1)) min-volume)
-            vol-max (min (+ last-volume (* (/ smoothness 2) 0.1)) 1)
-            ]
-        (select-volume-in-range vol-min vol-max)
-        )))
+    (cond (or (= last-volume 0) (nil? last-volume))
+          (select-ensemble-volume)
+          (= (get-ensemble-trend-volume) INCREASING)
+          (min (+ (select-volume player)
+                  (max (- (get-volume-trend-diff) @ensemble-volume-change-threshold) min-volume))
+               1)
+          (= (get-ensemble-trend-volume) DECREASING)
+          (max (- (select-volume player)
+                  (min (- (get-volume-trend-diff) @ensemble-volume-change-threshold) 1))
+               min-volume)
+          :else
+          (select-volume player)
+      ))
   )
 
 (defn select-volume-for-next-note
