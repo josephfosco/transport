@@ -23,6 +23,7 @@
    [transport.random :refer [random-int]]
    [transport.settings :refer [ensemble-volume-change-threshold min-volume]]
    [transport.util.constants :refer :all]
+   [transport.util.utils :refer [print-msg]]
    ))
 
 (def volume-smoothness [0 0.01 0.03 0.05 0.07 0.1 0.15 0.2 0.25 0.3])
@@ -83,11 +84,11 @@
           (select-ensemble-volume)
           (= (get-ensemble-trend-volume) INCREASING)
           (min (+ (select-volume player)
-                  (max (- (get-volume-trend-diff) @ensemble-volume-change-threshold) min-volume))
+                  (max (- (get-volume-trend-diff) (* 0.5 @ensemble-volume-change-threshold)) min-volume))
                1)
           (= (get-ensemble-trend-volume) DECREASING)
           (max (- (select-volume player)
-                  (min (- (get-volume-trend-diff) @ensemble-volume-change-threshold) 1))
+                  (min (- (get-volume-trend-diff) (* 0.5 @ensemble-volume-change-threshold)) 1))
                min-volume)
           :else
           (select-volume player)
