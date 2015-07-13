@@ -25,6 +25,16 @@
   `(if (> ~nmbr 0) (int (+ ~nmbr 0.5)) (int (- ~nmbr 0.5)))
   )
 
+(defn nil-to-num
+  "If val is not nil, returns val
+   If val is nil returns num
+
+   val - value to check
+   num - num to return if val is nil"
+  [val num]
+  (if val val num)
+  )
+
 (defn get-max-map-key
   "For hash-maps with numeric keys, returns the highest key"
   [map]

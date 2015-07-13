@@ -321,8 +321,8 @@
          (cond (= (get-pitch-trend) INCREASING)
                (do
                  (print-msg "select-melody-range" "selecting INCREASING Range")
-                 (list (max (min (+ (int (get-ensemble-average-pitch))
-                                    (max (- (int (get-pitch-trend-diff)) 12)) 0)
+                 (list (max (min (int (+ (nil-to-num (get-ensemble-average-pitch) MIDI-LO)
+                                         (max (- (int (get-pitch-trend-diff)) 12)) 0))
                                  instrument-hi)
                             instrument-lo)
                        instrument-hi
@@ -332,16 +332,16 @@
                (do
                  (print-msg "select-melody-range" "selecting DECREASING Range")
                  (list instrument-lo
-                       (max (min (- (int (get-ensemble-average-pitch))
-                                    (+ (int (get-pitch-trend-diff)) 12))
+                       (max (min (int (+ (nil-to-num (get-ensemble-average-pitch) MIDI-LO)
+                                         (+ (int (get-pitch-trend-diff)) 12)))
                                  instrument-hi)
                             instrument-lo)
                        )
                  )
                :else
-               (list (max (max (- (int (get-ensemble-average-pitch)) 36) MIDI-LO)
+               (list (max (max (int (- (nil-to-num (get-ensemble-average-pitch) MIDI-LO) 36)) MIDI-LO)
                           (get-instrument-range-lo (get-instrument-info player)))
-                     (min (min (+ (int (get-ensemble-average-pitch)) 36) MIDI-HI)
+                     (min (min (int (+ (nil-to-num (get-ensemble-average-pitch) MIDI-HI) 36)) MIDI-HI)
                           (get-instrument-range-hi (get-instrument-info player)))
                      )
                ))

@@ -29,7 +29,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.constants :refer :all]
-   [transport.util.utils :refer [print-msg]]
+   [transport.util.utils :refer [nil-to-num print-msg]]
    ))
 
 (def LO-RANGE 47)
@@ -148,9 +148,9 @@
     (cond (= behavior-action SIMILAR-ENSEMBLE)
           (let [pitch-trend (get-pitch-trend)]
             (cond (= pitch-trend INCREASING)
-                  (filter #(> (:range-hi %1) (get-ensemble-average-pitch)) inst-list)
+                  (filter #(> (:range-hi %1) (nil-to-num (get-ensemble-average-pitch) MIDI-LO)) inst-list)
                   (= pitch-trend DECREASING)
-                  (filter #(< (:range-lo %1) (get-ensemble-average-pitch)) inst-list)
+                  (filter #(< (:range-lo %1) (nil-to-num (get-ensemble-average-pitch) MIDI-HI)) inst-list)
                   :else inst-list
                   )
             )

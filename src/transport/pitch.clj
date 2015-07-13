@@ -25,7 +25,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
    [transport.util.constants :refer :all]
-   [transport.util.utils :refer [print-msg]]
+   [transport.util.utils :refer [nil-to-num print-msg]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -345,11 +345,11 @@
       (cond (= direction ASCEND)
             (get-scale-pitch-in-range player
                                       :lo-range (min (get-melody-char-range-hi (get-melody-char player))
-                                                     (int (get-ensemble-average-pitch))))
+                                                     (int (nil-to-num (get-ensemble-average-pitch) MIDI-LO))))
             (= direction DESCEND)
             (get-scale-pitch-in-range player
                                       :hi-range (max (get-melody-char-range-lo (get-melody-char player))
-                                                     (int (get-ensemble-average-pitch))))
+                                                     (int (nil-to-num (get-ensemble-average-pitch) MIDI-HI))))
             :else (get-scale-pitch-in-range player))
       )
     )

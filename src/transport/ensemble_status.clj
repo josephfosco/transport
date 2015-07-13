@@ -212,7 +212,9 @@
 (defn get-ensemble-average-pitch
   []
   (let [pitches (for [p @player-notes :when (not (nil? p))] p)]
-    (average pitches)
+    (if (first pitches)
+      (average pitches)
+      nil)
     )
   )
 

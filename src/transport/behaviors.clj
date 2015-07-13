@@ -16,6 +16,7 @@
 (ns transport.behaviors
   (:require
    [overtone.live :refer [ranged-rand]]
+   [transport.ensemble-status :refer [get-ensemble-density-ratio]]
    [transport.players :refer [rand-player-id-excluding-player]]
    [transport.random :refer [weighted-choice]]
    [transport.settings :refer :all]
@@ -39,9 +40,33 @@
                            ))
   )
 
+(defn adjust-behavior-probs
+  [cur-behavior-probs fnc]
+  (assoc cur-behavior-probs
+         CONTRAST-PLAYER
+         (fnc (get cur-behavior-probs CONTRAST-PLAYER))
+         CONTRAST-ENSEMBLE
+         (fnc (get cur-behavior-probs CONTRAST-ENSEMBLE))
+         )
+  )
+
+(defn- get-adjusted-behavior-probs
+  []
+  (if (> (get @behavior-probs CONTRAST-PLAYER) 0)
+    (if (< (get-ensemble-density-ratio) 0.3)
+      (swap! behavior-probs adjust-behavior-probs dec)
+      @behavior-probs
+      )
+    (if (> (get-ensemble-density-ratio) 0.3)
+      (swap! behavior-probs adjust-behavior-probs inc)
+      @behavior-probs
+      )
+    )
+  )
+
 (defn select-behavior-action
   [player]
-  (weighted-choice @behavior-probs) )
+  (weighted-choice (get-adjusted-behavior-probs)) )
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.

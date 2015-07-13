@@ -34,7 +34,9 @@
                )
 
         new-value-to-track (fn [new-val]
-                             (swap! vals #(conj (drop-last %1) %2) (float new-val))
+                             (if new-val
+                               (swap! vals #(conj (drop-last %1) %2) (float new-val))
+                               @vals)
                              )
 
         trend-diff (fn [] (- (first @vals) (average (rest @vals) :list-length @val-len)))
