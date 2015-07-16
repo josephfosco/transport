@@ -239,8 +239,11 @@
   "Checks if note is in the melody range of player.
    Returns note if it is within range, else returns -1"
   [player note]
-  (if (and (<= (first MIDI-RANGE) (get-melody-char-range-lo (get-melody-char player)) note)
-           (<= note (get-melody-char-range-hi (get-melody-char player)) (last MIDI-RANGE)))
+  (if (<= MIDI-LO
+          (get-melody-char-range-lo (get-melody-char player))
+          note
+          (get-melody-char-range-hi (get-melody-char player))
+          MIDI-HI)
     note
     -1
     )
@@ -345,11 +348,15 @@
       (cond (= direction ASCEND)
             (get-scale-pitch-in-range player
                                       :lo-range (min (get-melody-char-range-hi (get-melody-char player))
-                                                     (int (nil-to-num (get-ensemble-average-pitch) MIDI-LO))))
+                                                 (max (get-melody-char-range-lo (get-melody-char player))
+                                                      (int (nil-to-num (get-ensemble-average-pitch) MIDI-LO)))))
             (= direction DESCEND)
             (get-scale-pitch-in-range player
                                       :hi-range (max (get-melody-char-range-lo (get-melody-char player))
-                                                     (int (nil-to-num (get-ensemble-average-pitch) MIDI-HI))))
+                                                 (min (int (nil-to-num (get-ensemble-average-pitch) MIDI-HI))
+                                                      (get-melody-char-range-hi (get-melody-char player))
+                                                      ))
+                                      )
             :else (get-scale-pitch-in-range player))
       )
     )

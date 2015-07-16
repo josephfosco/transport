@@ -40,7 +40,11 @@
                            ))
   )
 
-(defn adjust-behavior-probs
+(defn reset-behaviors
+  []
+  (init-behaviors))
+
+(defn adjust-contrast-behavior-probs
   [cur-behavior-probs fnc]
   (assoc cur-behavior-probs
          CONTRAST-PLAYER
@@ -52,15 +56,18 @@
 
 (defn- get-adjusted-behavior-probs
   []
-  (if (> (get @behavior-probs CONTRAST-PLAYER) 0)
-    (if (< (get-ensemble-density-ratio) 0.3)
-      (swap! behavior-probs adjust-behavior-probs dec)
-      @behavior-probs
-      )
-    (if (> (get-ensemble-density-ratio) 0.3)
-      (swap! behavior-probs adjust-behavior-probs inc)
-      @behavior-probs
-      )
+  (let [ens-density (get-ensemble-density-ratio)
+        contrast-player-prob (get @behavior-probs CONTRAST-PLAYER)
+        ]
+    (cond (and (< ens-density 0.25) (> contrast-player-prob 0))
+          (swap! behavior-probs adjust-contrast-behavior-probs dec)
+          (and (< ens-density 0.25) (= contrast-player-prob 0))
+          (adjust-contrast-behavior-probs @behavior-probs #(if (< 0.5 (rand)) (inc %1) %1))
+          (and (> ens-density 0.25) (> contrast-player-prob 0))
+          @behavior-probs
+          (and (> ens-density 0.25) (= contrast-player-prob 0))
+          (swap! behavior-probs adjust-contrast-behavior-probs inc)
+          )
     )
   )
 

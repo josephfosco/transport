@@ -37,7 +37,7 @@
    )
 
 (def INITIAL-NUM-VOLUME-TREND 10)
-(def INITIAL-NUM-DENSITY-TREND 9)
+(def INITIAL-NUM-DENSITY-TREND 5)
 (def INITIAL-NUM-PITCH-TREND 11)
 (def trend-upd-millis 3000)
 (def midi-mid (int (/ MIDI-HI 2)))
@@ -82,7 +82,8 @@
   (if (and (> (get-volume-for-event player-last-melody) 0.85)
            (> (get-dur-millis (get-dur-info-for-event player-last-melody)) 3000)
            (players-soft? player-id)
-           (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER))
+           (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+           (> (count (filter #(not= 0 %1) @player-volumes)) (int (/ @number-of-players 2))))
     (do
       (print-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody))
       (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody)))

@@ -18,7 +18,7 @@
   (:require
    [overtone.live :refer :all]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
-   [transport.behaviors :refer [init-behaviors]]
+   [transport.behaviors :refer [init-behaviors reset-behaviors]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.play-note :refer [init-ensemble reset-ensemble]]
@@ -145,6 +145,7 @@
       (do
         (if (not (nil? num-players))
           (set-number-of-players num-players))
+        (reset-behaviors)
         (reset-scheduler)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
