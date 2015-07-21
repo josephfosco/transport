@@ -27,10 +27,11 @@
   )
 
 (def behavior-probs (atom [1 1 1 1 1 1]))
+(def behavior-probs-len (count @behavior-probs))
 
-(defn init-behaviors
+(defn- init-behavior-probs
   []
-  (reset! behavior-probs (assoc @behavior-probs
+  (swap! behavior-probs #(assoc %1
                            FOLLOW-PLAYER 2
                            CONTRAST-PLAYER 1
                            SIMILAR-PLAYER 2
@@ -40,34 +41,86 @@
                            ))
   )
 
+(defn init-behaviors
+  []
+  (init-behavior-probs)
+  )
+
 (defn reset-behaviors
   []
   (init-behaviors))
 
-(defn adjust-contrast-behavior-probs
-  [cur-behavior-probs fnc]
+(defn adjust-single-behavior-prob
+  [cur-behavior-probs ndx fnc]
   (assoc cur-behavior-probs
-         CONTRAST-PLAYER
-         (fnc (get cur-behavior-probs CONTRAST-PLAYER))
-         CONTRAST-ENSEMBLE
-         (fnc (get cur-behavior-probs CONTRAST-ENSEMBLE))
+         ndx
+         (fnc (get cur-behavior-probs ndx))
          )
+  )
+
+(defn adjust-contrast-behavior-probs
+  [cur-behavior-probs]
+  (let [contrast-player-prob (get @behavior-probs CONTRAST-PLAYER)
+        contrast-ensemble-prob (get @behavior-probs CONTRAST-ENSEMBLE)
+        ]
+    (if (< (get-ensemble-density-ratio) 0.25)
+      (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
+            (-> cur-behavior-probs
+                (adjust-single-behavior-prob CONTRAST-PLAYER dec)
+                (adjust-single-behavior-prob CONTRAST-ENSEMBLE dec)
+                )
+            (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
+            (-> cur-behavior-probs
+                (adjust-single-behavior-prob CONTRAST-PLAYER #(if (< 0.7 (rand)) (inc %1) %1))
+                (adjust-single-behavior-prob CONTRAST-ENSEMBLE #(if (< 0.7 (rand)) (inc %1) %1))
+                )
+            (> contrast-player-prob 1)
+            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER dec)
+            (> contrast-ensemble-prob 1)
+            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE dec)
+            :else
+            cur-behavior-probs
+            )
+      (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
+            cur-behavior-probs
+            (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
+            (-> cur-behavior-probs
+                (adjust-single-behavior-prob CONTRAST-PLAYER inc)
+                (adjust-single-behavior-prob CONTRAST-ENSEMBLE inc)
+                )
+            (= contrast-player-prob 0)
+            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER inc)
+            (= contrast-ensemble-prob 0)
+            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE inc)
+            )
+      )
+    )
+  )
+
+(defn- randomize-behavior-probs
+  [cur-behavior-probs]
+  (print-msg "randomize-behavior-probs" "cur-behavior-probs: " cur-behavior-probs)
+  (if (> (rand) 0.9)
+    (let [ndx (rand-int behavior-probs-len)]
+      (if (> (get cur-behavior-probs ndx) 0)
+        (assoc cur-behavior-probs ndx ((if (< (rand) 0.5) inc dec) (get cur-behavior-probs ndx)))
+        (assoc cur-behavior-probs ndx (inc (get cur-behavior-probs ndx)))
+        )
+      )
+    cur-behavior-probs)
   )
 
 (defn- get-adjusted-behavior-probs
   []
-  (let [ens-density (get-ensemble-density-ratio)
-        contrast-player-prob (get @behavior-probs CONTRAST-PLAYER)
+  (let [new-behavior-probs (-> @behavior-probs
+                               (adjust-contrast-behavior-probs)
+                               (randomize-behavior-probs)
+                               )
         ]
-    (cond (and (< ens-density 0.25) (> contrast-player-prob 0))
-          (swap! behavior-probs adjust-contrast-behavior-probs dec)
-          (and (< ens-density 0.25) (= contrast-player-prob 0))
-          (adjust-contrast-behavior-probs @behavior-probs #(if (< 0.5 (rand)) (inc %1) %1))
-          (and (> ens-density 0.25) (> contrast-player-prob 0))
-          @behavior-probs
-          (and (> ens-density 0.25) (= contrast-player-prob 0))
-          (swap! behavior-probs adjust-contrast-behavior-probs inc)
-          )
+    (if (= 0 (reduce + new-behavior-probs))
+      (init-behavior-probs)
+      (swap! behavior-probs #(do %2) new-behavior-probs)
+      )
     )
   )
 

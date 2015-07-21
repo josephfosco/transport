@@ -72,7 +72,6 @@
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-melody-char-range-lo (get-melody-char player))
                   hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
-;;  (print-msg "get-scale-pitch-in-range lo:" lo-range " hi: " hi-range)
   (let [player-key (get-key player)
         rand-pitch (random-int lo-range hi-range)
         rand-octave (quot rand-pitch OCTAVE)   ;; octave multiplier for rand-pitch
@@ -114,7 +113,8 @@
    pitch - pitch to find nearest scale degree in players key and scale"
   [player pitch]
   (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)
-        octave-scale (conj (get-scale player) OCTAVE) ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        octave-scale (conj (get-scale player) OCTAVE)
         ]
 
     (loop [i 0
@@ -319,12 +319,10 @@
     ;; if no pitch is available in direction selected, return a random pitch in melody range
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
-      (do
-;;        (print-msg "next-pitch-ignore"  "CHOOSING NEW PITCH player-id: " (get-player-id player) " pitch: " next-pitch " range: " (get-melody-char-range-lo (get-melody-char player)) " " (get-melody-char-range-hi (get-melody-char player)) " key: " (get-key player) " scale: " (get-scale player))
-        (get-scale-pitch-in-range player)
-        )
+      (get-scale-pitch-in-range player)
       )
-    )  )
+    )
+  )
 
 (defn next-pitch-similar-ensemble
   [player]
