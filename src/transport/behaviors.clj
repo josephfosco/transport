@@ -96,31 +96,19 @@
   (let [contrast-player-prob (get cur-behavior-probs CONTRAST-PLAYER)
         contrast-ensemble-prob (get cur-behavior-probs CONTRAST-ENSEMBLE)
         ]
-    (cond (or (< (get-ensemble-density-ratio) 0.25) (> (get-ensemble-density-ratio) 0.75))
-          ;; possibly increment SIMILAr-ENSEMBLE as long as it's current value is not > 1/2 all values
-          (-> (if (>= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
-                cur-behavior-probs
-                (adjust-single-behavior-prob cur-behavior-probs
-                                             SIMILAR-ENSEMBLE
-                                             adjust-val-randomly
-                                             (/ 1 @number-of-players))
-                )
-              (adjust-contrast-probs contrast-player-prob contrast-ensemble-prob)
-           )
-          :else
-          (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
-                cur-behavior-probs
-                (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
-                (-> cur-behavior-probs
-                    (adjust-single-behavior-prob CONTRAST-PLAYER inc)
-                    (adjust-single-behavior-prob CONTRAST-ENSEMBLE inc)
-                    )
-                (= contrast-player-prob 0)
-                (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER inc)
-                (= contrast-ensemble-prob 0)
-                (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE inc)
-                )
+    (if (or (< (get-ensemble-density-ratio) 0.25) (> (get-ensemble-density-ratio) 0.75))
+      ;; possibly increment SIMILAr-ENSEMBLE as long as it's current value is not > 1/2 all values
+      (-> (if (>= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
+            cur-behavior-probs
+            (adjust-single-behavior-prob cur-behavior-probs
+                                         SIMILAR-ENSEMBLE
+                                         adjust-val-randomly
+                                         (/ 1 @number-of-players))
+            )
+          (adjust-contrast-probs contrast-player-prob contrast-ensemble-prob)
           )
+      cur-behavior-probs
+      )
     )
   )
 
@@ -131,7 +119,7 @@
       (let [ndx (rand-int behavior-probs-len)]
         (cond (and (> (get cur-behavior-probs ndx) 0)
                    (or (not= ndx SIMILAR-ENSEMBLE)
-                       (>= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
+                       (<= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
                        ))
               (assoc cur-behavior-probs ndx ((if (< (rand) 0.5) inc dec) (get cur-behavior-probs ndx)))
               (and (> (get cur-behavior-probs ndx) 0)(= ndx SIMILAR-ENSEMBLE))
