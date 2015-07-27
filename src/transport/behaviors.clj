@@ -51,82 +51,116 @@
   (init-behaviors))
 
 (defn adjust-single-behavior-prob
-  [cur-behavior-probs ndx fnc]
-  (assoc cur-behavior-probs
-         ndx
-         (fnc (get cur-behavior-probs ndx))
-         )
+  ([cur-behavior-probs ndx fnc]
+     (assoc cur-behavior-probs
+       ndx
+       (fnc (get cur-behavior-probs ndx))
+       )
+     )
+  ([cur-behavior-probs ndx fnc x]
+     (assoc cur-behavior-probs
+       ndx
+       (fnc (get cur-behavior-probs ndx) x)
+       )
+     )
+  )
+
+(defn adjust-val-randomly
+  [val threshold]
+  (if (< (rand) threshold) (inc val) val)
+  )
+
+(defn adjust-contrast-probs
+  [cur-behavior-probs contrast-player-prob contrast-ensemble-prob]
+  (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
+        (-> cur-behavior-probs
+            (adjust-single-behavior-prob CONTRAST-PLAYER dec)
+            (adjust-single-behavior-prob CONTRAST-ENSEMBLE dec)
+            )
+        (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
+        (-> cur-behavior-probs
+            (adjust-single-behavior-prob CONTRAST-PLAYER adjust-val-randomly 0.4)
+            (adjust-single-behavior-prob CONTRAST-ENSEMBLE adjust-val-randomly 0.4)
+            )
+        (> contrast-player-prob 1)
+        (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER dec)
+        (> contrast-ensemble-prob 1)
+        (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE dec)
+        :else
+        cur-behavior-probs
+        )
   )
 
 (defn adjust-contrast-behavior-probs
   [cur-behavior-probs]
-  (let [contrast-player-prob (get @behavior-probs CONTRAST-PLAYER)
-        contrast-ensemble-prob (get @behavior-probs CONTRAST-ENSEMBLE)
+  (let [contrast-player-prob (get cur-behavior-probs CONTRAST-PLAYER)
+        contrast-ensemble-prob (get cur-behavior-probs CONTRAST-ENSEMBLE)
         ]
-    (if (< (get-ensemble-density-ratio) 0.25)
-      (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
-            (-> cur-behavior-probs
-                (adjust-single-behavior-prob CONTRAST-PLAYER dec)
-                (adjust-single-behavior-prob CONTRAST-ENSEMBLE dec)
+    (cond (or (< (get-ensemble-density-ratio) 0.25) (> (get-ensemble-density-ratio) 0.75))
+          ;; possibly increment SIMILAr-ENSEMBLE as long as it's current value is not > 1/2 all values
+          (-> (if (>= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
+                cur-behavior-probs
+                (adjust-single-behavior-prob cur-behavior-probs
+                                             SIMILAR-ENSEMBLE
+                                             adjust-val-randomly
+                                             (/ 1 @number-of-players))
                 )
-            (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
-            (-> cur-behavior-probs
-                (adjust-single-behavior-prob CONTRAST-PLAYER #(if (< 0.7 (rand)) (inc %1) %1))
-                (adjust-single-behavior-prob CONTRAST-ENSEMBLE #(if (< 0.7 (rand)) (inc %1) %1))
+              (adjust-contrast-probs contrast-player-prob contrast-ensemble-prob)
+           )
+          :else
+          (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
+                cur-behavior-probs
+                (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
+                (-> cur-behavior-probs
+                    (adjust-single-behavior-prob CONTRAST-PLAYER inc)
+                    (adjust-single-behavior-prob CONTRAST-ENSEMBLE inc)
+                    )
+                (= contrast-player-prob 0)
+                (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER inc)
+                (= contrast-ensemble-prob 0)
+                (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE inc)
                 )
-            (> contrast-player-prob 1)
-            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER dec)
-            (> contrast-ensemble-prob 1)
-            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE dec)
-            :else
-            cur-behavior-probs
-            )
-      (cond (and (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
-            cur-behavior-probs
-            (and (= contrast-player-prob 0) (= contrast-ensemble-prob 0))
-            (-> cur-behavior-probs
-                (adjust-single-behavior-prob CONTRAST-PLAYER inc)
-                (adjust-single-behavior-prob CONTRAST-ENSEMBLE inc)
-                )
-            (= contrast-player-prob 0)
-            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-PLAYER inc)
-            (= contrast-ensemble-prob 0)
-            (adjust-single-behavior-prob cur-behavior-probs CONTRAST-ENSEMBLE inc)
-            )
-      )
+          )
     )
   )
 
 (defn- randomize-behavior-probs
   [cur-behavior-probs]
-  (print-msg "randomize-behavior-probs" "cur-behavior-probs: " cur-behavior-probs)
-  (if (> (rand) 0.9)
-    (let [ndx (rand-int behavior-probs-len)]
-      (if (> (get cur-behavior-probs ndx) 0)
-        (assoc cur-behavior-probs ndx ((if (< (rand) 0.5) inc dec) (get cur-behavior-probs ndx)))
-        (assoc cur-behavior-probs ndx (inc (get cur-behavior-probs ndx)))
+  ;;(print-msg "randomize-behavior-probs" "cur-behavior-probs:    " cur-behavior-probs)
+  (if (< (rand-int @number-of-players) (* 0.05 @number-of-players))
+      (let [ndx (rand-int behavior-probs-len)]
+        (cond (and (> (get cur-behavior-probs ndx) 0)
+                   (or (not= ndx SIMILAR-ENSEMBLE)
+                       (>= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
+                       ))
+              (assoc cur-behavior-probs ndx ((if (< (rand) 0.5) inc dec) (get cur-behavior-probs ndx)))
+              (and (> (get cur-behavior-probs ndx) 0)(= ndx SIMILAR-ENSEMBLE))
+              (assoc cur-behavior-probs ndx (dec (get cur-behavior-probs ndx)))
+              :else
+              (assoc cur-behavior-probs ndx (inc (get cur-behavior-probs ndx)))
+          )
         )
-      )
-    cur-behavior-probs)
+      cur-behavior-probs)
   )
 
 (defn- get-adjusted-behavior-probs
-  []
-  (let [new-behavior-probs (-> @behavior-probs
+  [cur-behavior-probs]
+  (let [new-behavior-probs (-> cur-behavior-probs
                                (adjust-contrast-behavior-probs)
                                (randomize-behavior-probs)
                                )
         ]
+    (print-msg "get-adjusted-behavior-probs" "new-behavior-probs: " new-behavior-probs)
     (if (= 0 (reduce + new-behavior-probs))
       (init-behavior-probs)
-      (swap! behavior-probs #(do %2) new-behavior-probs)
+      new-behavior-probs
       )
     )
   )
 
 (defn select-behavior-action
   [player]
-  (weighted-choice (get-adjusted-behavior-probs)) )
+  (weighted-choice (swap! behavior-probs get-adjusted-behavior-probs)) )
 
 (defn select-first-behavior
   "Only used the first time Behavior is set.

@@ -201,7 +201,7 @@
      (let [ensemble-density (get-ensemble-density)
            cur-density-trend (get-density-trend)
            threshold (if (= cur-density-trend INCREASING)
-                       (inc ensemble-density)
+                       (min (inc ensemble-density) 9)
                        (max (dec ensemble-density) 0))
            ]
          (cond

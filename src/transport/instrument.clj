@@ -176,7 +176,13 @@
                               (filter-inst-list-by-range player)
                               ))
         inst-info (if (nil? cntrst-plyr-inst-info)
-                    (rand-nth instrument-list)
+                    (if (empty? instrument-list)
+                      (do
+                        (print-msg "select-instrument" "*** INSTRUMENT LIST EMPTY *************************")
+                        (rand-nth all-instruments)
+                        )
+                      (rand-nth instrument-list)
+                      )
                     (let [instrument-index (rand-int (count instrument-list))]
                       (if (=
                            (:name (:instrument cntrst-plyr-inst-info))

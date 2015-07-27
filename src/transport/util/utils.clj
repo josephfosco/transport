@@ -25,6 +25,14 @@
   `(if (> ~nmbr 0) (int (+ ~nmbr 0.5)) (int (- ~nmbr 0.5)))
   )
 
+(defn get-percent
+  "returns a percent of a number
+   pct - the percent to return
+   num - the number that is 100%"
+  [pct num]
+  (* num (/ pct 100))
+  )
+
 (defn nil-to-num
   "If val is not nil, returns val
    If val is nil returns num
