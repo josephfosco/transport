@@ -116,11 +116,14 @@
   [cur-behavior-probs]
   ;;(print-msg "randomize-behavior-probs" "cur-behavior-probs:    " cur-behavior-probs)
   (if (< (rand-int @number-of-players) (* 0.05 @number-of-players))
-      (let [ndx (rand-int behavior-probs-len)]
+    (let [ndx (rand-int behavior-probs-len)]
         (cond (and (> (get cur-behavior-probs ndx) 0)
-                   (or (not= ndx SIMILAR-ENSEMBLE)
+                   (or (and (not= ndx SIMILAR-ENSEMBLE)
+                            (<= (get cur-behavior-probs ndx) (/ (reduce + cur-behavior-probs) 3))
+                            )
                        (<= (get cur-behavior-probs SIMILAR-ENSEMBLE) (/ (reduce + cur-behavior-probs) 2))
-                       ))
+                       )
+                   )
               (assoc cur-behavior-probs ndx ((if (< (rand) 0.5) inc dec) (get cur-behavior-probs ndx)))
               (and (> (get cur-behavior-probs ndx) 0)(= ndx SIMILAR-ENSEMBLE))
               (assoc cur-behavior-probs ndx (dec (get cur-behavior-probs ndx)))
