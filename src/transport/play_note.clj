@@ -336,6 +336,7 @@
                                   )
         melody-event (next-melody player event-time sync-beat-player-id new-seg?)
         melody-event-note (get-note-for-event melody-event)
+        ;; now play the note with the current instrument
         sc-instrument-id (if (not (nil? melody-event-note))
                            (cond
                             (or articulate?
@@ -459,13 +460,13 @@
                           event-time
                           new-seg?
                           new-follow-info?)
+        ;; now select the next note and play it
         melody-event (play-melody player-id
                                   new-player
                                   event-time
                                   new-seg?
                                   new-follow-info?
                                   )
-        melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
     (if (get-note-for-event melody-event)
       (check-note-off melody-event event-time)
@@ -483,7 +484,7 @@
 
     (sched-event 0
                  (get-player-val new-player "function") player-id
-                 :time (+ event-time melody-dur-millis))
+                 :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
     )
   )
 
@@ -542,18 +543,16 @@
   (print-msg "first-note" "player-id: " player-id)
   (let [new-player (swap! (get @ensemble player-id) set-first-note event-time transport.play-note/next-note)
         melody-event (play-first-melody-note new-player player-id event-time)
-        melody-dur-millis (get-dur-millis (get-dur-info-for-event melody-event))
         ]
 
     (listeners-msg-new-segment (get-player-map player-id) 1)
-    (print-msg "first-note" "player-id: " player-id " melody-dur-millis: " melody-dur-millis)
     (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
     (if (get-note-for-event melody-event)
       (check-note-off melody-event event-time))
 
     (sched-event 0
                  (get-player-val new-player "function") player-id
-                 :time (+ event-time melody-dur-millis))
+                 :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
     )
   (print-msg "end first-note" "player-id: " player-id)
   )
