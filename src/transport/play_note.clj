@@ -397,13 +397,15 @@
 
 (defn update-based-on-ensemble-density
   [player]
-  (let [player-melody-char (get-melody-char player)
-        player-density (get-melody-char-density player-melody-char)
-        ]
+  (let [player-density (get-melody-char-density (get-melody-char player))]
     (cond (= (get-density-trend) INCREASING)
-          (set-density player (min (inc player-density) 9))
+          (if (< player-density 9)
+            (set-density player (inc player-density))
+            player)
           (= (get-density-trend) DECREASING)
-          (set-density player (max (dec player-density) 0))
+          (if (> player-density 0)
+            (set-density player (dec player-density))
+            player)
           :else
           player
           )
