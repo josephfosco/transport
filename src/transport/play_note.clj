@@ -227,7 +227,7 @@
   [player]
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         prior-melody-event (get-melody-event-num player (- last-melody-event-num 30))]
-    (if (and (> (get-last-melody-event-num-for-player player) 30)
+    (if (and (> last-melody-event-num 30)
              (node-live? (get-sc-instrument-id prior-melody-event))
              (not= (get-sc-instrument-id prior-melody-event)
                    (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 5))))
