@@ -72,8 +72,10 @@
 
 (defn adjust-contrast-probs
   [cur-behavior-probs contrast-player-prob contrast-ensemble-prob]
-  (let [prob-threshold (/ (reduce + cur-behavior-probs) 10)]
-    (cond (and (>= contrast-player-prob prob-threshold) (>= contrast-ensemble-prob prob-threshold))
+  (let [prob-threshold (/ (reduce + cur-behavior-probs) 12)]
+    (cond (or (and (>= contrast-player-prob prob-threshold) (>= contrast-ensemble-prob prob-threshold))
+              (and (> (rand) 0.5) (> contrast-player-prob 0) (> contrast-ensemble-prob 0))
+              )
           (-> cur-behavior-probs
               (adjust-single-behavior-prob CONTRAST-PLAYER dec)
               (adjust-single-behavior-prob CONTRAST-ENSEMBLE dec)

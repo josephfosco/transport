@@ -471,6 +471,14 @@
                                   new-follow-info?
                                   )
         ]
+    (if (nil? new-player)
+    (do
+      (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
+      (print-msg "next-note" "player-id: " player-id)
+      (print-player player)
+      (throw (Throwable. "Nil new-player"))
+      )
+      )
     (if (get-note-for-event melody-event)
       (check-note-off melody-event event-time)
       )
