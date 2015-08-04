@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
+   [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
    [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event get-volume-for-event]]
@@ -29,7 +30,6 @@
                                ensemble-pitch-change-threshold ensemble-volume-change-threshold
                                min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
-   [transport.util.constants :refer :all]
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
    [transport.util.utils :refer :all])

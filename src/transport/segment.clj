@@ -16,6 +16,7 @@
 (ns transport.segment
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.constants :refer :all]
    [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
@@ -26,7 +27,6 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome select-metronome-mm select-mm]]
-   [transport.util.constants :refer :all]
    ))
 
 (def min-segment-len 5000)   ;minimum segment length in milliseconds (5 seconds)

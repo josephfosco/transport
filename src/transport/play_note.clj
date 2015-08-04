@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
    [transport.instrument :refer [has-release?]]
@@ -31,7 +32,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.segment :refer [first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)

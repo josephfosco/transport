@@ -15,7 +15,7 @@
 
 (ns transport.util.track-trend
   (:require
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
    [transport.util.utils :refer [average]]
    ))
 

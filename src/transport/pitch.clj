@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action]]
+   [transport.constants :refer :all]
    [transport.ensemble-status :refer [get-ensemble-average-pitch get-ensemble-key-for-player get-pitch-trend]]
    [overtone.music.pitch :refer [SCALE]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
@@ -24,7 +25,7 @@
                                  get-melody-char-pitch-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
    [transport.util.utils :refer [nil-to-num print-msg]]
    )
   (:import transport.behavior.Behavior)

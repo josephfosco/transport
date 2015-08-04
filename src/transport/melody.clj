@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
+   [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density
                                       get-average-note-durs get-ensemble-average-pitch get-ensemble-density
@@ -35,7 +36,7 @@
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [get-dur-info-for-beats get-dur-info-for-mm-and-millis next-note-dur note-dur-to-millis]]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer :all]
    )
   (:import

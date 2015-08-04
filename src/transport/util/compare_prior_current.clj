@@ -15,7 +15,7 @@
 
 (ns transport.util.compare-prior-current
   (:require
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
    ))
 
 (defn compare-prior-current

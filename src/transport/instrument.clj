@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer :all]
    [transport.behavior :refer [get-behavior-action]]
+   [transport.constants :refer :all]
    [transport.ensemble-status :refer [get-ensemble-average-pitch get-pitch-trend]]
    [transport.instrumentinfo :refer :all]
    [transport.instruments.elec-instruments :refer :all]
@@ -28,7 +29,7 @@
    [transport.melodyevent :refer [get-sc-instrument-id]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
-   [transport.util.constants :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer [nil-to-num print-msg]]
    ))
 
