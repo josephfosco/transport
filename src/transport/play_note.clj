@@ -298,15 +298,17 @@
   ))
 
 (defn play-melody
-  "
+  "Select and play the next melody note (or rest) for player.
+   Stops prior note, if necessary.
+   Returns melody-event for this note (or rest)
 
    player - map for the current player
    player-id - the id of the current player
    event-time - time this note event was scheduled for"
   [player-id player event-time new-seg? new-follow-info?]
 
-;;  (println)
-;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+  ;;  (println)
+  ;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
   (let [last-melody-event-num (get-last-melody-event-num-for-player player)
         last-melody-event (get-melody-event-num player last-melody-event-num)
         last-melody-event-note (get-note-for-event last-melody-event)
@@ -470,14 +472,15 @@
                                   new-follow-info?
                                   )
         ]
+
     (if (nil? new-player)
-    (do
-      (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
-      (print-msg "next-note" "player-id: " player-id)
-      (print-player player)
-      (throw (Throwable. "Nil new-player"))
-      )
-      )
+      (do
+        (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
+        (print-msg "next-note" "player-id: " player-id)
+        (print-player player)
+        (throw (Throwable. "Nil new-player"))
+        ))
+
     (if (get-note-for-event melody-event)
       (check-note-off melody-event event-time)
       )
