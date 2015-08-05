@@ -3,7 +3,7 @@ TRANSPORT
 
 # transport
 
-This is the begining of Transport, a program that creates free improvisation music.
+This is the begining of Transport, a program that creates a kind of freely-improvised music.
 
 This program is written in Clojure and uses the Overtone library. Overtone requires the synthesis library Supercollider
 
@@ -42,6 +42,6 @@ If num-players is not set it will default to 10.
 
 ## License
 
-Copyright © 2013 Joseph Fosco
+Copyright © 2013-2015 Joseph Fosco
 
 Distributed under the GNU General Public License

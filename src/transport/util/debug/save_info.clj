@@ -1,4 +1,4 @@
-;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,23 +13,31 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.behavior)
+(ns transport.util.debug.save-info)
 
-(defrecord Behavior [accuracy action player-id])
+(defn save-info
+  []
+  (let [save-len 100
+        save-array (atom (vec (repeat save-len nil)))
+        cur-ndx (atom 0)
 
-(defn get-behavior-action
-  [behavior]
-  (:action behavior))
+        save (fn [new-element]
+               (let [nxt-ndx (swap! cur-ndx #(mod (inc %1) save-len))]
+                (reset! save-array (assoc @save-array nxt-ndx new-element)))
+              )
 
-(defn get-behavior-player-id
-  [behavior]
-  (:player-id behavior))
+        print (fn []
+                (println "cur-ndx  :         "  @cur-ndx)
+                (println "save-array:        "  @save-array)
+                )
+        ]
 
-(defn set-behavior-player-id
-  "Returns new Behavior record with :player-id set to player-id
+    (fn [m]
+      (cond
+       (= m :save) save
+       (= m :print) print
+       )
+      )
 
-   behavior - the current Behavior record whose :player-id is to be changed
-   player-id - the player-id to set :player-id to"
-  [behavior player-id]
-  (assoc behavior :player-id player-id)
+    )
   )

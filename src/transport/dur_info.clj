@@ -13,27 +13,21 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.instruments.trad-instruments
-  ^{:author "Joseph Fosco"
-    :doc "Electronic imitations of traditional instruments"}
-  (:require
-   [overtone.live :refer :all]
-   ))
-
-(definst bassoon
-  [freq 110 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
-  (-> (saw freq)
-      (bpf (* 2 freq) 2.0)
-      (* (env-gen (asr attack sustain release) gate vol 0 1 action))
-      (* vol 4)
-      )
+(ns transport.dur-info
   )
 
-(definst clarinet
-  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
-  (-> (square [freq (* freq 1.01) (* freq 0.99)])
-      (lpf (line:kr (* freq 8) (* freq 2) 0.5))
-      (* (env-gen (asr attack sustain release) gate vol 0 1 action))
-      (* vol 1.2)
-      )
+(defn get-dur-millis
+  "Returns the duration in millis of dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-millis dur-info)
+  )
+
+(defn get-dur-beats
+  "Returns the duration in beats of dur-info
+
+   dur-info - duration info to get dur-beats from"
+  [dur-info]
+  (:dur-beats dur-info)
   )

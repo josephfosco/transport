@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,10 +13,15 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.util)
-
-(defn get-max-map-key
-  "For hash-maps with numeric keys, returns the highest key"
-  [map]
-  (reduce max 0 (keys map))
+(ns transport.util.util-constants
+  "This namespace is a 'terminal namespace'.
+   It should not :require :use :refer or :import any
+   other transport namespaces"
+  (:require
+   [overtone.live :refer [MIDI-RANGE]]
+   )
   )
+
+(def DECREASING 10)
+(def STEADY 11)
+(def INCREASING 12)

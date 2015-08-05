@@ -21,9 +21,20 @@
    ))
 
 (definst steel-drum
-  [freq 440 amp 0.8]
-  (* (/ amp 1.5)
-     (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE)
-     (+ (sin-osc (/ freq 2)) (rlpf (saw freq) (* 1.1 freq) 0.4))
-     )
+  [freq 440 amp 0.8 gate 1.0 action FREE]
+  (-> (sin-osc (/ freq 2))
+      (+ (rlpf (saw freq) (* 1.1 freq) 0.4))
+      (* (env-gen (perc 0.01 0.5) gate (* amp 0.666) 0 1 action))
+   )
   )
+
+(definst steel-drum-sus
+  [freq 440 amp 0.8]
+  (-> (sin-osc (/ freq 2))
+      (+ (rlpf (saw freq) (* 1.1 freq) 0.4))
+      (* (env-gen (perc 0.01 0.5) 1 1 0 1 :action FREE))
+      (* (/ amp 1.5))
+   )
+  )
+(def steel-drum-sus-delay (inst-fx! steel-drum-sus fx-echo))
+(ctl steel-drum-sus-delay :delay-time 0.1)

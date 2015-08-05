@@ -1,4 +1,4 @@
-;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,23 +13,27 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.behavior)
+(ns transport.debug)
 
-(defrecord Behavior [accuracy action player-id])
+(def debug-transport-all false)
 
-(defn get-behavior-action
-  [behavior]
-  (:action behavior))
+;(defmacro debug-run1 [func]
+;(if transport.debug/debug-transport-all
+;  (eval func)))
 
-(defn get-behavior-player-id
-  [behavior]
-  (:player-id behavior))
+(defmacro debug-run1
+  [func]
+  (if transport.debug/debug-transport-all func))
 
-(defn set-behavior-player-id
-  "Returns new Behavior record with :player-id set to player-id
+(defn debug-print
+  [& funcs]
+  (println "debug-print: " funcs)
+  (eval (first (first funcs)))
+  (if (> 1 (count funcs))
+    (debug-print (rest funcs))))
 
-   behavior - the current Behavior record whose :player-id is to be changed
-   player-id - the player-id to set :player-id to"
-  [behavior player-id]
-  (assoc behavior :player-id player-id)
-  )
+(defmacro debug-transport
+  "macro to execute multiple functions - generally used for debugging"
+  [& funcs]
+  `(let [funcs# '~funcs]
+     (debug-print funcs#)))

@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,27 +13,12 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.instruments.trad-instruments
-  ^{:author "Joseph Fosco"
-    :doc "Electronic imitations of traditional instruments"}
+(ns transport.sc-instrument
   (:require
    [overtone.live :refer :all]
    ))
 
-(definst bassoon
-  [freq 110 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
-  (-> (saw freq)
-      (bpf (* 2 freq) 2.0)
-      (* (env-gen (asr attack sustain release) gate vol 0 1 action))
-      (* vol 4)
-      )
-  )
-
-(definst clarinet
-  [freq 440 vol 1.0 release 0.1 attack 0.01 sustain 0.3 gate 1.0 action FREE]
-  (-> (square [freq (* freq 1.01) (* freq 0.99)])
-      (lpf (line:kr (* freq 8) (* freq 2) 0.5))
-      (* (env-gen (asr attack sustain release) gate vol 0 1 action))
-      (* vol 1.2)
-      )
+(defn stop-instrument
+  [sc-instrument-id]
+  (ctl sc-instrument-id :gate 0)
   )

@@ -34,13 +34,19 @@
    Returns the index into the vector of the selection (0 - (length of vector - 1)
 
    weight-vector - vector of the form [x1 x2 x3 x4 ....]
-                   where each entry si the relative weight of that entry"
+                   where each entry is the relative weight of that entry"
   [weight-vector]
-  (loop [i 0 rnd-num (* (rand) (reduce + weight-vector)) w-vec weight-vector]
-    (let [rnd-total (- rnd-num (first w-vec))]
-      (if (<= rnd-total 0)
-        i
-        (recur (inc i) rnd-total (rest w-vec))))))
+  (try
+    (loop [i 0 rnd-num (inc (rand-int (reduce + weight-vector))) w-vec weight-vector]
+      (let [rnd-total (- rnd-num (first w-vec))]
+        (if (< rnd-total 1)
+          i
+          (recur (inc i) rnd-total (rest w-vec)))))
+    (catch NullPointerException e
+      (println "weighted-choice" "weight-vector: " weight-vector)
+      (throw (Throwable. "Invalid weight-vector"))
+        )
+    ))
 
 (defn add-probabilities
   "Adds to probabilities in prob-vector. This function does not

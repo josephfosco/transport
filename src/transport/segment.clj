@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,19 +16,21 @@
 (ns transport.segment
   (:require
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.behaviors :refer [get-behavior-player-id-for-player select-first-behavior select-behavior]]
+   [transport.constants :refer :all]
+   [transport.behaviors :refer [select-first-behavior select-behavior]]
+   [transport.dur-info :refer [get-dur-millis]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
-   [transport.melody :refer [select-melody-characteristics select-random-melody-characteristics]]
+   [transport.melody :refer [adjust-melody-char-range select-melody-characteristics select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
+   [transport.melodyevent :refer [get-dur-info-for-event get-note-event-time-for-event get-seg-num-for-event]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.rhythm :refer [select-metronome select-metronome-mm select-mm]]
-   [transport.settings :refer :all]
    ))
 
-(def min-segment-len 10000)  ;minimum segment length in milliseconds (10 seconds)
-(def max-segment-len 30000)  ;maximum segment length in milliseconds (30 seconds)
+(def min-segment-len 5000)   ;minimum segment length in milliseconds (5 seconds)
+(def max-segment-len 20000)  ;maximum segment length in milliseconds (20 seconds)
 
 (defn select-segment-length
   []
@@ -37,7 +39,7 @@
 
 (defn copy-following-info
   [player]
-  (merge player (get-following-info-from-player (get-player (get-behavior-player-id-for-player player))))
+  (merge player (get-following-info-from-player (get-player-map (get-behavior-player-id (get-behavior player)))))
   )
 
 (defn first-segment
@@ -52,10 +54,10 @@
         ]
     (assoc player
       :behavior new-behavior
-      :change-follow-info-note (if (= (get-behavior-action new-behavior) FOLLOW) 0 nil)
+      :change-follow-info-notes []
+      :change-follow-info []
       :instrument-info new-instrument
       :key (select-random-key)
-      :last-pitch nil
       :melody-char (select-random-melody-characteristics (get-instrument-range-lo new-instrument) (get-instrument-range-hi new-instrument))
       :metronome (select-metronome-mm rnd-mm)
       :mm rnd-mm
@@ -69,59 +71,56 @@
    CONTRAST another player
 
    player - player to get info for"
+  [player cntrst-player]
+  (let [new-melody-char (select-melody-characteristics player)]
+    {
+     :instrument-info (select-instrument player new-melody-char
+                                         :cntrst-plyr-inst-info (get-instrument-info cntrst-player)
+                                         )
+     :melody-char new-melody-char
+     }
+    )
+  )
+
+(defn new-segment?
+  "Returns true if player is starting a new segment, else returns false
+
+   player - the player to check a new segment for"
   [player]
-  {
-   :instrument-info (select-instrument player)
-   :melody-char (select-melody-characteristics player)
-   }
+  (let [melody-event (get-last-melody-event player)]
+    (if (>= (+ (get-note-event-time-for-event melody-event) (get-dur-millis (get-dur-info-for-event melody-event)))
+            (+ (get-seg-start player) (get-seg-len player)))
+      true
+      false))
   )
 
 (defn new-segment
-  "Returns map player wit new segment info in it
+  "Returns player map with new segment info in it
 
-   player - player map to get (and return new segment info for"
-  [player]
+   player - player map to get (and return) new segment info for"
+  [player event-time]
   (let [new-behavior (select-behavior player)
         behavior-action (get-behavior-action new-behavior)
         upd-player (assoc player
                      :behavior new-behavior
-                     :change-follow-info-note nil
-                     :last-pitch nil
+                     :change-follow-info-notes []
+                     :change-follow-info []
                      :seg-len (select-segment-length)
                      :seg-num (inc (get-seg-num player))
-                     :seg-start 0
+                     :seg-start event-time
                      )
         ]
     (cond
-     (= behavior-action FOLLOW)
+     (= behavior-action FOLLOW-PLAYER)
      (let [following-player-id (get-behavior-player-id new-behavior)]
        (merge upd-player
-              (get-following-info-from-player (get-player following-player-id))
-              {:sync-beat-player-id following-player-id}))
+              (get-following-info-from-player (get-player-map following-player-id))))
 
-     (= behavior-action SIMILAR)
-     (let [similar-player-info (get-similar-info-from-player (get-player (get-behavior-player-id new-behavior)))
+     (= behavior-action SIMILAR-PLAYER)
+     (let [similar-player-info (get-similar-info-from-player (get-player-map (get-behavior-player-id new-behavior)))
            similar-melody-char (:melody-char similar-player-info)
-           new-instrument (select-instrument upd-player)
-           new-melody-lo (if (<=
-                              (get-instrument-range-lo new-instrument)
-                              (get-melody-char-range-lo similar-melody-char)
-                              (get-instrument-range-hi new-instrument)
-                              )
-                           (get-melody-char-range-lo similar-melody-char)
-                           (get-instrument-range-lo new-instrument)
-                           )
-           new-melody-hi (if (> (get-instrument-range-hi new-instrument)
-                                (get-melody-char-range-hi similar-melody-char)
-                                new-melody-lo
-                                )
-                           (get-melody-char-range-hi similar-melody-char)
-                           (get-instrument-range-hi new-instrument)
-                           )
-
-           new-melody-char (assoc similar-melody-char
-                             :range (list new-melody-lo new-melody-hi)
-                             )
+           new-instrument (select-instrument upd-player similar-melody-char)
+           new-melody-char (adjust-melody-char-range similar-melody-char new-instrument)
            new-similar-info (assoc similar-player-info :melody-char new-melody-char)
            ]
        (merge (assoc upd-player
@@ -130,12 +129,20 @@
               new-similar-info)
        )
 
-     :else  ;;  IGNORE or CONTRAST
-     (let [new-instrument (select-instrument upd-player)]
+     :else  ;;  IGNORE-ALL or CONTRAST-PLAYER or SIMILAR-ENSEMBLE or CONTRAST-ENSEMBLE
+     (let [new-melody-char (select-melody-characteristics upd-player)
+           new-instrument (if (= behavior-action CONTRAST-PLAYER)
+                            (select-instrument upd-player
+                                               new-melody-char
+                                               :cntrst-plyr (get-behavior-player-id upd-player))
+                            (select-instrument upd-player new-melody-char))
+           new-mm (select-mm upd-player)
+           ]
        (assoc upd-player
          :instrument-info new-instrument
          :key (select-key upd-player)
-         :melody-char (select-melody-characteristics (assoc upd-player :instrument-info new-instrument))
+         :melody-char (adjust-melody-char-range new-melody-char new-instrument)
          :metronome (select-metronome upd-player)
-         :mm (select-mm upd-player)
-         :scale (select-scale upd-player))))))
+         :mm new-mm
+         :scale (select-scale upd-player)
+         )))))

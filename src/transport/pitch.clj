@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,20 +16,22 @@
 (ns transport.pitch
   (:require
    [overtone.live :refer [MIDI-RANGE]]
-   [transport.behavior :refer [get-behavior-ensemble-action]]
-   [transport.behaviors :refer [get-behavior-action-for-player]]
-   [transport.ensemble-status :refer [get-ensemble-key-for-player]]
+   [transport.behavior :refer [get-behavior-action]]
+   [transport.constants :refer :all]
+   [transport.ensemble-status :refer [get-ensemble-average-pitch get-ensemble-key-for-player get-pitch-trend]]
    [overtone.music.pitch :refer [SCALE]]
-   [transport.instrument :refer [get-hi-range get-lo-range get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo get-melody-char-smoothness]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
+   [transport.melodychar :refer [get-melody-char-range get-melody-char-range-hi get-melody-char-range-lo
+                                 get-melody-char-pitch-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
-   [transport.settings :refer :all]
+   [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
+   [transport.util.utils :refer [nil-to-num print-msg]]
    )
   (:import transport.behavior.Behavior)
   )
 
-(def SCALES (atom {}))
+(def SCALES (atom '()))
 (def DESCEND 0)
 (def ASCEND 1)
 (def REPEAT-NOTE 3)
@@ -50,11 +52,12 @@
 
 (defn load-scales
   []
-  (reset! SCALES {})
+  (reset! SCALES '())
   (doseq [scale-key (keys SCALE)]
-    (reset! SCALES (assoc @SCALES
-                  scale-key
-                  (convert-scale (scale-key SCALE))))))
+    (reset! SCALES (conj @SCALES
+                         (convert-scale (scale-key SCALE)))))
+  (reset! SCALES (distinct @SCALES))
+  )
 
 (defn get-scale-degree-semitones
   "Returns the number of semitones from tonic that
@@ -70,10 +73,9 @@
   [player & {:keys [lo-range hi-range]
              :or {lo-range (get-melody-char-range-lo (get-melody-char player))
                   hi-range (get-melody-char-range-hi (get-melody-char player))}} ]
-;;  (println "pitch.clj - get-scale-pitch-in-range lo:" lo-range "hi:" hi-range)
   (let [player-key (get-key player)
         rand-pitch (random-int lo-range hi-range)
-        rand-octave (int (/ rand-pitch OCTAVE)) ;; octave multiplier for rand-pitch
+        rand-octave (quot rand-pitch OCTAVE)   ;; octave multiplier for rand-pitch
         semitones-above-c (mod rand-pitch OCTAVE)
         semitones-above-tonic (mod (+ semitones-above-c (- OCTAVE player-key)) OCTAVE)
         scale-degree-in-range (last
@@ -112,7 +114,8 @@
    pitch - pitch to find nearest scale degree in players key and scale"
   [player pitch]
   (let [semitones-above-root (mod (- pitch (get-key player)) OCTAVE)
-        octave-scale (conj (get-scale player) OCTAVE) ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        ;; add OCTAVE interval at end in case pitch is between last interval and octave
+        octave-scale (conj (get-scale player) OCTAVE)
         ]
 
     (loop [i 0
@@ -185,7 +188,7 @@
   "returns a randow number between 0 - 11
    to represent a key. 0=C"
   [player]
-  (if (= (get-behavior-ensemble-action (get-behavior player)) SIMILAR)  ;; if SIMILARng ensemble
+  (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)  ;; if SIMILARng ensemble
     (get-ensemble-key-for-player player)  ;; get key from ensemble else
     (rand-int 12))) ;; return random key
 
@@ -199,24 +202,22 @@
           (>= last-note (get-instrument-range-hi (get-instrument-info player))) DESCEND
           :else
           (let [rand-dir (rand)]
-            (if (<= rand-dir 0.45)
-              DESCEND
-              (if ( <= rand-dir 0.9)
-                ASCEND
-                REPEAT-NOTE))
+            (cond (<= rand-dir 0.45) DESCEND
+                  (<= rand-dir 0.9) ASCEND
+                  :else REPEAT-NOTE)
             )))
   )
 
 (defn select-random-scale
   "returns a scale"
   []
-  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  (nth @SCALES (rand-int (count @SCALES)))
   )
 
 (defn select-scale
   "returns a scale"
   [player]
-  ((nth (keys SCALE) (random-int 0 (- (count SCALE) 1))) @SCALES)
+  (nth @SCALES (rand-int (count @SCALES)))
   )
 
 (defn select-scale-degree
@@ -231,7 +232,7 @@
    player - player to get STEP or SKIP for"
   [player]
   (let [rand-rounded (read-string (format "%.1f" (* (rand) 10)))] ;; scales rand to int + 1 decimal place (0 - 9.9)
-    (if (>  rand-rounded (get-melody-char-smoothness (get-melody-char player))) STEP SKIP)
+    (if (>  rand-rounded (get-melody-char-pitch-smoothness (get-melody-char player))) STEP SKIP)
     )
   )
 
@@ -239,8 +240,11 @@
   "Checks if note is in the melody range of player.
    Returns note if it is within range, else returns -1"
   [player note]
-  (if (and (<= (first MIDI-RANGE) (get-melody-char-range-lo (get-melody-char player)) note)
-           (<= note (get-melody-char-range-hi (get-melody-char player)) (last MIDI-RANGE)))
+  (if (<= MIDI-LO
+          (get-melody-char-range-lo (get-melody-char player))
+          note
+          (get-melody-char-range-hi (get-melody-char player))
+          MIDI-HI)
     note
     -1
     )
@@ -316,12 +320,46 @@
     ;; if no pitch is available in direction selected, return a random pitch in melody range
     (if (= next-pitch (check-note-in-range player next-pitch))
       next-pitch
-      (do
-        (println "pitch.clj - next-pitch-ignore CHOOSING NEW PITCH player-id:" (get-player-id player) "pitch:" next-pitch "range:" (get-melody-char-range-lo (get-melody-char player)) (get-melody-char-range-hi (get-melody-char player)) "key:" (get-key player) "scale:" (get-scale player))
-        (get-scale-pitch-in-range player)
-        )
+      (get-scale-pitch-in-range player)
       )
-    )  )
+    )
+  )
+
+(defn next-pitch-similar-ensemble
+  [player]
+  (let [ensemble-dir (get-pitch-trend)
+        direction (cond (= ensemble-dir STEADY) (select-direction player)
+                        (= ensemble-dir INCREASING) ASCEND
+                        (= ensemble-dir DECREASING) DESCEND
+                        )
+        last-pitch (get-last-melody-note player)
+        next-pitch (cond
+                    (nil? last-pitch) (get-scale-pitch-in-range player)
+                    (= direction ASCEND) (dir-ascend player)
+                    (= direction DESCEND) (dir-descend player)
+                    (= direction REPEAT-NOTE) (get-last-melody-note player)
+                    :else (get-scale-pitch-in-range player)
+                    )
+        ]
+    ;; if no pitch is available in direction selected, return a random pitch in melody range
+    (if (= next-pitch (check-note-in-range player next-pitch))
+      next-pitch
+      (cond (= direction ASCEND)
+            (get-scale-pitch-in-range player
+                                      :lo-range (min (get-melody-char-range-hi (get-melody-char player))
+                                                 (max (get-melody-char-range-lo (get-melody-char player))
+                                                      (int (nil-to-num (get-ensemble-average-pitch) MIDI-LO)))))
+            (= direction DESCEND)
+            (get-scale-pitch-in-range player
+                                      :hi-range (max (get-melody-char-range-lo (get-melody-char player))
+                                                 (min (int (nil-to-num (get-ensemble-average-pitch) MIDI-HI))
+                                                      (get-melody-char-range-hi (get-melody-char player))
+                                                      ))
+                                      )
+            :else (get-scale-pitch-in-range player))
+      )
+    )
+  )
 
 (defn next-pitch-similar
   [player]
@@ -336,10 +374,11 @@
 (defn next-pitch
   [player & {:keys [note-dir]
              :or {note-dir nil}}]
-  (let [player-behavior-action (get-behavior-action-for-player player)
+  (let [player-behavior-action (get-behavior-action (get-behavior player))
         ]
     (cond
-     (= player-behavior-action SIMILAR) (next-pitch-similar player)
-     (= player-behavior-action CONTRAST) (next-pitch-contrast player)
-     (= player-behavior-action IGNORE) (next-pitch-ignore player)
-     :else (println "pitch.clj - next-pitch - ERROR - Invalid behavior-action:" player-behavior-action))) )
+     (= player-behavior-action SIMILAR-ENSEMBLE) (next-pitch-similar-ensemble player)
+     (= player-behavior-action SIMILAR-PLAYER) (next-pitch-similar player)
+     (= player-behavior-action CONTRAST-PLAYER) (next-pitch-contrast player)
+     :else (next-pitch-ignore player)
+     )) )

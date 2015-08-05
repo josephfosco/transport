@@ -1,4 +1,4 @@
-;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014-2015  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,30 +15,33 @@
 
 (ns transport.melodyevent)
 
-(defrecord MelodyEvent [note dur-info follow-note instrument-info volume seg-num])
+(defrecord MelodyEvent [note dur-info change-follow-info-note follow-note follow-player-id instrument-info note-event-time note-play-time player-id sc-instrument-id seg-num volume])
 
 (defn create-melody-event
-  [& {:keys [note dur-info follow-note instrument-info volume seg-num]}]
+  "Used to create a MelodyEvent before the supercollider instrument id is known or instrument-plays a note"
+  [& {:keys [note dur-info change-follow-info-note follow-note follow-player-id instrument-info note-event-time player-id seg-num volume]}]
   (MelodyEvent. note
                 dur-info
+                change-follow-info-note
                 follow-note
+                follow-player-id
                 instrument-info
-                volume
+                note-event-time
+                nil
+                player-id
+                nil
                 seg-num
+                volume
                 )
   )
+
+(defn get-change-follow-info-note-for-event
+  [melody-event]
+  (:change-follow-info-note melody-event))
 
 (defn get-dur-info-for-event
   [melody-event]
   (:dur-info melody-event))
-
-(defn get-dur-millis
-  "Returns the millis duraition for the dur-info
-
-   dur-info - duration info to get millis from"
-  [dur-info]
-  (:dur-millis dur-info)
-  )
 
 (defn get-follow-note-for-event
   [melody-event]
@@ -52,10 +55,35 @@
   [melody-event]
   (:note melody-event))
 
+(defn get-note-play-time-for-event
+  [melody-event]
+  (:note-play-time melody-event))
+
+(defn get-note-event-time-for-event
+  [melody-event]
+  (:note-event-time melody-event))
+
+(defn get-player-id-for-event
+  [melody-event]
+  (:player-id melody-event))
+
 (defn get-seg-num-for-event
   [melody-event]
   (:seg-num melody-event))
 
+(defn get-sc-instrument-id
+  [melody-event]
+  (:sc-instrument-id melody-event))
+
 (defn get-volume-for-event
   [melody-event]
   (:volume melody-event))
+
+(defn set-note-play-time-for-event
+  [melody-event note-play-time]
+  (assoc melody-event :note-play-time note-play-time))
+
+(defn set-sc-instrument-id-and-note-play-time
+  [melody-event sc-instrument-id note-play-time]
+  (assoc melody-event :sc-instrument-id sc-instrument-id
+                      :note-play-time note-play-time))
