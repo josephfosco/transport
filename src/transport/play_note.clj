@@ -360,14 +360,13 @@
         upd-melody-event (set-sc-instrument-id-and-note-play-time  melody-event
                                                                    sc-instrument-id
                                                                    note-play-time)
-        new-melody (reset! (get @player-melodies player-id)
-                           (update-melody-info (deref (get @player-melodies player-id))
-                                               player
-                                               event-time
-                                               upd-melody-event
-                                               new-seg?
-                                               sync-beat-player-id
-                                               )
+        new-melody (swap! (get @player-melodies player-id)
+                          update-melody-info
+                          player
+                          event-time
+                          upd-melody-event
+                          new-seg?
+                          sync-beat-player-id
                            )
         ]
 
@@ -530,14 +529,13 @@
         upd-melody-event (set-sc-instrument-id-and-note-play-time melody-event
                                                                   sc-instrument-id
                                                                   note-play-time)
-        new-melody (reset! (get @player-melodies player-id)
-                           (update-melody-info (deref (get @player-melodies player-id))
-                                              player
-                                              event-time
-                                              upd-melody-event
-                                              false ;; not new-seg?
-                                              nil   ;; no sync-beat-player-id
-                                              )
+        new-melody (swap! (get @player-melodies player-id)
+                           update-melody-info
+                           player
+                           event-time
+                           upd-melody-event
+                           false ;; not new-seg?
+                           nil  ;; no sync-beat-player-id
                           )
         ]
 
