@@ -20,20 +20,20 @@
   )
 
 (defn midi-print [event]
-  ;; (println (:note event) (/ (:velocity event) 127.0))
-  (println "MIDI IN")
+  (println (:note event) (/ (:velocity event) 127.0))
   )
 
-(def kb (midi/midi-find-device (midi/midi-sources) "VirMIDI [hw:1,0,0]"))
+(def kb (midi/midi-find-device (midi/midi-sources) "hw:1,0,0"))
 
 (def keyboard (midi/midi-in kb))
 
 (midi/midi-handle-events keyboard #'midi-print)
 
+(def kb 10)
 
+(midi/midi-find-device (midi/midi-sources) "VirMIDI [hw:1,0,0]")
 
-
-
+(first (midi/midi-sources))
 
 (first (midi-find-connected-devices "hw:1,0,0"))
 
@@ -53,6 +53,8 @@ kb
           ::note-printer)
 
 (remove-event-handler ::note-printer)
+
+
 
 
 (def kb (midi/midi-find-device (midi/midi-sources) "VirMIDI [hw:1,0,0]"))
@@ -79,4 +81,4 @@ kb
 (defn midi-player [event]
   (ding (:note event) (/ (:velocity event) 127.0)))
 
-(midi-handle-events kb #'midi-player)
+(midi/midi-handle-events keyboard #'midi-player)
