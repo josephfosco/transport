@@ -13,6 +13,25 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;; To make this work
+;;
+;; .jackdrc in home directory should contain -Xnone to not load midi drivers
+;; mine looks like:
+;; /usr/bin/jackd -dalsa -dhw:0 -r44100 -p1024 -n2 -Xnone -D
+;;
+;; in the terminal install virtual midi drivers using the command:
+;; sudo modprobe snd-virmidi snd_index=1
+;; snd_index=1 if there is only 1 other audio device
+;;
+;; start Virtual MIDI Piano Keyboard (VMPK)
+;;
+;; start transport (lein repl - in transport directory)
+;;
+;; in VMPK goto Edit - Midi Connections
+;; in the popup for Output MIDI Connection select Virtual Raw MIDI 1-0-0
+
+
+
 (ns transport.midi.midi-start
   (:use [overtone.live]
    )
@@ -29,20 +48,17 @@
 
 (midi/midi-handle-events keyboard #'midi-print)
 
-(def kb 10)
 
-(midi/midi-find-device (midi/midi-sources) "VirMIDI [hw:1,0,0]")
+
+
 
 (first (midi/midi-sources))
 
 (first (midi-find-connected-devices "hw:1,0,0"))
 
-
 (def kb (midi-find-connected-device "hw:1,0,0"))
 
 (println kb)
-
-kb
 
 (midi-device-num kb)
 
@@ -57,17 +73,9 @@ kb
 
 
 
-(def kb (midi/midi-find-device (midi/midi-sources) "VirMIDI [hw:1,0,0]"))
-
 (def kb (midi/midi-find-device (midi/midi-sources) "VirMIDI, VirMidi, Virtual Raw MIDI"))
 
 (midi/midi-find-device (midi/midi-sources) "VirMIDI, VirMidi, Virtual Raw MIDI")
-
-kb
-
-(midi/midi-in kb)
-
-(let [receiver (proxy [Receiver] [] (close [] nil) (send [msg timestamp] (#'midi-print (midi-msg msg) timestamp)))])
 
 (midi/midi-ports)
 
