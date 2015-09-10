@@ -229,6 +229,11 @@
   (average @player-note-durs :list-length @number-of-players))
 
 (defn get-note-dur-list
+  " Returns a list of note-durs starting at the earliest dur in curnote-times
+    up til to-time
+
+    cur-note-times - a list of lists of note-start-times and durations
+    to-time - the latest time (in millis) to ruturn a duration for"
   [cur-note-times to-time]
   (for [note-info cur-note-times
         :let [note-time (first note-info)

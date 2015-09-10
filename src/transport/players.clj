@@ -611,13 +611,13 @@
   )
 
 (defn clear-ensemble
-  "used by send or send-off to clear ensemble atom"
+  "used to clear ensemble atom"
   [cur-players]
   {}
   )
 
 (defn clear-player-melodies
-  "used by send or send-off to clear player-melodies atom"
+  "used to clear player-melodies atom"
   [cur-melodies]
   {}
   )
