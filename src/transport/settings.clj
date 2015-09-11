@@ -16,7 +16,9 @@
 (ns transport.settings
   "This namespace is a 'terminal namespace'.
    It should not :require :use :refer or :import any
-   other namespaces")
+   other transport namespaces"
+    (:require [clojure.java.io])
+)
 
 (def number-of-players (atom 10))
 
@@ -30,3 +32,13 @@
 (def ensemble-pitch-change-threshold (atom 12))
 
 (def min-volume 0.2)
+
+(defn load-transport-config
+  [file-name]
+  (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)]
+    (let [props (java.util.Properties.)]
+      (.load props reader)
+      (into {} (for [[k v] props] [(keyword k) (read-string v)]))
+      )
+    )
+  )
