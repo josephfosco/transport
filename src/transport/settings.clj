@@ -26,13 +26,6 @@
   [new-num-players]
   (reset! number-of-players new-num-players))
 
-(def ensemble-mm-change-threshold (atom 5))
-(def ensemble-volume-change-threshold (atom 0.03))
-(def ensemble-density-change-threshold (atom 0.07))
-(def ensemble-pitch-change-threshold (atom 12))
-
-(def min-volume 0.2)
-
 (defn load-transport-config
   [file-name]
   (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)]
@@ -42,3 +35,17 @@
       )
     )
   )
+
+(defn get-setting
+  [key]
+  (key settings))
+
+;; Load settings from config file
+(def settings (load-transport-config "src/transport/config.properties"))
+
+(def ensemble-mm-change-threshold (atom (:ensemble-mm-change-threshold settings)))
+(def ensemble-volume-change-threshold (atom (:ensemble-volume-change-threshold settings)))
+(def ensemble-density-change-threshold (atom (:ensemble-density-change-threshold settings)))
+(def ensemble-pitch-change-threshold (atom (:ensemble-pitch-change-threshold settings)))
+
+(def min-volume (:min-volume settings))
