@@ -20,8 +20,6 @@
     (:require [clojure.java.io])
 )
 
-(def number-of-players (atom 10))
-
 (defn load-transport-config
   [file-name]
   (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)]

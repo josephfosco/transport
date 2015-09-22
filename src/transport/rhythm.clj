@@ -23,11 +23,9 @@
    [transport.melodyevent :refer :all]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
+   [transport.settings :refer [min-mm max-mm]]
    [overtone.live :refer [metronome]]
    ))
-
-(def min-mm 40)
-(def max-mm 200)
 
 (def base-dur 1)
 (def quarter-note 8)
@@ -107,11 +105,11 @@
   )
 
 (defn select-mm
-  ([] (random-int min-mm max-mm))
+  ([] (random-int @min-mm @max-mm))
   ([player]
      (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
        (get-ensemble-trend-mm)
-       (random-int min-mm max-mm)
+       (random-int @min-mm @max-mm)
        )
      )
   )
