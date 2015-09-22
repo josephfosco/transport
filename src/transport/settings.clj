@@ -22,10 +22,6 @@
 
 (def number-of-players (atom 10))
 
-(defn set-number-of-players
-  [new-num-players]
-  (reset! number-of-players new-num-players))
-
 (defn load-transport-config
   [file-name]
   (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)]
@@ -36,16 +32,19 @@
     )
   )
 
+;; Load settings from config file
+(def settings (load-transport-config "src/transport/config.properties"))
+
+
+;; ALL config settings are loaded as atoms
+(doseq [[k v] settings]
+  (intern (ns-name *ns*) (symbol (name k)) (atom v))
+  )
+
 (defn get-setting
   [key]
   (key settings))
 
-;; Load settings from config file
-(def settings (load-transport-config "src/transport/config.properties"))
-
-(def ensemble-mm-change-threshold (atom (:ensemble-mm-change-threshold settings)))
-(def ensemble-volume-change-threshold (atom (:ensemble-volume-change-threshold settings)))
-(def ensemble-density-change-threshold (atom (:ensemble-density-change-threshold settings)))
-(def ensemble-pitch-change-threshold (atom (:ensemble-pitch-change-threshold settings)))
-
-(def min-volume (:min-volume settings))
+(defn set-number-of-players
+  [new-num-players]
+  (reset! number-of-players new-num-players))

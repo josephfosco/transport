@@ -71,7 +71,7 @@
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @number-of-players 0.05)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) (+ min-volume 0.1)) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) (+ @min-volume 0.1)) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )

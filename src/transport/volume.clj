@@ -52,7 +52,7 @@
     (if (or (= last-volume 0) (nil? last-volume))
       (select-random-volume)
       (let [smoothness (volume-smoothness (get-melody-char-vol-smoothness (get-melody-char player)))
-            vol-min (max (- last-volume (* (/ smoothness 2) 0.1)) min-volume)
+            vol-min (max (- last-volume (* (/ smoothness 2) 0.1)) @min-volume)
             vol-max (min (+ last-volume (* (/ smoothness 2) 0.1)) 1)
             ]
         (select-volume-in-range vol-min vol-max)
@@ -64,16 +64,16 @@
   (let [average-volume (get-average-playing-volume)]
     (cond (= (get-ensemble-trend-volume) STEADY)
           (select-volume-in-range
-           (max min-volume (- average-volume 0.05)) ;; set range of volume to
+           (max @min-volume (- average-volume 0.05)) ;; set range of volume to
            (min 1 (+ average-volume 0.05)))          ;; + or - 0.05 of average volume
           (= (get-ensemble-trend-volume) INCREASING)
           (select-volume-in-range
-           (min 1 (max min-volume (+ average-volume 0.05)))
+           (min 1 (max @min-volume (+ average-volume 0.05)))
            (min 1 (+ average-volume 0.2)))
           :else
           (select-volume-in-range
-           (max min-volume (- average-volume 0.2))
-           (max min-volume (- average-volume 0.05)))
+           (max @min-volume (- average-volume 0.2))
+           (max @min-volume (- average-volume 0.05)))
           )
     )
   )
@@ -85,12 +85,12 @@
           (select-ensemble-volume)
           (= (get-ensemble-trend-volume) INCREASING)
           (min (+ (select-volume player)
-                  (max (- (get-volume-trend-diff) (* 0.5 @ensemble-volume-change-threshold)) min-volume))
+                  (max (- (get-volume-trend-diff) (* 0.5 @ensemble-volume-change-threshold)) @min-volume))
                1)
           (= (get-ensemble-trend-volume) DECREASING)
           (max (- (select-volume player)
                   (min (- (get-volume-trend-diff) (* 0.5 @ensemble-volume-change-threshold)) 1))
-               min-volume)
+               @min-volume)
           :else
           (select-volume player)
       ))
@@ -109,7 +109,7 @@
      (= player-action CONTRAST-ENSEMBLE)
      (let [average-volume (get-average-playing-volume)]
        (select-volume-in-range
-        (if (< average-volume 0.5) 0.7 min-volume) ;; set range of volume eithe 0.7 - 1 or
+        (if (< average-volume 0.5) 0.7 @min-volume) ;; set range of volume eithe 0.7 - 1 or
         (if (< average-volume 0.5) 1 0.3))) ;; min-volume - 0.3 opposite of ensemble
      ;; else pick next melody note based only on players settings
      ;;  do not reference other players or ensemble
