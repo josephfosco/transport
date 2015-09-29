@@ -28,7 +28,7 @@
    [transport.schedule :refer [sched-event]]
    [transport.settings :refer [ensemble-density-change-threshold ensemble-mm-change-threshold
                                ensemble-pitch-change-threshold ensemble-volume-change-threshold
-                               min-volume number-of-players]]
+                               min-mm max-mm min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
@@ -188,7 +188,11 @@
   []
 ;;  (print-msg "get-ensemble-trend-mm:" @player-mms)
 ;;  (print-msg "get-ensemble-trend-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
-  (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
+  (let [ensemble-mm (+ (get-ensemble-mm) ((mm-trend :trend-amount)))]
+    (cond (> @min-mm ensemble-mm @max-mm) ensemble-mm
+          (< ensemble-mm @min-mm) @min-mm
+          :else @max-mm
+     ))
   )
 
 (defn get-ensemble-max-freq-density

@@ -43,6 +43,15 @@
   [key]
   (key settings))
 
+(defn reset-setting
+  "Reset a setting  to new-val.
+   returns - new-val
+
+   setting-name - the name of the setting to be changed as a string
+   new-val - new value for the setting"
+  [setting-name new-val]
+  (reset! (eval (symbol setting-name)) new-val))
+
 (defn set-number-of-players
   [new-num-players]
   (reset! number-of-players new-num-players))

@@ -137,6 +137,7 @@
   [melody-char]
   (if (nil? melody-char)
     all-instruments
+    ;; if melody has mostly long(er) notes, do not use perc instruments
     (if (> (get-melody-char-note-durs melody-char) 5)
       (non-perc-instruments all-instruments)
       all-instruments

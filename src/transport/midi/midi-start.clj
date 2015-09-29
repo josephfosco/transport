@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; To make this work
+;; To make this work with virtual midi input
 ;;
 ;; .jackdrc in home directory should contain -Xnone to not load midi drivers
 ;; mine looks like:
