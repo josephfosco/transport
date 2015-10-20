@@ -31,7 +31,9 @@
   )
 
 ;; Load settings from config file
-(def settings (load-transport-config "src/transport/config.properties"))
+;;(def settings (load-transport-config "./src/transport/config/config.properties"))
+(let [config-files (load-transport-config "config_files.properties")]
+  (def settings (load-transport-config (str (:default-config config-files)))))
 
 
 ;; ALL config settings are loaded as atoms
@@ -40,8 +42,8 @@
   )
 
 (defn get-setting
-  [key]
-  (key settings))
+  [setting-key]
+  (setting-key settings))
 
 (defn reset-setting
   "Reset a setting  to new-val.

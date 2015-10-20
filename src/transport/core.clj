@@ -19,6 +19,7 @@
    [overtone.live :refer :all]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.behaviors :refer [init-behaviors reset-behaviors]]
+   [transport.live-players :refer [init-live-players]]
    [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor
                                         stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
@@ -83,6 +84,9 @@
 
       (print-banner "transport-init about to init-ensemble")
       (init-ensemble)
+
+      (print-banner "transport-init about to init-live-players")
+      (init-live-players)
 
       (print-banner "transport-init about to init-ensemble-status")
       (init-ensemble-status)

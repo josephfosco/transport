@@ -377,10 +377,6 @@
          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
-
-        (= player-key :melody)
-        (print-player-melody (:melody player) :prnt-full-inst-info prnt-full-inst-info)
-
        :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
