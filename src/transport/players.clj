@@ -24,7 +24,7 @@
                                   get-volume-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
-   [transport.settings :refer :all]
+   [transport.settings :refer [number-of-players]]
    [transport.util.utils :refer :all]
    )
   (:import transport.behavior.Behavior)

@@ -17,8 +17,10 @@
   "This namespace is a 'terminal namespace'.
    It should not :require :use :refer or :import any
    other transport namespaces"
-    (:require [clojure.java.io])
+  (:require [clojure.java.io :refer [as-file]])
 )
+
+(def settings (atom {}))
 
 (defn load-transport-config
   [file-name]
@@ -30,20 +32,31 @@
     )
   )
 
-;; Load settings from config file
-;;(def settings (load-transport-config "./src/transport/config/config.properties"))
-(let [config-files (load-transport-config "config_files.properties")]
-  (def settings (load-transport-config (str (:default-config config-files)))))
+(defn init-settings-from-config
+  "Load settings from config file(s)"
+  []
+  (let [config-files (if (.exists (as-file "config_files.properties"))
+                       (load-transport-config "config_files.properties")
+                       {})]
+    ;; first load default settings
+    (reset! settings (load-transport-config "./src/transport/config/config.properties"))
+    ;; then add or overwrite with custom settings
+    (when (:custom-config config-files)
+      (reset! settings (merge @settings (load-transport-config (str (:custom-config config-files))))))
+    )
 
-
-;; ALL config settings are loaded as atoms
-(doseq [[k v] settings]
-  (intern (ns-name *ns*) (symbol (name k)) (atom v))
+  ;; after all config files are loaded, the final settings are loaded as atoms
+  (doseq [[k v] @settings]
+    (intern (ns-name *ns*) (symbol (name k)) (atom v))
+    )
   )
+
+;; initialize settings when this file loads
+(init-settings-from-config)
 
 (defn get-setting
   [setting-key]
-  (setting-key settings))
+  (setting-key @settings))
 
 (defn reset-setting
   "Reset a setting  to new-val.
