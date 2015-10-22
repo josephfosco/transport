@@ -55,17 +55,31 @@
 (init-settings-from-config)
 
 (defn get-setting
-  [setting-key]
-  (setting-key @settings))
+  "returns the value of a setting.
+   Returns nil if the setting does not exist
+
+   setting - the setting name as a string"
+  [setting]
+  (try
+    (deref (eval (symbol setting)))
+    (catch RuntimeException e
+      nil)
+    )
+  )
 
 (defn reset-setting
   "Reset a setting  to new-val.
-   returns - new-val
+   returns - new-val or nil if the setting does not exist
 
    setting-name - the name of the setting to be changed as a string
    new-val - new value for the setting"
   [setting-name new-val]
-  (reset! (eval (symbol setting-name)) new-val))
+  (try
+    (reset! (eval (symbol setting-name)) new-val)
+    (catch RuntimeException e
+      nil))
+    )
+
 
 (defn set-number-of-players
   [new-num-players]
