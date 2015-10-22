@@ -60,11 +60,7 @@
 
    setting - the setting name as a string"
   [setting]
-  (try
-    (deref (eval (symbol setting)))
-    (catch RuntimeException e
-      nil)
-    )
+  (deref (eval (symbol setting)))
   )
 
 (defn reset-setting
@@ -74,11 +70,8 @@
    setting-name - the name of the setting to be changed as a string
    new-val - new value for the setting"
   [setting-name new-val]
-  (try
-    (reset! (eval (symbol setting-name)) new-val)
-    (catch RuntimeException e
-      nil))
-    )
+  (reset! (eval (symbol setting-name)) new-val)
+  )
 
 
 (defn set-number-of-players
