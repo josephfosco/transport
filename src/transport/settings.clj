@@ -51,7 +51,9 @@
     )
   )
 
+;; *****************************************
 ;; initialize settings when this file loads
+;; *****************************************
 (init-settings-from-config)
 
 (defn get-setting
