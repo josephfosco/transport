@@ -34,7 +34,7 @@
 (defn create-live-player
   [player-no]
   (atom {:function process-note
-         :live-player-no player-no
+         :live-player-id player-no
          :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
          :midi-channel nil
          :instrument nil
@@ -44,6 +44,14 @@
 (defn set-up-midi
   [midi-port fnc]
   (midi/midi-handle-events (midi/midi-in midi-port) fnc)
+  )
+
+(defn initial-live-player-melody
+  [live-player-no]
+  {
+   :live-player-id live-player-no
+   :melody {}
+   }
   )
 
 (defn init-live-players
@@ -57,6 +65,13 @@
   (let [players (map deref (vals @live-players))
         midi-info (for [port (map :midi-port players) fnc (map :function players)] [port fnc])]
     (dorun (map set-up-midi (map first midi-info) (map second midi-info)))
+    )
+  ;; set up live-players-melodies
+  (let [live-player-ids (vec (map get (map deref (vals @live-players)) (repeat :live-player-id)))]
+    (reset! live-player-melodies
+            (zipmap live-player-ids
+                    (map atom (map initial-live-player-melody live-player-ids))
+                    ))
     )
   )
 
