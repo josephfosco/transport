@@ -27,7 +27,9 @@
 
 (defn process-note
   [event]
-  (println "****************  NOTE RECEIVED ******************"))
+  (println "****************  NOTE RECEIVED ******************")
+  (println event)
+  )
 
 (defn create-live-player
   [player-no]
@@ -35,14 +37,13 @@
          :live-player-no player-no
          :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
          :midi-channel nil
+         :instrument nil
          })
   )
 
 (defn set-up-midi
   [midi-port fnc]
-  (let [dev (midi/midi-find-device (midi/midi-sources) midi-port)]
-    (midi/midi-handle-events (midi/midi-in dev) fnc)
-    )
+  (midi/midi-handle-events (midi/midi-in midi-port) fnc)
   )
 
 (defn init-live-players
