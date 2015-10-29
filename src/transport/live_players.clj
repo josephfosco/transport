@@ -26,6 +26,11 @@
 (def live-players (atom {}))
 (def live-player-melodies (atom {}))
 
+(defn get-player-for-midi-event
+ [midi-event]
+ 0
+ )
+
 (defn get-last-melody-event-num-for-live-player
   [live-player-id]
   (get-max-map-key (:melody (deref (get @live-player-melodies live-player-id))))
@@ -51,6 +56,17 @@
     )
   )
 
+(defn add-note-duration
+  [cur-melody-info midi-event live-player-id]
+  (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)
+        melody-event (get (:melody cur-melody-info) last-melody-event-num)
+        dur (- (:timestamp midi-event) (:start-time melody-event))
+        new-melody-event (assoc melody-event :dur-millis dur)
+        ]
+    (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) last-melody-event-num new-melody-event))
+    )
+  )
+
 (defn next-note
   [midi-event live-player-id]
   (swap! (get @live-player-melodies live-player-id)
@@ -60,20 +76,26 @@
   )
 
 (defn note-end
-  [midi-event]
+  [midi-event live-player-id]
+  (swap! (get @live-player-melodies live-player-id)
+         add-note-duration
+         midi-event
+         live-player-id
+         )
   )
 
 (defn process-note
   [midi-event]
   (println "****************  NOTE RECEIVED ******************")
-  (println midi-event)
-  (cond (= (:status midi-event) :note-on)
-        (if (= (count @live-players) 1)
-          (next-note midi-event 0)
-          (print-msg "process-note" "******** NOT CURRENTLY SET UP FOR MORE THAN ONE LIVE PLAYER ********"))
-        (= (:status midi-event) :note-off)
-        (note-end midi-event)
-        )
+  ;; (println midi-event)
+
+  (let [live-player-id (get-player-for-midi-event midi-event)]
+    (cond (= (:status midi-event) :note-on)
+          (next-note midi-event live-player-id)
+          (= (:status midi-event) :note-off)
+          (note-end midi-event live-player-id)
+          )
+    )
   )
 
 (defn create-live-player
