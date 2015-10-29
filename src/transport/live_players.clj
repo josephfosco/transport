@@ -70,11 +70,10 @@
   (cond (= (:status midi-event) :note-on)
         (if (= (count @live-players) 1)
           (next-note midi-event 0)
-          (print-msg "process-note" "******** NOT CURRENTLY SET UP FOR MORE TAHN ONE LIVE PLAYER ********"))
+          (print-msg "process-note" "******** NOT CURRENTLY SET UP FOR MORE THAN ONE LIVE PLAYER ********"))
         (= (:status midi-event) :note-off)
         (note-end midi-event)
         )
-
   )
 
 (defn create-live-player
@@ -119,67 +118,4 @@
                     (map atom (map initial-live-player-melody live-player-ids))
                     ))
     )
-  )
-
-(comment
-  (def lps (map deref (vals @live-players)))
-  (for [port (map :midi-port lps) fnc (map :function lps)] [port fnc])
-  )
-
-
-(comment
-
-
-  (defn midi-print [event]
-    (println (:note event) (/ (:velocity event) 127.0))
-    )
-
-  (def kb (midi/midi-find-device (midi/midi-sources) "hw:1,0,0"))
-
-  (def keyboard (midi/midi-in kb))
-
-  (midi/midi-handle-events keyboard #'midi-print)
-
-
-
-
-
-  (first (midi/midi-sources))
-
-  (first (midi-find-connected-devices "hw:1,0,0"))
-
-  (def kb (midi-find-connected-device "hw:1,0,0"))
-
-  (println kb)
-
-  (midi-device-num kb)
-
-  (midi/midi-handle-events kb #(midi-print %1))
-
-  (on-event [:midi :note-on] (fn [{note :note velocity :velocity}]
-                               (println "Note: " note ", Velocity: " velocity))
-            ::note-printer)
-
-  (remove-event-handler ::note-printer)
-
-
-
-
-  (def kb (midi/midi-find-device (midi/midi-sources) "VirMIDI, VirMidi, Virtual Raw MIDI"))
-
-  (midi/midi-find-device (midi/midi-sources) "VirMIDI, VirMidi, Virtual Raw MIDI")
-
-  (midi/midi-ports)
-
-  (definst ding
-    [note 60 velocity 100]
-    (let [freq (midicps note)
-          snd  (sin-osc freq)
-          env  (env-gen (perc 0.1 0.8) :action FREE)]
-      (* velocity env snd)))
-
-  (defn midi-player [event]
-    (ding (:note event) (/ (:velocity event) 127.0)))
-
-  (midi/midi-handle-events keyboard #'midi-player)
   )
