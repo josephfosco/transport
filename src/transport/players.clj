@@ -25,7 +25,7 @@
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer [number-of-players]]
-   [transport.util.utils :refer :all]
+   [transport.util.utils :refer [get-max-map-key print-msg]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -152,7 +152,7 @@
 
 (defn get-last-melody-event-num-for-player
   [player]
-  (let [last-melody-key (reduce max 0 (keys (get-melody player)))]
+  (let [last-melody-key (get-max-map-key (get-melody player))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )

@@ -44,7 +44,8 @@
   )
 
 (defn get-max-map-key
-  "For hash-maps with numeric keys, returns the highest key"
+  "For hash-maps with numeric keys, returns the highest key.
+   Returns 0 if map is empty."
   [map]
   (reduce max 0 (keys map))
   )

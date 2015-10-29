@@ -19,16 +19,62 @@
    )
   (:require [overtone.midi :as midi]
             [transport.settings :refer [number-of-live-players]]
+            [transport.util.utils :refer [get-max-map-key print-msg]]
             )
   )
 
 (def live-players (atom {}))
 (def live-player-melodies (atom {}))
 
+(defn get-last-melody-event-num-for-live-player
+  [live-player-id]
+  (get-max-map-key (:melody (deref (get @live-player-melodies live-player-id))))
+  )
+
+(defn create-melody-event
+  [live-player-id midi-event]
+  {
+   :note (:note midi-event)
+   :dur-millis nil
+   :start-time (:timestamp midi-event)
+   :volume (:velocity midi-event)
+   :player-id live-player-id
+   }
+  )
+
+(defn add-melody-event
+  [cur-melody-info new-melody-event live-player-id]
+  (let [new-melody (assoc (:melody cur-melody-info)
+                     (inc (get-last-melody-event-num-for-live-player live-player-id))
+                     new-melody-event)]
+    (assoc cur-melody-info :melody new-melody)
+    )
+  )
+
+(defn next-note
+  [midi-event live-player-id]
+  (swap! (get @live-player-melodies live-player-id)
+         add-melody-event
+         (create-melody-event live-player-id midi-event)
+         live-player-id)
+  )
+
+(defn note-end
+  [midi-event]
+  )
+
 (defn process-note
-  [event]
+  [midi-event]
   (println "****************  NOTE RECEIVED ******************")
-  (println event)
+  (println midi-event)
+  (cond (= (:status midi-event) :note-on)
+        (if (= (count @live-players) 1)
+          (next-note midi-event 0)
+          (print-msg "process-note" "******** NOT CURRENTLY SET UP FOR MORE TAHN ONE LIVE PLAYER ********"))
+        (= (:status midi-event) :note-off)
+        (note-end midi-event)
+        )
+
   )
 
 (defn create-live-player
@@ -36,7 +82,7 @@
   (atom {:function process-note
          :live-player-id player-no
          :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
-         :midi-channel nil
+         :midi-channel (deref (eval (symbol (str "transport.settings/" "midi-channel-" player-no))))
          :instrument nil
          })
   )
@@ -66,7 +112,7 @@
         midi-info (for [port (map :midi-port players) fnc (map :function players)] [port fnc])]
     (dorun (map set-up-midi (map first midi-info) (map second midi-info)))
     )
-  ;; set up live-players-melodies
+  ;; initialize live-players-melodies
   (let [live-player-ids (vec (map get (map deref (vals @live-players)) (repeat :live-player-id)))]
     (reset! live-player-melodies
             (zipmap live-player-ids
