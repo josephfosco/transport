@@ -60,11 +60,19 @@
   [cur-melody-info midi-event live-player-id]
   (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)
         melody-event (get (:melody cur-melody-info) last-melody-event-num)
-        dur (- (:timestamp midi-event) (:start-time melody-event))
+        dur (quot (- (:timestamp midi-event) (:start-time melody-event)) 1000)
         new-melody-event (assoc melody-event :dur-millis dur)
         ]
     (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) last-melody-event-num new-melody-event))
     )
+  )
+
+(defn add-note-off
+  [cur-melody-info new-melody-event midi-event live-player-id]
+  (let [melody-with-dur (add-note-duration cur-melody-info midi-event live-player-id)
+        new-melody-info  (add-melody-event melody-with-dur new-melody-event live-player-id)]
+       new-melody-info
+       )
   )
 
 (defn next-note
@@ -77,6 +85,13 @@
 
 (defn note-end
   [midi-event live-player-id]
+  (comment
+    (swap! (get @live-player-melodies live-player-id)
+           add-note-off
+           (create-melody-event live-player-id midi-event)
+           midi-event
+           live-player-id
+           ))
   (swap! (get @live-player-melodies live-player-id)
          add-note-duration
          midi-event
