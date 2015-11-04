@@ -18,7 +18,8 @@
   (:use [overtone.live]
    )
   (:require [overtone.midi :as midi]
-            [transport.settings :refer [number-of-live-players]]
+            [transport.instrument :refer [get-instrument-info-for-name]]
+            [transport.settings :refer [get-setting number-of-live-players]]
             [transport.util.utils :refer [get-max-map-key print-msg]]
             )
   )
@@ -115,12 +116,20 @@
 
 (defn create-live-player
   [player-no]
-  (atom {:function process-note
-         :live-player-id player-no
-         :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
-         :midi-channel (deref (eval (symbol (str "transport.settings/" "midi-channel-" player-no))))
-         :instrument nil
-         })
+  (let [instrument-info (try
+                          (get-instrument-info-for-name (get-setting (str "midi-instrument-" player-no)))
+                          (catch Exception e
+                            nil)
+                          )
+        ]
+
+    (atom {:function process-note
+           :live-player-id player-no
+           :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
+           :midi-channel (deref (eval (symbol (str "transport.settings/" "midi-channel-" player-no))))
+           :instrument-info instrument-info
+           })
+    )
   )
 
 (defn set-up-midi

@@ -218,3 +218,8 @@
   [instrument]
   (ctl instrument :gate 1 :action FREE)
   )
+
+(defn get-instrument-info-for-name
+  [instrument-name]
+  (first (filter #(= (:name (:instrument %1)) instrument-name) all-instruments))
+  )

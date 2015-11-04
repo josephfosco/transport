@@ -57,17 +57,16 @@
 (init-settings-from-config)
 
 (defn get-setting
-  "returns the value of a setting.
-   Returns nil if the setting does not exist
+  "Returns the value of a setting.
 
    setting - the setting name as a string"
   [setting]
-  (deref (eval (symbol setting)))
+  (deref (eval (symbol (str "transport.settings/" setting))))
   )
 
 (defn reset-setting
   "Reset a setting  to new-val.
-   returns - new-val or nil if the setting does not exist
+   returns - new-val
 
    setting-name - the name of the setting to be changed as a string
    new-val - new value for the setting"
