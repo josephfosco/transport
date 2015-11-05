@@ -51,9 +51,19 @@
  (get-instrument-for-inst-info (get-instrument-info-for-live-player-id live-player-id))
  )
 
-(defn get-sc-instrument-id
+(defn get-live-player-note
+  [live-player-melody-event]
+  (:note live-player-melody-event)
+  )
+
+(defn get-live-player-sc-instrument-id
   [live-player-melody-event]
   (:sc-instrument-id live-player-melody-event)
+  )
+
+(defn get-live-player-start-time
+  [live-player-melody-event]
+  (:start-time live-player-melody-event)
   )
 
 (defn get-player-for-midi-event
@@ -87,29 +97,47 @@
     )
   )
 
-(defn add-note-duration
-  "Stop current note and and the duration to the current note's melody event
+(defn- get-melody-event-for-note
+  "Finds the last melody event in the live-players where
+   the melody event note is equal to the midi-event note.
+   Returns a map containing the melody event number (key)
+   and the melody-event (value)
+
+   cur-melody-info - melody map for live-player-id
+   midi-event - midi-event to match note with
+   live-player-id - live player melody to check"
+  [cur-melody-info midi-event live-player-id]
+  (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)]
+    (loop [melody-event-num last-melody-event-num]
+      (when (< melody-event-num 1)
+        (throw (Throwable. "NoNoteToStop"))
+        )
+      (let [melody-event (get (:melody cur-melody-info) melody-event-num)]
+        (if (= (:note midi-event) (get-live-player-note melody-event))
+          {melody-event-num melody-event}
+          (recur (dec melody-event-num))
+          )
+        )
+      )
+    )
+  )
+
+(defn set-note-off
+  "Stop current note and and set the duration of the current note's melody event
 
   cur-melody-info - all melody info for live-player
   midi-event      - the note-off midi-event
   live-player-id  - the id of the live-player"
   [cur-melody-info midi-event live-player-id]
-  (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)
-        melody-event (get (:melody cur-melody-info) last-melody-event-num)
-        dur (quot (- (:timestamp midi-event) (:start-time melody-event)) 1000)
+  (let [melody-event-info (get-melody-event-for-note cur-melody-info midi-event live-player-id)
+        melody-event (first (vals melody-event-info))
+        melody-event-num (first (keys melody-event-info))
+        dur (quot (- (:timestamp midi-event) (get-live-player-start-time melody-event)) 1000)
         new-melody-event (assoc melody-event :dur-millis dur)
         ]
-    (stop-instrument (get-sc-instrument-id melody-event))
-    (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) last-melody-event-num new-melody-event))
+    (stop-instrument (get-live-player-sc-instrument-id melody-event))
+    (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) melody-event-num new-melody-event))
     )
-  )
-
-(defn add-note-off
-  [cur-melody-info new-melody-event midi-event live-player-id]
-  (let [melody-with-dur (add-note-duration cur-melody-info midi-event live-player-id)
-        new-melody-info  (add-melody-event melody-with-dur new-melody-event live-player-id)]
-       new-melody-info
-       )
   )
 
 (defn next-note
@@ -128,15 +156,8 @@
 
 (defn note-end
   [midi-event live-player-id]
-  (comment
-    (swap! (get @live-player-melodies live-player-id)
-           add-note-off
-           (create-melody-event live-player-id midi-event)
-           midi-event
-           live-player-id
-           ))
   (swap! (get @live-player-melodies live-player-id)
-         add-note-duration
+         set-note-off
          midi-event
          live-player-id
          )
