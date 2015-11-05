@@ -17,15 +17,44 @@
 
   (:use [overtone.live]
    )
-  (:require [overtone.midi :as midi]
-            [transport.instrument :refer [get-instrument-info-for-name]]
-            [transport.settings :refer [get-setting number-of-live-players]]
-            [transport.util.utils :refer [get-max-map-key print-msg]]
-            )
+  (:require
+   [overtone.live :refer [midi->hz]]
+   [overtone.midi :as midi]
+   [transport.instrument :refer [get-instrument-info-for-name]]
+   [transport.instrumentinfo :refer [get-instrument-for-inst-info]]
+   [transport.sc-instrument :refer [stop-instrument]]
+   [transport.settings :refer [get-setting number-of-live-players]]
+   [transport.util.utils :refer [get-max-map-key print-msg]]
+   )
   )
 
 (def live-players (atom {}))
 (def live-player-melodies (atom {}))
+
+(defn get-live-player
+ [live-player-id]
+ (deref (get @live-players live-player-id))
+ )
+
+(defn get-instrument-info-for-live-player
+ [live-player]
+ (:instrument-info live-player)
+ )
+
+(defn get-instrument-info-for-live-player-id
+ [live-player-id]
+ (get-instrument-info-for-live-player (get-live-player live-player-id))
+ )
+
+(defn get-instrument-for-live-player-id
+ [live-player-id]
+ (get-instrument-for-inst-info (get-instrument-info-for-live-player-id live-player-id))
+ )
+
+(defn get-sc-instrument-id
+  [live-player-melody-event]
+  (:sc-instrument-id live-player-melody-event)
+  )
 
 (defn get-player-for-midi-event
  [midi-event]
@@ -38,18 +67,19 @@
   )
 
 (defn create-melody-event
-  [live-player-id midi-event]
+  [live-player-id midi-event sc-instrument-id]
   {
    :note (:note midi-event)
    :dur-millis nil
    :start-time (:timestamp midi-event)
    :volume (:velocity midi-event)
    :player-id live-player-id
+   :sc-instrument-id sc-instrument-id
    }
   )
 
 (defn add-melody-event
-  [cur-melody-info new-melody-event live-player-id]
+  [cur-melody-info live-player-id new-melody-event]
   (let [new-melody (assoc (:melody cur-melody-info)
                      (inc (get-last-melody-event-num-for-live-player live-player-id))
                      new-melody-event)]
@@ -58,12 +88,18 @@
   )
 
 (defn add-note-duration
+  "Stop current note and and the duration to the current note's melody event
+
+  cur-melody-info - all melody info for live-player
+  midi-event      - the note-off midi-event
+  live-player-id  - the id of the live-player"
   [cur-melody-info midi-event live-player-id]
   (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)
         melody-event (get (:melody cur-melody-info) last-melody-event-num)
         dur (quot (- (:timestamp midi-event) (:start-time melody-event)) 1000)
         new-melody-event (assoc melody-event :dur-millis dur)
         ]
+    (stop-instrument (get-sc-instrument-id melody-event))
     (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) last-melody-event-num new-melody-event))
     )
   )
@@ -78,10 +114,16 @@
 
 (defn next-note
   [midi-event live-player-id]
-  (swap! (get @live-player-melodies live-player-id)
-         add-melody-event
-         (create-melody-event live-player-id midi-event)
-         live-player-id)
+  (let  [sc-instrument-id ((get-instrument-for-live-player-id live-player-id)
+                           (midi->hz (:note midi-event))
+                           (float (/ (:velocity midi-event) 127))
+                           )
+         ]
+    (swap! (get @live-player-melodies live-player-id)
+           add-melody-event
+           live-player-id
+           (create-melody-event live-player-id midi-event sc-instrument-id)
+           ))
   )
 
 (defn note-end
@@ -103,8 +145,6 @@
 (defn process-note
   [midi-event]
   (println "****************  NOTE RECEIVED ******************")
-  ;; (println midi-event)
-
   (let [live-player-id (get-player-for-midi-event midi-event)]
     (cond (= (:status midi-event) :note-on)
           (next-note midi-event live-player-id)
