@@ -20,6 +20,7 @@
   (:require
    [overtone.live :refer [midi->hz]]
    [overtone.midi :as midi]
+   [transport.constants :refer [SAVED-MELODY-LEN]]
    [transport.instrument :refer [get-instrument-info-for-name]]
    [transport.instrumentinfo :refer [get-instrument-for-inst-info]]
    [transport.melody.liveplayermelodyevent :refer [create-live-player-melody-event get-live-player-note
@@ -74,10 +75,22 @@
                                    )
   )
 
-(defn add-melody-event
+(defn update-melody-list
+  "If current melody info = SAVED-MELODY-LEN, remove the oldest melody
+   event and add the new melody event, otherwise, just add the new
+   melody event
+
+   cur-melody-info - current melody info for live-player
+   live-player-id - id of live-player that is haveing
+                    it's melody updated
+   new-melody-event - the melody event to add"
   [cur-melody-info live-player-id new-melody-event]
-  (let [new-melody (assoc (:melody cur-melody-info)
-                     (inc (get-last-melody-event-num-for-live-player live-player-id))
+  (let [new-melody-event-num (inc (get-last-melody-event-num-for-live-player live-player-id))
+        new-melody (assoc
+                       (if (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN)
+                         (dissoc (:melody cur-melody-info) (- new-melody-event-num SAVED-MELODY-LEN))
+                         (:melody cur-melody-info))
+                     new-melody-event-num
                      new-melody-event)]
     (assoc cur-melody-info :melody new-melody)
     )
@@ -95,7 +108,7 @@
                             nil)
          ]
     (swap! (get @live-player-melodies live-player-id)
-           add-melody-event
+           update-melody-list
            live-player-id
            (new-melody-event live-player-id midi-event sc-instrument-id)
            ))
