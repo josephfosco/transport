@@ -20,8 +20,8 @@
    [transport.instrumentinfo :refer [get-all-instrument-info get-range-hi-for-inst-info get-range-lo-for-inst-info]]
    [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo
                                  set-melody-char-density set-melody-char-note-durs]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id
-                                  get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event
+                                         get-sc-instrument-id get-volume-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer [number-of-players]]

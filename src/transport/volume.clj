@@ -19,7 +19,7 @@
    [transport.constants :refer :all]
    [transport.ensemble-status :refer [get-average-playing-volume get-ensemble-trend-volume get-volume-trend-diff]]
    [transport.melodychar :refer [get-melody-char-vol-smoothness]]
-   [transport.melodyevent :refer [get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-volume-for-event]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.settings :refer [ensemble-volume-change-threshold min-volume]]

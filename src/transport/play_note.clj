@@ -24,7 +24,7 @@
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodychar :refer [get-melody-char-density]]
-   [transport.melodyevent :refer :all]
+   [transport.melody.melodyevent :refer :all]
    [transport.messages :refer :all]
    [transport.message-processor :refer [send-message register-listener unregister-listener]]
    [transport.players :refer :all]
@@ -348,12 +348,12 @@
                                 new-follow-info?
                                 )
                             ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
-                             (midi->hz (get-note-for-event melody-event))
+                             (midi->hz melody-event-note)
                              (get-volume-for-event melody-event)
                              )
                             :else
                             (let [inst-id (get-sc-instrument-id last-melody-event)]
-                              (ctl inst-id :freq (midi->hz (get-note-for-event melody-event)))
+                              (ctl inst-id :freq (midi->hz melody-event-note))
                               inst-id
                               )
                             )

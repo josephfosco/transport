@@ -20,7 +20,8 @@
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
-   [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-dur-info-for-event get-note-for-event
+                                         get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]

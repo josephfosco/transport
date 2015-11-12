@@ -26,7 +26,7 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodychar :refer [get-melody-char-note-durs]]
-   [transport.melodyevent :refer [get-sc-instrument-id]]
+   [transport.melody.melodyevent :refer [get-sc-instrument-id]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]

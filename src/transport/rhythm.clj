@@ -20,7 +20,7 @@
    [transport.dur-info :refer [get-dur-beats]]
    [transport.ensemble-status :refer [get-average-note-dur-millis get-ensemble-trend-mm]]
    [transport.melodychar :refer [get-melody-char-note-durs]]
-   [transport.melodyevent :refer :all]
+   [transport.melody.melodyevent :refer :all]
    [transport.players :refer :all]
    [transport.random :refer [add-probabilities random-dur random-int weighted-choice]]
    [transport.settings :refer [min-mm max-mm]]
