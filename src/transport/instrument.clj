@@ -30,7 +30,8 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
-   [transport.util.utils :refer [nil-to-num print-msg]]
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer [nil-to-num]]
    ))
 
 (def LO-RANGE 47)

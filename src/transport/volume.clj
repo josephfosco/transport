@@ -24,7 +24,7 @@
    [transport.random :refer [random-int]]
    [transport.settings :refer [ensemble-volume-change-threshold min-volume]]
    [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
-   [transport.util.utils :refer [print-msg]]
+   [transport.util.print :refer [print-msg]]
    ))
 
 (def volume-smoothness [0 0.01 0.03 0.05 0.07 0.1 0.15 0.2 0.25 0.3])

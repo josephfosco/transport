@@ -37,6 +37,7 @@
    [transport.rhythm :refer [get-dur-info-for-beats get-dur-info-for-mm-and-millis next-note-dur note-dur-to-millis]]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
+   [transport.util.print :refer [print-msg]]
    [transport.util.utils :refer :all]
    )
   (:import

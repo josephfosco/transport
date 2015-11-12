@@ -32,6 +32,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.segment :refer [first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
+   [transport.util.print :refer [print-msg]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer :all]
    )

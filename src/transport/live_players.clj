@@ -27,7 +27,8 @@
                                                    get-live-player-sc-instrument-id get-live-player-start-time]]
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.settings :refer [get-setting number-of-live-players]]
-   [transport.util.utils :refer [get-max-map-key print-msg]]
+   [transport.util.print :refer [print-map print-msg]]
+   [transport.util.utils :refer [get-max-map-key]]
    )
   )
 
@@ -229,4 +230,14 @@
                       ))
       )
     )
+  )
+
+(defn print-melody
+  [melody]
+  (print-map melody)
+ )
+
+(defn print-melody-for-live-player-id
+  [live-player-id]
+  (print-melody (:melody (deref (get @live-player-melodies live-player-id))))
   )

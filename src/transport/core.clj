@@ -28,6 +28,7 @@
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler
                                stop-scheduler]]
    [transport.settings :refer [reset-setting set-number-of-players]]
+   [transport.util.print :refer [print-banner print-msg]]
    [transport.util.utils :refer :all]
    [transport.version :refer :all]
    ))

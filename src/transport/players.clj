@@ -25,7 +25,8 @@
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
    [transport.settings :refer [number-of-players]]
-   [transport.util.utils :refer [get-max-map-key print-msg]]
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer [get-max-map-key]]
    )
   (:import transport.behavior.Behavior)
   )

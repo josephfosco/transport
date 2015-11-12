@@ -32,7 +32,9 @@
    [transport.util.compare-prior-current :refer :all]
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
-   [transport.util.utils :refer :all])
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer :all]
+   )
   (:import (java.util Date TimerTask Timer))
    )
 

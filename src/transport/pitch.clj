@@ -25,8 +25,9 @@
                                  get-melody-char-pitch-smoothness]]
    [transport.players :refer :all]
    [transport.random :refer [random-pitch random-int]]
+   [transport.util.print :refer [print-msg]]
    [transport.util.util-constants :refer [DECREASING INCREASING STEADY]]
-   [transport.util.utils :refer [nil-to-num print-msg]]
+   [transport.util.utils :refer [nil-to-num]]
    )
   (:import transport.behavior.Behavior)
   )
