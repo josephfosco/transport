@@ -211,16 +211,18 @@
   )
 
 (defn init-live-players
-  []
+  [& {:keys [init-midi-ports] :or {init-midi-ports true}}]
   (when (> @number-of-live-players 0)
     (reset! live-players (zipmap
                           (range @number-of-live-players)
                           (map create-live-player (range @number-of-live-players))
                           ))
-
-    (let [players (map deref (vals @live-players))
-          midi-info (for [port (map :midi-port players) fnc (map :function players)] [port fnc])]
-      (dorun (map set-up-midi (map first midi-info) (map second midi-info)))
+    ;; Map midi-port(s) to midi function
+    (when init-midi-ports
+      (let [players (map deref (vals @live-players))
+            midi-info (for [port (map :midi-port players) fnc (map :function players)] [port fnc])]
+        (dorun (map set-up-midi (map first midi-info) (map second midi-info)))
+        )
       )
     ;; initialize live-players-melodies
     (let [live-player-ids (vec (map get (map deref (vals @live-players)) (repeat :live-player-id)))]

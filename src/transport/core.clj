@@ -156,7 +156,7 @@
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
         (init-ensemble)
-        (init-live-players)
+        (init-live-players :init-midi-ports false)
         (print-banner "transport-restart about to reset-ensemble-status")
         (reset-ensemble-status)
 
