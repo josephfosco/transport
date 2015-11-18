@@ -15,12 +15,13 @@
 
 (ns transport.melody.liveplayermelodyevent )
 
-(defrecord LivePlayerMelodyEvent [note dur-millis player-id sc-instrument-id start-time volume])
+(defrecord LivePlayerMelodyEvent [note dur-millis end-time player-id sc-instrument-id start-time volume])
 
 (defn create-live-player-melody-event
-  [& {:keys [note dur-millis player-id sc-instrument-id start-time volume]}]
+  [& {:keys [note dur-millis end-time player-id sc-instrument-id start-time volume]}]
   (LivePlayerMelodyEvent. note
                           dur-millis
+                          end-time
                           player-id
                           sc-instrument-id
                           start-time
@@ -30,6 +31,11 @@
 (defn get-live-player-note
   [live-player-melody-event]
   (:note live-player-melody-event)
+  )
+
+(defn get-live-player-end-time
+  [live-player-melody-event]
+  (:end-time live-player-melody-event)
   )
 
 (defn get-live-player-sc-instrument-id

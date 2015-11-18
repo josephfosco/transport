@@ -16,9 +16,9 @@
 (ns transport.version)
 
 (def TRANSPORT-VERSION {:major 0
-                        :minor 3
+                        :minor 4
                         :patch 0
-                        :development false})
+                        :development true})
 
 (def TRANSPORT-VERSION-STR
   (let [version TRANSPORT-VERSION]

@@ -23,8 +23,9 @@
    [transport.constants :refer [SAVED-MELODY-LEN]]
    [transport.instrument :refer [get-instrument-info-for-name]]
    [transport.instrumentinfo :refer [get-instrument-for-inst-info]]
-   [transport.melody.liveplayermelodyevent :refer [create-live-player-melody-event get-live-player-note
-                                                   get-live-player-sc-instrument-id get-live-player-start-time]]
+   [transport.melody.liveplayermelodyevent :refer [create-live-player-melody-event get-live-player-end-time
+                                                   get-live-player-note get-live-player-sc-instrument-id
+                                                   get-live-player-start-time]]
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.settings :refer [get-setting number-of-live-players]]
    [transport.util.print :refer [print-map print-msg]]
@@ -60,20 +61,56 @@
  0
  )
 
-(defn get-last-melody-event-num-for-live-player
+(defn get-melody-for-live-player-id
   [live-player-id]
-  (get-max-map-key (:melody (deref (get @live-player-melodies live-player-id))))
+  (:melody (deref (get @live-player-melodies live-player-id)))
+
+ )
+
+(defn get-last-melody-event-num-for-live-player-id
+  [live-player-id]
+  (get-max-map-key (get-melody-for-live-player-id live-player-id))
+  )
+
+(defn get-last-melody-event-for-live-player-id
+  [live-player-id]
+  (get (get-melody-for-live-player-id live-player-id)
+       (get-max-map-key (get-melody-for-live-player-id live-player-id)))
+  )
+
+(defn new-rest-melody-event
+  [live-player-id sc-instrument-id start-time end-time]
+  (create-live-player-melody-event :note nil
+                                   :dur-millis (quot (- end-time start-time) 1000)
+                                   :end-time end-time
+                                   :start-time start-time
+                                   :volume 0
+                                   :player-id live-player-id
+                                   :sc-instrument-id sc-instrument-id
+                                   )
   )
 
 (defn new-melody-event
   [live-player-id midi-event sc-instrument-id]
   (create-live-player-melody-event :note (:note midi-event)
                                    :dur-millis nil
+                                   :end-time nil
                                    :start-time (:timestamp midi-event)
                                    :volume (:velocity midi-event)
                                    :player-id live-player-id
                                    :sc-instrument-id sc-instrument-id
                                    )
+  )
+
+(defn- first-melody-event
+  "Add first melody event to live-player
+
+   cur-melody-info - current melody info for live-player
+   live-player-id - id of live-player that is haveing
+                    it's melody updated
+   new-melody-event - the melody event to add"
+  [cur-melody-info live-player-id new-melody-event]
+  (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) 1 new-melody-event))
   )
 
 (defn update-melody-list
@@ -86,14 +123,44 @@
                     it's melody updated
    new-melody-event - the melody event to add"
   [cur-melody-info live-player-id new-melody-event]
-  (let [new-melody-event-num (inc (get-last-melody-event-num-for-live-player live-player-id))
-        new-melody (assoc
-                       (if (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN)
-                         (dissoc (:melody cur-melody-info) (- new-melody-event-num SAVED-MELODY-LEN))
-                         (:melody cur-melody-info))
-                     new-melody-event-num
-                     new-melody-event)]
-    (assoc cur-melody-info :melody new-melody)
+  (if (= (:melody cur-melody-info) {})
+    (first-melody-event cur-melody-info live-player-id new-melody-event)
+    (let [next-melody-event-num (inc (get-last-melody-event-num-for-live-player-id live-player-id))
+          prior-end-time (get-live-player-end-time (get-last-melody-event-for-live-player-id live-player-id))
+          cur-start-time (get-live-player-start-time new-melody-event)
+          rest-event (if (and prior-end-time (> (- cur-start-time prior-end-time) 100))
+                       (new-rest-melody-event live-player-id
+                                              (get-live-player-sc-instrument-id new-melody-event)
+                                              (inc prior-end-time)
+                                              (dec cur-start-time)
+                                              )
+                       nil
+                       )
+          new-melody (assoc
+                         (cond (or (and (not rest-event)
+                                        (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN))
+                                   (and rest-event
+                                        (= (count (:melody cur-melody-info)) (dec SAVED-MELODY-LEN)))
+                                   )
+                               ;; remove oldest melody-event
+                               (dissoc (:melody cur-melody-info) (- next-melody-event-num SAVED-MELODY-LEN))
+                               (and rest-event
+                                    (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN))
+                               ;; remove 2 oldest melody-event(s)
+                               (dissoc (:melody cur-melody-info)
+                                       (- next-melody-event-num SAVED-MELODY-LEN)
+                                       (- next-melody-event-num (dec SAVED-MELODY-LEN))
+                                       )
+                               :else
+                               ;; use current melody-events as is (there are fewer
+                               ;; than SAVED-MELODY-LEN events stored
+                               (:melody cur-melody-info))
+                       next-melody-event-num
+                       (if rest-event rest-event new-melody-event)
+                       (when rest-event (inc next-melody-event-num))
+                       (when rest-event new-melody-event))]
+      (assoc cur-melody-info :melody new-melody)
+      )
     )
   )
 
@@ -112,7 +179,8 @@
            update-melody-list
            live-player-id
            (new-melody-event live-player-id midi-event sc-instrument-id)
-           ))
+           )
+    )
   )
 
 (defn- get-melody-event-for-note
@@ -125,7 +193,7 @@
    midi-event - midi-event to match note with
    live-player-id - live player melody to check"
   [cur-melody-info midi-event live-player-id]
-  (let [last-melody-event-num (get-last-melody-event-num-for-live-player live-player-id)]
+  (let [last-melody-event-num (get-last-melody-event-num-for-live-player-id live-player-id)]
     (loop [melody-event-num last-melody-event-num]
       (when (< melody-event-num 1)
         (throw (Throwable. "NoNoteToStop"))
@@ -151,7 +219,7 @@
         melody-event (first (vals melody-event-info))
         melody-event-num (first (keys melody-event-info))
         dur (quot (- (:timestamp midi-event) (get-live-player-start-time melody-event)) 1000)
-        new-melody-event (assoc melody-event :dur-millis dur)
+        new-melody-event (assoc melody-event :dur-millis dur :end-time (:timestamp midi-event))
         ]
     (stop-instrument (get-live-player-sc-instrument-id melody-event))
     (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) melody-event-num new-melody-event))
