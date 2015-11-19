@@ -65,7 +65,12 @@
   [live-player-id]
   (:melody (deref (get @live-player-melodies live-player-id)))
 
- )
+  )
+
+(defn- get-melody-from-melody-info
+  [melody-info]
+  (:melody melody-info)
+  )
 
 (defn get-last-melody-event-num-for-live-player-id
   [live-player-id]
@@ -110,7 +115,40 @@
                     it's melody updated
    new-melody-event - the melody event to add"
   [cur-melody-info live-player-id new-melody-event]
-  (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) 1 new-melody-event))
+  (assoc cur-melody-info :melody (assoc (get-melody-from-melody-info cur-melody-info) 1 new-melody-event))
+  )
+
+(defn- adjust-melody-len
+  "If necessary, remove the oldest melody-events from cur-melody
+   to assure that the melody will not be longer than SAVED-MELODY-LEN
+   when num-events-to add are added. Curently only works when num-events-to-add
+   = 0, 1 or 2, otherwise throws MoreThan2NewEvents exception
+
+   cur-melody - the melody to remove events from
+   num-events-to add - the nimber of events that will be added"
+  [cur-melody num-events-to-add next-melody-event-num]
+  (let [cur-melody-len (count cur-melody)
+        extended-melody-len (+ cur-melody-len num-events-to-add)
+        ]
+    (cond (= (- extended-melody-len SAVED-MELODY-LEN) 1)
+          ;; remove oldest melody-event
+          (dissoc cur-melody (- next-melody-event-num SAVED-MELODY-LEN))
+          (= (- extended-melody-len SAVED-MELODY-LEN) 2)
+          ;; remove 2 oldest melody-event(s)
+          (dissoc cur-melody
+                  (- next-melody-event-num SAVED-MELODY-LEN)
+                  (- next-melody-event-num (dec SAVED-MELODY-LEN))
+                  )
+          (<= extended-melody-len SAVED-MELODY-LEN)
+          ;; use current melody-events as is (there are fewer
+          ;; than SAVED-MELODY-LEN events stored
+          cur-melody
+          :else
+          ;; only works with 0, 1 or 2 new events
+          (throw (Throwable. "MoreThan2NewEvents")
+                 )
+          )
+    )
   )
 
 (defn update-melody-list
@@ -128,7 +166,7 @@
     (let [next-melody-event-num (inc (get-last-melody-event-num-for-live-player-id live-player-id))
           prior-end-time (get-live-player-end-time (get-last-melody-event-for-live-player-id live-player-id))
           cur-start-time (get-live-player-start-time new-melody-event)
-          rest-event (if (and prior-end-time (> (- cur-start-time prior-end-time) 100))
+          rest-event (if (and prior-end-time (> (- cur-start-time prior-end-time) 100000))
                        (new-rest-melody-event live-player-id
                                               (get-live-player-sc-instrument-id new-melody-event)
                                               (inc prior-end-time)
@@ -136,29 +174,20 @@
                                               )
                        nil
                        )
-          new-melody (assoc
-                         (cond (or (and (not rest-event)
-                                        (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN))
-                                   (and rest-event
-                                        (= (count (:melody cur-melody-info)) (dec SAVED-MELODY-LEN)))
-                                   )
-                               ;; remove oldest melody-event
-                               (dissoc (:melody cur-melody-info) (- next-melody-event-num SAVED-MELODY-LEN))
-                               (and rest-event
-                                    (= (count (:melody cur-melody-info)) SAVED-MELODY-LEN))
-                               ;; remove 2 oldest melody-event(s)
-                               (dissoc (:melody cur-melody-info)
-                                       (- next-melody-event-num SAVED-MELODY-LEN)
-                                       (- next-melody-event-num (dec SAVED-MELODY-LEN))
-                                       )
-                               :else
-                               ;; use current melody-events as is (there are fewer
-                               ;; than SAVED-MELODY-LEN events stored
-                               (:melody cur-melody-info))
-                       next-melody-event-num
-                       (if rest-event rest-event new-melody-event)
-                       (when rest-event (inc next-melody-event-num))
-                       (when rest-event new-melody-event))]
+          new-melody (if rest-event
+                       (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
+                                                 2
+                                                 next-melody-event-num)
+                         next-melody-event-num rest-event
+                         (inc next-melody-event-num) new-melody-event
+                         )
+                       (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
+                                                 1
+                                                 next-melody-event-num)
+                         next-melody-event-num new-melody-event
+                         )
+                       )
+          ]
       (assoc cur-melody-info :melody new-melody)
       )
     )
@@ -198,7 +227,7 @@
       (when (< melody-event-num 1)
         (throw (Throwable. "NoNoteToStop"))
         )
-      (let [melody-event (get (:melody cur-melody-info) melody-event-num)]
+      (let [melody-event (get (get-melody-from-melody-info cur-melody-info) melody-event-num)]
         (if (= (:note midi-event) (get-live-player-note melody-event))
           {melody-event-num melody-event}
           (recur (dec melody-event-num))
@@ -222,7 +251,8 @@
         new-melody-event (assoc melody-event :dur-millis dur :end-time (:timestamp midi-event))
         ]
     (stop-instrument (get-live-player-sc-instrument-id melody-event))
-    (assoc cur-melody-info :melody (assoc (:melody cur-melody-info) melody-event-num new-melody-event))
+    (assoc cur-melody-info :melody (assoc (get-melody-from-melody-info cur-melody-info)
+                                     melody-event-num new-melody-event))
     )
   )
 
