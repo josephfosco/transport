@@ -287,17 +287,18 @@
         ]
 
     (atom {:function process-note
+           :instrument-info instrument-info
            :live-player-id player-no
            :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
            :midi-channel (deref (eval (symbol (str "transport.settings/" "midi-channel-" player-no))))
-           :instrument-info instrument-info
+           :midi-receiver nil
            })
     )
   )
 
 (defn set-up-midi
-  [midi-port fnc]
-  (midi/midi-handle-events (midi/midi-in midi-port) fnc)
+  [live-player-id midi-port fnc]
+  {live-player-id {:midi-receiver (midi/midi-handle-events (midi/midi-in midi-port) fnc)}}
   )
 
 (defn initial-live-player-melody
@@ -308,6 +309,11 @@
    }
   )
 
+(defn- reset-live-player
+  [live-player-id new-live-player-info]
+  (reset! (get @live-players live-player-id) new-live-player-info)
+  )
+
 (defn init-live-players
   [& {:keys [init-midi-ports] :or {init-midi-ports true}}]
   (when (> @number-of-live-players 0)
@@ -315,11 +321,19 @@
                           (range @number-of-live-players)
                           (map create-live-player (range @number-of-live-players))
                           ))
-    ;; Map midi-port(s) to midi function
+    ;; Map midi-port(s) to midi function and add  to live-player map
     (when init-midi-ports
       (let [players (map deref (vals @live-players))
-            midi-info (for [port (map :midi-port players) fnc (map :function players)] [port fnc])]
-        (dorun (map set-up-midi (map first midi-info) (map second midi-info)))
+            midi-receivers (map set-up-midi
+                                (map :live-player-id players)
+                                (map :midi-port players)
+                                (map :function players))
+            ]
+        (doall (for [rcvr midi-receivers lp-id (keys @live-players)
+                     :when (= (first (keys rcvr)) lp-id)
+                     ]
+                 (reset-live-player lp-id (merge (deref (get @live-players lp-id)) (first (vals rcvr))))
+                 ))
         )
       )
     ;; initialize live-players-melodies
