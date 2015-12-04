@@ -15,8 +15,7 @@
 
 (ns transport.live-players
 
-  (:use [overtone.live]
-   )
+  (:use [overtone.live])
   (:require
    [overtone.live :refer [midi->hz]]
    [overtone.midi :as midi]
@@ -29,8 +28,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.settings :refer [get-setting number-of-live-players]]
    [transport.util.print :refer [print-map print-msg]]
-   [transport.util.utils :refer [get-max-map-key]]
-   )
+   [transport.util.utils :refer [get-max-map-key]])
   )
 
 (def live-players (atom {}))
@@ -64,7 +62,6 @@
 (defn get-melody-for-live-player-id
   [live-player-id]
   (:melody (deref (get @live-player-melodies live-player-id)))
-
   )
 
 (defn- get-melody-from-melody-info
@@ -105,17 +102,6 @@
                                    :player-id live-player-id
                                    :sc-instrument-id sc-instrument-id
                                    )
-  )
-
-(defn- first-melody-event
-  "Add first melody event to live-player
-
-   cur-melody-info - current melody info for live-player
-   live-player-id - id of live-player that is haveing
-                    it's melody updated
-   new-melody-event - the melody event to add"
-  [cur-melody-info live-player-id new-melody-event]
-  (assoc cur-melody-info :melody (assoc (get-melody-from-melody-info cur-melody-info) 1 new-melody-event))
   )
 
 (defn- adjust-melody-len
@@ -161,35 +147,32 @@
                     it's melody updated
    new-melody-event - the melody event to add"
   [cur-melody-info live-player-id new-melody-event]
-  (if (= (:melody cur-melody-info) {})
-    (first-melody-event cur-melody-info live-player-id new-melody-event)
-    (let [next-melody-event-num (inc (get-last-melody-event-num-for-live-player-id live-player-id))
-          prior-end-time (get-live-player-end-time (get-last-melody-event-for-live-player-id live-player-id))
-          cur-start-time (get-live-player-start-time new-melody-event)
-          rest-event (if (and prior-end-time (> (- cur-start-time prior-end-time) 100000))
-                       (new-rest-melody-event live-player-id
-                                              (get-live-player-sc-instrument-id new-melody-event)
-                                              (inc prior-end-time)
-                                              (dec cur-start-time)
-                                              )
-                       nil
+  (let [next-melody-event-num (inc (get-last-melody-event-num-for-live-player-id live-player-id))
+        prior-end-time (get-live-player-end-time (get-last-melody-event-for-live-player-id live-player-id))
+        cur-start-time (get-live-player-start-time new-melody-event)
+        rest-event (if (and prior-end-time (> (- cur-start-time prior-end-time) 100000))
+                     (new-rest-melody-event live-player-id
+                                            (get-live-player-sc-instrument-id new-melody-event)
+                                            (inc prior-end-time)
+                                            (dec cur-start-time)
+                                            )
+                     nil
+                     )
+        new-melody (if rest-event
+                     (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
+                                               2
+                                               next-melody-event-num)
+                       next-melody-event-num rest-event
+                       (inc next-melody-event-num) new-melody-event
                        )
-          new-melody (if rest-event
-                       (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
-                                                 2
-                                                 next-melody-event-num)
-                         next-melody-event-num rest-event
-                         (inc next-melody-event-num) new-melody-event
-                         )
-                       (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
-                                                 1
-                                                 next-melody-event-num)
-                         next-melody-event-num new-melody-event
-                         )
+                     (assoc (adjust-melody-len (get-melody-from-melody-info cur-melody-info)
+                                               1
+                                               next-melody-event-num)
+                       next-melody-event-num new-melody-event
                        )
-          ]
-      (assoc cur-melody-info :melody new-melody)
-      )
+                     )
+        ]
+    (assoc cur-melody-info :melody new-melody)
     )
   )
 
@@ -267,14 +250,67 @@
 
 (defn process-note
   [midi-event]
-  (println "****************  NOTE RECEIVED: " (:status midi-event) (:note midi-event) " %%%%%%%%%%%%%%%%%%%%%%%")
+  (print-msg "process-note "
+             "****************  NOTE RECEIVED: "
+             (:status midi-event) " " (:note midi-event)
+             " ***************")
     (let [live-player-id (get-player-for-midi-event midi-event)]
-      (cond (= (:status midi-event) :note-on)
-            (next-note midi-event live-player-id)
-            (= (:status midi-event) :note-off)
-            (note-end midi-event live-player-id)
-            )
+      (case (:status midi-event)
+        :note-on (next-note midi-event live-player-id)
+        :note-off (note-end midi-event live-player-id)
+        )
       )
+  )
+
+(defn set-up-midi
+  [live-player-id midi-transmitter fnc]
+  {live-player-id {:midi-receiver (midi/midi-handle-events midi-transmitter fnc)}}
+  )
+
+(defn- change-player-fnc
+  "This function is only used after the first midi event is received
+   to have the player use the process-note function for all
+   subsequent midi events"
+  [cur-live-player]
+  (let [l-player  (merge cur-live-player {:function process-note})
+        midi-receiver (set-up-midi
+                       (:live-player-id l-player)
+                       (:midi-transmitter l-player)
+                       (:function l-player)
+                       )]
+    (merge l-player (first (vals midi-receiver)))
+    )
+  )
+
+(defn first-melody-event
+  "Add first melody event to live-player
+
+   cur-melody-info - current melody info for live-player
+   live-player-id - id of live-player that is haveing
+                    it's melody updated
+   new-melody-event - the melody event to add"
+  [midi-event]
+  (print-msg "first-melody-event"
+             " ****************  NOTE RECEIVED: "
+             (:status midi-event) " " (:note midi-event)
+             " *****************")
+  (let [live-player-id (get-player-for-midi-event midi-event)]
+    (if (= (:melody (deref (get @live-player-melodies live-player-id))) {})
+      (case (:status midi-event)
+        :note-on (do
+                   (next-note midi-event live-player-id)
+                   (let [rcvr (:midi-receiver (deref (get @live-players live-player-id)))]
+                     (swap! (get @live-players live-player-id) change-player-fnc)
+                     )
+                   )
+        :note-off (do
+                    (print-msg "first melody-event" " ERROR note-off in first-melody-event ERROR")
+                    (print-msg "first melody-event" " ERROR live-player-id: " live-player-id)
+                    (print-msg "first melody-event" " ERROR midi-event: " midi-event)
+                    )
+        )
+      )
+    )
   )
 
 (defn create-live-player
@@ -284,21 +320,18 @@
                           (catch Exception e
                             nil)
                           )
+        midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
         ]
 
-    (atom {:function process-note
+    (atom {:function first-melody-event
            :instrument-info instrument-info
            :live-player-id player-no
-           :midi-port (deref (eval (symbol (str "transport.settings/" "midi-port-" player-no))))
+           :midi-port midi-port
            :midi-channel (deref (eval (symbol (str "transport.settings/" "midi-channel-" player-no))))
            :midi-receiver nil
+           :midi-transmitter (midi/midi-in midi-port)
            })
     )
-  )
-
-(defn set-up-midi
-  [live-player-id midi-port fnc]
-  {live-player-id {:midi-receiver (midi/midi-handle-events (midi/midi-in midi-port) fnc)}}
   )
 
 (defn initial-live-player-melody
@@ -326,7 +359,7 @@
       (let [players (map deref (vals @live-players))
             midi-receivers (map set-up-midi
                                 (map :live-player-id players)
-                                (map :midi-port players)
+                                (map :midi-transmitter players)
                                 (map :function players))
             ]
         (doall (for [rcvr midi-receivers lp-id (keys @live-players)
