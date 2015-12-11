@@ -16,7 +16,8 @@
 (ns transport.message-processor
   (:require
    [transport.messages :refer :all]
-   [transport.util.utils :refer [get-max-map-key print-msg]]
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer [get-max-map-key]]
    ))
 
 (def MESSAGES (agent {}))

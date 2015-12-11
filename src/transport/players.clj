@@ -20,12 +20,13 @@
    [transport.instrumentinfo :refer [get-all-instrument-info get-range-hi-for-inst-info get-range-lo-for-inst-info]]
    [transport.melodychar :refer [get-melody-char-density get-melody-char-range-hi get-melody-char-range-lo
                                  set-melody-char-density set-melody-char-note-durs]]
-   [transport.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event get-sc-instrument-id
-                                  get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-follow-note-for-event get-instrument-info-for-event
+                                         get-sc-instrument-id get-volume-for-event]]
    [transport.message-processor :refer [send-message register-listener]]
    [transport.messages :refer :all]
-   [transport.settings :refer :all]
-   [transport.util.utils :refer :all]
+   [transport.settings :refer [number-of-players]]
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer [get-max-map-key]]
    )
   (:import transport.behavior.Behavior)
   )
@@ -152,7 +153,7 @@
 
 (defn get-last-melody-event-num-for-player
   [player]
-  (let [last-melody-key (reduce max 0 (keys (get-melody player)))]
+  (let [last-melody-key (get-max-map-key (get-melody player))]
     (if (= last-melody-key 0) nil last-melody-key)
     )
   )
@@ -377,10 +378,6 @@
          (println (format "%-29s" (str "  " player-key " :name")) "-" (:name (:instrument (:instrument-info player))))
          (println (format "%-29s" (str "  " player-key " :range-lo")) "-" (:range-lo (:instrument-info player)))
          (println (format "%-29s" (str "  " player-key " :range-hi")) "-" (:range-hi (:instrument-info player))))
-
-        (= player-key :melody)
-        (print-player-melody (:melody player) :prnt-full-inst-info prnt-full-inst-info)
-
        :else
         (println (format "%-20s" (str "  " player-key)) "-" (get player player-key)))
       )
@@ -611,13 +608,13 @@
   )
 
 (defn clear-ensemble
-  "used by send or send-off to clear ensemble atom"
+  "used to clear ensemble atom"
   [cur-players]
   {}
   )
 
 (defn clear-player-melodies
-  "used by send or send-off to clear player-melodies atom"
+  "used to clear player-melodies atom"
   [cur-melodies]
   {}
   )

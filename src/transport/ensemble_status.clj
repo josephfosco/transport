@@ -20,7 +20,8 @@
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
-   [transport.melodyevent :refer [get-dur-info-for-event get-note-for-event get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-dur-info-for-event get-note-for-event
+                                         get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
@@ -28,11 +29,13 @@
    [transport.schedule :refer [sched-event]]
    [transport.settings :refer [ensemble-density-change-threshold ensemble-mm-change-threshold
                                ensemble-pitch-change-threshold ensemble-volume-change-threshold
-                               min-volume number-of-players]]
+                               min-mm max-mm min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
-   [transport.util.utils :refer :all])
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer :all]
+   )
   (:import (java.util Date TimerTask Timer))
    )
 
@@ -71,7 +74,7 @@
   (loop [rslt '() vols-to-check (assoc @player-volumes exception-player-id 0)]
     (cond (> (count rslt) (* @number-of-players 0.05)) false
           (empty? vols-to-check) true
-          (>= (first vols-to-check) (+ min-volume 0.1)) (recur (conj rslt true) (rest vols-to-check))
+          (>= (first vols-to-check) (+ @min-volume 0.1)) (recur (conj rslt true) (rest vols-to-check))
           :else (recur rslt (rest vols-to-check))
           )
     )
@@ -188,7 +191,11 @@
   []
 ;;  (print-msg "get-ensemble-trend-mm:" @player-mms)
 ;;  (print-msg "get-ensemble-trend-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
-  (+ (get-ensemble-mm) ((mm-trend :trend-amount)))
+  (let [ensemble-mm (+ (get-ensemble-mm) ((mm-trend :trend-amount)))]
+    (cond (> @min-mm ensemble-mm @max-mm) ensemble-mm
+          (< ensemble-mm @min-mm) @min-mm
+          :else @max-mm
+     ))
   )
 
 (defn get-ensemble-max-freq-density
@@ -229,6 +236,11 @@
   (average @player-note-durs :list-length @number-of-players))
 
 (defn get-note-dur-list
+  " Returns a list of note-durs starting at the earliest dur in curnote-times
+    up til to-time
+
+    cur-note-times - a list of lists of note-start-times and durations
+    to-time - the latest time (in millis) to ruturn a duration for"
   [cur-note-times to-time]
   (for [note-info cur-note-times
         :let [note-time (first note-info)

@@ -26,11 +26,12 @@
    [transport.instruments.pitched-perc-instruments :refer :all]
    [transport.instruments.trad-instruments :refer :all]
    [transport.melodychar :refer [get-melody-char-note-durs]]
-   [transport.melodyevent :refer [get-sc-instrument-id]]
+   [transport.melody.melodyevent :refer [get-sc-instrument-id]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
-   [transport.util.utils :refer [nil-to-num print-msg]]
+   [transport.util.print :refer [print-msg]]
+   [transport.util.utils :refer [nil-to-num]]
    ))
 
 (def LO-RANGE 47)
@@ -137,6 +138,7 @@
   [melody-char]
   (if (nil? melody-char)
     all-instruments
+    ;; if melody has mostly long(er) notes, do not use perc instruments
     (if (> (get-melody-char-note-durs melody-char) 5)
       (non-perc-instruments all-instruments)
       all-instruments
@@ -216,4 +218,9 @@
   ""
   [instrument]
   (ctl instrument :gate 1 :action FREE)
+  )
+
+(defn get-instrument-info-for-name
+  [instrument-name]
+  (first (filter #(= (:name (:instrument %1)) instrument-name) all-instruments))
   )

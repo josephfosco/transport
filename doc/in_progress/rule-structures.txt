@@ -1,0 +1,28 @@
+Tree structure
+
+(a (b (c (d e) (f))) (g (d)))
+
+               a
+               |
+               |
+        |-------------|
+        |             |
+        b             g
+        |             |
+        |             |
+     |--------|       f
+     |        |
+     c        f
+ |------|
+ |      |
+ d      e
+
+
+Rule clauses
+  rule-id(?)
+  rule-clause
+  is-true?
+
+Variable
+  var-name
+  list of rule-ids

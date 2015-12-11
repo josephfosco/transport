@@ -44,7 +44,8 @@
   )
 
 (defn get-max-map-key
-  "For hash-maps with numeric keys, returns the highest key"
+  "For hash-maps with numeric keys, returns the highest key.
+   Returns 0 if map is empty."
   [map]
   (reduce max 0 (keys map))
   )
@@ -64,28 +65,4 @@
 (defmacro if-debug
   [& body]
   `(when ~'DEBUG ~@body)
-  )
-
-(defmacro print-msg
-  "Prints a message of the format:
-   *ns* - function msg
-   where *ns* is the ns the calling function is in
-
-   function: a string, generally the name of the calling function
-   msg: one or more strings which will be concatenated together in the printed message"
-  [function & msg]
-  `(println (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " -" ~function "  " (str ~@msg))
-  )
-
-(defn print-banner
-  "Prints a message with whatever is specified by the key :prefix around the message.
-   If nothing is specified in :prefix '***' is used
-
-   msg: the message to print"
-  [msg & {:keys [prefix] :or {prefix "***"}}]
-  (println " ")
-  (println prefix)
-  (println prefix msg)
-  (println prefix)
-  (println " ")
   )

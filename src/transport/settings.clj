@@ -16,17 +16,65 @@
 (ns transport.settings
   "This namespace is a 'terminal namespace'.
    It should not :require :use :refer or :import any
-   other namespaces")
+   other transport namespaces"
+  (:require [clojure.java.io :refer [as-file]])
+)
 
-(def number-of-players (atom 10))
+(def settings (atom {}))
+
+(defn load-transport-config
+  [file-name]
+  (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)]
+    (let [props (java.util.Properties.)]
+      (.load props reader)
+      (into {} (for [[k v] props] [(keyword k) (read-string v)]))
+      )
+    )
+  )
+
+(defn init-settings-from-config
+  "Load settings from config file(s)"
+  []
+  (let [config-files (if (.exists (as-file "config_files.properties"))
+                       (load-transport-config "config_files.properties")
+                       {})]
+    ;; first load default settings
+    (reset! settings (load-transport-config "./src/transport/config/config.properties"))
+    ;; then add or overwrite with custom settings
+    (when (:custom-config config-files)
+      (reset! settings (merge @settings (load-transport-config (str (:custom-config config-files))))))
+    )
+
+  ;; after all config files are loaded, the final settings are loaded as atoms
+  (doseq [[k v] @settings]
+    (intern (ns-name *ns*) (symbol (name k)) (atom v))
+    )
+  )
+
+;; *****************************************
+;; initialize settings when this file loads
+;; *****************************************
+(init-settings-from-config)
+
+(defn get-setting
+  "Returns the value of a setting.
+
+   setting - the setting name as a string"
+  [setting]
+  (deref (eval (symbol (str "transport.settings/" setting))))
+  )
+
+(defn reset-setting
+  "Reset a setting  to new-val.
+   returns - new-val
+
+   setting-name - the name of the setting to be changed as a string
+   new-val - new value for the setting"
+  [setting-name new-val]
+  (reset! (eval (symbol setting-name)) new-val)
+  )
+
 
 (defn set-number-of-players
   [new-num-players]
   (reset! number-of-players new-num-players))
-
-(def ensemble-mm-change-threshold (atom 5))
-(def ensemble-volume-change-threshold (atom 0.03))
-(def ensemble-density-change-threshold (atom 0.07))
-(def ensemble-pitch-change-threshold (atom 12))
-
-(def min-volume 0.2)
