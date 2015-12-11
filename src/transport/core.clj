@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2015 Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -19,18 +19,23 @@
    [overtone.live :refer :all]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.behaviors :refer [init-behaviors reset-behaviors]]
-   [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor stop-message-processor]]
+   [transport.live-players :refer [init-live-players]]
+   [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor
+                                        stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.play-note :refer [init-ensemble reset-ensemble]]
    [transport.pitch :refer [load-scales]]
-   [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler stop-scheduler]]
-   [transport.settings :refer [number-of-players set-number-of-players]]
+   [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler
+                               stop-scheduler]]
+   [transport.settings :refer [reset-setting set-number-of-players]]
+   [transport.util.print :refer [print-banner print-msg]]
    [transport.util.utils :refer :all]
    [transport.version :refer :all]
    ))
 
  (defn -main
-  [& args]
+   [& args]
+   (println "command line args:" args)
   )
 
 (def is-initialized? (atom false))
@@ -65,12 +70,11 @@
 
    keyword args -
    :num-players - optional, the number of players playing.
-                  default value is 10"
-  [& {:keys [num-players]
-      :or {num-players 10}}]
+                  default value is set in config file"
+  [& {:keys [num-players]}]
   (if (false? @is-initialized?)
     (do
-      (set-number-of-players num-players)
+      (if num-players (set-number-of-players num-players))
       (transport.pitch/load-scales)
       (transport.behaviors/init-behaviors)
       (print-banner "transport-init about to init-lateness in schedule")
@@ -79,11 +83,16 @@
       (print-banner "transport-init about to init-ensemble")
       (init-ensemble)
 
+      (print-banner "transport-init about to init-live-players")
+      (init-live-players)
+
       (print-banner "transport-init about to init-ensemble-status")
       (init-ensemble-status)
 
       (print-banner "transport-init about to init-melody")
       (init-melody)
+      (print-banner "transport-start init-melody-complete")
+
       (reset! is-initialized? true)
 
       (print-banner "transport-init about to add output reverb")
@@ -99,14 +108,14 @@
   "Start playing.
 
    :num-players - optional key to set the number of players
-                  defaults to 10. Retains it's value once set"
-  [& {:keys [num-players]
-      :or {num-players @number-of-players}}]
+                  default value is set in config file"
+  [& {:keys [num-players]}]
   (print-msg "transport-start" "is-playing: " @is-playing?)
   (print-msg "transport-start" "restart: " @restart?)
   (if (false? @is-playing?)
     (if (true? @restart?)
-      (transport-restart :num-players num-players)  ;; already started once - restart instead
+      ;; already started once - restart instead
+      (transport-restart :num-players num-players)
       (do
         (print-banner "Starting transport")
         (if (false? @is-initialized?)
@@ -118,7 +127,6 @@
         (print-banner "transport-start about to start-scheduler")
         (start-scheduler)
 
-        (print-banner "transport-start init-melody-complete")
         (reset! is-playing? true)
         (reset! restart? true)
 
@@ -137,19 +145,18 @@
    keyword args -
    :num-players - optional, the number of players playing.
                   defaults to it's prior value"
-  [& {:keys [num-players]
-      :or {num-players nil}}]
+  [& {:keys [num-players]}]
   (print-banner "Restarting transport")
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
-        (if (not (nil? num-players))
-          (set-number-of-players num-players))
+        (if num-players (set-number-of-players num-players))
         (reset-behaviors)
         (reset-scheduler)
         (restart-scheduler)
         (restart-message-processor :reset-listeners true)
         (init-ensemble)
+        (init-live-players :init-midi-ports false)
         (print-banner "transport-restart about to reset-ensemble-status")
         (reset-ensemble-status)
 

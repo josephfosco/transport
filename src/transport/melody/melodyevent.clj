@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.melodyevent)
+(ns transport.melody.melodyevent)
 
 (defrecord MelodyEvent [note dur-info change-follow-info-note follow-note follow-player-id instrument-info note-event-time note-play-time player-id sc-instrument-id seg-num volume])
 

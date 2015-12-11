@@ -15,8 +15,9 @@
 
 (ns transport.schedule
   (:require
-   [transport.debug :refer [debug-transport debug-run1]]
+   [transport.util.debug.debug :refer [debug-transport debug-run1]]
    [transport.util.count-vector :refer [count-vector]]
+   [transport.util.print :refer [print-msg]]
    [transport.util.utils :refer :all]
    ))
 

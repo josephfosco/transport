@@ -13,17 +13,17 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.debug)
+(ns transport.util.debug.debug)
 
 (def debug-transport-all false)
 
 ;(defmacro debug-run1 [func]
-;(if transport.debug/debug-transport-all
+;(if transport.util.debug.debug/debug-transport-all
 ;  (eval func)))
 
 (defmacro debug-run1
   [func]
-  (if transport.debug/debug-transport-all func))
+  (if transport.util.debug.debug/debug-transport-all func))
 
 (defn debug-print
   [& funcs]

@@ -19,10 +19,13 @@
    [transport.constants :refer :all]
    [transport.behaviors :refer [select-first-behavior select-behavior]]
    [transport.dur-info :refer [get-dur-millis]]
-   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo select-instrument select-random-instrument]]
-   [transport.melody :refer [adjust-melody-char-range select-melody-characteristics select-random-melody-characteristics]]
+   [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo
+                                 select-instrument select-random-instrument]]
+   [transport.melody :refer [adjust-melody-char-range select-melody-characteristics
+                             select-random-melody-characteristics]]
    [transport.melodychar :refer [get-melody-char-range-lo get-melody-char-range-hi]]
-   [transport.melodyevent :refer [get-dur-info-for-event get-note-event-time-for-event get-seg-num-for-event]]
+   [transport.melody.melodyevent :refer [get-dur-info-for-event get-note-event-time-for-event
+                                         get-seg-num-for-event]]
    [transport.pitch :refer [select-key select-random-key select-scale select-random-scale]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
