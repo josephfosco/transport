@@ -26,3 +26,21 @@ Rule clauses
 Variable
   var-name
   list of rule-ids
+
+(defrule (condition clauses) (result clauses))
+
+condition clauses
+(<~> |<boolean>        )
+     |<lisp-function>
+
+
+lisp-function
+(fnc <args>....)
+
+args
+|<constant>
+|<literal>
+|<variable>
+
+variable
+?<string>

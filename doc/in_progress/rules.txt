@@ -23,10 +23,10 @@ assert-player-updated
 
 if segment-established
 if start-new-segment
-if not (player-action = SIMILAR-PLAYER)
+if not (= player-action SIMILAR-PLAYER)
 if sync-beat-player-id
 ---
-assert sync-beat-player-id == player's sync-beat-player-id
+assert sync-beat-player-id = player's sync-beat-player-id
 
 if segment-established
 if start-new-segment

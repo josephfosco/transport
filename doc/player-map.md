@@ -26,6 +26,9 @@
     + pitch-smoothness - how stepwise the melody will be and the change in volume from note to note
         - 0 - mostly steps, same volume levels
         - 9 - mostly skips (wide skips), large volume differences
+    + volume-smoothness - how consistent the volume will be note to note
+        - 0 - consistent (similar) volume levels
+        - 9 - large volume differences note to note
 * :mm - BPM for this player
 * :seg-len - the length of the player's current segment in milliseconds
 * :seg-num - the number of the player's current segment
