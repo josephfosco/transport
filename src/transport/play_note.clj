@@ -16,6 +16,7 @@
 (ns transport.play-note
   (:require
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
+   [polyphony.core :refer [get-variable-val set-var]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
@@ -447,6 +448,15 @@
         )
   )
 
+(defn update-and-swap-player
+  [player event-time new-seg? new-follow-info?]
+  (swap! (get @ensemble (get-player-id player))
+                          update-player
+                          event-time
+                          new-seg?
+                          new-follow-info?)
+  )
+
 (defn next-note
   [player-id event-time]
 
@@ -454,52 +464,111 @@
         last-melody-event (get-last-melody-event player)
         ;; will the new melody event start a new segment?
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
-        new-follow-info? (if (not new-seg?)
-                                    (check-new-follow-info player
-                                                           :melody-event last-melody-event
-                                                           :increment 1)
-                                    false
-                                    )
-        new-player (swap! (get @ensemble player-id)
-                          update-player
-                          event-time
-                          new-seg?
-                          new-follow-info?)
-        ;; now select the next note and play it
-        melody-event (play-melody player-id
-                                  new-player
-                                  event-time
-                                  new-seg?
-                                  new-follow-info?
-                                  )
         ]
-
-    (if (nil? new-player)
-      (do
-        (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
-        (print-msg "next-note" "player-id: " player-id)
-        (print-player player)
-        (throw (Throwable. "Nil new-player"))
-        ))
-
-    (if (get-note-for-event melody-event)
-      (check-note-off melody-event event-time)
+    (set-var ?player player)
+    (set-var ?event-time event-time)
+    (if (>= event-time (+ (get-seg-start player) (get-seg-len player)))
+      (set-var ?needs-new-segment true)
+      (set-var ?needs-new-segment false)
       )
+    (set-var ?new-follow-info (if (not new-seg?)
+                                (check-new-follow-info player
+                                                       :melody-event last-melody-event
+                                                       :increment 1)
+                                false
+                                ))
+    (let [new-player (get-player-map player-id)
+          ;; Now select the next note and play it
+          melody-event (play-melody player-id
+                                    new-player
+                                    event-time
+                                    (get-variable-val new-seg?)
+                                    (get-variable-val new-follow-info?)
+                                    )
+          ]
 
-    (cond new-seg?
-          (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
-          (not= player new-player)
-          (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
-          )
 
-    (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
+      (if (nil? new-player)
+        (do
+          (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
+          (print-msg "next-note" "player-id: " player-id)
+          (print-player player)
+          (throw (Throwable. "Nil new-player"))
+          ))
 
-    (check-live-synth new-player)
+      (if (get-note-for-event melody-event)
+        (check-note-off melody-event event-time)
+        )
 
-    (sched-event 0
-                 (get-player-val new-player "function") player-id
-                 :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
+      (cond new-seg?
+            (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
+            (not= player new-player)
+            (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
+            )
+
+      (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
+
+      (check-live-synth new-player)
+
+      (sched-event 0
+                   (get-player-val new-player "function") player-id
+                   :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
+      )
     )
+
+
+  ;;*****************************************************************
+  (comment
+    (let [player (get-player-map player-id)
+          last-melody-event (get-last-melody-event player)
+          ;; will the new melody event start a new segment?
+          new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
+          new-follow-info? (if (not new-seg?)
+                             (check-new-follow-info player
+                                                    :melody-event last-melody-event
+                                                    :increment 1)
+                             false
+                             )
+          new-player (swap! (get @ensemble player-id)
+                            update-player
+                            event-time
+                            new-seg?
+                            new-follow-info?)
+          ;; now select the next note and play it
+          melody-event (play-melody player-id
+                                    new-player
+                                    event-time
+                                    new-seg?
+                                    new-follow-info?
+                                    )
+          ]
+
+      (if (nil? new-player)
+        (do
+          (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
+          (print-msg "next-note" "player-id: " player-id)
+          (print-player player)
+          (throw (Throwable. "Nil new-player"))
+          ))
+
+      (if (get-note-for-event melody-event)
+        (check-note-off melody-event event-time)
+        )
+
+      (cond new-seg?
+            (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
+            (not= player new-player)
+            (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
+            )
+
+      (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
+
+      (check-live-synth new-player)
+
+      (sched-event 0
+                   (get-player-val new-player "function") player-id
+                   :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
+      ))
   )
 
 (defn play-first-melody-note

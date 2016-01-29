@@ -17,6 +17,7 @@
   (:gen-class)
   (:require
    [overtone.live :refer :all]
+   [transport.rules.next_note_rules]
    [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
    [transport.behaviors :refer [init-behaviors reset-behaviors]]
    [transport.live-players :refer [init-live-players]]
@@ -25,8 +26,8 @@
    [transport.melody :refer [init-melody reset-melody]]
    [transport.play-note :refer [init-ensemble reset-ensemble]]
    [transport.pitch :refer [load-scales]]
-   [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler restart-scheduler start-scheduler
-                               stop-scheduler]]
+   [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler
+                               restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [reset-setting set-number-of-players]]
    [transport.util.print :refer [print-banner print-msg]]
    [transport.util.utils :refer :all]
