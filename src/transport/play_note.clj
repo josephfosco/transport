@@ -16,7 +16,7 @@
 (ns transport.play-note
   (:require
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
-   [polyphony.core :refer [get-variable-val set-var]]
+   [polyphony.core :refer [get-variable-val reset-variable-vals set-var]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
@@ -257,7 +257,7 @@
 
 
 (defn- check-new-follow-info
-  "Returns true if the event after melody-event
+  "Returns true if the event after player's last melody-event
    is a new segment in the following player.
    Compares the seg-num in the molody-event of the FOLLOWing player for the melody
    event passed in (or FOLLOWer's last melody-event) with the seg-num of the
@@ -266,12 +266,11 @@
 
    player - map for the player to check
    melody event - melody event to check or player's last melody event if omitted"
-  [player & {:keys [melody-event increment]
-             :or {melody-event (get-last-melody-event player)
-                  increment 0}}]
+  [player & {:keys [increment]
+             :or {increment 0}}]
 
   (and (get-next-change-follow-info-note player)
-       (>= (+ (get-follow-note-for-event melody-event) increment) (get-next-change-follow-info-note player)))
+       (>= (+ (get-follow-note-for-event (get-last-melody-event player)) increment) (get-next-change-follow-info-note player)))
   )
 
 (defn- check-note-off
@@ -449,32 +448,30 @@
   )
 
 (defn update-and-swap-player
-  [player event-time new-seg? new-follow-info?]
-  (swap! (get @ensemble (get-player-id player))
-                          update-player
-                          event-time
-                          new-seg?
-                          new-follow-info?)
+  [player-id event-time new-seg? new-follow-info?]
+  (swap!(get-player player-id)
+        update-player
+        event-time
+        new-seg?
+        new-follow-info?)
   )
 
 (defn next-note
   [player-id event-time]
 
   (let [player (get-player-map player-id)
-        last-melody-event (get-last-melody-event player)
         ;; will the new melody event start a new segment?
         new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
         ]
-    (set-var ?player player)
+    (reset-variable-vals)
+    (set-var ?player-id player-id)
     (set-var ?event-time event-time)
     (if (>= event-time (+ (get-seg-start player) (get-seg-len player)))
       (set-var ?needs-new-segment true)
       (set-var ?needs-new-segment false)
       )
     (set-var ?new-follow-info (if (not new-seg?)
-                                (check-new-follow-info player
-                                                       :melody-event last-melody-event
-                                                       :increment 1)
+                                (check-new-follow-info player :increment 1)
                                 false
                                 ))
     (let [new-player (get-player-map player-id)
@@ -482,8 +479,8 @@
           melody-event (play-melody player-id
                                     new-player
                                     event-time
-                                    (get-variable-val new-seg?)
-                                    (get-variable-val new-follow-info?)
+                                    (get-variable-val ?needs-new-segment)
+                                    (get-variable-val ?new-follow-info)
                                     )
           ]
 
@@ -520,13 +517,10 @@
   ;;*****************************************************************
   (comment
     (let [player (get-player-map player-id)
-          last-melody-event (get-last-melody-event player)
           ;; will the new melody event start a new segment?
           new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
           new-follow-info? (if (not new-seg?)
-                             (check-new-follow-info player
-                                                    :melody-event last-melody-event
-                                                    :increment 1)
+                             (check-new-follow-info player :increment 1)
                              false
                              )
           new-player (swap! (get @ensemble player-id)

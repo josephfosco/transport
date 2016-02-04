@@ -20,14 +20,15 @@
   )
 
 (defrule
-  ((not= ?player nil)
+  ((not= ?player-id nil)
    (not= ?event-time nil)
    (not= ?needs-new-segment nil)
    (not= ?new-follow-info nil))
   (
    (transport.play-note/update-and-swap-player
-    ?player
+    ?player-id
     ?event-time
-    ?new-seg
-    ?new-follow-info))
+    ?needs-new-segment
+    ?new-follow-info)
+   )
   )
