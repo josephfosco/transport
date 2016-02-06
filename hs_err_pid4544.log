@@ -1,0 +1,442 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007f8a6c3f9970, pid=4544, tid=140231684962048
+#
+# JRE version: OpenJDK Runtime Environment (8.0_71-b15) (build 1.8.0_71-b15)
+# Java VM: OpenJDK 64-Bit Server VM (25.71-b15 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# C  [libxcb.so.1+0xa970]  xcb_writev+0x0
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread is native thread
+
+siginfo: si_signo: 11 (SIGSEGV), si_code: 1 (SEGV_MAPERR), si_addr: 0x0000000000000000
+
+Registers:
+RAX=0x00007f8a6cf712a4, RBX=0x0000000000000000, RCX=0x0000000000000001, RDX=0x0000000000000003
+RSP=0x00007f8a3bc4add8, RBP=0x0000000000000000, RSI=0x00007f8a3bc4adf0, RDI=0x0000000000000000
+R8 =0x0000000000000000, R9 =0x0000000000000000, R10=0x00007f8a9c0d7a20, R11=0x0000000000000000
+R12=0x00007f8a3bc4adf0, R13=0x00007f8a3bc4b700, R14=0x00007f8a9c3d1630, R15=0x0000000000000000
+RIP=0x00007f8a6c3f9970, EFLAGS=0x0000000000010246, CSGSFS=0x0000000000000033, ERR=0x0000000000000004
+  TRAPNO=0x000000000000000e
+
+Top of Stack: (sp=0x00007f8a3bc4add8)
+0x00007f8a3bc4add8:   00007f8a6cc74bfe 0000000000000000
+0x00007f8a3bc4ade8:   0000000000000001 00007f8a9ca86ca0
+0x00007f8a3bc4adf8:   0000000000000004 0000000000000000
+0x00007f8a3bc4ae08:   0000000000000000 00007f8a6cf712a4
+0x00007f8a3bc4ae18:   0000000000000000 00007f8a9c3d2898
+0x00007f8a3bc4ae28:   8b26e5d167a3f900 00007f8a9c3d1630
+0x00007f8a3bc4ae38:   00007f8a9c3d1630 00007f8a3be4e080
+0x00007f8a3bc4ae48:   00007f8a3cfacd1f 00007f8a3bc4b700
+0x00007f8a3bc4ae58:   0000000000800000 0000000000000000
+0x00007f8a3bc4ae68:   00007f8a6cc750f2 000000000000007d
+0x00007f8a3bc4ae78:   00007f8a3bc4aee0 0000000000000000
+0x00007f8a3bc4ae88:   0000000100000002 0000000000000000
+0x00007f8a3bc4ae98:   8b26e5d167a3f900 0000000000000000
+0x00007f8a3bc4aea8:   00007f8a9c3d1630 00007f8a3be4e080
+0x00007f8a3bc4aeb8:   00007f8a3cfacd1f 00007f8a3bc4b700
+0x00007f8a3bc4aec8:   0000000000800000 0000000000000000
+0x00007f8a3bc4aed8:   00007f8a6cc6b211 0000000244910001
+0x00007f8a3bc4aee8:   0000000000000000 0000000000000000
+0x00007f8a3bc4aef8:   0000000000000000 0000000000000000
+0x00007f8a3bc4af08:   8b26e5d167a3f900 00007f8a3bc4b700
+0x00007f8a3bc4af18:   00007f8a3be4e080 0000000000000000
+0x00007f8a3bc4af28:   00007f8a3bc4cbe8 0000000000000000
+0x00007f8a3bc4af38:   0000000001036640 0000000000000000
+0x00007f8a3bc4af48:   0000000000000000 0000000000000000
+0x00007f8a3bc4af58:   00007f8aa351d60a 0000000000000000
+0x00007f8a3bc4af68:   00007f8a3bc4b700 00007f8a3bc4b700
+0x00007f8a3bc4af78:   7baf5690dc168bd8 00007f8a3cfacd1f
+0x00007f8a3bc4af88:   00007f8a3bc4b700 0000000000800000
+0x00007f8a3bc4af98:   0000000000000000 84bb211982d68bd8
+0x00007f8a3bc4afa8:   84ba1033778c8bd8 0000000000000000
+0x00007f8a3bc4afb8:   0000000000000000 0000000000000000
+0x00007f8a3bc4afc8:   0000000000000000 0000000000000000 
+
+Instructions: (pc=0x00007f8a6c3f9970)
+0x00007f8a6c3f9950:   e8 9b 11 00 00 48 83 c4 10 89 d8 5b 5d 41 5c 41
+0x00007f8a6c3f9960:   5d 41 5e c3 66 66 66 2e 0f 1f 84 00 00 00 00 00
+0x00007f8a6c3f9970:   8b 07 85 c0 74 0a 31 c0 c3 0f 1f 80 00 00 00 00
+0x00007f8a6c3f9980:   41 56 4c 8d 77 18 41 55 41 54 55 49 89 cd 53 48 
+
+Register to memory mapping:
+
+RAX=0x00007f8a6cf712a4: <offset 0x33f2a4> in /lib64/libX11.so.6 at 0x00007f8a6cc32000
+RBX=0x0000000000000000 is an unknown value
+RCX=0x0000000000000001 is an unknown value
+RDX=0x0000000000000003 is an unknown value
+RSP=0x00007f8a3bc4add8 is an unknown value
+RBP=0x0000000000000000 is an unknown value
+RSI=0x00007f8a3bc4adf0 is an unknown value
+RDI=0x0000000000000000 is an unknown value
+R8 =0x0000000000000000 is an unknown value
+R9 =0x0000000000000000 is an unknown value
+R10=0x00007f8a9c0d7a20 is an unknown value
+R11=0x0000000000000000 is an unknown value
+R12=0x00007f8a3bc4adf0 is an unknown value
+R13=0x00007f8a3bc4b700 is an unknown value
+R14=0x00007f8a9c3d1630 is an unknown value
+R15=0x0000000000000000 is an unknown value
+
+
+Stack: [0x00007f8a3b44b000,0x00007f8a3bc4c000],  sp=0x00007f8a3bc4add8,  free space=8191k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libxcb.so.1+0xa970]  xcb_writev+0x0
+
+[error occurred during error reporting (printing native stack), id 0xb]
+
+
+---------------  P R O C E S S  ---------------
+
+VM state:at safepoint (shutting down)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00007f8a9c007e80] Threads_lock - owner thread: 0x00007f8a9c081800
+
+Heap:
+ PSYoungGen      total 309760K, used 276993K [0x00000000ec700000, 0x00000000ffe80000, 0x0000000100000000)
+  eden space 300544K, 90% used [0x00000000ec700000,0x00000000fd1dc540,0x00000000fec80000)
+  from space 9216K, 40% used [0x00000000fec80000,0x00000000ff024020,0x00000000ff580000)
+  to   space 8704K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe80000)
+ ParOldGen       total 91136K, used 40048K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b1c1c0,0x00000000cad00000)
+ Metaspace       used 49295K, capacity 69731K, committed 70056K, reserved 1099776K
+  class space    used 12455K, capacity 19261K, committed 19368K, reserved 1048576K
+
+Card table byte_map: [0x00007f8aa0365000,0x00007f8aa053c000] byte_map_base: 0x00007f8a9fd3b000
+
+Marking Bits: (ParMarkBitMap*) 0x00007f8aa2b11040
+ Begin Bits: [0x00007f8a8b2a0000, 0x00007f8a8c150000)
+ End Bits:   [0x00007f8a8c150000, 0x00007f8a8d000000)
+
+Polling page: 0x00007f8aa3951000
+
+CodeCache: size=245760Kb used=15913Kb max_used=16218Kb free=229846Kb
+ bounds [0x00007f8a8d000000, 0x00007f8a8e000000, 0x00007f8a9c000000]
+ total_blobs=4434 nmethods=3921 adapters=428
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 313.829 Thread 0x00007f8a9c0bc000 nmethod 5313 0x00007f8a8d86d390 code [0x00007f8a8d86d740, 0x00007f8a8d86fa20]
+Event: 313.830 Thread 0x00007f8a9c0bc000 5316       4       java.util.Formatter::checkText (58 bytes)
+Event: 313.833 Thread 0x00007f8a9c0bc000 nmethod 5316 0x00007f8a8d13fa90 code [0x00007f8a8d13fbe0, 0x00007f8a8d13fd98]
+Event: 313.834 Thread 0x00007f8a9c0bc000 5317       4       clojure.lang.PersistentHashMap$ArrayNode::<init> (20 bytes)
+Event: 313.834 Thread 0x00007f8a9c0bc000 nmethod 5317 0x00007f8a8d4a70d0 code [0x00007f8a8d4a7220, 0x00007f8a8d4a7298]
+Event: 313.836 Thread 0x00007f8a9c0bc000 5302       4       clojure.lang.Numbers$LongOps::isZero (15 bytes)
+Event: 313.836 Thread 0x00007f8a9c0bc000 nmethod 5302 0x00007f8a8d18ae50 code [0x00007f8a8d18afa0, 0x00007f8a8d18b038]
+Event: 313.836 Thread 0x00007f8a9c0bc000 5318       4       clojure.lang.RT::isReduced (5 bytes)
+Event: 313.837 Thread 0x00007f8a9c0bc000 nmethod 5318 0x00007f8a8d6fcfd0 code [0x00007f8a8d6fd120, 0x00007f8a8d6fd178]
+Event: 323.619 Thread 0x00007f8a9c0bc000 5320       4       java.lang.ThreadLocal::get (38 bytes)
+
+GC Heap History (10 events):
+Event: 130.619 GC heap before
+{Heap before GC invocations=28 (full 3):
+ PSYoungGen      total 310272K, used 302032K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300032K, 100% used [0x00000000ec700000,0x00000000fec00000,0x00000000fec00000)
+  from space 10240K, 19% used [0x00000000ff600000,0x00000000ff7f4010,0x0000000100000000)
+  to   space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)
+ ParOldGen       total 91136K, used 40008K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b121c0,0x00000000cad00000)
+ Metaspace       used 47064K, capacity 65107K, committed 65320K, reserved 1097728K
+  class space    used 11591K, capacity 17593K, committed 17704K, reserved 1048576K
+Event: 130.635 GC heap after
+Heap after GC invocations=28 (full 3):
+ PSYoungGen      total 310272K, used 3008K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300032K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000fec00000)
+  from space 10240K, 29% used [0x00000000fec00000,0x00000000feef0000,0x00000000ff600000)
+  to   space 10240K, 0% used [0x00000000ff600000,0x00000000ff600000,0x0000000100000000)
+ ParOldGen       total 91136K, used 40016K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b141c0,0x00000000cad00000)
+ Metaspace       used 47064K, capacity 65107K, committed 65320K, reserved 1097728K
+  class space    used 11591K, capacity 17593K, committed 17704K, reserved 1048576K
+}
+Event: 137.337 GC heap before
+{Heap before GC invocations=29 (full 3):
+ PSYoungGen      total 310272K, used 303040K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300032K, 100% used [0x00000000ec700000,0x00000000fec00000,0x00000000fec00000)
+  from space 10240K, 29% used [0x00000000fec00000,0x00000000feef0000,0x00000000ff600000)
+  to   space 10240K, 0% used [0x00000000ff600000,0x00000000ff600000,0x0000000100000000)
+ ParOldGen       total 91136K, used 40016K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b141c0,0x00000000cad00000)
+ Metaspace       used 47525K, capacity 66123K, committed 66472K, reserved 1097728K
+  class space    used 11780K, capacity 17965K, committed 18088K, reserved 1048576K
+Event: 137.354 GC heap after
+Heap after GC invocations=29 (full 3):
+ PSYoungGen      total 310272K, used 3136K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300032K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000fec00000)
+  from space 10240K, 30% used [0x00000000ff600000,0x00000000ff910000,0x0000000100000000)
+  to   space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)
+ ParOldGen       total 91136K, used 40024K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b161c0,0x00000000cad00000)
+ Metaspace       used 47525K, capacity 66123K, committed 66472K, reserved 1097728K
+  class space    used 11780K, capacity 17965K, committed 18088K, reserved 1048576K
+}
+Event: 138.991 GC heap before
+{Heap before GC invocations=30 (full 3):
+ PSYoungGen      total 310272K, used 303168K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300032K, 100% used [0x00000000ec700000,0x00000000fec00000,0x00000000fec00000)
+  from space 10240K, 30% used [0x00000000ff600000,0x00000000ff910000,0x0000000100000000)
+  to   space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)
+ ParOldGen       total 91136K, used 40024K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b161c0,0x00000000cad00000)
+ Metaspace       used 47892K, capacity 66941K, committed 67240K, reserved 1097728K
+  class space    used 11935K, capacity 18267K, committed 18344K, reserved 1048576K
+Event: 139.003 GC heap after
+Heap after GC invocations=30 (full 3):
+ PSYoungGen      total 303616K, used 3280K [0x00000000ec700000, 0x00000000fff00000, 0x0000000100000000)
+  eden space 300032K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000fec00000)
+  from space 3584K, 91% used [0x00000000fec00000,0x00000000fef34010,0x00000000fef80000)
+  to   space 9728K, 0% used [0x00000000ff580000,0x00000000ff580000,0x00000000fff00000)
+ ParOldGen       total 91136K, used 40032K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b181c0,0x00000000cad00000)
+ Metaspace       used 47892K, capacity 66941K, committed 67240K, reserved 1097728K
+  class space    used 11935K, capacity 18267K, committed 18344K, reserved 1048576K
+}
+Event: 145.479 GC heap before
+{Heap before GC invocations=31 (full 3):
+ PSYoungGen      total 303616K, used 303312K [0x00000000ec700000, 0x00000000fff00000, 0x0000000100000000)
+  eden space 300032K, 100% used [0x00000000ec700000,0x00000000fec00000,0x00000000fec00000)
+  from space 3584K, 91% used [0x00000000fec00000,0x00000000fef34010,0x00000000fef80000)
+  to   space 9728K, 0% used [0x00000000ff580000,0x00000000ff580000,0x00000000fff00000)
+ ParOldGen       total 91136K, used 40032K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b181c0,0x00000000cad00000)
+ Metaspace       used 48311K, capacity 67905K, committed 68136K, reserved 1099776K
+  class space    used 12108K, capacity 18619K, committed 18728K, reserved 1048576K
+Event: 145.490 GC heap after
+Heap after GC invocations=31 (full 3):
+ PSYoungGen      total 310272K, used 3520K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300544K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000fec80000)
+  from space 9728K, 36% used [0x00000000ff580000,0x00000000ff8f0030,0x00000000fff00000)
+  to   space 9216K, 0% used [0x00000000fec80000,0x00000000fec80000,0x00000000ff580000)
+ ParOldGen       total 91136K, used 40040K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b1a1c0,0x00000000cad00000)
+ Metaspace       used 48311K, capacity 67905K, committed 68136K, reserved 1099776K
+  class space    used 12108K, capacity 18619K, committed 18728K, reserved 1048576K
+}
+Event: 273.634 GC heap before
+{Heap before GC invocations=32 (full 3):
+ PSYoungGen      total 310272K, used 304064K [0x00000000ec700000, 0x0000000100000000, 0x0000000100000000)
+  eden space 300544K, 100% used [0x00000000ec700000,0x00000000fec80000,0x00000000fec80000)
+  from space 9728K, 36% used [0x00000000ff580000,0x00000000ff8f0030,0x00000000fff00000)
+  to   space 9216K, 0% used [0x00000000fec80000,0x00000000fec80000,0x00000000ff580000)
+ ParOldGen       total 91136K, used 40040K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b1a1c0,0x00000000cad00000)
+ Metaspace       used 48820K, capacity 68993K, committed 69288K, reserved 1099776K
+  class space    used 12310K, capacity 19015K, committed 19112K, reserved 1048576K
+Event: 273.652 GC heap after
+Heap after GC invocations=32 (full 3):
+ PSYoungGen      total 309760K, used 3728K [0x00000000ec700000, 0x00000000ffe80000, 0x0000000100000000)
+  eden space 300544K, 0% used [0x00000000ec700000,0x00000000ec700000,0x00000000fec80000)
+  from space 9216K, 40% used [0x00000000fec80000,0x00000000ff024020,0x00000000ff580000)
+  to   space 8704K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe80000)
+ ParOldGen       total 91136K, used 40048K [0x00000000c5400000, 0x00000000cad00000, 0x00000000ec700000)
+  object space 91136K, 43% used [0x00000000c5400000,0x00000000c7b1c1c0,0x00000000cad00000)
+ Metaspace       used 48820K, capacity 68993K, committed 69288K, reserved 1099776K
+  class space    used 12310K, capacity 19015K, committed 19112K, reserved 1048576K
+}
+
+Deoptimization events (10 events):
+Event: 45.385 Thread 0x00007f8a7c012800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f8a8d96100c method=clojure.core$disj.invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 14
+Event: 45.405 Thread 0x00007f8a84141800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f8a8d96100c method=clojure.core$disj.invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 14
+Event: 127.107 Thread 0x00007f8a54b2d000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x00007f8a8d34bf30 method=java.util.concurrent.locks.AbstractQueuedSynchronizer.release(I)Z @ 2
+Event: 129.058 Thread 0x00007f8a4c018800 Uncommon trap: reason=predicate action=maybe_recompile pc=0x00007f8a8d9f63fc method=clojure.core$filter_key.invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 30
+Event: 129.059 Thread 0x00007f8a4c018800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f8a8d9d99a8 method=clojure.core$filter_key.invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 37
+Event: 132.039 Thread 0x00007f8a54b2d000 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007f8a8de051e8 method=clojure.lang.LispReader.readToken(Ljava/io/PushbackReader;C)Ljava/lang/String; @ 21
+Event: 133.673 Thread 0x00007f8a54b2d000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x00007f8a8d34bf30 method=java.util.concurrent.locks.AbstractQueuedSynchronizer.release(I)Z @ 2
+Event: 309.980 Thread 0x00007f8a54b2d000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x00007f8a8d34bf30 method=java.util.concurrent.locks.AbstractQueuedSynchronizer.release(I)Z @ 2
+Event: 309.984 Thread 0x00007f8a54b2d000 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007f8a8ddc8a18 method=java.util.concurrent.ConcurrentHashMap.putVal(Ljava/lang/Object;Ljava/lang/Object;Z)Ljava/lang/Object; @ 206
+Event: 313.603 Thread 0x00007f8a61573000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x00007f8a8d34bf30 method=java.util.concurrent.locks.AbstractQueuedSynchronizer.release(I)Z @ 2
+
+Internal exceptions (10 events):
+Event: 5.887 Thread 0x00007f8a4800b800 Exception <a 'java/io/FileNotFoundException'> (0x00000000f4286e20) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/openjdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 5.887 Thread 0x00007f8a4800b800 Exception <a 'java/io/FileNotFoundException'> (0x00000000f42880b0) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/openjdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 6.045 Thread 0x00007f8a4800b800 Exception <a 'java/lang/ClassNotFoundException': sun/dc/DuctusRenderingEngine> (0x00000000ec7083d8) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/openjdk/hotspot/src/share/vm/classfile/systemDictionary.cpp, line 210]
+Event: 9.733 Thread 0x00007f8a4800b800 Implicit null exception at 0x00007f8a8d19e1f5 to 0x00007f8a8d19e529
+Event: 17.149 Thread 0x00007f8a4800b800 Implicit null exception at 0x00007f8a8dc3529c to 0x00007f8a8dc377f5
+Event: 20.802 Thread 0x00007f8a4800b800 Implicit null exception at 0x00007f8a8d52841b to 0x00007f8a8d5284d4
+Event: 20.803 Thread 0x00007f8a4800b800 Exception <a 'java/lang/NullPointerException'> (0x00000000fae67e58) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 613]
+Event: 20.890 Thread 0x00007f8a4800b800 Implicit null exception at 0x00007f8a8d28d744 to 0x00007f8a8d28d821
+Event: 23.300 Thread 0x00007f8a54251800 Implicit null exception at 0x00007f8a8dd5476c to 0x00007f8a8dd563ad
+Event: 45.347 Thread 0x00007f8a84141800 Implicit null exception at 0x00007f8a8dadc30a to 0x00007f8a8dadc931
+
+Events (10 events):
+Event: 313.833 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8dcee850
+Event: 313.833 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8dd55b90
+Event: 313.834 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8ddcaf10
+Event: 313.835 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8de03890
+Event: 313.835 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8de2d890
+Event: 313.835 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8deb7ad0
+Event: 313.835 Thread 0x00007f8a9c0bc000 flushing nmethod 0x00007f8a8deb8690
+Event: 323.617 Thread 0x00007f8a50006800 Thread exited: 0x00007f8a50006800
+Event: 323.619 Thread 0x00007f8a61573000 Thread exited: 0x00007f8a61573000
+Event: 323.623 Executing VM operation: Exit
+
+
+Dynamic libraries:
+c5400000-cad00000 rw-p 00000000 00:00 0 
+cad00000-ec700000 ---p 00000000 00:00 0 
+ec700000-ffe80000 rw-p 00000000 00:00 0 
+ffe80000-100000000 ---p 00000000 00:00 0 
+100000000-1012ea000 rw-p 00000000 00:00 0 
+1012ea000-140000000 ---p 00000000 00:00 0 
+55c5ae5e6000-55c5ae5e7000 r-xp 00000000 fd:02 1579028                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/jre/bin/java
+55c5ae7e6000-55c5ae7e7000 r--p 00000000 fd:02 1579028                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/jre/bin/java
+55c5ae7e7000-55c5ae7e8000 rw-p 00001000 fd:02 1579028                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.71-1.b15.fc23.x86_64/jre/bin/java
+55c5b0042000-55c5b0087000 rw-p 00000000 00:00 0                          [heap]
+7f8a18c06000-7f8a18c09000 ---p 00000000 00:00 0 
+7f8a18c09000-7f8a18d07000 rw-p 00000000 00:00 0 
+7f8a18d07000-7f8a18d0a000 ---p 00000000 00:00 0 
+7f8a18d0a000-7f8a18f88000 rw-p 00000000 00:00 0 
+7f8a18f88000-7f8a19008000 ---p 00000000 00:00 0 
+7f8a19008000-7f8a19208000 rw-p 00000000 00:00 0 
+7f8a19208000-7f8a1920b000 ---p 00000000 00:00 0 
+7f8a1920b000-7f8a19309000 rw-p 00000000 00:00 0 
+7f8a19309000-7f8a1930c000 ---p 00000000 00:00 0 
+7f8a1930c000-7f8a1940a000 rw-p 00000000 00:00 0                          [stack:4801]
+7f8a1940a000-7f8a1940d000 ---p 00000000 00:00 0 
+7f8a1940d000-7f8a1950b000 rw-p 00000000 00:00 0                          [stack:4745]
+7f8a1950b000-7f8a1950e000 ---p 00000000 00:00 0 
+7f8a1950e000-7f8a1960c000 rw-p 00000000 00:00 0                          [stack:4744]
+7f8a1960c000-7f8a1960f000 ---p 00000000 00:00 0 
+7f8a1960f000-7f8a1970d000 rw-p 00000000 00:00 0                          [stack:4781]
+7f8a1970e000-7f8a19711000 ---p 00000000 00:00 0 
+7f8a19711000-7f8a1980f000 rw-p 00000000 00:00 0                          [stack:4743]
+7f8a1980f000-7f8a19812000 ---p 00000000 00:00 0 
+7f8a19812000-7f8a19b10000 rw-p 00000000 00:00 0                          [stack:4742]
+7f8a19b10000-7f8a19b13000 ---p 00000000 00:00 0 
+7f8a19b13000-7f8a19e11000 rw-p 00000000 00:00 0                          [stack:4732]
+7f8a19e11000-7f8a19e14000 ---p 00000000 00:00 0 
+7f8a19e14000-7f8a19f12000 rw-p 00000000 00:00 0 
+7f8a19f12000-7f8a19f15000 ---p 00000000 00:00 0 
+7f8a19f15000-7f8a1a013000 rw-p 00000000 00:00 0 
+7f8a1a013000-7f8a1a016000 ---p 00000000 00:00 0 
+7f8a1a016000-7f8a1a114000 rw-p 00000000 00:00 0 
+7f8a1a114000-7f8a1a117000 ---p 00000000 00:00 0 
+7f8a1a117000-7f8a1a415000 rw-p 00000000 00:00 0 
+7f8a1a415000-7f8a1a418000 ---p 00000000 00:00 0 
+7f8a1a418000-7f8a1a516000 rw-p 00000000 00:00 0 
+7f8a1a516000-7f8a1a517000 ---p 00000000 00:00 0 
+7f8a1a517000-7f8a1ad17000 rw-p 00000000 00:00 0                          [stack:4709]
+7f8a1ad17000-7f8a1ad18000 ---p 00000000 00:00 0 
+7f8a1ad18000-7f8a1ad98000 rw-p 00000000 00:00 0 
+7f8a213f5000-7f8a213f6000 ---p 00000000 00:00 0 
+7f8a213f6000-7f8a21476000 rw-p 00000000 00:00 0 
+7f8a21476000-7f8a21479000 ---p 00000000 00:00 0 
+7f8a21479000-7f8a21c77000 rw-p 00000000 00:00 0 
+7f8a31c78000-7f8a31c85000 r-xp 00000000 fd:00 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f8a31c85000-7f8a31e84000 ---p 0000d000 fd:00 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f8a31e84000-7f8a31e85000 r--p 0000c000 fd:00 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f8a31e85000-7f8a31e86000 rw-p 0000d000 fd:00 393575                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NCAnalysisUGens.so
+7f8a31e86000-7f8a31ed1000 rw-p 00000000 00:00 0 
+7f8a31ed1000-7f8a31f0b000 r-xp 00000000 fd:00 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f8a31f0b000-7f8a3210a000 ---p 0003a000 fd:00 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f8a3210a000-7f8a3210b000 r--p 00039000 fd:00 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f8a3210b000-7f8a3210c000 rw-p 0003a000 fd:00 393556                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshGrainUGens.so
+7f8a3210c000-7f8a3213a000 r-xp 00000000 fd:00 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f8a3213a000-7f8a3233a000 ---p 0002e000 fd:00 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f8a3233a000-7f8a3233b000 r--p 0002e000 fd:00 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f8a3233b000-7f8a3233c000 rw-p 0002f000 fd:00 393698                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DelayUGens.so
+7f8a3233c000-7f8a32346000 r-xp 00000000 fd:00 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f8a32346000-7f8a32545000 ---p 0000a000 fd:00 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f8a32545000-7f8a32546000 r--p 00009000 fd:00 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f8a32546000-7f8a32547000 rw-p 0000a000 fd:00 393565                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFFTUGens.so
+7f8a32547000-7f8a32553000 rw-p 00000000 00:00 0 
+7f8a32553000-7f8a32566000 r-xp 00000000 fd:00 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f8a32566000-7f8a32765000 ---p 00013000 fd:00 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f8a32765000-7f8a32766000 r--p 00012000 fd:00 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f8a32766000-7f8a32767000 rw-p 00013000 fd:00 393557                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshPVUGens.so
+7f8a32767000-7f8a32773000 rw-p 00000000 00:00 0 
+7f8a32773000-7f8a32776000 r-xp 00000000 fd:00 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f8a32776000-7f8a32975000 ---p 00003000 fd:00 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f8a32975000-7f8a32976000 r--p 00002000 fd:00 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f8a32976000-7f8a32977000 rw-p 00003000 fd:00 393553                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DistortionUGens.so
+7f8a32977000-7f8a3297a000 r-xp 00000000 fd:00 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f8a3297a000-7f8a32b79000 ---p 00003000 fd:00 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f8a32b79000-7f8a32b7a000 r--p 00002000 fd:00 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f8a32b7a000-7f8a32b7b000 rw-p 00003000 fd:00 393566                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDFilterUGens.so
+7f8a32b7b000-7f8a32b83000 r-xp 00000000 fd:00 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f8a32b83000-7f8a32d82000 ---p 00008000 fd:00 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f8a32d82000-7f8a32d83000 r--p 00007000 fd:00 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f8a32d83000-7f8a32d84000 rw-p 00008000 fd:00 393583                     /home/joseph/clj/src/transport/target/native/linux/x86_64/TJUGens.so
+7f8a32d84000-7f8a32d90000 r-xp 00000000 fd:00 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f8a32d90000-7f8a32f90000 ---p 0000c000 fd:00 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f8a32f90000-7f8a32f91000 r--p 0000c000 fd:00 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f8a32f91000-7f8a32f92000 rw-p 0000d000 fd:00 393699                     /home/joseph/clj/src/transport/target/native/linux/x86_64/DemandUGens.so
+7f8a32f92000-7f8a32f99000 r-xp 00000000 fd:00 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f8a32f99000-7f8a33198000 ---p 00007000 fd:00 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f8a33198000-7f8a33199000 r--p 00006000 fd:00 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f8a33199000-7f8a3319a000 rw-p 00007000 fd:00 393545                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BetablockerUGens.so
+7f8a3319a000-7f8a331a2000 r-xp 00000000 fd:00 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f8a331a2000-7f8a333a1000 ---p 00008000 fd:00 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f8a333a1000-7f8a333a2000 r--p 00007000 fd:00 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f8a333a2000-7f8a333a3000 rw-p 00008000 fd:00 393715                     /home/joseph/clj/src/transport/target/native/linux/x86_64/PanUGens.so
+7f8a333a3000-7f8a333b4000 r-xp 00000000 fd:00 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f8a333b4000-7f8a335b3000 ---p 00011000 fd:00 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f8a335b3000-7f8a335b4000 r--p 00010000 fd:00 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f8a335b4000-7f8a335b5000 rw-p 00011000 fd:00 393714                     /home/joseph/clj/src/transport/target/native/linux/x86_64/OscUGens.so
+7f8a335b5000-7f8a335b7000 r-xp 00000000 fd:00 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f8a335b7000-7f8a337b6000 ---p 00002000 fd:00 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f8a337b6000-7f8a337b7000 r--p 00001000 fd:00 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f8a337b7000-7f8a337b8000 rw-p 00002000 fd:00 393541                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BatPVUgens.so
+7f8a337b8000-7f8a337c4000 rw-p 00000000 00:00 0 
+7f8a337c4000-7f8a337c6000 r-xp 00000000 fd:00 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f8a337c6000-7f8a339c5000 ---p 00002000 fd:00 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f8a339c5000-7f8a339c6000 r--p 00001000 fd:00 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f8a339c6000-7f8a339c7000 rw-p 00002000 fd:00 393564                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDDistortionUGens.so
+7f8a339c7000-7f8a339f9000 r-xp 00000000 fd:00 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f8a339f9000-7f8a33bf9000 ---p 00032000 fd:00 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f8a33bf9000-7f8a33bfa000 r--p 00032000 fd:00 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f8a33bfa000-7f8a33bfb000 rw-p 00033000 fd:00 393696                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BinaryOpUGens.so
+7f8a33bfb000-7f8a33bfd000 r-xp 00000000 fd:00 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f8a33bfd000-7f8a33dfc000 ---p 00002000 fd:00 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f8a33dfc000-7f8a33dfd000 r--p 00001000 fd:00 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f8a33dfd000-7f8a33dfe000 rw-p 00002000 fd:00 393577                     /home/joseph/clj/src/transport/target/native/linux/x86_64/RFWUGens.so
+7f8a33dfe000-7f8a33e1c000 r-xp 00000000 fd:00 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f8a33e1c000-7f8a3401c000 ---p 0001e000 fd:00 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f8a3401c000-7f8a3401d000 r--p 0001e000 fd:00 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f8a3401d000-7f8a3401e000 rw-p 0001f000 fd:00 393558                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshUGens.so
+7f8a3401e000-7f8a34020000 r-xp 00000000 fd:00 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f8a34020000-7f8a3421f000 ---p 00002000 fd:00 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f8a3421f000-7f8a34220000 r--p 00001000 fd:00 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f8a34220000-7f8a34221000 rw-p 00002000 fd:00 393572                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTriggeredStatsUgens.so
+7f8a34221000-7f8a34231000 r-xp 00000000 fd:00 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f8a34231000-7f8a34430000 ---p 00010000 fd:00 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f8a34430000-7f8a34431000 r--p 0000f000 fd:00 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f8a34431000-7f8a34432000 rw-p 00010000 fd:00 393555                     /home/joseph/clj/src/transport/target/native/linux/x86_64/JoshAmbiUGens.so
+7f8a34432000-7f8a3443c000 r-xp 00000000 fd:00 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f8a3443c000-7f8a3463b000 ---p 0000a000 fd:00 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f8a3463b000-7f8a3463c000 r--p 00009000 fd:00 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f8a3463c000-7f8a34644000 rw-p 0000a000 fd:00 393710                     /home/joseph/clj/src/transport/target/native/linux/x86_64/ML_UGens.so
+7f8a34644000-7f8a34680000 rw-p 00000000 00:00 0 
+7f8a34680000-7f8a34696000 r-xp 00000000 fd:00 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f8a34696000-7f8a34895000 ---p 00016000 fd:00 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f8a34895000-7f8a34896000 r--p 00015000 fd:00 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f8a34896000-7f8a34897000 rw-p 00016000 fd:00 393548                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobFilt.so
+7f8a34897000-7f8a3489d000 r-xp 00000000 fd:00 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f8a3489d000-7f8a34a9c000 ---p 00006000 fd:00 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f8a34a9c000-7f8a34a9d000 r--p 00005000 fd:00 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f8a34a9d000-7f8a34a9e000 rw-p 00006000 fd:00 393713                     /home/joseph/clj/src/transport/target/native/linux/x86_64/NoiseUGens.so
+7f8a34a9e000-7f8a34aa1000 r-xp 00000000 fd:00 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f8a34aa1000-7f8a34ca0000 ---p 00003000 fd:00 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f8a34ca0000-7f8a34ca1000 r--p 00002000 fd:00 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f8a34ca1000-7f8a34ca2000 rw-p 00003000 fd:00 393571                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDTreeUGens.so
+7f8a34ca2000-7f8a34ca6000 r-xp 00000000 fd:00 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f8a34ca6000-7f8a34ea5000 ---p 00004000 fd:00 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f8a34ea5000-7f8a34ea6000 r--p 00003000 fd:00 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f8a34ea6000-7f8a34ea7000 rw-p 00004000 fd:00 393570                     /home/joseph/clj/src/transport/target/native/linux/x86_64/MCLDSOMUGens.so
+7f8a34ea7000-7f8a34eaa000 r-xp 00000000 fd:00 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f8a34eaa000-7f8a350aa000 ---p 00003000 fd:00 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f8a350aa000-7f8a350ab000 r--p 00003000 fd:00 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f8a350ab000-7f8a350ac000 rw-p 00004000 fd:00 393551                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BlackrainUGens.so
+7f8a350ac000-7f8a350b2000 r-xp 00000000 fd:00 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f8a350b2000-7f8a352b1000 ---p 00006000 fd:00 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNoise.so
+7f8a352b1000-7f8a352b2000 r--p 00005000 fd:00 393550                     /home/joseph/clj/src/transport/target/native/linux/x86_64/BhobNo

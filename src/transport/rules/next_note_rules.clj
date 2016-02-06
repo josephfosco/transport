@@ -20,15 +20,35 @@
   )
 
 (defrule
-  ((not= ?player-id nil)
-   (not= ?event-time nil)
-   (not= ?needs-new-segment nil)
-   (not= ?new-follow-info nil))
   (
-   (transport.play-note/update-and-swap-player
-    ?player-id
-    ?event-time
-    ?needs-new-segment
-    ?new-follow-info)
+   (= ?player-updated false)
+   (= ?needs-new-segment true)
    )
+  (
+   (transport.play-note/update-player-segment)
+   (polyphony.core/set-var ?player-updated true)
+   )
+  )
+
+(defrule
+  (
+   (= ?new-follow-info 1)
+   )
+  (())
+  )
+
+(comment
+  (defrule
+    ((not= ?player-id nil)
+     (not= ?event-time nil)
+     (not= ?needs-new-segment nil)
+     (not= ?new-follow-info nil))
+    (
+     (transport.play-note/update-and-swap-player
+      ?player-id
+      ?event-time
+      ?needs-new-segment
+      ?new-follow-info)
+     )
+    )
   )

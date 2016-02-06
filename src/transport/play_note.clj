@@ -19,6 +19,7 @@
    [polyphony.core :refer [get-variable-val reset-variable-vals set-var]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
+   [transport.curplayer :refer [create-curplayer set-new-player]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
    [transport.instrument :refer [has-release?]]
@@ -37,8 +38,11 @@
    [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer :all]
    )
-  (:import transport.behavior.Behavior)
+  (:import transport.behavior.Behavior
+           transport.curplayer.CurPlayer)
   )
+
+(def cur-player-info (atom nil))
 
 (defn new-contrast-info
   [& {:keys [change-player-id contrast-player-id originator-player-id melody-no]}]
@@ -268,7 +272,6 @@
    melody event - melody event to check or player's last melody event if omitted"
   [player & {:keys [increment]
              :or {increment 0}}]
-
   (and (get-next-change-follow-info-note player)
        (>= (+ (get-follow-note-for-event (get-last-melody-event player)) increment) (get-next-change-follow-info-note player)))
   )
@@ -447,30 +450,30 @@
         )
   )
 
-(defn update-and-swap-player
-  [player-id event-time new-seg? new-follow-info?]
-  (swap!(get-player player-id)
-        update-player
-        event-time
-        new-seg?
-        new-follow-info?)
+(defn update-player-segment
+  []
+  (println "update-player-segment")
+  (swap! (:player @cur-player-info)
+         update-player-with-new-segment
+         (:event-time @cur-player-info)
+         )
   )
 
 (defn next-note
   [player-id event-time]
 
-  (let [player (get-player-map player-id)
-        ;; will the new melody event start a new segment?
-        new-seg? (>= event-time (+ (get-seg-start player) (get-seg-len player)))
-        ]
+  (reset! cur-player-info (create-curplayer player-id
+                                           (get-player player-id)
+                                           event-time))
+  (let [player (deref (:player @cur-player-info))]
     (reset-variable-vals)
-    (set-var ?player-id player-id)
-    (set-var ?event-time event-time)
+    (set-var ?player-updated false)
+    ;; will the new melody event start a new segment?
     (if (>= event-time (+ (get-seg-start player) (get-seg-len player)))
       (set-var ?needs-new-segment true)
       (set-var ?needs-new-segment false)
       )
-    (set-var ?new-follow-info (if (not new-seg?)
+    (set-var ?new-follow-info (if (not (get-variable-val ?needs-new-segment))
                                 (check-new-follow-info player :increment 1)
                                 false
                                 ))
@@ -497,7 +500,7 @@
         (check-note-off melody-event event-time)
         )
 
-      (cond new-seg?
+      (cond (get-variable-val ?needs-new-segment)
             (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
             (not= player new-player)
             (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
