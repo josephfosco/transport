@@ -92,7 +92,7 @@
 
       (print-banner "transport-init about to init-melody")
       (init-melody)
-      (print-banner "transport-start init-melody-complete")
+      (print-banner "transport-init init-melody-complete")
 
       (reset! is-initialized? true)
 

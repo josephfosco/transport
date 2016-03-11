@@ -16,7 +16,7 @@
 (ns transport.play-note
   (:require
    [overtone.live :refer [apply-at ctl midi->hz node-live?]]
-   [polyphony.core :refer [get-variable-val reset-variable-vals set-var]]
+   [polyphony.core :refer [reset-variable-vals set-var]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
    [transport.curplayer :refer [create-curplayer set-new-player]]
@@ -452,38 +452,46 @@
 
 (defn update-player-segment
   []
-  (println "update-player-segment")
+  (println "update-player-segment" "player-id: " (:player-id @cur-player-info))
   (swap! (:player @cur-player-info)
          update-player-with-new-segment
          (:event-time @cur-player-info)
          )
+  (println "update-player-segment" "player updated")
   )
 
+(intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
+(intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
+(intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
 (defn next-note
   [player-id event-time]
 
   (reset! cur-player-info (create-curplayer player-id
                                            (get-player player-id)
                                            event-time))
-  (let [player (deref (:player @cur-player-info))]
+  (let [player (deref (:player @cur-player-info))
+        needs-new-segment? (if (>= event-time
+                                   (+ (get-seg-start player)
+                                      (get-seg-len player)))
+                             (set-var ?needs-new-segment true)
+                             (set-var ?needs-new-segment false)
+                             )
+        new-follow-info? (set-var ?new-follow-info
+                                  (if (not needs-new-segment?)
+                                    (check-new-follow-info player :increment 1)
+                                    false
+                                    ))
+        ]
     (reset-variable-vals)
     (set-var ?player-updated false)
     ;; will the new melody event start a new segment?
-    (if (>= event-time (+ (get-seg-start player) (get-seg-len player)))
-      (set-var ?needs-new-segment true)
-      (set-var ?needs-new-segment false)
-      )
-    (set-var ?new-follow-info (if (not (get-variable-val ?needs-new-segment))
-                                (check-new-follow-info player :increment 1)
-                                false
-                                ))
     (let [new-player (get-player-map player-id)
           ;; Now select the next note and play it
           melody-event (play-melody player-id
                                     new-player
                                     event-time
-                                    (get-variable-val ?needs-new-segment)
-                                    (get-variable-val ?new-follow-info)
+                                    needs-new-segment?
+                                    new-follow-info?
                                     )
           ]
 
@@ -500,7 +508,7 @@
         (check-note-off melody-event event-time)
         )
 
-      (cond (get-variable-val ?needs-new-segment)
+      (cond needs-new-segment?
             (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
             (not= player new-player)
             (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
@@ -565,7 +573,8 @@
       (sched-event 0
                    (get-player-val new-player "function") player-id
                    :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
-      ))
+      )
+    )
   )
 
 (defn play-first-melody-note

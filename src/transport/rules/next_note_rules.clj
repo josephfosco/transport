@@ -16,6 +16,7 @@
 (ns transport.rules.next-note-rules
   (:require
    [polyphony.core :refer :all]
+   [transport.play-note]
    )
   )
 
@@ -26,7 +27,7 @@
    )
   (
    (transport.play-note/update-player-segment)
-   (polyphony.core/set-var ?player-updated true)
+   (set-var ?player-updated true)
    )
   )
 
