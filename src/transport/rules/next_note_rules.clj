@@ -16,8 +16,21 @@
 (ns transport.rules.next-note-rules
   (:require
    [polyphony.core :refer :all]
-   [transport.play-note]
+   ;;[transport.play-note]
    )
+  )
+
+(comment
+  (defrule
+    (
+     (= ?player-updated false)
+     (= ?needs-new-segment true)
+     )
+    (
+     (transport.play-note/update-player-segment)
+     (set-var ?player-updated true)
+     )
+    )
   )
 
 (defrule
@@ -26,7 +39,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.play-note/update-player-segment)
+   (println "****************** NEW SEGMENT ********************")
    (set-var ?player-updated true)
    )
   )
