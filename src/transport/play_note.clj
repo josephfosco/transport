@@ -452,12 +452,10 @@
 
 (defn update-player-segment
   []
-  (println "update-player-segment" "player-id: " (:player-id @cur-player-info))
   (swap! (:player @cur-player-info)
          update-player-with-new-segment
          (:event-time @cur-player-info)
          )
-  (println "update-player-segment" "player updated")
   )
 
 (intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
@@ -476,12 +474,12 @@
                              (set-var ?needs-new-segment true)
                              (set-var ?needs-new-segment false)
                              )
-        new-follow-info? (set-var ?new-follow-info
-                                  (if (not needs-new-segment?)
-                                    (check-new-follow-info player :increment 1)
-                                    false
-                                    ))
+        new-follow-info? (if (not needs-new-segment?)
+                             (check-new-follow-info player :increment 1)
+                             false
+                             )
         ]
+    (set-var ?new-follow-info new-follow-info?)
     (reset-variable-vals)
     (set-var ?player-updated false)
     ;; will the new melody event start a new segment?
