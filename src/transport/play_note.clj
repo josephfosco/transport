@@ -467,6 +467,7 @@
   (reset! cur-player-info (create-curplayer player-id
                                            (get-player player-id)
                                            event-time))
+  (reset-variable-vals)
   (let [player (deref (:player @cur-player-info))
         needs-new-segment? (if (>= event-time
                                    (+ (get-seg-start player)
@@ -479,9 +480,8 @@
                              false
                              )
         ]
-    (set-var ?new-follow-info new-follow-info?)
-    (reset-variable-vals)
     (set-var ?player-updated false)
+    (set-var ?new-follow-info new-follow-info?)
     ;; will the new melody event start a new segment?
     (let [new-player (get-player-map player-id)
           ;; Now select the next note and play it
