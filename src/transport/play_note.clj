@@ -19,7 +19,8 @@
    [polyphony.core :refer [reset-variable-vals set-var]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
-   [transport.curplayer :refer [create-curplayer set-new-player]]
+   [transport.curplayer :refer [create-curplayer get-updated-player
+                                set-updated-player]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
    [transport.instrument :refer [has-release?]]
@@ -109,8 +110,9 @@
    based on the previous segment. Returns player with new segment.
 
    player - the player to get a new segment for"
-  [player event-time]
-  (let [behavior-action (get-behavior-action (get-behavior player))
+  [curplayer event-time]
+  (let [player (get-updated-player curplayer)
+        behavior-action (get-behavior-action (get-behavior player))
         behavior-player-id (get-behavior-player-id (get-behavior player))
         ]
     (cond
@@ -136,8 +138,8 @@
       :contrast-player-id (get-player-id player)
       )
      )
+    (set-updated-player @cur-player-info (new-segment player event-time))
     )
-  (new-segment player event-time)
   )
 
 (defn- update-melody-list
@@ -311,26 +313,26 @@
    event-time - time this note event was scheduled for"
   [player-id player event-time new-seg? new-follow-info?]
 
-  ;;  (println)
-  ;;  (print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
-  (let [last-melody-event-num (get-last-melody-event-num-for-player player)
-        last-melody-event (get-melody-event-num player last-melody-event-num)
-        last-melody-event-note (get-note-for-event last-melody-event)
-        inst-has-release? (if (nil? last-melody-event-note)
-                            false
-                            (has-release? (get-instrument-info last-melody-event)))
+    ;;(println)
+    ;;(print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
+    (let [last-melody-event-num (get-last-melody-event-num-for-player player)
+          last-melody-event (get-melody-event-num player last-melody-event-num)
+          last-melody-event-note (get-note-for-event last-melody-event)
+          inst-has-release? (if (nil? last-melody-event-note)
+                              false
+                              (has-release? (get-instrument-info last-melody-event)))
         ;; all notes without release and notes following rests are articulated (articulate true?)
-        articulate? (cond
-                     (not last-melody-event-note) true
-                     inst-has-release? (articulate-note? last-melody-event (get-prev-note-time player))
-                     :else true
-                     )
-        sync-beat-player-id (cond (and new-seg?
-                                       (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-                                       )
-                                  (get-behavior-player-id (get-behavior player))
-                                  (and new-seg?
-                                       (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+          articulate? (cond
+                       (not last-melody-event-note) true
+                       inst-has-release? (articulate-note? last-melody-event (get-prev-note-time player))
+                       :else true
+                       )
+          sync-beat-player-id (cond (and new-seg?
+                                         (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+                                         )
+                                    (get-behavior-player-id (get-behavior player))
+                                    (and new-seg?
+                                         (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
                                        )
                                   (if-let [mm-player (get-player-with-mm player (get-mm player))]
                                     ;; if there are no players with this player's mm
@@ -452,7 +454,7 @@
 
 (defn update-player-segment
   []
-  (swap! (:player @cur-player-info)
+  (swap! cur-player-info
          update-player-with-new-segment
          (:event-time @cur-player-info)
          )
@@ -464,11 +466,13 @@
 (defn next-note
   [player-id event-time]
 
+  (print-msg "next-note" "player-id: " player-id)
+
   (reset! cur-player-info (create-curplayer player-id
-                                           (get-player player-id)
-                                           event-time))
+                                            (deref (get-player player-id))
+                                            event-time))
   (reset-variable-vals)
-  (let [player (deref (:player @cur-player-info))
+  (let [player (:player @cur-player-info)
         needs-new-segment? (if (>= event-time
                                    (+ (get-seg-start player)
                                       (get-seg-len player)))
@@ -483,7 +487,7 @@
     (set-var ?player-updated false)
     (set-var ?new-follow-info new-follow-info?)
     ;; will the new melody event start a new segment?
-    (let [new-player (get-player-map player-id)
+    (let [new-player (get-updated-player @cur-player-info)
           ;; Now select the next note and play it
           melody-event (play-melody player-id
                                     new-player
@@ -492,7 +496,6 @@
                                     new-follow-info?
                                     )
           ]
-
 
       (if (nil? new-player)
         (do

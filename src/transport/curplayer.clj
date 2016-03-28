@@ -15,18 +15,27 @@
 
 (ns transport.curplayer)
 
-(defrecord CurPlayer [player-id player event-time new-player])
+(defrecord CurPlayer [player-id player event-time updated-player])
 
 (defn create-curplayer
   [player-id player event-time]
   (CurPlayer. player-id player event-time nil)
   )
 
-(defn set-new-player
-  "Returns new CurPlayer record with :new-player set to player
+(defn set-updated-player
+  "Returns new CurPlayer record with :updated-player set to player
 
-   curplayer - the CurPlayer record whose :new-player is to be set
-   player - the player to set :new-player to"
+   curplayer - the CurPlayer record whose :updated-player is to be set
+   player - the player to set :updated-player to"
   [curplayer player]
-  (assoc curplayer :new-player player)
+  (assoc curplayer :updated-player player)
+  )
+
+(defn get-updated-player
+  "If a updated-player has not yet been set, returns player,
+   else returns updated-player
+
+   cur-player - the curplayer record to get updated-player from"
+  [curplayer]
+  (or (:updated-player curplayer) (:player curplayer))
   )
