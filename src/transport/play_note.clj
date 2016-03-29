@@ -487,15 +487,16 @@
     (set-var ?player-updated false)
     (set-var ?new-follow-info new-follow-info?)
     ;; will the new melody event start a new segment?
-    (let [new-player (get-updated-player @cur-player-info)
+    (let [new-player (reset! (get @ensemble player-id)
+                             (get-updated-player @cur-player-info)
+                             )
           ;; Now select the next note and play it
           melody-event (play-melody player-id
                                     new-player
                                     event-time
                                     needs-new-segment?
                                     new-follow-info?
-                                    )
-          ]
+                                    )]
 
       (if (nil? new-player)
         (do
