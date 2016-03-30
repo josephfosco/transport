@@ -26,16 +26,20 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.play-note/update-player-segment)
+   (transport.play-note/update-segment-for-player)
    (set-var ?player-updated true)
    )
   )
 
 (defrule
   (
-   (= ?new-follow-info 1)
+   (= ?player-updated false)
+   (= ?new-follow-info true)
    )
-  (())
+  (
+   (transport.play-note/update-follow-info-for-player)
+   (set-var ?player-updated true)
+   )
   )
 
 (comment

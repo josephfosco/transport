@@ -452,7 +452,20 @@
         )
   )
 
-(defn update-player-segment
+(defn update-follow-info-for-player
+  []
+  (let [player (get-updated-player @cur-player-info)
+        updated-player
+        (update-player-follow-info
+         player
+         (get-player-map (get-behavior-player-id (get-behavior player)))
+         )
+        ]
+
+    (swap! cur-player-info set-updated-player updated-player)
+    )
+  )
+(defn update-segment-for-player
   []
   (swap! cur-player-info
          update-player-with-new-segment
@@ -465,8 +478,6 @@
 (intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
 (defn next-note
   [player-id event-time]
-
-  (print-msg "next-note" "player-id: " player-id)
 
   (reset! cur-player-info (create-curplayer player-id
                                             (deref (get-player player-id))
