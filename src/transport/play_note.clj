@@ -110,9 +110,8 @@
    based on the previous segment. Returns player with new segment.
 
    player - the player to get a new segment for"
-  [curplayer event-time]
-  (let [player (get-updated-player curplayer)
-        behavior-action (get-behavior-action (get-behavior player))
+  [player event-time]
+  (let [behavior-action (get-behavior-action (get-behavior player))
         behavior-player-id (get-behavior-player-id (get-behavior player))
         ]
     (cond
@@ -138,8 +137,8 @@
       :contrast-player-id (get-player-id player)
       )
      )
-    (set-updated-player @cur-player-info (new-segment player event-time))
     )
+  (new-segment player event-time)
   )
 
 (defn- update-melody-list
@@ -452,6 +451,13 @@
         )
   )
 
+(defn update-ensemble-info-for-player
+  []
+  (swap! cur-player-info
+         set-updated-player
+         (update-based-on-ensemble (get-updated-player @cur-player-info)))
+  )
+
 (defn update-follow-info-for-player
   []
   (let [player (get-updated-player @cur-player-info)
@@ -468,14 +474,17 @@
 (defn update-segment-for-player
   []
   (swap! cur-player-info
-         update-player-with-new-segment
-         (:event-time @cur-player-info)
+         set-updated-player
+         (update-player-with-new-segment (get-updated-player @cur-player-info)
+                                         (:event-time @cur-player-info)
+                                         )
          )
   )
 
-(intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
-(intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
 (intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
+(intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
+(intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
+(intern (ns-name 'polyphony.variables) '?similar-ensemble (atom nil))
 (defn next-note
   [player-id event-time]
 
@@ -483,6 +492,7 @@
                                             (deref (get-player player-id))
                                             event-time))
   (reset-variable-vals)
+  (set-var ?player-updated false)
   (let [player (:player @cur-player-info)
         needs-new-segment? (if (>= event-time
                                    (+ (get-seg-start player)
@@ -495,9 +505,13 @@
                              false
                              )
         ]
-    (set-var ?player-updated false)
     (set-var ?new-follow-info new-follow-info?)
-    ;; will the new melody event start a new segment?
+    (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+      (set-var ?similar-ensemble true)
+      )
+    ;; At this point all updating to the player map is complete
+    ;; (set-var ?player-updated true)
+
     (let [new-player (reset! (get @ensemble player-id)
                              (get-updated-player @cur-player-info)
                              )

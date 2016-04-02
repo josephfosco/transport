@@ -13,42 +13,9 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transport.rules.next-note-rules
+(ns transport.external-function-api
   (:require
    [polyphony.core :refer :all]
    [transport.play-note]
-   )
-  )
-
-(defrule
-  (
-   (= ?player-updated false)
-   (= ?needs-new-segment true)
-   )
-  (
-   (transport.play-note/update-segment-for-player)
-   (set-var ?player-updated true)
-   )
-  )
-
-(defrule
-  (
-   (= ?player-updated false)
-   (= ?new-follow-info true)
-   )
-  (
-   (transport.play-note/update-follow-info-for-player)
-   (set-var ?player-updated true)
-   )
-  )
-
-(defrule
-  (
-   (= ?player-updated false)
-   (= ?similar-ensemble true)
-   )
-  (
-   (transport.play-note/update-ensemble-info-for-player)
-   (set-var ?player-updated true)
    )
   )
