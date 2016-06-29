@@ -16,6 +16,41 @@
 (ns transport.external-function-api
   (:require
    [polyphony.core :refer :all]
-   [transport.play-note]
+   [transport.behavior :refer [get-behavior-player-id]]
+   [transport.curplayer :refer [get-updated-player set-updated-player]]
+   [transport.play-note :refer [cur-player-info update-based-on-ensemble
+                                update-player-with-new-segment]]
+   [transport.players :refer [get-behavior get-player-map
+                              update-player-follow-info]]
    )
+  )
+
+(defn update-ensemble-info-for-player
+  []
+  (swap! cur-player-info
+         set-updated-player
+         (update-based-on-ensemble (get-updated-player @cur-player-info)))
+  )
+
+(defn update-follow-info-for-player
+  []
+  (let [player (get-updated-player @cur-player-info)
+        updated-player
+        (update-player-follow-info
+         player
+         (get-player-map (get-behavior-player-id (get-behavior player)))
+         )
+        ]
+
+    (swap! cur-player-info set-updated-player updated-player)
+    )
+  )
+(defn update-segment-for-player
+  []
+  (swap! cur-player-info
+         set-updated-player
+         (update-player-with-new-segment (get-updated-player @cur-player-info)
+                                         (:event-time @cur-player-info)
+                                         )
+         )
   )

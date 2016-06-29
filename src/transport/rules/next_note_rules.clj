@@ -16,7 +16,7 @@
 (ns transport.rules.next-note-rules
   (:require
    [polyphony.core :refer :all]
-   [transport.play-note]
+   [transport.external-function-api]
    )
   )
 
@@ -26,7 +26,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.play-note/update-segment-for-player)
+   (transport.external-function-api/update-segment-for-player)
    (set-var ?player-updated true)
    )
   )
@@ -37,7 +37,7 @@
    (= ?new-follow-info true)
    )
   (
-   (transport.play-note/update-follow-info-for-player)
+   (transport.external-function-api/update-follow-info-for-player)
    (set-var ?player-updated true)
    )
   )
@@ -48,7 +48,7 @@
    (= ?similar-ensemble true)
    )
   (
-   (transport.play-note/update-ensemble-info-for-player)
+   (transport.external-function-api/update-ensemble-info-for-player)
    (set-var ?player-updated true)
    )
   )

@@ -46,7 +46,6 @@
   [the-map & {:keys [ignore partial title]
              :or {ignore nil partial nil title nil}}]
   (let [sorted-keys (sort (keys the-map))]
-    ;; (println "player: " (get-player-id player) "current time: " (System/currentTimeMillis))
     (doseq [map-key sorted-keys]
       (cond
        (comment
@@ -61,7 +60,6 @@
        :else
        (println (format "%-20s" (str "  " map-key)) "-" (get the-map map-key)))
       )
-    ;; (println "end player: " (get-player-id player) "current time: " (System/currentTimeMillis))
     (prn)
     )
   )

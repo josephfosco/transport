@@ -105,7 +105,7 @@
        )
    )
 
-(defn- update-player-with-new-segment
+(defn update-player-with-new-segment
   "Get a new segment for player and unregister any listeners
    based on the previous segment. Returns player with new segment.
 
@@ -451,36 +451,6 @@
         )
   )
 
-(defn update-ensemble-info-for-player
-  []
-  (swap! cur-player-info
-         set-updated-player
-         (update-based-on-ensemble (get-updated-player @cur-player-info)))
-  )
-
-(defn update-follow-info-for-player
-  []
-  (let [player (get-updated-player @cur-player-info)
-        updated-player
-        (update-player-follow-info
-         player
-         (get-player-map (get-behavior-player-id (get-behavior player)))
-         )
-        ]
-
-    (swap! cur-player-info set-updated-player updated-player)
-    )
-  )
-(defn update-segment-for-player
-  []
-  (swap! cur-player-info
-         set-updated-player
-         (update-player-with-new-segment (get-updated-player @cur-player-info)
-                                         (:event-time @cur-player-info)
-                                         )
-         )
-  )
-
 (intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
 (intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
 (intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
@@ -522,14 +492,6 @@
                                     needs-new-segment?
                                     new-follow-info?
                                     )]
-
-      (if (nil? new-player)
-        (do
-          (print-msg "next-note" "ERROR ERROR ERROR  NIL NEW-PLAYER!!!!  ERROR ERROR ERROR")
-          (print-msg "next-note" "player-id: " player-id)
-          (print-player player)
-          (throw (Throwable. "Nil new-player"))
-          ))
 
       (if (get-note-for-event melody-event)
         (check-note-off melody-event event-time)
@@ -723,7 +685,7 @@
     (reset! player-melodies init-melodies)
     )
 
-  (print-all-players)
+  ;; (print-all-players)
 
   ;; Schedule first event for all players
   (dorun (map sched-event
