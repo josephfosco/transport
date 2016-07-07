@@ -28,6 +28,7 @@
    [transport.schedule :refer [clear-scheduler init-lateness reset-scheduler
                                restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [reset-setting set-number-of-players]]
+   [transport.util.log :as log]
    [transport.util.print :refer [print-banner print-msg]]
    [transport.util.utils :refer :all]
    [transport.version :refer :all]
@@ -87,8 +88,9 @@
    :num-players - optional key to set the number of players
                   default value is set in config file"
   [& {:keys [num-players]}]
-  (print-msg "start-start" "is-playing: " @is-playing?)
-  (print-msg "transport-start" "restart: " @restart?)
+
+  (print-msg "start-transport" "is-playing: " @is-playing?)
+  (print-msg "start-transport" "restart: " @restart?)
   (if (false? @is-playing?)
     (if (true? @restart?)
       ;; already started once - restart instead

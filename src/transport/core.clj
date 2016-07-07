@@ -79,4 +79,8 @@
   []
   (transport-start :num-players 64))
 
+(defn stop
+  []
+  (overtone.live/stop))
+
 (transport-help)
