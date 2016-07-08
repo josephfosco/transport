@@ -35,6 +35,7 @@
    [transport.sc-instrument :refer [stop-instrument]]
    [transport.segment :refer [first-segment new-segment get-contrasting-info-for-player]]
    [transport.settings :refer :all]
+   [transport.util.log :as log]
    [transport.util.print :refer [print-msg]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.utils :refer :all]
@@ -577,7 +578,7 @@
    event-time - time this note event was scheduled for"
   [player player-id event-time]
 
-  (print-msg "play-first-melody-note" "player-id: " player-id " event-time: " event-time " action: " (get-behavior-action (get-behavior player)))
+  (log/data2 (log/format-msg "play-first-melody-note" "player-id: " player-id " event-time: " event-time " action: " (get-behavior-action (get-behavior player))))
   (let [melody-event (next-melody player
                                   event-time
                                   (if (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
@@ -617,7 +618,7 @@
 (defn first-note
   [player-id event-time]
 
-  (print-msg "first-note" "player-id: " player-id)
+  (log/data2 (log/format-msg "first-note" "player-id: " player-id))
   (let [new-player (swap! (get @ensemble player-id) set-first-note event-time transport.play-note/next-note)
         melody-event (play-first-melody-note new-player player-id event-time)
         ]
@@ -631,7 +632,7 @@
                  (get-player-val new-player "function") player-id
                  :time (+ event-time (get-dur-millis (get-dur-info-for-event melody-event))))
     )
-  (print-msg "end first-note" "player-id: " player-id)
+  (log/data2 (log/format-msg "end first-note" "player-id: " player-id))
   )
 
 (defn reset-ensemble

@@ -118,7 +118,6 @@
                     (Thread. (fn []
                                (info "Shutting down - cleaning up logger")
                                (.removeHandler LOGGER LOG-CONSOLE)
-                               (.close LOG-CONSOLE)
                                ))
                     )
   )

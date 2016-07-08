@@ -36,7 +36,7 @@
 
  (defn -main
    [& args]
-   (println "command line args:" args)
+   (log/data2 "command line args:" args)
   )
 
 (def is-initialized? (atom false))
@@ -55,30 +55,30 @@
       (if num-players (set-number-of-players num-players))
       (transport.pitch/load-scales)
       (transport.behaviors/init-behaviors)
-      (print-banner "init-transport about to init-lateness in schedule")
+      (log/data2 (with-out-str (print-banner "init-transport about to init-lateness in schedule")))
       (init-lateness)
 
-      (print-banner "init-transport about to init-ensemble")
+      (log/data2 (with-out-str (print-banner "init-transport about to init-ensemble")))
       (init-ensemble)
 
-      (print-banner "init-transport about to init-live-players")
+      (log/data2 (with-out-str (print-banner "init-transport about to init-live-players")))
       (init-live-players)
 
-      (print-banner "init-transport about to init-ensemble-status")
+      (log/data2 (with-out-str (print-banner "init-transport about to init-ensemble-status")))
       (init-ensemble-status)
 
-      (print-banner "init-transport about to init-melody")
+      (log/data2 (with-out-str (print-banner "init-transport about to init-melody")))
       (init-melody)
-      (print-banner "init-transport init-melody-complete")
+      (log/data2 (with-out-str (print-banner "init-transport init-melody-complete")))
 
       (reset! is-initialized? true)
 
-      (print-banner "init-transport about to add output reverb")
+      (log/data2 (with-out-str (print-banner "init-transport about to add output reverb")))
       (def out-rvrb (fx-freeverb :wet-dry 0.3 :room-size 0.3 :dampening 0.4))
 
-      (print-banner "transport successfully initialized")
+      (log/data2 (with-out-str (print-banner "transport successfully initialized")))
       )
-    (print-banner "Warning - transport already initialized" :prefix "!!!")
+    (log/warn (with-out-str (print-banner "Warning - transport already initialized" :prefix "!!!")))
     ))
 
 (declare restart-transport)
@@ -89,33 +89,33 @@
                   default value is set in config file"
   [& {:keys [num-players]}]
 
-  (print-msg "start-transport" "is-playing: " @is-playing?)
-  (print-msg "start-transport" "restart: " @restart?)
+  (log/data2 (log/format-msg "start-transport" "is-playing: " @is-playing?))
+  (log/data2 (log/format-msg "start-transport" "restart: " @restart?))
   (if (false? @is-playing?)
     (if (true? @restart?)
       ;; already started once - restart instead
       (restart-transport :num-players num-players)
       (do
-        (print-banner "Starting transport")
+        (log/info (with-out-str (print-banner "Starting transport")))
         (if (false? @is-initialized?)
           (init-transport :num-players num-players))
 
-        (print-banner "start-transport about to start-message-processor")
+        (log/data2 (with-out-str (print-banner "start-transport about to start-message-processor")))
         (start-message-processor)
 
-        (print-banner "start-transport about to start-scheduler")
+        (log/data2 (with-out-str (print-banner "start-transport about to start-scheduler")))
         (start-scheduler)
 
         (reset! is-playing? true)
         (reset! restart? true)
 
-        (print-banner (str "start-transport - restart:" @restart?))
+        (log/data2 (with-out-str (print-banner (str "start-transport - restart:" @restart?))))
 
         (transport.schedule/reset-lateness)
 
-        (print-banner "start-transport - start complete")
+        (log/info (with-out-str (print-banner "start-transport - start complete")))
         ))
-    (print-banner "start-transport - WARNING - Can't start. Already Playing." :prefix "!!!")))
+    (log/warn (with-out-str (print-banner "start-transport - WARNING - Can't start. Already Playing." :prefix "!!!")))))
 
 (defn- restart-transport
   "Start transport after pausing.
@@ -125,7 +125,7 @@
    :num-players - optional, the number of players playing.
                   defaults to it's prior value"
   [& {:keys [num-players]}]
-  (print-banner "Restarting transport")
+  (log/info (with-out-str (print-banner "Restarting transport")))
   (if (false? @is-playing?)
     (if (true? @restart?)
       (do
@@ -136,28 +136,28 @@
         (restart-message-processor :reset-listeners true)
         (init-ensemble)
         (init-live-players :init-midi-ports false)
-        (print-banner "restart-transport about to reset-ensemble-status")
+        (log/data2 (with-out-str (print-banner "restart-transport about to reset-ensemble-status")))
         (reset-ensemble-status)
 
         (reset! is-playing? true)
 
-        (print-banner "restart-transport about to start-message-processor")
+        (log/data2 (with-out-str (print-banner "restart-transport about to start-message-processor")))
         (start-message-processor)
 
-        (print-banner "restart-transport about to start-scheduler")
+        (log/data2 (with-out-str (print-banner "restart-transport about to start-scheduler")))
         (start-scheduler)
 
-        (print-banner "restart-transport about to reset-melody")
+        (log/data2 (with-out-str (print-banner "restart-transport about to reset-melody")))
         ;; if melody reset after scheduler and msg processor won't listen for
         ;; LOUD EVENT msgs right away
         (reset-melody)
 
         (transport.schedule/reset-lateness)
 
-        (print-banner "restart-transport restart complete")
+        (log/info (with-out-str (print-banner "restart-transport restart complete")))
         )
       (start-transport))
-    (print-banner "restart-transport WARNING - Can't restart. Already playing" :prefix "!!!")))
+    (log/warn (with-out-str (print-banner "restart-transport WARNING - Can't restart. Already playing" :prefix "!!!")))))
 
 (defn pause-transport
   "Stop playing after players finish what they have scheduled"
