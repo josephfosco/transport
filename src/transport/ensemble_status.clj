@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -20,47 +20,49 @@
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis]]
    [transport.melodychar :refer :all]
-   [transport.melody.melodyevent :refer [get-dur-info-for-event get-note-for-event
-                                         get-volume-for-event]]
+   [transport.melody.melodyevent :refer [get-dur-info-for-event
+                                         get-note-for-event get-volume-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener send-message]]
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.schedule :refer [sched-event]]
-   [transport.settings :refer [ensemble-density-change-threshold ensemble-mm-change-threshold
-                               ensemble-pitch-change-threshold ensemble-volume-change-threshold
+   [transport.settings :refer [ensemble-density-change-threshold
+                               ensemble-mm-change-threshold
+                               ensemble-pitch-change-threshold
+                               ensemble-volume-change-threshold
                                min-mm max-mm min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
-   [transport.util.print :refer [print-msg]]
+   [transport.util.log :as log]
    [transport.util.utils :refer :all]
    )
   (:import (java.util Date TimerTask Timer))
    )
 
-(def INITIAL-NUM-VOLUME-TREND 10)
-(def INITIAL-NUM-DENSITY-TREND 5)
-(def INITIAL-NUM-PITCH-TREND 11)
-(def trend-upd-millis 3000)
-(def midi-mid (int (/ MIDI-HI 2)))
+(def ^:private INITIAL-NUM-VOLUME-TREND 10)
+(def ^:private INITIAL-NUM-DENSITY-TREND 5)
+(def ^:private INITIAL-NUM-PITCH-TREND 11)
+(def ^:private trend-upd-millis 3000)
+(def ^:private midi-mid (int (/ MIDI-HI 2)))
 
-(def note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
+(def ^:private note-values-millis (atom '(0 0 0 0 0 0 0 0 0 0)))
 ;; player-keys, -mms, and -volumes are vectors of the last respective values
 ;;  for each player.
 ;;  player-id is index into vector.
-(def player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
-(def player-mms (atom (apply vector (repeat @number-of-players nil))))
-(def mm-trend (compare-prior-current))
-(def player-volumes (atom (apply vector (repeat @number-of-players 0))))
-(def volume-trend (track-trend))
-(def player-densities (atom (apply vector (repeat @number-of-players 0))))
-(def density-trend (track-trend))
-(def player-note-durs (atom (apply vector (repeat @number-of-players 0))))
-(def player-notes (atom (apply vector (repeat @number-of-players midi-mid))))
-(def pitch-trend (track-trend))
+(def ^:private player-keys (atom (apply vector (repeat @number-of-players (rand 12)))))
+(def ^:private player-mms (atom (apply vector (repeat @number-of-players nil))))
+(def ^:private mm-trend (compare-prior-current))
+(def ^:private player-volumes (atom (apply vector (repeat @number-of-players 0))))
+(def ^:private volume-trend (track-trend))
+(def ^:private player-densities (atom (apply vector (repeat @number-of-players 0))))
+(def ^:private density-trend (track-trend))
+(def ^:private player-note-durs (atom (apply vector (repeat @number-of-players 0))))
+(def ^:private player-notes (atom (apply vector (repeat @number-of-players midi-mid))))
+(def ^:private pitch-trend (track-trend))
 
-(def note-times (agent '()))
+(def ^:private note-times (agent '()))
 
 (defn update-note-times
   [cur-note-times new-value]
@@ -88,12 +90,13 @@
            (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
            (> (count (filter #(not= 0 %1) @player-volumes)) (int (/ @number-of-players 2))))
     (do
-      (print-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody))
-      (print-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody)))
-      (print-msg "send-status-msgs players-volumes:" @player-volumes)
+      (log/data (log/format-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody)))
+      (log/data (log/format-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody))))
+      (log/data (log/format-msg "send-status-msgs players-volumes:" @player-volumes))
 
       (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
-      (print-msg "send-status-msgs" "SENDING LOUD-INTERRUPT-EVENT MSG")
+      (log/data (log/format-msg "send-status-msgs"
+                                "SENDING LOUD-INTERRUPT-EVENT MSG"))
       )
     )
   )
@@ -182,15 +185,12 @@
   "Returns the mm most used in the ensemble.
    If all mms are unique, returns one mm from the ensemble."
   []
-  ;; (print-msg "get-ensemble-mm:" @player-mms)
   (get-vector-max-frequency @player-mms)
   )
 
 (defn get-ensemble-trend-mm
   "Returns mm most that is the average ensemble-mm +/- the ensemble mm trend"
   []
-;;  (print-msg "get-ensemble-trend-mm:" @player-mms)
-;;  (print-msg "get-ensemble-trend-mm:" "mm-trend: " ((mm-trend :trend-amount)) " average: " (get-average-mm) " ensemble-mm " (get-ensemble-mm))
   (let [ensemble-mm (+ (get-ensemble-mm) ((mm-trend :trend-amount)))]
     (cond (> @min-mm ensemble-mm @max-mm) ensemble-mm
           (< ensemble-mm @min-mm) @min-mm
@@ -302,9 +302,11 @@
 
 (defn upd-ensemble-trends
   [& args]
-  (print-msg "upd-ensemble-trends" "cur-ensemble-density: "
-             (float (get-ensemble-density-ratio :cur-note-times @note-times)) " density-trend: " (get-density-trend)
-             " length note-times: " (count @note-times))
+  (log/data (log/format-msg "upd-ensemble-trends" "cur-ensemble-density: "
+                            (float (get-ensemble-density-ratio
+                                    :cur-note-times @note-times))
+                            " density-trend: " (get-density-trend)
+                            " length note-times: " (count @note-times)))
   (send-off note-times remove-expired-times)
   ((mm-trend :new-value) (round-number (get-average-mm)))
   ((volume-trend :new-value-to-track) (get-average-playing-volume))

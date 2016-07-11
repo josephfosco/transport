@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -19,25 +19,39 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
-   [transport.ensemble-status :refer [get-average-density get-density-trend get-ensemble-density
-                                      get-average-note-durs get-ensemble-average-pitch get-ensemble-density
-                                      get-ensemble-density-ratio get-ensemble-most-common-note-durs get-pitch-trend
+   [transport.ensemble-status :refer [get-average-density get-density-trend
+                                      get-ensemble-density
+                                      get-average-note-durs
+                                      get-ensemble-average-pitch
+                                      get-ensemble-density
+                                      get-ensemble-density-ratio
+                                      get-ensemble-most-common-note-durs
+                                      get-pitch-trend
                                       get-pitch-trend-diff]]
    [transport.instrument :refer [get-instrument-range-hi get-instrument-range-lo]]
-   [transport.melodychar :refer [get-melody-char-density get-melody-char-note-durs get-melody-char-range
-                                 get-melody-char-range-lo get-melody-char-range-hi get-melody-char-pitch-smoothness
-                                 get-melody-char-vol-smoothness set-melody-char-range]]
-   [transport.melody.melodyevent :refer [create-melody-event get-dur-info-for-event get-follow-note-for-event
-                                  get-instrument-info-for-event get-seg-num-for-event]]
+   [transport.melodychar :refer [get-melody-char-density
+                                 get-melody-char-note-durs get-melody-char-range
+                                 get-melody-char-range-lo
+                                 get-melody-char-range-hi
+                                 get-melody-char-pitch-smoothness
+                                 get-melody-char-vol-smoothness
+                                 set-melody-char-range]]
+   [transport.melody.melodyevent :refer [create-melody-event
+                                         get-dur-info-for-event
+                                         get-follow-note-for-event
+                                         get-instrument-info-for-event
+                                         get-seg-num-for-event]]
    [transport.messages :refer :all]
    [transport.message-processor :refer [register-listener]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
    [transport.players :refer :all]
    [transport.random :refer [random-int weighted-choice]]
-   [transport.rhythm :refer [get-dur-info-for-beats get-dur-info-for-mm-and-millis next-note-dur note-dur-to-millis]]
+   [transport.rhythm :refer [get-dur-info-for-beats
+                             get-dur-info-for-mm-and-millis next-note-dur
+                             note-dur-to-millis]]
    [transport.volume :refer [select-volume select-volume-for-next-note]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
-   [transport.util.print :refer [print-msg]]
+   [transport.util.log :as log]
    [transport.util.utils :refer :all]
    )
   (:import
@@ -61,7 +75,10 @@
       (reset! loud-player player-id)
       (reset! loud-player-time time)
       (dotimes [i 12]
-        (print-msg "melody-loud-interrupt-event" "**** LOUD INTERRUPT EVENT START ****" " loud-player: " @loud-player)
+        (log/info (log/format-msg
+                   "melody-loud-interrupt-event"
+                   "**** LOUD INTERRUPT EVENT START ****"
+                   " loud-player: " @loud-player))
         )
       ))
   )
@@ -259,7 +276,7 @@
              ]
          (cond (= (get-pitch-trend) INCREASING)
                (do
-                 (print-msg "select-melody-range" "selecting INCREASING Range")
+                 (log/data (log/format-msg "select-melody-range" "selecting INCREASING Range"))
                  (list (max (min (int (+ (nil-to-num (get-ensemble-average-pitch) MIDI-LO)
                                          (max (- (int (get-pitch-trend-diff)) 12)) 0))
                                  instrument-hi)
@@ -269,7 +286,7 @@
                  )
                (= (get-pitch-trend) DECREASING)
                (do
-                 (print-msg "select-melody-range" "selecting DECREASING Range")
+                 (log/data (log/format-msg "select-melody-range" "selecting DECREASING Range"))
                  (list instrument-lo
                        (max (min (int (+ (nil-to-num (get-ensemble-average-pitch) MIDI-LO)
                                          (+ (int (get-pitch-trend-diff)) 12)))
@@ -422,7 +439,9 @@
         ]
     (if (<= rest-prob 0)
       (do
-        (print-msg "get-loud-event-prob" "***** LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE *****")
+        (log/info (log/format-msg
+                   "get-loud-event-prob"
+                   "***** LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE  LOUD EVENT DONE *****"))
         (reset! loud-player nil)
         (reset! loud-player-time nil)
         0
@@ -639,7 +658,8 @@
 
     player - the player map"
   [player event-time sync-beat-player-id new-seg?]
-  (if (nil? player) (print-msg "next-melody" "PLAYER IS NIL!!!!!!!!"))
+  (when (nil? player)
+    (log/error (log/format-msg "next-melody" "PLAYER IS NIL!!!!!!!!")))
   (cond
    (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time
                                                                                      sync-beat-player-id)

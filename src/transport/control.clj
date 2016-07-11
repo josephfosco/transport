@@ -29,7 +29,7 @@
                                restart-scheduler start-scheduler stop-scheduler]]
    [transport.settings :refer [reset-setting set-number-of-players]]
    [transport.util.log :as log]
-   [transport.util.print :refer [print-banner print-msg]]
+   [transport.util.print :refer [print-banner]]
    [transport.util.utils :refer :all]
    [transport.version :refer :all]
    ))
@@ -39,9 +39,9 @@
    (log/data2 "command line args:" args)
   )
 
-(def is-initialized? (atom false))
-(def is-playing? (atom false))
-(def restart? (atom false))  ;; set to true once playuing has started - remains true after that
+(def ^:private is-initialized? (atom false))
+(def ^:private is-playing? (atom false))
+(def ^:private restart? (atom false))  ;; set to true once playuing has started - remains true after that
 
 (defn- init-transport
   "Initialize transport to play. Use only once (first time)

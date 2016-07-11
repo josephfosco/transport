@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -21,13 +21,13 @@
    [transport.players :refer [rand-player-id-excluding-player]]
    [transport.random :refer [weighted-choice]]
    [transport.settings :refer :all]
-   [transport.util.print :refer [print-msg]]
+   [transport.util.log :as log]
    )
   (:import transport.behavior.Behavior)
   )
 
-(def behavior-probs (atom [1 1 1 1 1 1]))
-(def behavior-probs-len (count @behavior-probs))
+(def ^:private behavior-probs (atom [1 1 1 1 1 1]))
+(def ^:private behavior-probs-len (count @behavior-probs))
 
 (defn- init-behavior-probs
   []
@@ -118,7 +118,6 @@
 
 (defn- randomize-behavior-probs
   [cur-behavior-probs]
-  ;;(print-msg "randomize-behavior-probs" "cur-behavior-probs:    " cur-behavior-probs)
   (if (< (rand-int @number-of-players) (* 0.05 @number-of-players))
     (let [ndx (rand-int behavior-probs-len)
           behavior-prob (get cur-behavior-probs ndx)
@@ -149,7 +148,7 @@
                                (randomize-behavior-probs)
                                )
         ]
-    (print-msg "get-adjusted-behavior-probs" "new-behavior-probs: " new-behavior-probs)
+    (log/data (log/format-msg "get-adjusted-behavior-probs" "new-behavior-probs: " new-behavior-probs))
     (if (= 0 (reduce + new-behavior-probs))
       (init-behavior-probs)
       new-behavior-probs

@@ -116,8 +116,8 @@
 (defonce ^:private __cleanup-logger-on-shutdown__
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. (fn []
-                               (info "Shutting down - cleaning up logger")
-                               (.removeHandler LOGGER LOG-CONSOLE)
+                               ;; (info "Shutting down - cleaning up logger")
+                               ;; (.removeHandler LOGGER LOG-CONSOLE)
                                ))
                     )
   )

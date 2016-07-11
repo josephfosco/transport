@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -17,18 +17,22 @@
   (:require
    [transport.util.debug.debug :refer [debug-transport debug-run1]]
    [transport.util.count-vector :refer [count-vector]]
-   [transport.util.print :refer [print-msg]]
+   [transport.util.log :as log]
    [transport.util.utils :refer :all]
    ))
 
 (import '(java.util Date TimerTask Timer))
 (declare check-events)
 
-(def lateness (agent 0))      ; num of milliseconds most recent event was late
-(def max-lateness (atom 0))   ; max num of milliseconds an event was late since starting scheduling
-(def lateness-vector (count-vector)) ; vector to count lateness by amount
-(def scheduler-running? (atom true)) ; If false, scheduler is paused and will not watch event-queue when it is empty
-(def zero-time (atom nil))
+;; num of milliseconds most recent event was late
+(def ^:private lateness (agent 0))
+;; max num of milliseconds an event was late since starting scheduling
+(def ^:private max-lateness (atom 0))
+;; vector to count lateness by amount
+(def ^:private lateness-vector (count-vector))
+;; If false, scheduler is paused and will not watch event-queue when it is empty
+(def ^:private scheduler-running? (atom true))
+(def ^:private zero-time (atom nil))
 
 (defn print-lateness
   []
@@ -49,7 +53,7 @@
   (if (> new-val @max-lateness)
     (do
       (reset! max-lateness new-val)
-      (print-msg "set-lateness" "****** new max-lateness: " @max-lateness)))
+      (log/warn (log/format-msg "set-lateness" "****** new max-lateness: " @max-lateness))))
   ((lateness-vector :inc) new-val)
   new-val
   )
@@ -146,10 +150,10 @@
 
   (defn cancel-timerTask
     []
-    (println "cancel-timerTask")
+    (log/info "cancel-timerTask")
     (if (not (nil? @next-TimerTask))
       (.cancel @next-TimerTask))
-    (println "timerTask canceled: " next-TimerTask))
+    (log/info "timerTask canceled: " next-TimerTask))
 
   (defn cancel-timer
     []
@@ -193,7 +197,7 @@
   (defn remove-watch-queue
     []
     (remove-watch event-queue :sound-start-scheduling)
-    (println "Not Watching Queue"))
+    (log/info "Not Watching Queue"))
 
   (defn start-scheduling-events
     [key identity old new]
@@ -213,10 +217,10 @@
     (if @scheduler-running?
       (do
         (add-watch event-queue :sound-start-scheduling start-scheduling-events)
-        (println "Watching Queue")
+        (log/info "Watching Queue")
         true)    ; return true if watch is added
       (do
-        (println "Queue Watch NOT Added")
+        (log/info "Queue Watch NOT Added")
         false)))    ; return false if watch is not added
 
   (defn stop-scheduler
@@ -260,7 +264,7 @@
         (debug-run1 (println "4 check-events: " (count @event-queue)))))
     (if  (= (count @event-queue) 0)
       (do
-        (println "Attempting to add Queue Watch")
+        (log/info "Attempting to add Queue Watch")
         (watch-queue)
         )
       (sched-timer (first @event-queue))
@@ -317,7 +321,7 @@
                 (apply event-func `(~@event-data ~new-event-time))
                 (event-func event-data new-event-time))
               (send-off lateness set-lateness (- (System/currentTimeMillis) (get-next-sched-event-time)))
-              (print-msg "sched-event" "execute immediately - not scheduled")
+              (log/info "sched-event" "execute immediately - not scheduled")
               )
             (do
               (send event-queue conj new-event )
