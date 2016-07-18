@@ -90,12 +90,12 @@
            (not= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
            (> (count (filter #(not= 0 %1) @player-volumes)) (int (/ @number-of-players 2))))
     (do
-      (log/data (log/format-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody)))
-      (log/data (log/format-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody))))
-      (log/data (log/format-msg "send-status-msgs players-volumes:" @player-volumes))
+      (log/data2 (log/format-msg "send-status-msgs" "volume: "(get-volume-for-event player-last-melody)))
+      (log/data2 (log/format-msg "send-status-msgs" "dur-millis: " (get-dur-millis (get-dur-info-for-event player-last-melody))))
+      (log/data2 (log/format-msg "send-status-msgs players-volumes:" @player-volumes))
 
       (send-message MSG-LOUD-INTERUPT-EVENT :player-id player-id :time note-time)
-      (log/data (log/format-msg "send-status-msgs"
+      (log/data2 (log/format-msg "send-status-msgs"
                                 "SENDING LOUD-INTERRUPT-EVENT MSG"))
       )
     )
