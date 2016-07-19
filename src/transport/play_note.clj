@@ -237,8 +237,8 @@
     )
   )
 
-(defn- check-release-complete
-  [player last-melody-event-num prior-melody-event-num]
+(defn- check-release-complete?
+  [player last-melody-event-num prior-melody-event-num & {:keys [log-result?] :or {log-result? true}}]
   (let [prior-melody-event (get-melody-event-num player prior-melody-event-num)
         prior-instr (get-sc-instrument-id (get-melody-event-num player prior-melody-event-num))
         release-millis (get-release-millis-for-inst-info
@@ -251,11 +251,12 @@
                  (get-dur-millis (get-dur-info-for-event (get-melody-event-num player ndx)))
                  )
                )
-
         ]
-    (log/info (log/format-msg "check-release-complete" "release millis " release-millis " new-instr-dur-millis " new-instr-dur-millis))
-    (log/info (log/format-msg "check-release-complete" (> new-instr-dur-millis release-millis)))
-    (> new-instr-dur-millis release-millis)
+    (if log-result?
+      (log/info (log/format-msg "check-release-complete?" "release millis " release-millis
+                                " new-instr-dur-millis " new-instr-dur-millis
+                                " return ") (> new-instr-dur-millis (+ release-millis 0))))
+    (> new-instr-dur-millis (+ release-millis 0))
     )
   )
 
@@ -265,23 +266,15 @@
         prior-melody-event (get-melody-event-num player (- last-melody-event-num 30))]
     (if (and (> last-melody-event-num 30)
              (node-live? (get-sc-instrument-id prior-melody-event))
-             (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 5))))
-             (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 4))))
-             (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 2))))
-             (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player (- last-melody-event-num 1))))
-             (not= (get-sc-instrument-id prior-melody-event)
-                   (get-sc-instrument-id (get-melody-event-num player last-melody-event-num)))
+             (check-release-complete? player last-melody-event-num (- last-melody-event-num 30))
              )
       (do
-        (check-release-complete player last-melody-event-num (- last-melody-event-num 30))
+        (log/error (with-out-str (transport.schedule/print-lateness)))
+        (check-release-complete? player last-melody-event-num (- last-melody-event-num 30) :log-result? true)
         (binding [*out* *err*]
-          (print-msg "check-live-synth" "SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE " )
-          (print-msg "check-live-synth" "last-melody-event-num: " last-melody-event-num)
-          (print-player player)
+          (log/error (log/format-msg "check-live-synth" "SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE SYNTH LIVE " ))
+          (log/error (log/format-msg "check-live-synth" "last-melody-event-num: " last-melody-event-num))
+          (log/error (with-out-str (print-player player)))
           )
         (throw (Throwable. "SYNTH LIVE"))
         )
