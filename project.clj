@@ -1,4 +1,4 @@
-;    Copyright (C) 2013  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,6 @@
   :license {:name "GNU General Public License version 3"
             :url "http://www.gnu.org/licenses/"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [overtone "0.9.1"]
+                 [overtone "0.10.1"]
                  ]
   :main transport.core)

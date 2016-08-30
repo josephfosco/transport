@@ -238,25 +238,29 @@
   )
 
 (defn- check-release-complete?
-  [player last-melody-event-num prior-melody-event-num & {:keys [log-result?] :or {log-result? true}}]
+  [player last-melody-event-num prior-melody-event-num & {:keys [log-result?] :or {log-result? false}}]
   (let [prior-melody-event (get-melody-event-num player prior-melody-event-num)
         prior-instr (get-sc-instrument-id (get-melody-event-num player prior-melody-event-num))
         release-millis (get-release-millis-for-inst-info
                         (get-instrument-info-for-event prior-melody-event))
-        new-instr-dur-millis
-        (apply +
-               (for [ndx (reverse (range prior-melody-event-num last-melody-event-num))
-                     :while (not= prior-instr (get-sc-instrument-id (get-melody-event-num player ndx)))
-                     ]
-                 (get-dur-millis (get-dur-info-for-event (get-melody-event-num player ndx)))
-                 )
-               )
+        new-instr-durs-millis (for [ndx (reverse (range prior-melody-event-num last-melody-event-num))
+                                    :while (not= prior-instr (get-sc-instrument-id (get-melody-event-num player ndx)))
+                                    ]
+                                (get-dur-millis (get-dur-info-for-event (get-melody-event-num player ndx)))
+                                )
+        new-instr-total-dur (apply + new-instr-durs-millis)
+        prior-instr-last-dur (get-dur-millis (get-dur-info-for-event
+                                              (get-melody-event-num
+                                               player
+                                               (dec (- last-melody-event-num (count new-instr-durs-millis))))))
         ]
     (if log-result?
-      (log/info (log/format-msg "check-release-complete?" "release millis " release-millis
-                                " new-instr-dur-millis " new-instr-dur-millis
-                                " return ") (> new-instr-dur-millis (+ release-millis 0))))
-    (> new-instr-dur-millis (+ release-millis 0))
+      (log/info (log/format-msg "check-release-complete?"
+                                "release millis: " release-millis
+                                " new-instr-total-dur: " new-instr-total-dur
+                                " prior-instr-last-dur: " prior-instr-last-dur
+                                " return: " (> new-instr-total-dur (+ release-millis prior-instr-last-dur 10)))))
+    (> new-instr-total-dur (+ release-millis prior-instr-last-dur 20))
     )
   )
 
@@ -281,7 +285,6 @@
       )
     )
   )
-
 
 (defn- check-new-follow-info
   "Returns true if the event after player's last melody-event
@@ -343,7 +346,7 @@
    player - map for the current player
    player-id - the id of the current player
    event-time - time this note event was scheduled for"
-  [player-id player event-time new-seg? new-follow-info?]
+  [player-id player event-time new-seg? new-follow-info? validate-run?]
 
     ;;(println)
     ;;(print-msg "play-melody"  "player-id: " player-id " event-time: " event-time " current time: " (System/currentTimeMillis))
@@ -389,7 +392,8 @@
       ;; also if the current note was not stopped and the player's
       ;; instrument is changing, stop the current note
       (do
-        (check-note-out-of-range player-id upd-melody-event)
+        (if validate-run?
+          (check-note-out-of-range player-id upd-melody-event))
         (if (and (or new-seg? new-follow-info?)
                  (not articulate?)
                  inst-has-release?
@@ -475,7 +479,6 @@
         ]
     (if articulate?
           (do
-            ;; (print-msg "check-note-off" "player-id: " (get-player-id-for-event melody-event) " note: " (get-note-for-event melody-event))
             (apply-at (+ event-time
                          (- (get-dur-millis (get-dur-info-for-event melody-event))
                             (get-release-millis-for-inst-info (get-instrument-info-for-event melody-event))
@@ -516,7 +519,8 @@
     ;; At this point all updating to the player map is complete
     ;; (set-var ?player-updated true)
 
-    (let [new-player (reset! (get @ensemble player-id)
+    (let [validate-run? (get-setting "validate-run")
+          new-player (reset! (get @ensemble player-id)
                              (get-updated-player @cur-player-info)
                              )
           ;; Now select the next note and play it
@@ -525,6 +529,7 @@
                                     event-time
                                     needs-new-segment?
                                     new-follow-info?
+                                    validate-run?
                                     )]
 
       (if (get-note-for-event melody-event)
@@ -539,7 +544,9 @@
 
       (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
 
-      (check-live-synth new-player)
+
+      (if validate-run?
+        (check-live-synth new-player))
 
       (sched-event 0
                    (get-player-val new-player "function") player-id
