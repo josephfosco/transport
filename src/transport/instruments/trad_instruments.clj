@@ -37,3 +37,12 @@
       (* vol 1.2)
       )
   )
+
+(definst pluck-string
+  [freq 440 vol 1.0 gate 1.0 action FREE]
+  (let [dur (/ 440 freq)]
+    (-> (pluck (white-noise) 1 1 (/ 1 freq) dur)
+        (* (env-gen (perc 0.0 dur) :action action))
+        (* vol)
+        ))
+)

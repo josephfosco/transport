@@ -69,6 +69,10 @@
                          :envelope-type "AD"
                          :range-lo 33
                          :range-hi (last MIDI-RANGE)}
+                        {:instrument pluck-string
+                         :envelope-type "NE"
+                         :range-lo 37
+                         :range-hi 89}
                         {:instrument reedy-organ
                          :envelope-type "ASR"
                          :range-lo 20
