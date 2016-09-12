@@ -22,6 +22,14 @@
   (CurPlayer. player-id player event-time nil)
   )
 
+(defn get-original-player
+  "Returns the original player this record was created with
+
+   curplayer - the curplayer record to get updated-player from"
+  [curplayer]
+  (:player curplayer)
+  )
+
 (defn set-updated-player
   "Returns new CurPlayer record with :updated-player set to player
 
@@ -35,7 +43,7 @@
   "If a updated-player has not yet been set, returns player,
    else returns updated-player
 
-   cur-player - the curplayer record to get updated-player from"
+   curplayer - the curplayer record to get updated-player from"
   [curplayer]
   (or (:updated-player curplayer) (:player curplayer))
   )

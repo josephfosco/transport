@@ -4,6 +4,8 @@
     + :accuracy - this players accuracy
     + :action - interaction with other players (can be follow, complement, contrast, ignore)
     + :player-id - player id of player that is being observed (optional, only if :action is follow, complement or contrast)
+* :change-follow-info
+* :change-follow-info-notes
 * :function - function to call when event is triggered
 * :instrument-info - nil if FOLLOWING else a map containing
     + :envelope-type - the type of envelope this instrument uses current vlaues

@@ -34,6 +34,7 @@
 (defrule
   (
    (= ?player-updated false)
+   (= ?needs-new-segment false)
    (= ?new-follow-info true)
    )
   (
@@ -45,10 +46,22 @@
 (defrule
   (
    (= ?player-updated false)
+   (= ?needs-new-segment false)
    (= ?similar-ensemble true)
    )
   (
    (transport.external-function-api/update-ensemble-info-for-player)
+   (set-var ?player-updated true)
+   )
+  )
+
+(defrule
+  (
+   (= ?player-updated false)
+   (= ?needs-new-segment false)
+   (= ?similar-ensemble false)
+   )
+  (
    (set-var ?player-updated true)
    )
   )

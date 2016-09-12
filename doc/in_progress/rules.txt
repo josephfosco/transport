@@ -1,11 +1,11 @@
 if melody-event
 return melody-event
 
-if not player-updated
-if needs-new-segment
----
-call get-new-segment
-assert-player-updated
+|if not player-updated
+|if needs-new-segment
+|---
+|call get-new-segment
+|assert-player-updated
 
 
 if not player-updated
@@ -14,9 +14,9 @@ if not (player-action = SIMILAR-ENSEMBLE)
 ---
 assert player-updated
 
-if not player-updated
-if not needs-new-segment
-if player-action = SIMILAR-ENSEMBLE
+|if not player-updated
+|if not needs-new-segment
+|if player-action = SIMILAR-ENSEMBLE
 ---
 call update-from-ensemble
 assert-player-updated

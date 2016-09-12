@@ -34,11 +34,6 @@
    [transport.version :refer :all]
    ))
 
- (defn -main
-   [& args]
-   (log/data2 "command line args:" args)
-  )
-
 (def ^:private is-initialized? (atom false))
 (def ^:private is-playing? (atom false))
 (def ^:private restart? (atom false))  ;; set to true once playuing has started - remains true after that
