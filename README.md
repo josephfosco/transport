@@ -16,6 +16,9 @@ Download from github.com
 To try the current version.
 
 1. Install this software with it's dependencies.
+- Install the polyphony rule engine. The source for polyphony must be downloaded from github at https://github.com/josephfosco/polyphony.
+- Create a checkouts directory under the transport directory.
+- Place a symbolic link to the polyphony directory in the checkouts directory.
 - Start the application by opening a terminal window and cd to the directory where transport is installed
 - At the terminal prompt type lein REPL
 - If you use the REPL, at this time you can start playing but will not be able to stop due to status information being printed to the console.
@@ -42,6 +45,6 @@ If num-players is not set it will default to 10.
 
 ## License
 
-Copyright © 2013-2015 Joseph Fosco
+Copyright © 2013-2016 Joseph Fosco
 
 Distributed under the GNU General Public License
