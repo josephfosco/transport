@@ -17,7 +17,7 @@
   (:require
    [polyphony.core :refer :all]
    [transport.behavior :refer [get-behavior-player-id]]
-   [transport.curplayer :refer [get-updated-player set-updated-player]]
+   [transport.curplayer :refer [get-current-player set-updated-player]]
    [transport.play-note :refer [cur-player-info update-based-on-ensemble
                                 update-player-with-new-segment]]
    [transport.players :refer [get-behavior get-player-map
@@ -29,12 +29,12 @@
   []
   (swap! cur-player-info
          set-updated-player
-         (update-based-on-ensemble (get-updated-player @cur-player-info)))
+         (update-based-on-ensemble (get-current-player @cur-player-info)))
   )
 
 (defn update-follow-info-for-player
   []
-  (let [player (get-updated-player @cur-player-info)
+  (let [player (get-current-player @cur-player-info)
         updated-player
         (update-player-follow-info
          player
@@ -49,7 +49,7 @@
   []
   (swap! cur-player-info
          set-updated-player
-         (update-player-with-new-segment (get-updated-player @cur-player-info)
+         (update-player-with-new-segment (get-current-player @cur-player-info)
                                          (:event-time @cur-player-info)
                                          )
          )

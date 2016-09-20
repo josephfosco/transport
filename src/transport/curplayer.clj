@@ -18,7 +18,7 @@
    [transport.melody.melodyevent :refer [get-follow-note-for-event]]
    [transport.players :refer [get-last-melody-event
                               get-next-change-follow-info-note get-player
-                              get-seg-len get-seg-start]]
+                              get-player-id get-seg-len get-seg-start]]
    )
   )
 
@@ -28,10 +28,10 @@
 (defn- check-new-follow-info
   "Returns true if the event after player's last melody-event
    is a new segment in the following player.
-   Compares the seg-num in the molody-event of the FOLLOWing player for the melody
-   event passed in (or FOLLOWer's last melody-event) with the seg-num of the
-   FOLLOWing player's next melody event. If they do not match, it is a new-seg in
-   the FOLLOWing player.
+   Compares the seg-num in the molody-event of the FOLLOWing player
+   for the melody event passed in (or FOLLOWer's last melody-event)
+   with the seg-num of the FOLLOWing player's next melody event.
+   If they do not match, it is a new-seg in the FOLLOWing player.
 
    player - map for the player to check
    melody event - melody event to check or player's last melody event if omitted"
@@ -50,7 +50,7 @@
   [player-id event-time]
   (let [player (deref (get-player player-id))
         new-segment? (if (>= event-time
-                             (+ (get-seg-start player)
+                             (+  (get-seg-start player)
                                 (get-seg-len player)))
                    true
                    false
@@ -60,7 +60,7 @@
                              false
                              )
         ]
-      (CurPlayer. player-id player event-time nil new-segment? new-follow-info?))
+    (CurPlayer. player-id player event-time nil new-segment? new-follow-info?))
   )
 
 (defn get-original-player
@@ -80,13 +80,18 @@
   (assoc curplayer :updated-player player)
   )
 
-(defn get-updated-player
+(defn get-current-player
   "If a updated-player has not yet been set, returns player,
    else returns updated-player
 
    curplayer - the curplayer record to get updated-player from"
   [curplayer]
   (or (:updated-player curplayer) (:player curplayer))
+  )
+
+(defn get-cur-player-id
+  [cur-player]
+  (get-player-id (get-current-player cur-player))
   )
 
 (defn new-segment?

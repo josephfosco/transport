@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
    [transport.players :refer :all]
    [transport.random :refer [random-int]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
+   [transport.util.log :as log]
    [transport.util.print :refer [print-msg]]
    [transport.util.utils :refer [nil-to-num]]
    ))
@@ -174,9 +175,10 @@
 
    player - the player to get instrument for"
   [player melody-char & {:keys [cntrst-plyr-inst-info]}]
-  ;; select instrument info from insrument-list map (selected based on melody-char)
+  ;; select instrument info from insrument-list map based on melody-char
   ;; if not CONTRASTing, select a random instrument
-  ;; if CONTRASTing select an instrument other than the one CONTRAST player is using
+  ;; if CONTRASTing select an instrument other than the one CONTRAST player
+  ;; is using
   (let [instrument-list (if (nil? melody-char)
                           (get-inst-list-for-melody-char nil)
                           (->> melody-char (get-inst-list-for-melody-char)
@@ -185,7 +187,12 @@
         inst-info (if (nil? cntrst-plyr-inst-info)
                     (if (empty? instrument-list)
                       (do
-                        (print-msg "select-instrument" "*** INSTRUMENT LIST EMPTY *************************")
+                        (log/warn (log/format-msg "select-instrument" "*** INSTRUMENT LIST EMPTY *************************"))
+                        (log/warn (log/format-msg "select-instrument"
+                                                  "player-id: "
+                                                  (get-player-id player)
+                                                  " melody-char: "
+                                                  melody-char))
                         (rand-nth all-instruments)
                         )
                       (rand-nth instrument-list)

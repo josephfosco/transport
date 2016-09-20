@@ -20,7 +20,8 @@
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
    [transport.constants :refer :all]
    [transport.curplayer :refer [create-curplayer get-original-player
-                                get-updated-player new-follow-info? new-segment?
+                                get-current-player get-cur-player-id
+                                new-follow-info? new-segment?
                                 set-updated-player]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
    [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
@@ -406,7 +407,6 @@
     )
   )
 
-
 (defn update-based-on-ensemble-density
   [player]
   (let [player-density (get-melody-char-density (get-melody-char player))]
@@ -465,33 +465,11 @@
           )
   ))
 
-(intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
-(intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
-(intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
-(intern (ns-name 'polyphony.variables) '?similar-ensemble (atom nil))
-
-(defn- update-player
-  [player]
-  ;; need to let these variables due to the wa the set-var macro is working
-  (let [new-seg? (new-segment? @cur-player-info)
-        upd-follow-info? (new-follow-info? @cur-player-info)
-        ]
-    (set-var ?needs-new-segment new-seg?)
-    (set-var ?new-follow-info upd-follow-info?)
-    (if (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-      (set-var ?similar-ensemble true)
-      )
-    (reset! (get @ensemble (get-player-id player))
-            (get-updated-player @cur-player-info)
-            )
-    )
-  )
-
 (defn- play-next-note
-  [player event-time]
+  [cur-player event-time]
   (let [;; Select the next note and play it
-        melody-event (play-melody (get-player-id player)
-                                  player
+        melody-event (play-melody (get-cur-player-id cur-player)
+                                  (get-current-player cur-player)
                                   event-time
                                   )]
 
@@ -501,45 +479,72 @@
     )
   )
 
-(defn send-new-note-msgs
-  [orig-player new-player event-time]
-  (let [player-id (get-player-id orig-player)]
-    (cond (new-segment? @cur-player-info)
-          (listeners-msg-new-segment new-player (get-last-melody-event-num-for-player new-player))
-          (not= orig-player new-player)
-          (send-msg-new-player-info player-id player-id (get-last-melody-event-num-for-player new-player) )
-          )
-    )
+(intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
+(intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
+(intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
+(intern (ns-name 'polyphony.variables) '?similar-ensemble (atom nil))
 
-  (send-message MSG-PLAYER-NEW-NOTE :player new-player :note-time event-time)
+(defn- update-player
+  [cur-player]
+  ;; need to let these variables due to the wa the set-var macro is working
+  (let [new-seg? (new-segment? cur-player)
+        upd-follow-info? (new-follow-info? cur-player)
+        ]
+    (set-var ?needs-new-segment new-seg?)
+    (set-var ?new-follow-info upd-follow-info?)
+    (if (= (get-behavior-action (get-behavior (get-current-player cur-player)))
+           SIMILAR-ENSEMBLE)
+      (set-var ?similar-ensemble true)
+      )
+    (reset! (get @ensemble (get-cur-player-id cur-player))
+            (get-current-player @cur-player-info)
+            )
+    )
+  )
+
+(defn- send-new-note-msgs
+  [cur-player event-time]
+  (let [current-player (get-current-player cur-player)
+        player-id (get-player-id current-player)
+        ]
+    (cond (new-segment? cur-player)
+          (listeners-msg-new-segment current-player (get-last-melody-event-num-for-player current-player))
+          (not= (get-original-player cur-player) current-player)
+          (send-msg-new-player-info player-id (get-last-melody-event-num-for-player current-player) )
+          )
+
+    (send-message MSG-PLAYER-NEW-NOTE
+                  :player current-player
+                  :note-time event-time)
+    )
   )
 
 (defn next-note
   "Gets, plays and records the player's next note"
   [player-id event-time]
 
-  (reset! cur-player-info (create-curplayer player-id event-time))
   (reset-variable-vals)
   (set-var ?player-updated false)
+  (reset! cur-player-info (create-curplayer player-id event-time))
+  (update-player @cur-player-info)
 
-  (let [player (get-original-player @cur-player-info)
-        new-player (update-player player)
-        ]
+  (let [new-player @cur-player-info]
     (play-next-note new-player event-time)
-    (send-new-note-msgs player
-                        new-player
-                        event-time
-                        )
+    (send-new-note-msgs new-player event-time)
 
     (if (get-setting "validate-run")
-         (check-live-synth new-player))
+      (check-live-synth (get-current-player new-player)))
 
     (sched-event 0
-                 (get-player-val new-player "function") player-id
+                 (get-player-val (get-current-player new-player) "function")
+                 player-id
                  :time (+ event-time
-                          (get-dur-millis (get-dur-info-for-event (get-last-melody-event new-player))))))
+                          (get-dur-millis (get-dur-info-for-event
+                                           (get-last-melody-event
+                                            (get-current-player new-player)))))
+                 )
+    )
   )
-
 
 (defn play-first-melody-note
   "Gets the first note to play and plays it (if it is not a rest)
