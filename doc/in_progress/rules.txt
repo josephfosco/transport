@@ -8,18 +8,18 @@ return melody-event
 |assert-player-updated
 
 
-if not player-updated
-if not needs-new-segment
-if not (player-action = SIMILAR-ENSEMBLE)
----
-assert player-updated
+|if not player-updated
+|if not needs-new-segment
+|if not (player-action = SIMILAR-ENSEMBLE)
+|---
+|assert player-updated
 
 |if not player-updated
 |if not needs-new-segment
 |if player-action = SIMILAR-ENSEMBLE
----
-call update-from-ensemble
-assert-player-updated
+|---
+|call update-from-ensemble
+|assert-player-updated
 
 if segment-established
 if start-new-segment

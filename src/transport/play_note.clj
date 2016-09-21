@@ -24,23 +24,30 @@
                                 new-follow-info? new-segment?
                                 set-updated-player]]
    [transport.dur-info :refer [get-dur-beats get-dur-millis]]
-   [transport.ensemble-status :refer [get-average-mm get-ensemble-density get-density-trend]]
+   [transport.ensemble-status :refer [get-average-mm get-ensemble-density
+                                      get-density-trend]]
    [transport.instrument :refer [has-release?]]
    [transport.instrumentinfo :refer :all]
    [transport.melody :refer [next-melody]]
    [transport.melodychar :refer [get-melody-char-density]]
-   [transport.melody.melodyevent :refer [get-dur-info-for-event get-follow-note-for-event
+   [transport.melody.melodyevent :refer [get-dur-info-for-event
+                                         get-follow-note-for-event
                                          get-instrument-info-for-event
-                                         get-note-for-event get-note-play-time-for-event
+                                         get-note-for-event
+                                         get-note-play-time-for-event
                                          get-player-id-for-event
-                                         get-sc-instrument-id get-volume-for-event
-                                         set-sc-instrument-id-and-note-play-time]]
+                                         get-sc-instrument-id
+                                         get-volume-for-event
+                                         set-sc-instrument-id-and-note-play-time
+                                         ]]
    [transport.messages :refer :all]
-   [transport.message-processor :refer [send-message register-listener unregister-listener]]
+   [transport.message-processor :refer [send-message register-listener
+                                        unregister-listener]]
    [transport.players :refer :all]
    [transport.schedule :refer [sched-event]]
    [transport.sc-instrument :refer [stop-instrument]]
-   [transport.segment :refer [first-segment new-segment get-contrasting-info-for-player]]
+   [transport.segment :refer [first-segment new-segment
+                              get-contrasting-info-for-player]]
    [transport.settings :refer [get-setting] :as setting]
    [transport.util.log :as log]
    [transport.util.print :refer [print-msg]]
@@ -102,14 +109,20 @@
          )
         )
 
-       (send-message MSG-PLAYER-NEW-SEGMENT :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-SEGMENT
+                     :change-player-id player-id
+                     :originator-player-id player-id)
        (send-message MSG-PLAYER-NEW-FOLLOW-INFO
                      :change-player-id player-id
                      :originator-player-id player-id
                      :melody-no melody-no
                      :follow-info (get-following-info-from-player player))
-       (send-message MSG-PLAYER-NEW-SIMILAR-INFO :change-player-id player-id :originator-player-id player-id)
-       (send-message MSG-PLAYER-NEW-CONTRAST-INFO :change-player-id player-id :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-SIMILAR-INFO
+                     :change-player-id player-id
+                     :originator-player-id player-id)
+       (send-message MSG-PLAYER-NEW-CONTRAST-INFO
+                     :change-player-id player-id
+                     :originator-player-id player-id)
 
        )
    )
@@ -232,7 +245,9 @@
                      )
         ]
     (if (and (> release-dur 0)
-             (> (- dur-millis (- (get-note-play-time-for-event melody-event) event-time ) release-dur)
+             (> (- dur-millis
+                   (- (get-note-play-time-for-event melody-event) event-time )
+                   release-dur)
                 0)
              )
       true
@@ -246,7 +261,8 @@
         prior-instr (get-sc-instrument-id (get-melody-event-num player prior-melody-event-num))
         release-millis (get-release-millis-for-inst-info
                         (get-instrument-info-for-event prior-melody-event))
-        new-instr-durs-millis (for [ndx (reverse (range prior-melody-event-num last-melody-event-num))
+        new-instr-durs-millis (for [ndx (reverse (range prior-melody-event-num
+                                                        last-melody-event-num))
                                     :while (not= prior-instr (get-sc-instrument-id (get-melody-event-num player ndx)))
                                     ]
                                 (get-dur-millis (get-dur-info-for-event (get-melody-event-num player ndx)))
@@ -334,9 +350,13 @@
         ;; now play the note with the current instrument
         sc-instrument-id (if (nil? melody-event-note)
                            nil
-                           (if (or articulate? new-seg? (new-follow-info? @cur-player-info))
-                             (play-note-with-articulation melody-event melody-event-note)
-                             (play-note-no-articulation last-melody-event melody-event-note)
+                           (if (or articulate?
+                                   new-seg?
+                                   (new-follow-info? @cur-player-info))
+                             (play-note-with-articulation melody-event
+                                                          melody-event-note)
+                             (play-note-no-articulation last-melody-event
+                                                        melody-event-note)
                              )
                            )
         note-play-time (max (System/currentTimeMillis) event-time)

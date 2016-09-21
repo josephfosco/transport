@@ -25,32 +25,44 @@
    )
   )
 
-(defn update-ensemble-info-for-player
-  []
-  (swap! cur-player-info
-         set-updated-player
-         (update-based-on-ensemble (get-current-player @cur-player-info)))
+(defn- update-cur-player-ensemble-info
+  [cur-player]
+  (set-updated-player cur-player
+                      (update-based-on-ensemble (get-current-player cur-player)))
   )
 
-(defn update-follow-info-for-player
+(defn update-ensemble-info-for-player
   []
-  (let [player (get-current-player @cur-player-info)
+  (swap! cur-player-info update-cur-player-ensemble-info)
+  )
+
+(defn- update-cur-player-follow-info
+  [cur-player]
+  (let [player (get-current-player cur-player)
         updated-player
         (update-player-follow-info
          player
          (get-player-map (get-behavior-player-id (get-behavior player)))
          )
         ]
-
-    (swap! cur-player-info set-updated-player updated-player)
+    (set-updated-player cur-player updated-player)
     )
   )
+
+(defn update-follow-info-for-player
+  []
+  (swap! cur-player-info update-cur-player-follow-info)
+  )
+
+(defn- update-cur-player-segment
+  [cur-player]
+  (set-updated-player cur-player
+                      (update-player-with-new-segment (get-current-player cur-player)
+                                                      (:event-time cur-player)
+                                                      ))
+  )
+
 (defn update-segment-for-player
   []
-  (swap! cur-player-info
-         set-updated-player
-         (update-player-with-new-segment (get-current-player @cur-player-info)
-                                         (:event-time @cur-player-info)
-                                         )
-         )
+  (swap! cur-player-info update-cur-player-segment)
   )

@@ -13,6 +13,10 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;;
+;; Update the player rules
+;;
+
 (ns transport.rules.next-note-rules
   (:require
    [polyphony.core :refer :all]
@@ -65,3 +69,7 @@
    (set-var ?player-updated true)
    )
   )
+
+;;
+;;
+;;

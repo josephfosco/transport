@@ -661,8 +661,8 @@
   (when (nil? player)
     (log/error (log/format-msg "next-melody" "PLAYER IS NIL!!!!!!!!")))
   (cond
-   (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER) (next-melody-follow player event-time
-                                                                                     sync-beat-player-id)
+   (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+   (next-melody-follow player event-time sync-beat-player-id)
    ;; else pick next melody note based only on players settings
    ;;  do not reference other players or ensemble
    :else (next-melody-for-player player event-time sync-beat-player-id new-seg?))
