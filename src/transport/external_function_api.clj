@@ -57,9 +57,9 @@
 (defn- update-cur-player-segment
   [cur-player]
   (set-updated-player cur-player
-                      (update-player-with-new-segment (get-current-player cur-player)
-                                                      (:event-time cur-player)
-                                                      ))
+                      (update-player-with-new-segment
+                       (get-current-player cur-player)(:event-time cur-player))
+                      )
   )
 
 (defn update-segment-for-player

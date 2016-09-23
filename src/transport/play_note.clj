@@ -177,13 +177,19 @@
 (defn- update-melody-info
   [cur-melody player event-time melody-event sync-beat-player-id]
   (let [prev-note-beat (get-cur-note-beat player)
-        cur-note-beat (cond (not (nil? sync-beat-player-id)) nil
-                            (nil? (get-cur-note-beat player)) 0 ;; right after sync beat this will be nill so reset it
-                            (new-segment? @cur-player-info) 0
-                            (not (nil? (get-dur-info-for-event melody-event))) (+ (get-cur-note-beat player) (get-dur-beats (get-dur-info-for-event melody-event)))
+        cur-note-beat (cond (not (nil? sync-beat-player-id))
+                            nil
+                            (nil? (get-cur-note-beat player))
+                            0 ;; right after sync beat this will be nill so reset it
+                            (new-segment? @cur-player-info)
+                            0
+                            (not (nil? (get-dur-info-for-event melody-event)))
+                            (+ (get-cur-note-beat player)
+                               (get-dur-beats (get-dur-info-for-event melody-event)))
                             :else 0)
         prev-note-time event-time
-        cur-note-time (+ prev-note-time (get-dur-millis (get-dur-info-for-event melody-event)))
+        cur-note-time (+ prev-note-time
+                         (get-dur-millis (get-dur-info-for-event melody-event)))
         next-melody-no (if (nil? (get-last-melody-event-num-for-player player))
                          1
                          (inc (get-last-melody-event-num-for-player player)))
@@ -263,7 +269,8 @@
                         (get-instrument-info-for-event prior-melody-event))
         new-instr-durs-millis (for [ndx (reverse (range prior-melody-event-num
                                                         last-melody-event-num))
-                                    :while (not= prior-instr (get-sc-instrument-id (get-melody-event-num player ndx)))
+                                    :while (not= prior-instr
+                                                 (get-sc-instrument-id (get-melody-event-num player ndx)))
                                     ]
                                 (get-dur-millis (get-dur-info-for-event (get-melody-event-num player ndx)))
                                 )
@@ -502,20 +509,19 @@
 (intern (ns-name 'polyphony.variables) '?player-updated (atom nil))
 (intern (ns-name 'polyphony.variables) '?new-follow-info (atom nil))
 (intern (ns-name 'polyphony.variables) '?needs-new-segment (atom nil))
-(intern (ns-name 'polyphony.variables) '?similar-ensemble (atom nil))
+(intern (ns-name 'polyphony.variables) '?behavior-action (atom nil))
 
 (defn- update-player
   [cur-player]
   ;; need to let these variables due to the wa the set-var macro is working
   (let [new-seg? (new-segment? cur-player)
         upd-follow-info? (new-follow-info? cur-player)
+        behavior-actn (get-behavior-action (get-behavior (get-current-player cur-player)))
         ]
     (set-var ?needs-new-segment new-seg?)
     (set-var ?new-follow-info upd-follow-info?)
-    (if (= (get-behavior-action (get-behavior (get-current-player cur-player)))
-           SIMILAR-ENSEMBLE)
-      (set-var ?similar-ensemble true)
-      )
+    (set-var ?behavior-action behavior-actn)
+
     (reset! (get @ensemble (get-cur-player-id cur-player))
             (get-current-player @cur-player-info)
             )

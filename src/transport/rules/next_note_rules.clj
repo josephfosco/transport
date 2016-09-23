@@ -20,6 +20,7 @@
 (ns transport.rules.next-note-rules
   (:require
    [polyphony.core :refer :all]
+   [transport.constants :refer :all]
    [transport.external-function-api]
    )
   )
@@ -51,7 +52,7 @@
   (
    (= ?player-updated false)
    (= ?needs-new-segment false)
-   (= ?similar-ensemble true)
+   (= ?behavior-action SIMILAR-ENSEMBLE)
    )
   (
    (transport.external-function-api/update-ensemble-info-for-player)
