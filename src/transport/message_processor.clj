@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2014, 2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -24,11 +24,7 @@
 (def LISTENERS (agent {}))
 (def msg-id (atom (long  0)))
 (def last-msg-processed (atom (long  0)))
-(def checking-messages? (atom true)) ;; if false, message-processor is pause and will not watch MESSAGES
-
-(defn- inc-msg-id
-  [cur-msg-id]
-  (inc cur-msg-id))
+(def checking-messages? (atom true)) ;; if false, message-processor is paused and will not watch MESSAGES
 
 (defn- clear-messages
   [cur-msgs]
@@ -78,7 +74,7 @@
   [msg & args]
   (if @checking-messages?
     (do
-      (send MESSAGES assoc (swap! msg-id inc-msg-id) (list msg (apply hash-map args)) )
+      (send MESSAGES assoc (swap! msg-id inc) (list msg (apply hash-map args)) )
       true)    ;; return true if message was queued to be sent
     false      ;; return false if messsage was not queued
     )
@@ -132,8 +128,7 @@
   []
   (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
     (do
-      (let [nxt-msg (inc @last-msg-processed)]
-        (reset! last-msg-processed nxt-msg)
+      (let [nxt-msg (swap! last-msg-processed inc)]
         (apply dispatch-message (first (get @MESSAGES nxt-msg)) (rest (get @MESSAGES nxt-msg)))
         (send MESSAGES remove-msg nxt-msg)
         )))
