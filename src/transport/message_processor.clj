@@ -88,9 +88,8 @@
 (defn- dispatch-message-to-listener
   "Can be called with either a msg-lstnr list and msg-args or just msg-args
    Calls the msg-lstnr function with all args from the msg-lstnr and the msg"
-  (
-   [msg-lstnr msg-args]
-     (if (nth msg-lstnr 2)                   ;; if message listener specified args
+  ([msg-lstnr msg-args]
+     (if (nth msg-lstnr 2)              ;; if message listener specified args
        (apply (first msg-lstnr)
               (flatten
                (list (flatten (seq msg-args)) (nth msg-lstnr 2))) ;; create one list from map msg-args and list
@@ -99,7 +98,7 @@
        )
      )
   ([msg-lstnr]
-     (if (nth msg-lstnr 2)                   ;; if message listener specified args
+     (if (nth msg-lstnr 2)              ;; if message listener specified args
        (apply (first msg-lstnr) (nth msg-lstnr 2))
        ((first msg-lstnr))
        )
@@ -127,11 +126,17 @@
 (defn process-messages
   []
   (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
-    (do
-      (let [nxt-msg (swap! last-msg-processed inc)]
-        (apply dispatch-message (first (get @MESSAGES nxt-msg)) (rest (get @MESSAGES nxt-msg)))
-        (send MESSAGES remove-msg nxt-msg)
-        )))
+    (let [last-msg-no @last-msg-processed
+          next-msg-no (inc last-msg-no)
+          ]
+      (when (and (not (nil? (get @MESSAGES next-msg-no)))
+                 (compare-and-set! last-msg-processed last-msg-no next-msg-no)
+                 )
+        (apply dispatch-message (first (get @MESSAGES next-msg-no)) (rest (get @MESSAGES next-msg-no)))
+        (send MESSAGES remove-msg next-msg-no)
+        )
+      )
+    )
   (watch-msg-queue)
   )
 
@@ -195,7 +200,7 @@
                                  (if (not (nil? msg-args)) msg-args nil)
                                  (if (not (nil? args)) args nil)
                                  ))  ;; is this the one to remove?
-            (recur '()                                                       ;;   yes, remove it
+            (recur '()               ;;   yes, remove it
                    (if (empty? (rest lstnrs))     ;;  removing last listener in list
                      new-lstnrs
                      (apply conj new-lstnrs (rest lstnrs))))
