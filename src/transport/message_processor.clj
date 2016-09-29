@@ -112,7 +112,7 @@
       (let [msg-lstnr (nth msg-listeners lstnr-index)
             msg-lstnr-msg-args (second msg-lstnr)     ;; msg args the listner is watching
             ]
-        (if (= msg-lstnr-msg-args {})                 ;; listener doesn't care about msg args
+        (if (= msg-lstnr-msg-args {})  ;; listener doesn't care about msg args
           (if (not= args {})
             (dispatch-message-to-listener msg-lstnr args)
             (dispatch-message-to-listener msg-lstnr)
