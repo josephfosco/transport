@@ -90,8 +90,13 @@
   )
 
 (defn get-cur-player-id
-  [cur-player]
-  (get-player-id (get-current-player cur-player))
+  [curplayer]
+  (get-player-id (get-current-player curplayer))
+  )
+
+(defn get-event-time
+  [curplayer]
+  (:event-time curplayer)
   )
 
 (defn new-segment?

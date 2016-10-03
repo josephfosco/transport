@@ -74,3 +74,34 @@
 ;;
 ;;
 ;;
+
+(defrule
+  (
+   (= ?create-melody-event true)
+   (= ?behavior-action FOLLOW-PLAYER)
+   )
+  (
+   (transport.external-function-api/play-melody-follow-player)
+   )
+  )
+
+(defrule
+  (
+   (= ?create-melody-event true)
+   (= ?behavior-action SIMILAR-ENSEMBLE)
+   )
+  (
+   (transport.external-function-api/play-melody-similar-ensemble)
+   )
+  )
+
+(defrule
+  (
+   (= ?create-melody-event true)
+   (not= ?behavior-action FOLLOW-PLAYER)
+   (not= ?behavior-action SIMILAR-ENSEMBLE)
+   )
+  (
+   (transport.external-function-api/play-melody-no-sync)
+   )
+  )

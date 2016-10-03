@@ -18,7 +18,9 @@
    [polyphony.core :refer :all]
    [transport.behavior :refer [get-behavior-player-id]]
    [transport.curplayer :refer [get-current-player set-updated-player]]
-   [transport.play-note :refer [cur-player-info update-based-on-ensemble
+   [transport.play-note :refer [cur-player-info follow-player-play-melody
+                                no-sync-play-melody similar-ensemble-play-melody
+                                update-based-on-ensemble
                                 update-player-with-new-segment]]
    [transport.players :refer [get-behavior get-player-map
                               update-player-follow-info]]
@@ -65,4 +67,19 @@
 (defn update-segment-for-player
   []
   (swap! cur-player-info update-cur-player-segment)
+  )
+
+(defn play-melody-follow-player
+  []
+  (follow-player-play-melody)
+  )
+
+(defn play-melody-similar-ensemble
+  []
+  (similar-ensemble-play-melody)
+  )
+
+(defn play-melody-no-sync
+  []
+  (no-sync-play-melody)
   )
