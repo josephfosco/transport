@@ -17,10 +17,13 @@
   (:require
    [overtone.live :refer :all]
    [transport.rules.next_note_rules]
-   [transport.ensemble-status :refer [init-ensemble-status reset-ensemble-status]]
+   [transport.ensemble-status :refer [init-ensemble-status
+                                      reset-ensemble-status]]
    [transport.behaviors :refer [init-behaviors reset-behaviors]]
    [transport.live-players :refer [init-live-players]]
-   [transport.message-processor :refer [clear-message-processor restart-message-processor start-message-processor
+   [transport.message-processor :refer [clear-message-processor
+                                        reset-message-processor
+                                        start-message-processor
                                         stop-message-processor]]
    [transport.melody :refer [init-melody reset-melody]]
    [transport.play-note :refer [init-ensemble reset-ensemble]]
@@ -128,7 +131,7 @@
         (reset-behaviors)
         (reset-scheduler)
         (restart-scheduler)
-        (restart-message-processor :reset-listeners true)
+        (reset-message-processor :reset-listeners true)
         (init-ensemble)
         (init-live-players :init-midi-ports false)
         (log/data2 (with-out-str (print-banner "restart-transport about to reset-ensemble-status")))

@@ -21,18 +21,18 @@ return melody-event
 |call update-from-ensemble
 |assert-player-updated
 
-if segment-established  \
-if start-new-segment    same as needs-new segment and player-updated
-if not (= player-action SIMILAR-PLAYER)
-if sync-beat-player-id
----
-assert sync-beat-player-id = player's sync-beat-player-id
+|if segment-established  \
+|if start-new-segment    same as needs-new segment and player-updated
+|if not (= player-action SIMILAR-PLAYER)
+|if sync-beat-player-id
+|---
+|assert sync-beat-player-id = player's sync-beat-player-id
 
-if segment-established
-if start-new-segment
-if player-action = SIMILAR-ENSEMBLE
----
-assert sync-beat-player-id = player with mm
+|if segment-established
+|if start-new-segment
+|if player-action = SIMILAR-ENSEMBLE
+|---
+|assert sync-beat-player-id = player with mm
 
 if segment-established
 if sync-beat-player-id

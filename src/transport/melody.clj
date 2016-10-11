@@ -575,7 +575,7 @@
         player-seg-num (get-seg-num player)
         ]
     (cond
-     (not (nil? sync-beat-player-id))
+     sync-beat-player-id
      (sync-beat-follow player follow-player event-time)
      (or (= 0 last-follow-event-num)
          (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))

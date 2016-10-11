@@ -60,15 +60,17 @@
 
 (defn init-lateness
   []
-  ((lateness-vector :init) [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
-  ((lateness-vector :set-eval) (fn [num]
-                                 (cond
-                                  (< num 100) (int (/ num 10))
-                                  (< num 1000) (+ (dec (int (/ num 100))) 10)
-                                  (< num 2000) 19
-                                  (< num 3000) 20
-                                  (< num 4000) 21
-                                  :else 22) ))
+  ((lateness-vector :init)
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+     (fn [num]
+       (cond
+        (< num 100) (int (/ num 10))
+        (< num 1000) (+ (dec (int (/ num 100))) 10)
+        (< num 2000) 19
+        (< num 3000) 20
+        (< num 4000) 21
+        :else 22)
+       ))
   )
 
 (defn reset-lateness
@@ -76,7 +78,7 @@
   (send-off lateness set-lateness 0)
   (await lateness)
   (reset! max-lateness 0)
-  ((lateness-vector :init) [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ((lateness-vector :set-vector) [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
   )
 
 (defn reset-scheduler
@@ -151,7 +153,7 @@
   (defn cancel-timerTask
     []
     (log/info "cancel-timerTask")
-    (if (not (nil? @next-TimerTask))
+    (if @next-TimerTask
       (.cancel @next-TimerTask))
     (log/info "timerTask canceled: " next-TimerTask))
 

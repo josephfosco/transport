@@ -125,11 +125,11 @@
 
 (defn process-messages
   []
-  (while (not (nil? (get @MESSAGES (inc @last-msg-processed))))
+  (while (get @MESSAGES (inc @last-msg-processed))
     (let [last-msg-no @last-msg-processed
           next-msg-no (inc last-msg-no)
           ]
-      (when (and (not (nil? (get @MESSAGES next-msg-no)))
+      (when (and (get @MESSAGES next-msg-no)
                  (compare-and-set! last-msg-processed last-msg-no next-msg-no)
                  )
         (apply dispatch-message (first (get @MESSAGES next-msg-no)) (rest (get @MESSAGES next-msg-no)))
@@ -168,7 +168,7 @@
   true    ;; return true
   )
 
-(defn restart-message-processor
+(defn reset-message-processor
   [& {:keys [reset-listeners]
       :or {reset-listeners false}}]
   (reset! checking-messages? true)
@@ -197,8 +197,8 @@
           new-lstnrs
           (if (= (first lstnrs) (list
                                  fnc
-                                 (if (not (nil? msg-args)) msg-args nil)
-                                 (if (not (nil? args)) args nil)
+                                 (if msg-args msg-args nil)
+                                 (if args args nil)
                                  ))  ;; is this the one to remove?
             (recur '()               ;;   yes, remove it
                    (if (empty? (rest lstnrs))     ;;  removing last listener in list

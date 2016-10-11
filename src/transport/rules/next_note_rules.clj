@@ -72,7 +72,8 @@
   )
 
 ;;
-;;
+;; If necessary, get sync-beat-player-id and
+;; get and play next melody event
 ;;
 
 (defrule

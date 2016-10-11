@@ -33,7 +33,6 @@
                                ensemble-volume-change-threshold
                                min-mm max-mm min-volume number-of-players]]
    [transport.util.compare-prior-current :refer :all]
-   [transport.util.count-vector :refer [count-vector]]
    [transport.util.track-trend :refer [track-trend]]
    [transport.util.log :as log]
    [transport.util.utils :refer :all]
@@ -128,7 +127,7 @@
     ;; Track relevent ensemble-status info when player starts a new segment
     (update-ensemble-new-segment :player player :note-time note-time :player-id player-id)
     ;; if note (not rest) update note-values-millis with latest note rhythm value
-    (if (not (nil? (get-note-for-event last-melody)))
+    (if (get-note-for-event last-melody)
       (do
         (let [dur-millis (get-dur-millis (get-dur-info-for-event last-melody))]
           (reset! note-values-millis (conj (butlast @note-values-millis) dur-millis))
@@ -219,7 +218,7 @@
 
 (defn get-ensemble-average-pitch
   []
-  (let [pitches (for [p @player-notes :when (not (nil? p))] p)]
+  (let [pitches (for [p @player-notes :when p] p)]
     (if (first pitches)
       (average pitches)
       nil)
@@ -291,7 +290,7 @@
                                 )
                 ]
 
-          :when (not (nil? rtn-entry))] rtn-entry))
+          :when rtn-entry] rtn-entry))
   )
 
 (defn print-density

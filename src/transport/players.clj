@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2015  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -311,9 +311,9 @@
         cur-change-follow-info-note (get-next-change-follow-info-note to-player)
         last-follow-note (get-follow-note-for-event (get-last-melody-event to-player))
         ]
-    (if (and (not (nil? from-player-id))
-             (not (nil? last-follow-note))
-             (not (nil? cur-change-follow-info-note))
+    (if (and from-player-id
+             last-follow-note
+             cur-change-follow-info-note
              (>= (inc last-follow-note) cur-change-follow-info-note)
              (> (count (get-change-follow-info to-player)) 0)
              (= from-player-id (get-player-id from-player))

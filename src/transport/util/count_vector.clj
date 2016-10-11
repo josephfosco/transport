@@ -1,4 +1,4 @@
-;    Copyright (C) 2014  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014, 2016  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -20,13 +20,18 @@
   (let [cnt-vctr (atom [])
         eval-fnc (atom nil)
 
-        init (fn [init-vector]
-               (reset! cnt-vctr init-vector)
+        set-vector (fn [vector]
+               (reset! cnt-vctr vector)
                )
 
         set-eval (fn [fnc]
                    (reset! eval-fnc fnc)
                    )
+
+        init (fn [vector fnc]
+               (set-vector vector)
+               (set-eval fnc)
+               )
 
         inc (fn [& args]
               (let [inc-index (apply @eval-fnc args)]
@@ -46,6 +51,7 @@
        (= m :inc) inc
        (= m :get) get
        (= m :init) init
+       (= m :set-vector) set-vector
        (= m :set-eval) set-eval
        (= m :print) print
        )

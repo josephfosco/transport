@@ -178,13 +178,13 @@
 (defn- update-melody-info
   [cur-melody player event-time melody-event sync-beat-player-id]
   (let [prev-note-beat (get-cur-note-beat player)
-        cur-note-beat (cond (not (nil? sync-beat-player-id))
+        cur-note-beat (cond sync-beat-player-id
                             nil
                             (nil? (get-cur-note-beat player))
                             0 ;; right after sync beat this will be nill so reset it
                             (new-segment? @cur-player-info)
                             0
-                            (not (nil? (get-dur-info-for-event melody-event)))
+                            (get-dur-info-for-event melody-event)
                             (+ (get-cur-note-beat player)
                                (get-dur-beats (get-dur-info-for-event melody-event)))
                             :else 0)
@@ -591,7 +591,7 @@
                                   )
                                   true   ;; new segment
                                   )
-        sc-instrument-id (if (not (nil? (:note melody-event)))
+        sc-instrument-id (if (:note melody-event)
                              ((get-instrument-for-inst-info (get-instrument-info-for-event melody-event))
                               (midi->hz (get-note-for-event melody-event))
                               (get-volume-for-event melody-event)
@@ -611,7 +611,7 @@
                           )
         ]
 
-    (if (not (nil? (get-note-for-event upd-melody-event)))
+    (if (get-note-for-event upd-melody-event)
       ;; if about to play a note, check range
       (check-note-out-of-range player-id upd-melody-event))
 
