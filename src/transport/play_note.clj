@@ -352,8 +352,7 @@
 (defn- sched-note-off
   "Schedule a note off for the last note played
     by player if necessary and/or possible
-
-   "
+  "
   [melody-event event-time]
 
   (let [;; all notes without release (AD or NE) are not articulated (stopped)
@@ -362,15 +361,16 @@
                       false
                       )
         ]
-    (if articulate?
-          (do
-            (apply-at (+ event-time
-                         (- (get-dur-millis (get-dur-info-for-event melody-event))
-                            (get-release-millis-for-inst-info (get-instrument-info-for-event melody-event))
-                            ))
-                      stop-melody-note
-                      [melody-event (get-player-id-for-event melody-event)]))
-          )
+    (when articulate?
+      (do
+        (apply-at (+ event-time
+                     (- (get-dur-millis (get-dur-info-for-event melody-event))
+                        (get-release-millis-for-inst-info (get-instrument-info-for-event melody-event))
+                        ))
+                  stop-melody-note
+                  [melody-event (get-player-id-for-event melody-event)]))
+      )
+    nil
   ))
 
 (defn- send-new-note-msgs
@@ -411,7 +411,7 @@
         melody-event (next-melody player
                                   event-time
                                   sync-beat-player-id
-                                  new-seg? )
+                                  new-seg?)
         melody-event-note (get-note-for-event melody-event)
         ;; now play the note with the current instrument
         sc-instrument-id (play-note-with-instrument melody-event
@@ -446,7 +446,7 @@
       (stop-melody-note last-melody-event player-id)
       )
 
-    (if melody-event-note
+    (when melody-event-note
       (sched-note-off upd-melody-event event-time)
       )
     (send-new-note-msgs curplayer event-time)
@@ -557,7 +557,7 @@
 
 (intern (ns-name 'polyphony.variables) '?create-melody-event (atom nil))
 (defn next-note
-  "Gets, plays and records the player's next note"
+  "Gets, plays and saves the player's next note"
   [player-id event-time]
 
   (reset-variable-vals)

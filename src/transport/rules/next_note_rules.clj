@@ -72,7 +72,7 @@
   )
 
 ;;
-;; If necessary, get sync-beat-player-id and
+;; Once the player has been updated,
 ;; get and play next melody event
 ;;
 

@@ -566,6 +566,11 @@
     )
   )
 
+(defn next-melody-sync-beat
+  [player event-time sync-beat-player-id]
+    (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
+  )
+
 (defn next-melody-follow
   [player event-time sync-beat-player-id]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
@@ -575,8 +580,6 @@
         player-seg-num (get-seg-num player)
         ]
     (cond
-     sync-beat-player-id
-     (sync-beat-follow player follow-player event-time)
      (or (= 0 last-follow-event-num)
          (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
          )
@@ -635,22 +638,19 @@
 
 (defn- next-melody-for-player
   [player event-time sync-beat-player-id new-seg?]
-
-  (if sync-beat-player-id
-    (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
-    (let [next-note-or-rest (if (note-or-rest? player event-time) (next-pitch player) nil)]
-      (create-melody-event
-       :note next-note-or-rest
-       :change-follow-info-note nil
-       :dur-info (next-note-dur player next-note-or-rest)
-       :follow-note nil
-       :follow-player-id nil
-       :instrument-info (get-instrument-info player)
-       :note-event-time event-time
-       :player-id (get-player-id player)
-       :seg-num (get-seg-num player)
-       :volume (select-volume-for-next-note player new-seg? event-time next-note-or-rest)
-       )))
+  (let [next-note-or-rest (if (note-or-rest? player event-time) (next-pitch player) nil)]
+    (create-melody-event
+     :note next-note-or-rest
+     :change-follow-info-note nil
+     :dur-info (next-note-dur player next-note-or-rest)
+     :follow-note nil
+     :follow-player-id nil
+     :instrument-info (get-instrument-info player)
+     :note-event-time event-time
+     :player-id (get-player-id player)
+     :seg-num (get-seg-num player)
+     :volume (select-volume-for-next-note player new-seg? event-time next-note-or-rest)
+     ))
   )
 
 (defn next-melody
@@ -661,9 +661,11 @@
   (when (nil? player)
     (log/error (log/format-msg "next-melody" "PLAYER IS NIL!!!!!!!!")))
   (cond
-   (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-   (next-melody-follow player event-time sync-beat-player-id)
-   ;; else pick next melody note based only on players settings
-   ;;  do not reference other players or ensemble
-   :else (next-melody-for-player player event-time sync-beat-player-id new-seg?))
+    sync-beat-player-id  ;; must check this first
+    (next-melody-sync-beat player event-time sync-beat-player-id)
+    (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
+    (next-melody-follow player event-time sync-beat-player-id)
+    ;; else pick next melody note based only on players settings
+    ;;  do not reference other players or ensemble
+    :else (next-melody-for-player player event-time sync-beat-player-id new-seg?))
   )

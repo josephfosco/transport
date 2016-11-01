@@ -19,9 +19,10 @@
    [transport.util.count-vector :refer [count-vector]]
    [transport.util.log :as log]
    [transport.util.utils :refer :all]
-   ))
+   )
+  (import [java.util Date TimerTask Timer])
+  )
 
-(import '(java.util Date TimerTask Timer))
 (declare check-events)
 
 ;; num of milliseconds most recent event was late
@@ -36,7 +37,7 @@
 
 (defn print-lateness
   []
-  (println "schedule.clj - time: " (System/currentTimeMillis))
+  (println "schedule.clj -" (.toString (java.util.Date. (System/currentTimeMillis))))
   (println "schedule.clj - lateness: " @lateness)
   (println "schedule.clj - max-lateness: " @max-lateness)
   (println "schedule.clj - lateness-vector: " ((lateness-vector :get)))

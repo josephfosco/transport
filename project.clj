@@ -21,4 +21,5 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [overtone "0.10.1"]
                  ]
+  :jvm-opts ^:replace [] ;; turns off JVM arg TieredStopAtLevel=1
   :main transport.core)
