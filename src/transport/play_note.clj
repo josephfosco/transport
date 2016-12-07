@@ -557,7 +557,7 @@
 
 (intern (ns-name 'polyphony.variables) '?create-melody-event (atom nil))
 (defn next-note
-  "Gets, plays and saves the player's next note"
+  "Gets, plays and records the player's next note"
   [player-id event-time]
 
   (reset-variable-vals)

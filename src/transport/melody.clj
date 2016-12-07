@@ -490,15 +490,15 @@
             ]
         (if (> player-density play-note-prob)
           true
-          (if (not= 9 play-note-prob)                          ;; if play-note-prob not 9
-            false                                                ;; rest
-            (if (and                                           ;; else
-                 (not= {} (get-melody player))                   ;; if melody not empty
-                 (= 0                                            ;; and last pitch is root
+          (if (not= 9 play-note-prob)                 ;; if play-note-prob not 9
+            false                                       ;; rest
+            (if (and                                  ;; else
+                 (not= {} (get-melody player))          ;; if melody not empty
+                 (= 0                                   ;; and last pitch is root
                     (get-scale-degree
                      player
-                     (or (get-last-melody-note player) 0)))      ;; or rest
-                 (< (rand) 0.8))                                 ;; possibly rest
+                     (or (get-last-melody-note player) 0))) ;; or rest
+                 (< (rand) 0.8))                              ;; possibly rest
               false
               true)))
         )
@@ -566,12 +566,12 @@
     )
   )
 
-(defn next-melody-sync-beat
+(defn- next-melody-sync-beat
   [player event-time sync-beat-player-id]
     (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
   )
 
-(defn next-melody-follow
+(defn- next-melody-follow
   [player event-time sync-beat-player-id]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player-map follow-player-id)
@@ -580,9 +580,11 @@
         player-seg-num (get-seg-num player)
         ]
     (cond
-     (or (= 0 last-follow-event-num)
-         (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
-         )
+      sync-beat-player-id
+      (sync-beat-follow player follow-player event-time)
+      (or (= 0 last-follow-event-num)
+          (not= player-seg-num (get-seg-num-for-event (get-last-melody-event player)))
+          )
       ;; first time or new segment, rest 3 beats
       (do
         (create-melody-event
@@ -609,7 +611,8 @@
       ;; if FOLLOWing player has exceeded the length of it's melody buffer,
       ;; just play the oldest melody event that exists
       (let [
-            event-num-to-play (max (inc last-follow-event-num) (inc (- follow-player-last-event-num SAVED-MELODY-LEN)))
+            ;; event-num-to-play (max (inc last-follow-event-num) (inc (- follow-player-last-event-num SAVED-MELODY-LEN)))
+            event-num-to-play (inc last-follow-event-num)
             next-melody-event (get-melody-event follow-player-id event-num-to-play)
             ]
         (if (nil? next-melody-event)

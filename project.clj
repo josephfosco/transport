@@ -18,7 +18,7 @@
   :url "http://example.com/FIXME"
   :license {:name "GNU General Public License version 3"
             :url "http://www.gnu.org/licenses/"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [overtone "0.10.1"]
                  ]
   :jvm-opts ^:replace [] ;; turns off JVM arg TieredStopAtLevel=1
