@@ -29,7 +29,7 @@
   "Returns true if the event after player's last melody-event
    is a new segment in the following player.
    Compares the seg-num in the molody-event of the FOLLOWing player
-   for the melody event passed in (or FOLLOWer's last melody-event)
+   for the FOLLOWer's last melody-event
    with the seg-num of the FOLLOWing player's next melody event.
    If they do not match, it is a new-seg in the FOLLOWing player.
 
@@ -50,7 +50,7 @@
   [player-id event-time]
   (let [player (deref (get-player player-id))
         new-segment? (if (>= event-time
-                             (+  (get-seg-start player)
+                             (+ (get-seg-start player)
                                 (get-seg-len player)))
                    true
                    false

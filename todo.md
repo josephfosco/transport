@@ -1,3 +1,7 @@
+* Be able to track and set random seed to reproduce errors
+
+* In melody.clj next-melody-follow FOLLOWER AHEAD OF FOLLOWED can get triggered if FOLLOWED player's history does not go back far enough. 
+
 * Rework rhythm.clj to use Overtone metronome instead of current method (if posssible) ???
 
 * Use at- function from Overtone in ensemble.clj play-melody for more accurate playback
@@ -11,11 +15,7 @@
 
 * Add print-lateness-fl for schedule.clj to settings.clj
 
-* find a way to have an overall level adjustment based on the number of players
-
 * In pitch.clj get-step-down-in-scale and get-step-up-in-scale need to return nil if pitch passed in is not in player scale and key
-
-* no volume 0 (or a minimum volumem maybe .1)
 
 * move :accuracy out of :behavior up to top level
 

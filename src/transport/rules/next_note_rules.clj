@@ -63,8 +63,19 @@
 (defrule
   (
    (= ?player-updated false)
+   (= ?needs-new-segment true)
+   (= ?behavior-action SIMILAR-ENSEMBLE)
+   )
+  (
+   (set-var ?player-updated true)
+   )
+  )
+
+(defrule
+  (
+   (= ?player-updated false)
    (= ?needs-new-segment false)
-   (= ?similar-ensemble false)
+   (not= ?behavior-action SIMILAR-ENSEMBLE)
    )
   (
    (set-var ?player-updated true)
@@ -83,7 +94,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.external-function-api/play-melody-follow-player)
+   (transport.external-function-api/play-melody-sync-player)
    )
   )
 
@@ -94,7 +105,7 @@
    (= ?needs-new-segment false)
    )
   (
-   (transport.external-function-api/play-melody-no-sync)
+   (transport.external-function-api/play-melody-follow)
    )
   )
 
@@ -105,7 +116,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.external-function-api/play-melody-similar-ensemble)
+   (transport.external-function-api/play-melody-sync-ensemble)
    )
   )
 

@@ -18,10 +18,7 @@
    [polyphony.core :refer :all]
    [transport.behavior :refer [get-behavior-player-id]]
    [transport.curplayer :refer [get-current-player set-updated-player]]
-   [transport.play-note :refer [cur-player-info follow-player-play-melody
-                                no-sync-play-melody similar-ensemble-play-melody
-                                update-based-on-ensemble
-                                update-player-with-new-segment]]
+   [transport.play-note :as tpn]
    [transport.players :refer [get-behavior get-player-map
                               update-player-follow-info]]
    )
@@ -30,12 +27,12 @@
 (defn- update-cur-player-ensemble-info
   [cur-player]
   (set-updated-player cur-player
-                      (update-based-on-ensemble (get-current-player cur-player)))
+                      (tpn/update-based-on-ensemble (get-current-player cur-player)))
   )
 
 (defn update-ensemble-info-for-player
   []
-  (swap! cur-player-info update-cur-player-ensemble-info)
+  (swap! tpn/cur-player-info update-cur-player-ensemble-info)
   )
 
 (defn- update-cur-player-follow-info
@@ -53,33 +50,38 @@
 
 (defn update-follow-info-for-player
   []
-  (swap! cur-player-info update-cur-player-follow-info)
+  (swap! tpn/cur-player-info update-cur-player-follow-info)
   )
 
 (defn- update-cur-player-segment
   [cur-player]
   (set-updated-player cur-player
-                      (update-player-with-new-segment
+                      (tpn/update-player-with-new-segment
                        (get-current-player cur-player)(:event-time cur-player))
                       )
   )
 
 (defn update-segment-for-player
   []
-  (swap! cur-player-info update-cur-player-segment)
+  (swap! tpn/cur-player-info update-cur-player-segment)
   )
 
-(defn play-melody-follow-player
+(defn play-melody-sync-player
   []
-  (follow-player-play-melody)
+  (tpn/sync-player-play-melody)
   )
 
-(defn play-melody-similar-ensemble
+(defn play-melody-sync-ensemble
   []
-  (similar-ensemble-play-melody)
+  (tpn/sync-ensemble-play-melody)
+  )
+
+(defn play-melody-follow
+  []
+  (tpn/follow-play-melody)
   )
 
 (defn play-melody-no-sync
   []
-  (no-sync-play-melody)
+  (tpn/no-sync-play-melody)
   )

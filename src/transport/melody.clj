@@ -534,10 +534,12 @@
         last-seg-num (get-seg-num-for-event follow-player-last-melody-event)
         new-dur-info (if (or (= follow-player-beat nil) (= follow-player-beat 0))
                        ;; current info for FOLLOW player is for next segment
-                       ;;  which means FOLLOW player is either syncing (nil) or resting before starting segment
+                       ;;  which means FOLLOW player is either syncing (nil) or
+                       ;;    resting before starting segment
                        ;;  so, sync time = cur-note-beat time + 1 beat
                        (do
-                         ;; use if below in case this is the first note and follow-player has not played a note yet
+                         ;; use if below in case this is the first note and
+                         ;;   follow-player has not played a note yet
                          (get-dur-info-for-mm-and-millis follow-player-mm
                                                          (+ (if (> follow-player-time 0)
                                                               (- follow-player-time event-time)
@@ -566,13 +568,13 @@
     )
   )
 
-(defn- next-melody-sync-beat
+(defn next-melody-sync-beat
   [player event-time sync-beat-player-id]
     (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
   )
 
-(defn- next-melody-follow
-  [player event-time sync-beat-player-id]
+(defn next-melody-follow
+  [player event-time]
   (let [follow-player-id (get-behavior-player-id (get-behavior player))
         follow-player (get-player-map follow-player-id)
         follow-player-last-event-num (get-last-melody-event-num-for-player follow-player)
@@ -638,7 +640,7 @@
   )
 
 (defn- next-melody-for-player
-  [player event-time sync-beat-player-id new-seg?]
+  [player event-time new-seg?]
   (let [next-note-or-rest (if (note-or-rest? player event-time) (next-pitch player) nil)]
     (create-melody-event
      :note next-note-or-rest
@@ -665,8 +667,8 @@
     sync-beat-player-id  ;; must check this first
     (next-melody-sync-beat player event-time sync-beat-player-id)
     (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-    (next-melody-follow player event-time sync-beat-player-id)
+    (next-melody-follow player event-time)
     ;; else pick next melody note based only on players settings
     ;;  do not reference other players or ensemble
-    :else (next-melody-for-player player event-time sync-beat-player-id new-seg?))
+    :else (next-melody-for-player player event-time new-seg?))
   )
