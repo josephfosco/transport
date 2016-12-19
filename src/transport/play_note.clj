@@ -470,44 +470,45 @@
 
 (defn sync-player-play-melody
   []
-  (let [player (get-current-player @cur-player-info)
-        event-time (get-event-time @cur-player-info)
-        sync-beat-player-id (get-behavior-player-id (get-behavior player))
-        melody-event (next-melody-sync-beat player
-                                            event-time
-                                            sync-beat-player-id)
+  (let [player-info @cur-player-info
+        sync-beat-player-id (get-behavior-player-id
+                             (get-behavior (get-current-player player-info)))
+        melody-event (next-melody-sync-beat (get-current-player player-info)
+                                            (get-event-time player-info)
+                                            sync-beat-player-id
+                                            )
         ]
-    (play-next-melody-event @cur-player-info melody-event sync-beat-player-id)
+    (play-next-melody-event player-info melody-event sync-beat-player-id)
     )
   )
 
 (defn sync-ensemble-play-melody
   []
-  (let [player (get-current-player @cur-player-info)
-        event-time (get-event-time @cur-player-info)
+  (let [player-info @cur-player-info
+        player (get-current-player player-info)
         sync-beat-player-id
-        (if-let [mm-player (get-player-with-mm player (get-mm player))]
+        (if-let [mm-player
+                 (get-player-with-mm player (get-mm player))]
             ;; if there are no players with this player's mm
             ;; just return the player-id 1 higher than this id
             ;; (this is very very rare)
             mm-player
             (mod (inc (get-player-id player)) @setting/number-of-players))
         melody-event (next-melody-sync-beat player
-                                            event-time
+                                            (get-event-time player-info)
                                             sync-beat-player-id)
         ]
-    (play-next-melody-event @cur-player-info melody-event sync-beat-player-id)
+    (play-next-melody-event player-info melody-event sync-beat-player-id)
     )
   )
 
 (defn follow-play-melody
   []
-  (let [player (get-current-player @cur-player-info)
-        event-time (get-event-time @cur-player-info)
-        melody-event (next-melody-follow player
-                                         event-time)
+  (let [player-info @cur-player-info
+        melody-event (next-melody-follow (get-current-player player-info)
+                                         (get-event-time player-info))
         ]
-    (play-next-melody-event @cur-player-info melody-event nil)
+    (play-next-melody-event player-info melody-event nil)
     )
   )
 
@@ -518,7 +519,7 @@
                                              (get-event-time player-info)
                                              (new-segment? player-info))
         ]
-    (play-next-melody-event @cur-player-info melody-event nil)
+    (play-next-melody-event player-info melody-event nil)
     )
   )
 
