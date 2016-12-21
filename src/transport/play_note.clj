@@ -541,20 +541,58 @@
   )
 
 (defn update-based-on-ensemble
-  [player]
-  (-> (if (= (type (get-cur-note-beat player)) Long) ;; current note is on the beat
-        (let [mm-diff (- (get-average-mm) (get-mm player))]
-          (cond (> mm-diff @setting/ensemble-mm-change-threshold)
-                (set-mm player (+ (get-mm player) 2))
-                (< mm-diff (* @setting/ensemble-mm-change-threshold -1))
-                (set-mm player (- (get-mm player) 2))
-                :else
-                player
-                ))
-        player
+  [cur-player]
+  (let [player (get-current-player cur-player)]
+    (->> (if (= (type (get-cur-note-beat player)) Long) ;; current note is on the beat
+           (let [mm-diff (- (get-average-mm) (get-mm player))]
+             (cond (> mm-diff @setting/ensemble-mm-change-threshold)
+                   (set-mm player (+ (get-mm player) 2))
+                   (< mm-diff (* @setting/ensemble-mm-change-threshold -1))
+                   (set-mm player (- (get-mm player) 2))
+                   :else
+                   player
+                   ))
+           player
+           )
+         (update-based-on-ensemble-density)
+         (set-updated-player cur-player)
         )
-      (update-based-on-ensemble-density)
-      )
+    )
+  )
+
+(defn update-ensemble-info-for-player
+  []
+  (swap! cur-player-info update-based-on-ensemble)
+  )
+
+(defn- update-cur-player-follow-info
+  [cur-player]
+  (let [player (get-current-player cur-player)]
+    (->> (update-player-follow-info
+          player
+          (get-player-map (get-behavior-player-id (get-behavior player)))
+          )
+         (set-updated-player cur-player)
+         )
+    )
+  )
+
+(defn update-follow-info-for-player
+  []
+  (swap! cur-player-info update-cur-player-follow-info)
+  )
+
+(defn- update-cur-player-segment
+  [cur-player]
+  (set-updated-player cur-player
+                      (update-player-with-new-segment
+                       (get-current-player cur-player)(:event-time cur-player))
+                      )
+  )
+
+(defn update-segment-for-player
+  []
+  (swap! cur-player-info update-cur-player-segment)
   )
 
 (intern (ns-name 'polyphony.variables) '?player-updated (atom nil))

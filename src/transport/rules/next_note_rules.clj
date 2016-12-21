@@ -14,7 +14,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;
-;; Update the player rules
+;; Rules for updating the player
 ;;
 
 (ns transport.rules.next-note-rules
@@ -22,6 +22,7 @@
    [polyphony.core :refer :all]
    [transport.constants :refer :all]
    [transport.external-function-api]
+   [transport.play-note :as tpn]
    )
   )
 
@@ -31,7 +32,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.external-function-api/update-segment-for-player)
+   (tpn/update-segment-for-player)
    (set-var ?player-updated true)
    )
   )
@@ -43,7 +44,7 @@
    (= ?new-follow-info true)
    )
   (
-   (transport.external-function-api/update-follow-info-for-player)
+   (tpn/update-follow-info-for-player)
    (set-var ?player-updated true)
    )
   )
@@ -55,7 +56,7 @@
    (= ?behavior-action SIMILAR-ENSEMBLE)
    )
   (
-   (transport.external-function-api/update-ensemble-info-for-player)
+   (tpn/update-ensemble-info-for-player)
    (set-var ?player-updated true)
    )
   )
