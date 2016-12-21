@@ -21,7 +21,6 @@
   (:require
    [polyphony.core :refer :all]
    [transport.constants :refer :all]
-   [transport.external-function-api]
    [transport.play-note :as tpn]
    )
   )
@@ -95,7 +94,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.external-function-api/play-melody-sync-player)
+   (tpn/sync-player-play-melody)
    )
   )
 
@@ -106,7 +105,7 @@
    (= ?needs-new-segment false)
    )
   (
-   (transport.external-function-api/play-melody-follow)
+   (tpn/follow-play-melody)
    )
   )
 
@@ -117,7 +116,7 @@
    (= ?needs-new-segment true)
    )
   (
-   (transport.external-function-api/play-melody-sync-ensemble)
+   (tpn/sync-ensemble-play-melody)
    )
   )
 
@@ -128,7 +127,7 @@
    (= ?needs-new-segment false)
    )
   (
-   (transport.external-function-api/play-melody-no-sync)
+   (tpn/no-sync-play-melody)
    )
   )
 
@@ -139,6 +138,6 @@
    (not= ?behavior-action SIMILAR-ENSEMBLE)
    )
   (
-   (transport.external-function-api/play-melody-no-sync)
+   (tpn/no-sync-play-melody)
    )
   )
