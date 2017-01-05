@@ -17,7 +17,9 @@
   (:require
    [overtone.live :refer [MIDI-RANGE]]
    [transport.behavior :refer [get-behavior-action get-behavior-player-id]]
-   [transport.constants :refer :all]
+   [transport.constants :refer [CONTRAST-ENSEMBLE CONTRAST-PLAYER
+                                SIMILAR-ENSEMBLE SIMILAR-PLAYER
+                                MIDI-HI MIDI-LO]]
    [transport.dur-info :refer [get-dur-millis get-dur-beats]]
    [transport.ensemble-status :refer [get-average-density get-density-trend
                                       get-ensemble-density
@@ -41,10 +43,17 @@
                                          get-follow-note-for-event
                                          get-instrument-info-for-event
                                          get-seg-num-for-event]]
-   [transport.messages :refer :all]
+   [transport.messages :refer [MSG-LOUD-INTERUPT-EVENT]]
    [transport.message-processor :refer [register-listener]]
    [transport.pitch :refer [get-scale-degree next-pitch]]
-   [transport.players :refer :all]
+   [transport.players :refer [get-behavior get-cur-note-beat get-cur-note-time
+                              get-instrument-info get-last-melody-event
+                              get-last-melody-event-num-for-player
+                              get-last-melody-note get-melody
+                              get-melody-char get-mm
+                              get-next-change-follow-info-note
+                              get-player-id get-player-map
+                              get-seg-num print-player print-player-num]]
    [transport.random :refer [random-int weighted-choice]]
    [transport.rhythm :refer [get-dur-info-for-beats
                              get-dur-info-for-mm-and-millis next-note-dur
@@ -52,7 +61,7 @@
    [transport.volume :refer [select-volume select-volume-for-next-note]]
    [transport.util.util-constants :refer [DECREASING INCREASING]]
    [transport.util.log :as log]
-   [transport.util.utils :refer :all]
+   [transport.util.utils :refer [nil-to-num round-number]]
    )
   (:import
    transport.melodychar.MelodyChar
@@ -458,56 +467,72 @@
    player - player checking if it should rest
    note-time - the time (in millis) that the player is supposed to play"
   [player note-time]
-  (let [loud-event-prob (if (or (nil? @loud-player) (= @loud-player (get-player-id player)))
+  (let [loud-event-prob (if (or (nil? @loud-player)
+                                (= @loud-player (get-player-id player)))
                           0
                           (get-loud-event-prob note-time))]
     (if (> loud-event-prob (rand)) true false)
    )
   )
 
-(defn note-or-rest?
+(defn- get-adjusted-density-char
+  "Adjust the player's pensity up or down depending on the player's
+   behavior and the current density-trend
+
+   player - player map to ajust density for
+
+   Returns - players density adjusted
+  "
+
+  [player]
+  (let [player-density (get-melody-char-density (get-melody-char player))
+        density-trend (get-density-trend)
+        ]
+    (cond
+      (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
+      (cond (= density-trend INCREASING) (min (inc player-density) 9)
+            (= density-trend DECREASING) (max (dec player-density) 0)
+            :else player-density
+            )
+      (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
+      (cond (= density-trend INCREASING) (max (dec player-density) 0)
+            (= density-trend DECREASING) (min (inc player-density) 9)
+            :else player-density
+            )
+      :else player-density))
+  )
+
+(defn- note-or-rest?
   "Determines whether to play a note or rest.
    Returne true for note, false for rest
 
    player - the player to determine note or rest for"
   [player note-time]
-  (if (loud-rest? player note-time) false     ;; rest because of loud interruption
-      (let [play-note-prob (rand-int 10)
-            density-trend (get-density-trend)
-            player-density (get-melody-char-density (get-melody-char player))
-            adjusted-density-char (cond
-                                   (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-                                   (cond (= density-trend INCREASING) (min (inc player-density) 9)
-                                         (= density-trend DECREASING) (max (dec player-density) 0)
-                                         :else player-density
-                                         )
-                                   (= (get-behavior-action (get-behavior player)) CONTRAST-ENSEMBLE)
-                                   (cond (= density-trend INCREASING) (max (dec player-density) 0)
-                                         (= density-trend DECREASING) (min (inc player-density) 9)
-                                         :else player-density
-                                         )
-                            :else player-density)
-            ]
-        (if (> player-density play-note-prob)
-          true
-          (if (not= 9 play-note-prob)                      ;; if play-note-prob not 9
+  (if (loud-rest? player note-time)
+    false     ;; rest because of loud interruption
+    (let [play-note-prob (rand-int 10)
+          adjusted-density-char (get-adjusted-density-char player)
+          ]
+      (cond (> adjusted-density-char play-note-prob)
+            true
+            (not= 9 play-note-prob)                      ;; if play-note-prob not 9
             false                                            ;; rest
-            (if (and                                       ;; else
-                 (not= {} (get-melody player))               ;; if melody not empty
-                 (= 0                                        ;; and last pitch is root
-                    (get-scale-degree
-                     player
-                     (or (get-last-melody-note player) 0)))  ;; or rest
-                 (< (rand) 0.8))                             ;; possibly rest
-              false
-              true)))
-        )
+            (and (not= {} (get-melody player))           ;; if melody not empty
+               (= 0                                        ;; and last pitch is root
+                  (get-scale-degree
+                   player
+                   (or (get-last-melody-note player) 0)))  ;; or rest
+               (< (rand) 0.8))                             ;; possibly rest
+            false
+            :else
+            true)
       )
+    )
   )
 
 (defn get-melody-event
-  [player-id melody-event-no]
-  (get (get-melody (get-player-map player-id)) melody-event-no))
+  [player melody-event-no]
+  (get (get-melody player) melody-event-no))
 
 (defn- compute-sync-time
   "Returns the time of a downbeat. The time returned completes any fractional
@@ -525,20 +550,20 @@
     )
   )
 
-(defn- sync-beat-follow
-  [player follow-player event-time]
-  (let [follow-player-mm (get-mm follow-player)
+(defn next-melody-sync-beat
+  [player event-time sync-beat-player-id]
+  (let [follow-player (get-player-map sync-beat-player-id)
+        follow-player-mm (get-mm follow-player)
         follow-player-beat (get-cur-note-beat follow-player)
         follow-player-time (get-cur-note-time follow-player)
         follow-player-last-melody-event (get-last-melody-event follow-player)
-        last-seg-num (get-seg-num-for-event follow-player-last-melody-event)
         new-dur-info (if (or (= follow-player-beat nil) (= follow-player-beat 0))
                        ;; current info for FOLLOW player is for next segment
                        ;;  which means FOLLOW player is either syncing (nil) or
                        ;;    resting before starting segment
                        ;;  so, sync time = cur-note-beat time + 1 beat
                        (do
-                         ;; use if below in case this is the first note and
+                         ;; use below if this is the first note and
                          ;;   follow-player has not played a note yet
                          (get-dur-info-for-mm-and-millis follow-player-mm
                                                          (+ (if (> follow-player-time 0)
@@ -555,7 +580,6 @@
         ]
     (create-melody-event
      :note nil
-     :change-follow-info-note nil
      :dur-info new-dur-info
      :follow-note 0
      :follow-player-id (get-player-id follow-player)
@@ -566,11 +590,6 @@
      :volume 0
      )
     )
-  )
-
-(defn next-melody-sync-beat
-  [player event-time sync-beat-player-id]
-    (sync-beat-follow player (get-player-map sync-beat-player-id) event-time)
   )
 
 (defn next-melody-follow
@@ -600,7 +619,7 @@
          :instrument-info (if (nil? follow-player-last-event-num)
                             (get-instrument-info (get-player-map follow-player-id))
                             (get-instrument-info-for-event
-                             (get-melody-event follow-player-id follow-player-last-event-num)))
+                             (get-melody-event follow-player follow-player-last-event-num)))
          :note-event-time event-time
          :player-id (get-player-id player)
          :seg-num player-seg-num
@@ -613,7 +632,7 @@
       (let [
             ;; event-num-to-play (max (inc last-follow-event-num) (inc (- follow-player-last-event-num SAVED-MELODY-LEN)))
             event-num-to-play (inc last-follow-event-num)
-            next-melody-event (get-melody-event follow-player-id event-num-to-play)
+            next-melody-event (get-melody-event follow-player event-num-to-play)
             ]
         (if (nil? next-melody-event)
           ;; unless
@@ -641,17 +660,14 @@
 
 (defn next-melody-for-player
   [player event-time new-seg?]
-  (let [next-note-or-rest (if (note-or-rest? player event-time) (next-pitch player) nil)]
+  (let [next-note (if (note-or-rest? player event-time) (next-pitch player) nil)]
     (create-melody-event
-     :note next-note-or-rest
-     :change-follow-info-note nil
-     :dur-info (next-note-dur player next-note-or-rest)
-     :follow-note nil
-     :follow-player-id nil
+     :note next-note
+     :dur-info (next-note-dur player next-note)
      :instrument-info (get-instrument-info player)
      :note-event-time event-time
      :player-id (get-player-id player)
      :seg-num (get-seg-num player)
-     :volume (select-volume-for-next-note player new-seg? event-time next-note-or-rest)
+     :volume (select-volume-for-next-note player new-seg? event-time next-note)
      ))
   )

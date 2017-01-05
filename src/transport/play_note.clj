@@ -314,26 +314,6 @@
     )
   )
 
-(defn- get-sync-beat-player-id
-  [player-id player new-seg?]
-  (cond (and new-seg?
-             (= (get-behavior-action (get-behavior player)) FOLLOW-PLAYER)
-             )
-        (get-behavior-player-id (get-behavior player))
-        (and new-seg?
-             (= (get-behavior-action (get-behavior player)) SIMILAR-ENSEMBLE)
-             )
-        (if-let [mm-player (get-player-with-mm player (get-mm player))]
-          ;; if there are no players with this player's mm
-          ;; just return the player-id 1 higher than this id
-          ;; (this is very very rare)
-          mm-player
-          (mod (inc player-id) @setting/number-of-players))
-        :else
-        nil
-        )
-  )
-
 (defn- play-note-with-instrument
   [melody-event note-to-play last-melody-event articulate? new-seg? new-follow-info?]
   (cond (nil? note-to-play) nil
@@ -487,8 +467,7 @@
   (let [player-info @cur-player-info
         player (get-current-player player-info)
         sync-beat-player-id
-        (if-let [mm-player
-                 (get-player-with-mm player (get-mm player))]
+        (if-let [mm-player (get-player-with-mm player (get-mm player))]
             ;; if there are no players with this player's mm
             ;; just return the player-id 1 higher than this id
             ;; (this is very very rare)
